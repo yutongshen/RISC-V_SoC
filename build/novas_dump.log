@@ -1,0 +1,177 @@
+ncsim(64) 15.20-s084
+Linux 2.6.32-431.el6.x86_64 #1 SMP Fri Nov 22 03:15:09 UTC 2013 x86_64
+CPU cores: 24
+Limit information:
+======================================
+cputime			unlimited
+filesize		unlimited
+datasize		unlimited
+stacksize		10240 kbytes
+coredumpsize	0 kbytes
+memoryuse		unlimited
+vmemoryuse		unlimited
+descriptors		4096
+memorylocked	64 kbytes
+maxproc			1024
+======================================
+(Special)Runtime environment variables:
+
+Runtime environment variables:
+REMOTEHOST=180-177-2-91.dynamic.kbronet.com.tw
+MANPATH=/home/nfs_cad/synopsys/synthesis/cur/doc/syn/man
+HOSTNAME=ideal125
+SELINUX_ROLE_REQUESTED=
+HOST=ideal125
+TERM=xterm
+SHELL=/bin/sh
+HISTSIZE=1000
+MAKEFLAGS=prog=2
+SSH_CLIENT=180.177.2.91 23300 22
+SELINUX_USE_CURRENT_RANGE=
+OLDPWD=/home/fred2/RISCV
+MGC_LOCATION_MAP=NO_MAP
+QTDIR=/usr/lib64/qt-3.3
+QTINC=/usr/lib64/qt-3.3/include
+SSH_TTY=/dev/pts/2
+GROUP=users
+USER=fred2
+MAKEOVERRIDES=${-*-command-variables-*-}
+LD_LIBRARY_PATH=/home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64/:/usr/cad/cadence/INCISIV/cur/tools/lib/64bit:/usr/cad/cadence/INCISIV/cur/tools/lib:/usr/cad/cadence/INCISIV/cur/tools/vtools/vfault/lib::/usr/openwin/lib:/usr/dt/lib:/usr/lib:/usr/local/lib
+LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=01;05;37;41:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arj=01;31:*.taz=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lz=01;31:*.xz=01;31:*.bz2=01;31:*.tbz=01;31:*.tbz2=01;31:*.bz=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.rar=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.axv=01;35:*.anx=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=01;36:*.au=01;36:*.flac=01;36:*.mid=01;36:*.midi=01;36:*.mka=01;36:*.mp3=01;36:*.mpc=01;36:*.ogg=01;36:*.ra=01;36:*.wav=01;36:*.axa=01;36:*.oga=01;36:*.spx=01;36:*.xspf=01;36:
+MTI_VCO_MODE=64
+HOSTTYPE=x86_64-linux
+MAKELEVEL=1
+MFLAGS=
+MAIL=/var/spool/mail/fred2
+PATH=/usr/cad/cadence/INCISIV/cur/tools/bin/64bit:/usr/cad/cadence/INCISIV/cur/tools/bin/64bit:/usr/cad/cadence/INCISIV/cur/tools/bin/64bit:/usr/cad/CBDK/CBDK018_UMC_Faraday_v1.0/CIC/Memory/ftclib_200901.2.1/EXE:/opt/RISCV/bin:/usr/cad/cadence/JASPER/cur/bin:/home/nfs_cad/synopsys/icc/cur/amd64/syn/bin:/usr/bin/X11:/home/nfs_cad/synopsys/synthesis/cur/amd64/syn/bin:/home/nfs_cad/synopsys/cosmos_scope/cur/ai_bin:/home/nfs_cad/synopsys/verdi/cur/bin:/home/nfs_cad/synopsys/verdi/cur/nLint/bin:/usr/cad/cadence/INCISIV/cur/tools/bin:/usr/cad/cadence/INCISIV/cur/tools/vtools/vfault/bin:/usr/cad/cadence/INCISIV/cur/tools/dfII/bin:/home/nfs_cad/mentor/modelsim/10.2/modeltech/bin:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin
+PWD=/home/fred2/RISCV/build
+LANG=en_US.UTF-8
+SYNTHESIS=/home/nfs_cad/synopsys/synthesis/cur
+SELINUX_LEVEL_REQUESTED=
+SYNOPSYS=/home/nfs_cad/synopsys/icc/cur
+LM_LICENSE_FILE=26585@lsncku:5280@lstc:1717@lsncku:
+SSH_ASKPASS=/usr/libexec/openssh/gnome-ssh-askpass
+HISTCONTROL=ignoredups
+prog=2
+SHLVL=3
+HOME=/home/fred2
+LANGUAGE=en_US.UTF-8
+OSTYPE=linux
+MGC_HOME=/home/nfs_cad/mentor/modelsim/10.2
+MGC_TMPDIR=/tmp
+VENDOR=unknown
+LOGNAME=fred2
+MACHTYPE=x86_64
+CVS_RSH=ssh
+QTLIB=/usr/lib64/qt-3.3/lib
+SSH_CONNECTION=180.177.2.91 23300 140.116.245.125 22
+LESSOPEN=|/usr/bin/lesspipe.sh %s
+SHLIB_PATH=/home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64
+DISPLAY=localhost:12.0
+SYN_MAN_DIR=/home/nfs_cad/synopsys/synthesis/cur/doc/syn/man
+G_BROKEN_FILENAMES=1
+_=/usr/cad/cadence/INCISIV/cur/tools/bin/ncverilog
+_IRUNROOT_=/usr/cad/cadence/INCISIV/cur/tools
+CDS_ARCH=lnx86
+NCRUNMODE=ncverilog:./INCA_libs/irun.lnx8664.15.20.nc
+IRUNBATCH=FALSE
+IMPERAS_PORT_FILE=.vsp_ovp_gdb_port
+TCL_LIBRARY=/usr/cad/cadence/INCISIV/cur/tools/inca/files/tcl/library
+Runtime command line arguments:
+argv[0]=ncverilog
+argv[1]=-sv
+argv[2]=-f
+argv[3]=/home/fred2/RISCV/./sim/designlist.f
+argv[4]=../sim/test.sv
+argv[5]=../src/cpu/cpu_wrap.sv
+argv[6]=../src/cpu/marb.sv
+argv[7]=../src/cpu/cpu_top.sv
+argv[8]=../src/cpu/clkmnt.sv
+argv[9]=../src/cpu/hzu.sv
+argv[10]=../src/cpu/ifu.sv
+argv[11]=../src/cpu/idu.sv
+argv[12]=../src/cpu/dec.sv
+argv[13]=../src/cpu/rfu.sv
+argv[14]=../src/cpu/csr.sv
+argv[15]=../src/cpu/sru.sv
+argv[16]=../src/cpu/alu.sv
+argv[17]=../src/cpu/dpu.sv
+argv[18]=../src/cpu/pmu.sv
+argv[19]=../src/cpu/util.sv
+argv[20]=../src/bus/axi2mem_bridge.sv
+argv[21]=../src/bus/mem2axi_bridge.sv
+argv[22]=../src/bus/axi_2to2_biu.sv
+argv[23]=../src/bus/axi_2to1_mux.sv
+argv[24]=../src/bus/axi_1to2_dec.sv
+argv[25]=../mdl/sram.sv
+argv[26]=../mdl/cpu_tracer.sv
+argv[27]=+incdir+../include
+argv[28]=+nc64bit
+argv[29]=+access+r
+argv[30]=+define+FSDB
+argv[31]=+prog=/home/fred2/RISCV/./sim/prog2
+112 profile - 100
+          CPU/Mem usage: 0.070 sys,  0.060 user,  200.60M sys,  0.00M vm
+113 VC callback profile - scalar:0 vector:0
+114 Mon Oct 25 00:29:20 2021
+115 pliAppInit
+116 FSDB_GATE is disabled.
+117 Enable Parallel Dumping.
+118 pliAppMiscSet: New Sim Round
+119 pliEntryInit
+120 LIBSSCORE=found /home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64/libsscore_ius152.so through $LD_LIBRARY_PATH setting.
+121 argv[0]: top.fsdb
+122 argv[0]: 0
+123 argv[1]: (handle)0x491fd98 test
+124 argv[2]: +struct
+125 argv[3]: +mda
+126 FSDB Dumper for IUS, Release Verdi_O-2018.09, Linux x86_64/64bit, 08/30/2018
+127 (C) 1996 - 2018 by Synopsys, Inc.
+128 sps_call_fsdbDumpfile at 0 : /home/fred2/RISCV/sim/test.sv(87)
+129 argv[0]: top.fsdb
+130 *Verdi* FSDB WARNING: The FSDB file already exists. Overwriting the FSDB file may crash the programs that are using this file.
+131 *Verdi* : Create FSDB file 'top.fsdb'
+132 sps_call_fsdbDumpvars at 0 : /home/fred2/RISCV/sim/test.sv(88)
+133 argv[0]: 0
+134 argv[1]: (handle)0x491fda8 test
+135 argv[2]: +struct
+136 argv[3]: +mda
+137 *Verdi* : Begin traversing the scope (test), layer (0).
+138 *Verdi* : Enable +struct and +mda dumping.
+139 *Verdi* : End of traversing.
+140 fsdbDumpvars traverse var: profile - 
+          CPU/Mem usage: 0.100 sys,  0.740 user,  325.94M sys,  0.00M vm
+                   incr: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
+                   accu: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
+              accu incr: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
+
+          Count usage: 164473 var,  164420 idcode,  164426 callback
+                 incr: 164473 var,  164420 idcode,  164426 callback
+                 accu: 164473 var,  164420 idcode,  164426 callback
+            accu incr: 164473 var,  164420 idcode,  164426 callback
+141 VC callback profile - scalar:0 vector:0
+142 Mon Oct 25 00:29:21 2021
+143 fsdbDumpvars: profile - 
+          CPU/Mem usage: 0.100 sys,  0.860 user,  336.72M sys,  0.00M vm
+                   incr: 0.000 sys,  0.120 user,  10.78M sys,  0.00M vm
+                   accu: 0.020 sys,  0.790 user,  44.50M sys,  0.00M vm
+              accu incr: 0.000 sys,  0.120 user,  10.78M sys,  0.00M vm
+
+          Count usage: 164473 var,  164420 idcode,  164426 callback
+                 incr: 0 var,  0 idcode,  0 callback
+                 accu: 164473 var,  164420 idcode,  164426 callback
+            accu incr: 0 var,  0 idcode,  0 callback
+144 VC callback profile - scalar:321 vector:164099
+145 Mon Oct 25 00:29:21 2021
+146 End of simulation at 145575000
+147 VC callback profile - scalar:647711 vector:1750201
+148 Mon Oct 25 00:29:22 2021
+149 Begin FSDB profile info:
+150 FSDB Writer : bc1(647711) bcn(1750201) mtf/stf(0/0)
+FSDB Writer elapsed time : flush(0.392808) io wait(0.000000) theadpool wait(0.000000) target functin(0.000000)
+FSDB Writer cpu time : MT Compression : 0
+151 End FSDB profile info
+152 Parallel profile    -  Flush:3 Expand:0 ProduceWait:0 ConsumerWait:15 BlockUsed:16
+153                        ProduceTime:2.102715596 ConsumerTime:0.336490139 Buffer:64MB
+154 SimExit
+155 Sim process exit

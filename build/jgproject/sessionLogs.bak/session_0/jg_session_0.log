@@ -1,0 +1,241 @@
+#----------------------------------------
+# JasperGold Version Info
+# tool      : JasperGold 2018.03
+# platform  : Linux 2.6.32-431.el6.x86_64
+# version   : 2018.03p001 64 bits
+# build date: 2018.04.24 18:13:05 PDT
+#----------------------------------------
+# started Sat Oct 09 18:02:56 CST 2021
+# hostname  : ideal125
+# pid       : 22559
+# arguments : '-label' 'session_0' '-console' 'ideal125:50330' '-style' 'windows' '-data' 'AQAAADx/////AAAAAAAAA3oBAAAAEABMAE0AUgBFAE0ATwBWAEU=' '-proj' '/home/fred2/RISCV/build/jgproject/sessionLogs/session_0' '-init' '-hidden' '/home/fred2/RISCV/build/jgproject/.tmp/.initCmds.tcl' '../script/superlint.tcl'
+
+Any disclosure about the Cadence Design Systems software or its use
+model to any third party violates the written Non-Disclosure Agreement
+between Cadence Design Systems, Inc. and the customer.
+
+THIS SOFTWARE CONTAINS CONFIDENTIAL INFORMATION AND TRADE SECRETS OF
+CADENCE DESIGN SYSTEMS, INC. USE, DISCLOSURE, OR REPRODUCTION IS
+PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF CADENCE
+DESIGN SYSTEMS, INC.
+
+Copyright (C) 2000-2018 Cadence Design Systems, Inc. All Rights
+Reserved.  Unpublished -- rights reserved under the copyright laws of
+the United States.
+
+This product includes software developed by others and redistributed
+according to license agreement. See doc/third_party_readme.txt for
+further details.
+
+RESTRICTED RIGHTS LEGEND
+
+Use, duplication, or disclosure by the Government is subject to
+restrictions as set forth in subparagraph (c) (1) (ii) of the Rights in
+Technical Data and Computer Software clause at DFARS 252.227-7013 or
+subparagraphs (c) (1) and (2) of Commercial Computer Software -- Restricted
+Rights at 48 CFR 52.227-19, as applicable.
+
+
+                          Cadence Design Systems, Inc. 
+                          2655 Seely Avenue
+                          San Jose, CA 95134
+                          Phone: 408.943.1234
+
+For technical assistance visit http://support.cadence.com.
+
+JasperGold Apps Analysis Session - /home/fred2/RISCV/build/jgproject/sessionLogs/session_0
+
+INFO: successfully checked out licenses "jasper_pint" and "jasper_dao".
+INFO: reading configuration file "/home/fred2/.config/jasper/jaspergold.conf".
+% check_superlint -init
+% clear -all
+INFO (IPF121): Cleared environment completely for new design analysis.
+% 
+% # Config rules
+% config_rtlds -rule -enable -domain { LINT AUTO_FORMAL }
+% config_rtlds -rule -disable -tag { CAS_IS_DFRC SIG_IS_DLCK SIG_NO_TGFL SIG_NO_TGRS SIG_NO_TGST FSM_NO_MTRN FSM_NO_TRRN }
+% # vsd2018_constrain //
+% config_rtlds -rule  -disable -category { NAMING AUTO_FORMAL_DEAD_CODE AUTO_FORMAL_SIGNALS AUTO_FORMAL_ARITHMETIC_OVERFLOW }
+% config_rtlds -rule  -disable -tag { IDN_NR_SVKY ARY_MS_DRNG IDN_NR_AMKY IDN_NR_CKYW IDN_NR_SVKW ARY_NR_LBND VAR_NR_INDL INS_NR_PTEX INP_NO_USED OTP_NR_ASYA FLP_NR_MXCS OTP_UC_INST OTP_NR_UDRV REG_NR_TRRC INS_NR_INPR MOD_NS_GLGC } 
+% config_rtlds -rule  -disable -tag { REG_NR_RWRC }
+% # vsd2018_constrain //
+% 
+% # analyze -sv +incdir+../include+../mdl -f ../sim/designlist.f
+% # elaborate -bbox true -top cpu_wrap
+% analyze -sv +incdir+../include+../mdl ../script/axi_1to2_dec.sv
+[-- (VERI-1482)] Analyzing Verilog file '/home/nfs_cad/cadence/JASPER/jasper_2018.03p001/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file '../script/axi_1to2_dec.sv'
+% elaborate -bbox true -top axi_2to1_dec
+INFO (ISW003): Top module name is "axi_2to1_dec".
+[ERROR (VERI-9029)] Module axi_2to1_dec has not been analyzed yet
+[ERROR] Module axi_2to1_dec could not be elaborated
+Summary of errors detected:
+	[ERROR (VERI-9029)] Module axi_2to1_dec has not been analyzed yet
+	[ERROR] Module axi_2to1_dec could not be elaborated
+ERROR (ENL034): 2 errors detected in the design file(s).
+
+ERROR: problem encountered at line 15 in file ../script/superlint.tcl
+
+% include {../script/superlint.tcl}
+%% clear -all
+INFO (IPF121): Cleared environment completely for new design analysis.
+%% 
+%% # Config rules
+%% config_rtlds -rule -enable -domain { LINT AUTO_FORMAL }
+%% config_rtlds -rule -disable -tag { CAS_IS_DFRC SIG_IS_DLCK SIG_NO_TGFL SIG_NO_TGRS SIG_NO_TGST FSM_NO_MTRN FSM_NO_TRRN }
+%% # vsd2018_constrain //
+%% config_rtlds -rule  -disable -category { NAMING AUTO_FORMAL_DEAD_CODE AUTO_FORMAL_SIGNALS AUTO_FORMAL_ARITHMETIC_OVERFLOW }
+%% config_rtlds -rule  -disable -tag { IDN_NR_SVKY ARY_MS_DRNG IDN_NR_AMKY IDN_NR_CKYW IDN_NR_SVKW ARY_NR_LBND VAR_NR_INDL INS_NR_PTEX INP_NO_USED OTP_NR_ASYA FLP_NR_MXCS OTP_UC_INST OTP_NR_UDRV REG_NR_TRRC INS_NR_INPR MOD_NS_GLGC } 
+%% config_rtlds -rule  -disable -tag { REG_NR_RWRC }
+%% # vsd2018_constrain //
+%% 
+%% # analyze -sv +incdir+../include+../mdl -f ../sim/designlist.f
+%% # elaborate -bbox true -top cpu_wrap
+%% analyze -sv +incdir+../include+../mdl ../script/axi_1to2_dec.sv
+[-- (VERI-1482)] Analyzing Verilog file '/home/nfs_cad/cadence/JASPER/jasper_2018.03p001/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file '../script/axi_1to2_dec.sv'
+%% elaborate -bbox true -top axi_1to2_dec
+INFO (ISW003): Top module name is "axi_1to2_dec".
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(8): compiling module 'axi_1to2_dec'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(359): compiling module 'axi_dec_fifo'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(404): compiling module 'axi_dfslv'
+[ERROR (VERI-1070)] ../script/axi_1to2_dec.sv(517): mixed blocking and non-blocking assignments on 's_wready' is not supported
+[INFO (VERI-1073)] ../script/axi_1to2_dec.sv(404): module 'axi_dfslv' remains a blackbox, due to errors in its contents
+Summary of errors detected:
+	[ERROR (VERI-1070)] ../script/axi_1to2_dec.sv(517): mixed blocking and non-blocking assignments on 's_wready' is not supported
+ERROR at line 15 in file ../script/superlint.tcl, more info in Tcl-variable errorInfo
+ERROR (ENL034): 1 errors detected in the design file(s).
+
+% include {../script/superlint.tcl}
+%% clear -all
+INFO (IPF121): Cleared environment completely for new design analysis.
+%% 
+%% # Config rules
+%% config_rtlds -rule -enable -domain { LINT AUTO_FORMAL }
+%% config_rtlds -rule -disable -tag { CAS_IS_DFRC SIG_IS_DLCK SIG_NO_TGFL SIG_NO_TGRS SIG_NO_TGST FSM_NO_MTRN FSM_NO_TRRN }
+%% # vsd2018_constrain //
+%% config_rtlds -rule  -disable -category { NAMING AUTO_FORMAL_DEAD_CODE AUTO_FORMAL_SIGNALS AUTO_FORMAL_ARITHMETIC_OVERFLOW }
+%% config_rtlds -rule  -disable -tag { IDN_NR_SVKY ARY_MS_DRNG IDN_NR_AMKY IDN_NR_CKYW IDN_NR_SVKW ARY_NR_LBND VAR_NR_INDL INS_NR_PTEX INP_NO_USED OTP_NR_ASYA FLP_NR_MXCS OTP_UC_INST OTP_NR_UDRV REG_NR_TRRC INS_NR_INPR MOD_NS_GLGC } 
+%% config_rtlds -rule  -disable -tag { REG_NR_RWRC }
+%% # vsd2018_constrain //
+%% 
+%% # analyze -sv +incdir+../include+../mdl -f ../sim/designlist.f
+%% # elaborate -bbox true -top cpu_wrap
+%% analyze -sv +incdir+../include+../mdl ../script/axi_1to2_dec.sv
+[-- (VERI-1482)] Analyzing Verilog file '/home/nfs_cad/cadence/JASPER/jasper_2018.03p001/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file '../script/axi_1to2_dec.sv'
+%% elaborate -bbox true -top axi_1to2_dec
+INFO (ISW003): Top module name is "axi_1to2_dec".
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(8): compiling module 'axi_1to2_dec'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(359): compiling module 'axi_dec_fifo'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(404): compiling module 'axi_dfslv'
+axi_1to2_dec
+%% 
+%% # Setup clock and reset
+%% clock aclk -both_edges -factor 1 -phase 1
+%% # clock clk
+%% reset aresetn
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "aresetn".
+%% 
+%% # Setup for CTL check
+%% set_superlint_fsm_ctl_livelock true
+WARNING (WG002): "superlint_fsm_ctl_livelock" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+%% set_superlint_fsm_ctl_deadlock true
+WARNING (WG002): "superlint_fsm_ctl_deadlock" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+%% 
+%% # Setup for LTL check
+%% #set_superlint_fsm_ctl_livelock false
+%% #set_superlint_fsm_ctl_deadlock false
+%% #set_superlint_add_automatic_task_assumption true
+%% 
+%% # Extract checks
+%% check_superlint -extract
+INFO (ISL009): Started detection of ASG_IS_XRCH, ARY_IS_OOBI, CAS_NO_PRIO checks
+INFO (ISL009): Started detection of FSM_IS_DLCK,FSM_IS_LLCK,FSM_NO_RCHB checks
+INFO (ISL009): Started detection of BUS_IS_CONT,BUS_IS_FLOT checks
+INFO (ISL014): Started extracting properties for ASG_IS_XRCH,ARY_IS_OOBI,CAS_NO_PRIO checks
+INFO (ISL015): Extracted 0 properties of ASG_IS_XRCH,ARY_IS_OOBI,CAS_NO_PRIO
+INFO (ISL014): Started extracting properties for BUS_IS_CONT,BUS_IS_FLOT checks
+INFO (ISL015): Extracted 0 properties of BUS_IS_CONT,BUS_IS_FLOT
+INFO (ISL018): Started extraction of structural checks
+INFO (ISL016): Extracted 41 STRUCTURAL checks.
+INFO (ISL016): Extracted 5 BASIC LINT checks.
+46
+%% 
+%% # Prove
+%% set_superlint_prove_parallel_tasks on
+%% set_prove_no_traces true
+%% check_superlint -prove -time_limit 10m -bg
+INFO (ISL008): Running multiple proof threads in parallel, one per task.
+    Expect high resource allocation.
+WARNING (WG002): "superlint_prove_parallel_tasks" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+WARNING (WSL054): "superlint_prove_parallel_tasks" is enabled, overriding the following settings: proofgrid_per_engine_max_jobs, proofgrid_max_jobs.
+    For message help, type "help -message WSL054"
+[<embedded>] % include {../script/superlint.tcl}
+%% clear -all
+INFO (IPF121): Cleared environment completely for new design analysis.
+%% 
+%% # Config rules
+%% config_rtlds -rule -enable -domain { LINT AUTO_FORMAL }
+%% config_rtlds -rule -disable -tag { CAS_IS_DFRC SIG_IS_DLCK SIG_NO_TGFL SIG_NO_TGRS SIG_NO_TGST FSM_NO_MTRN FSM_NO_TRRN }
+%% # vsd2018_constrain //
+%% config_rtlds -rule  -disable -category { NAMING AUTO_FORMAL_DEAD_CODE AUTO_FORMAL_SIGNALS AUTO_FORMAL_ARITHMETIC_OVERFLOW }
+%% config_rtlds -rule  -disable -tag { IDN_NR_SVKY ARY_MS_DRNG IDN_NR_AMKY IDN_NR_CKYW IDN_NR_SVKW ARY_NR_LBND VAR_NR_INDL INS_NR_PTEX INP_NO_USED OTP_NR_ASYA FLP_NR_MXCS OTP_UC_INST OTP_NR_UDRV REG_NR_TRRC INS_NR_INPR MOD_NS_GLGC } 
+%% config_rtlds -rule  -disable -tag { REG_NR_RWRC }
+%% # vsd2018_constrain //
+%% 
+%% # analyze -sv +incdir+../include+../mdl -f ../sim/designlist.f
+%% # elaborate -bbox true -top cpu_wrap
+%% analyze -sv +incdir+../include+../mdl ../script/axi_1to2_dec.sv
+[-- (VERI-1482)] Analyzing Verilog file '/home/nfs_cad/cadence/JASPER/jasper_2018.03p001/lib/verilog/packages/std/std.sv' into library 'std'
+[-- (VERI-1482)] Analyzing Verilog file '../script/axi_1to2_dec.sv'
+%% elaborate -bbox true -top axi_1to2_dec
+INFO (ISW003): Top module name is "axi_1to2_dec".
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(8): compiling module 'axi_1to2_dec'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(359): compiling module 'axi_dec_fifo'
+[INFO (VERI-1018)] ../script/axi_1to2_dec.sv(404): compiling module 'axi_dfslv'
+INFO (INL003): Clearing all state information (assumes, stopats, etc.).
+axi_1to2_dec
+%% 
+%% # Setup clock and reset
+%% clock aclk -both_edges -factor 1 -phase 1
+%% # clock clk
+%% reset aresetn
+INFO (IPM031): Clearing proof results of all properties.
+INFO (IRS006): Current reset condition is "aresetn".
+%% 
+%% # Setup for CTL check
+%% set_superlint_fsm_ctl_livelock true
+WARNING (WG002): "superlint_fsm_ctl_livelock" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+%% set_superlint_fsm_ctl_deadlock true
+WARNING (WG002): "superlint_fsm_ctl_deadlock" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+%% 
+%% # Setup for LTL check
+%% #set_superlint_fsm_ctl_livelock false
+%% #set_superlint_fsm_ctl_deadlock false
+%% #set_superlint_add_automatic_task_assumption true
+%% 
+%% # Extract checks
+%% check_superlint -extract
+INFO (ISL009): Started detection of ASG_IS_XRCH, ARY_IS_OOBI, CAS_NO_PRIO checks
+INFO (ISL009): Started detection of FSM_IS_DLCK,FSM_IS_LLCK,FSM_NO_RCHB checks
+INFO (ISL009): Started detection of BUS_IS_CONT,BUS_IS_FLOT checks
+INFO (ISL014): Started extracting properties for ASG_IS_XRCH,ARY_IS_OOBI,CAS_NO_PRIO checks
+INFO (ISL015): Extracted 0 properties of ASG_IS_XRCH,ARY_IS_OOBI,CAS_NO_PRIO
+INFO (ISL014): Started extracting properties for BUS_IS_CONT,BUS_IS_FLOT checks
+INFO (ISL015): Extracted 0 properties of BUS_IS_CONT,BUS_IS_FLOT
+INFO (ISL018): Started extraction of structural checks
+INFO (ISL016): Extracted 41 STRUCTURAL checks.
+INFO (ISL016): Extracted 4 BASIC LINT checks.
+45
+%% 
+%% # Prove
+%% set_superlint_prove_parallel_tasks on
+%% set_prove_no_traces true
+%% check_superlint -prove -time_limit 10m -bg
+INFO (ISL008): Running multiple proof threads in parallel, one per task.
+    Expect high resource allocation.
+WARNING (WG002): "superlint_prove_parallel_tasks" is included as an initial release to gather feedback from early adopters and finalize implementation for an upcoming release.
+WARNING (WSL054): "superlint_prove_parallel_tasks" is enabled, overriding the following settings: proofgrid_per_engine_max_jobs, proofgrid_max_jobs.
+    For message help, type "help -message WSL054"

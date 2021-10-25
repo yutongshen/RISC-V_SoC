@@ -1,0 +1,9 @@
+//
+// File created by:  ncverilog
+// Do not modify this file
+//
+-sv
+-INCDIR
+../include
+-DEFINE
+FSDB

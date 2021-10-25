@@ -1,0 +1,23 @@
+//
+// File created by:  ncverilog
+// Do not modify this file
+//
++prog=/home/fred2/RISCV/./sim/prog2
++incdir+../include
++nc64bit
++access+r
++define+FSDB
+-noshowtop
+-ACCESS
++r
+-MESSAGES
+-XLMODE
+./INCA_libs/irun.lnx8664.15.20.nc
+-RUNMODE
+-CDSLIB
+./INCA_libs/irun.lnx8664.15.20.nc/cds.lib
+-HDLVAR
+./INCA_libs/irun.lnx8664.15.20.nc/hdl.var
+-WORK
+worklib
+-HASXLMODE

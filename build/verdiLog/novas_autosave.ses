@@ -1,0 +1,54 @@
+@verdi rc file Version 1.0
+[General]
+saveDB = TRUE
+relativePath = FALSE
+saveSingleView = FALSE
+saveNWaveWinId = 
+VerdiVersion = Verdi_O-2018.09
+[KeyNote]
+Line1 = Automatic Backup 0
+Line2 = Save Open Database Information: Yes
+Line3 = Path Option: Absolute Paths
+Line4 = Windows Option: All Windows
+[TestBench]
+ConstrViewShow = 0
+InherViewShow = 0
+FSDBMsgShow = 0
+AnnotationShow = 0
+powerDumped = 0
+[hb]
+viewport = 263 33 900 700 0 0 188 898
+activeNode = "test"
+activeScope = "test"
+activeFile = "../sim/test.sv"
+interactiveMode = False
+viewType = Source
+simulatorMode = False
+sourceBeginLine = 5
+baMode = False
+srcLineNum = True
+AutoWrap = True
+IdentifyFalseLogic = False
+syncSignal = False
+traceMode = Hierarchical
+showTraceInSchema = True
+paMode = False
+funcMode = False
+powerAwareAnnot = True
+amsAnnot = True
+traceCrossHier = True
+DnDtraceCrossHierOnly = True
+traceIncTopPort = False
+leadingZero = False
+signalPane = False
+Scope1 = "test"
+multipleSelection = 1 5 2 0 0
+sdfCheckUndef = FALSE
+simFlow = FALSE
+[hb.design]
+importCmd = "-sverilog" "-f" "/home/fred2/RISCV/./sim/designlist.f" 
+invokeDir = /home/fred2/RISCV/build
+[hb.sourceTab.1]
+scope = test
+File = /home/fred2/RISCV/sim/test.sv
+Line = 6

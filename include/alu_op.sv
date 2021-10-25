@@ -1,0 +1,10 @@
+parameter [`ALU_OP_LEN - 1:0] ALU_AND  = `ALU_OP_LEN'b0000,
+                              ALU_OR   = `ALU_OP_LEN'b0001,
+                              ALU_XOR  = `ALU_OP_LEN'b0010,
+                              ALU_ADD  = `ALU_OP_LEN'b0011,
+                              ALU_SUB  = `ALU_OP_LEN'b0100,
+                              ALU_SLT  = `ALU_OP_LEN'b0101,
+                              ALU_SLL  = `ALU_OP_LEN'b0110,
+                              ALU_SRL  = `ALU_OP_LEN'b0111,
+                              ALU_SLTU = `ALU_OP_LEN'b1000,
+                              ALU_SRA  = `ALU_OP_LEN'b1001;

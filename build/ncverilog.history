@@ -1,0 +1,304 @@
+s1(06Oct2021:00:01:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s2(06Oct2021:22:49:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s3(07Oct2021:00:16:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s4(07Oct2021:00:17:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s5(07Oct2021:00:18:00):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s6(07Oct2021:00:22:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s7(07Oct2021:00:24:24):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s8(07Oct2021:21:13:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s9(07Oct2021:21:14:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s10(07Oct2021:21:15:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s11(07Oct2021:21:16:06):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s12(07Oct2021:21:17:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s13(07Oct2021:21:23:30):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s14(07Oct2021:21:24:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s15(07Oct2021:21:26:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s16(07Oct2021:21:28:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s17(07Oct2021:21:28:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s18(07Oct2021:21:30:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s19(07Oct2021:21:31:00):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s20(07Oct2021:21:31:02):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s21(07Oct2021:21:44:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s22(07Oct2021:21:45:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s23(07Oct2021:22:15:52):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s24(07Oct2021:22:16:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s25(07Oct2021:22:25:12):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s26(07Oct2021:22:29:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s27(07Oct2021:22:34:52):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s28(07Oct2021:22:41:46):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s29(07Oct2021:22:42:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s30(07Oct2021:22:42:46):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s31(07Oct2021:22:43:02):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s32(07Oct2021:22:44:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s33(07Oct2021:22:49:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s34(07Oct2021:22:49:21):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s35(07Oct2021:22:49:50):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s36(07Oct2021:22:50:07):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s37(09Oct2021:17:37:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s38(09Oct2021:17:38:36):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s39(09Oct2021:17:40:12):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s40(09Oct2021:17:41:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s41(09Oct2021:17:42:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s42(09Oct2021:17:46:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s43(09Oct2021:17:48:21):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s44(09Oct2021:17:50:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s45(09Oct2021:18:12:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s46(09Oct2021:18:19:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s47(09Oct2021:18:20:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s48(09Oct2021:18:26:20):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s49(09Oct2021:20:26:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s50(09Oct2021:21:23:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s51(09Oct2021:21:27:55):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s52(09Oct2021:21:32:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s53(14Oct2021:21:19:25):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s54(14Oct2021:21:20:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s55(14Oct2021:21:22:50):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s56(14Oct2021:21:23:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s57(14Oct2021:21:26:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s58(14Oct2021:21:27:47):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s59(14Oct2021:21:32:11):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s60(14Oct2021:21:58:39):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s61(14Oct2021:21:59:20):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s62(14Oct2021:22:00:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s63(14Oct2021:22:01:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s64(14Oct2021:22:02:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s65(14Oct2021:22:02:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s66(14Oct2021:22:02:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s67(14Oct2021:22:03:26):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s68(14Oct2021:22:03:50):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s69(14Oct2021:22:04:19):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s70(14Oct2021:22:04:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s71(14Oct2021:22:05:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s72(14Oct2021:22:05:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s73(14Oct2021:22:06:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s74(14Oct2021:22:07:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s75(14Oct2021:22:09:05):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s76(14Oct2021:22:09:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s77(14Oct2021:22:10:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s78(14Oct2021:22:28:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s79(14Oct2021:22:29:12):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s80(14Oct2021:22:29:34):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s81(14Oct2021:22:31:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s82(14Oct2021:22:37:28):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s83(14Oct2021:22:38:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s84(14Oct2021:22:49:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s85(14Oct2021:22:50:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s86(14Oct2021:23:02:26):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s87(14Oct2021:23:03:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s88(14Oct2021:23:07:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s89(14Oct2021:23:13:15):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s90(14Oct2021:23:15:58):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s91(14Oct2021:23:18:55):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s92(14Oct2021:23:20:16):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s93(14Oct2021:23:21:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s94(14Oct2021:23:21:51):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s95(14Oct2021:23:22:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s96(14Oct2021:23:25:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s97(14Oct2021:23:26:39):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s98(16Oct2021:12:59:39):  ncverilog -sv -f /home/fred2/RISCV/./sim/axi_verify.f 
+s99(16Oct2021:13:00:25):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s100(16Oct2021:13:01:31):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s101(16Oct2021:13:01:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s102(16Oct2021:13:02:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s103(16Oct2021:13:02:43):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s104(16Oct2021:13:04:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s105(16Oct2021:13:04:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s106(16Oct2021:13:05:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s107(16Oct2021:13:07:28):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s108(16Oct2021:13:12:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s109(16Oct2021:13:13:34):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s110(16Oct2021:13:43:06):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s111(16Oct2021:14:06:00):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s112(16Oct2021:14:08:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s113(16Oct2021:14:08:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s114(16Oct2021:14:11:16):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s115(16Oct2021:14:11:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s116(16Oct2021:14:14:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s117(16Oct2021:14:16:24):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s118(16Oct2021:14:17:11):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s119(17Oct2021:12:01:45):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s120(17Oct2021:12:02:25):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s121(17Oct2021:12:03:13):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s122(17Oct2021:12:03:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s123(17Oct2021:12:04:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s124(17Oct2021:12:04:39):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s125(17Oct2021:12:34:02):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s126(17Oct2021:13:17:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s127(17Oct2021:18:05:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s128(18Oct2021:23:39:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s129(18Oct2021:23:39:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s130(18Oct2021:23:41:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s131(18Oct2021:23:45:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s132(19Oct2021:00:14:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s133(19Oct2021:20:35:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s134(19Oct2021:20:35:47):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s135(19Oct2021:20:37:50):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s136(19Oct2021:20:38:00):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s137(19Oct2021:20:42:49):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s138(19Oct2021:20:54:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s139(19Oct2021:20:56:51):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s140(19Oct2021:20:56:59):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s141(19Oct2021:21:00:43):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s142(19Oct2021:21:02:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s143(19Oct2021:21:02:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s144(19Oct2021:21:06:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s145(19Oct2021:21:06:49):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s146(19Oct2021:21:11:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s147(19Oct2021:21:11:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s148(19Oct2021:21:11:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s149(19Oct2021:21:12:13):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s150(19Oct2021:21:12:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s151(19Oct2021:21:12:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s152(19Oct2021:21:13:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s153(19Oct2021:21:14:14):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s154(19Oct2021:21:14:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s155(19Oct2021:21:14:43):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s156(19Oct2021:21:14:49):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s157(19Oct2021:21:15:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s158(19Oct2021:21:32:26):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s159(19Oct2021:21:32:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s160(19Oct2021:21:46:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s161(19Oct2021:21:46:25):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s162(19Oct2021:21:47:30):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s163(19Oct2021:21:51:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s164(19Oct2021:21:52:14):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s165(19Oct2021:22:24:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s166(19Oct2021:22:24:52):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s167(19Oct2021:22:29:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s168(19Oct2021:22:32:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s169(19Oct2021:22:33:19):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s170(19Oct2021:22:33:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s171(19Oct2021:22:34:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s172(19Oct2021:22:35:16):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s173(19Oct2021:22:39:13):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s174(19Oct2021:22:39:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s175(19Oct2021:22:40:08):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s176(19Oct2021:22:40:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s177(19Oct2021:22:45:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s178(19Oct2021:22:46:02):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s179(19Oct2021:22:46:43):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s180(19Oct2021:22:46:55):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s181(19Oct2021:22:57:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s182(19Oct2021:22:57:43):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s183(19Oct2021:23:17:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s184(19Oct2021:23:28:05):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s185(19Oct2021:23:35:05):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s186(19Oct2021:23:42:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s187(20Oct2021:00:05:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s188(20Oct2021:00:05:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s189(20Oct2021:00:06:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s190(20Oct2021:00:06:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s191(20Oct2021:00:07:13):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s192(20Oct2021:00:09:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s193(20Oct2021:00:09:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s194(20Oct2021:00:10:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s195(20Oct2021:00:11:02):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s196(20Oct2021:00:13:58):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s197(20Oct2021:00:27:19):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s198(20Oct2021:00:28:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s199(20Oct2021:00:29:30):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s200(20Oct2021:00:30:21):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s201(20Oct2021:20:02:21):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s202(20Oct2021:20:03:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s203(20Oct2021:20:04:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s204(20Oct2021:20:06:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s205(20Oct2021:20:06:51):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s206(20Oct2021:20:07:12):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s207(20Oct2021:20:07:24):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s208(20Oct2021:20:07:54):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s209(20Oct2021:21:04:37):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s210(20Oct2021:21:06:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s211(20Oct2021:21:06:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s212(20Oct2021:21:07:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s213(20Oct2021:21:21:01):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s214(20Oct2021:21:21:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s215(20Oct2021:21:50:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s216(20Oct2021:21:54:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s217(20Oct2021:21:54:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s218(20Oct2021:21:55:25):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s219(20Oct2021:21:55:46):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s220(20Oct2021:22:43:30):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s221(20Oct2021:22:47:28):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s222(20Oct2021:22:53:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s223(20Oct2021:22:54:05):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s224(21Oct2021:00:05:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s225(21Oct2021:00:05:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s226(21Oct2021:00:06:11):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s227(21Oct2021:00:06:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s228(21Oct2021:00:06:52):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s229(21Oct2021:20:18:26):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s230(21Oct2021:20:26:55):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s231(21Oct2021:20:35:16):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s232(21Oct2021:20:38:29):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s233(21Oct2021:20:39:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s234(21Oct2021:20:45:36):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s235(21Oct2021:20:47:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s236(21Oct2021:20:51:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s237(21Oct2021:20:54:27):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s238(21Oct2021:20:58:05):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s239(21Oct2021:21:08:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s240(21Oct2021:21:08:26):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s241(21Oct2021:21:09:16):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s242(21Oct2021:21:10:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s243(21Oct2021:21:12:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s244(21Oct2021:21:13:04):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s245(21Oct2021:21:13:49):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s246(21Oct2021:21:19:47):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s247(21Oct2021:21:20:15):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s248(21Oct2021:21:22:36):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s249(21Oct2021:21:23:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s250(21Oct2021:21:27:31):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s251(21Oct2021:21:29:23):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s252(21Oct2021:23:04:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s253(21Oct2021:23:14:42):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s254(21Oct2021:23:14:59):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s255(22Oct2021:00:00:48):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s256(22Oct2021:00:03:01):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s257(22Oct2021:00:04:09):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s258(22Oct2021:00:06:03):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s259(22Oct2021:00:10:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s260(22Oct2021:00:12:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s261(22Oct2021:00:19:32):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s262(22Oct2021:00:22:58):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s263(22Oct2021:00:24:51):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s264(22Oct2021:00:26:59):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s265(22Oct2021:00:29:55):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s266(22Oct2021:00:31:45):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s267(22Oct2021:00:33:40):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s268(22Oct2021:00:41:33):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s269(22Oct2021:00:42:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s270(22Oct2021:00:46:36):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s271(22Oct2021:18:45:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s272(22Oct2021:18:45:24):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog1 
+s273(22Oct2021:18:52:00):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s274(22Oct2021:19:49:49):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s275(22Oct2021:19:55:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s276(22Oct2021:19:57:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s277(22Oct2021:19:58:54):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s278(22Oct2021:20:27:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s279(22Oct2021:20:33:56):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s280(22Oct2021:20:46:20):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s281(22Oct2021:20:46:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s282(22Oct2021:20:46:52):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s283(22Oct2021:20:46:58):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s284(22Oct2021:20:48:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s285(22Oct2021:20:48:59):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s286(22Oct2021:20:55:36):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s287(22Oct2021:21:00:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s288(22Oct2021:21:01:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s289(22Oct2021:21:04:41):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s290(24Oct2021:23:32:17):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s291(24Oct2021:23:34:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s292(24Oct2021:23:40:53):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s293(24Oct2021:23:43:44):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s294(24Oct2021:23:53:38):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s295(24Oct2021:23:53:57):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s296(24Oct2021:23:54:10):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s297(24Oct2021:23:54:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s298(24Oct2021:23:54:35):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s299(24Oct2021:23:56:22):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog0 
+s300(25Oct2021:00:10:31):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s301(25Oct2021:00:12:50):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s302(25Oct2021:00:18:46):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s303(25Oct2021:00:21:46):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 
+s304(25Oct2021:00:29:18):  ncverilog -sv -f /home/fred2/RISCV/./sim/designlist.f +prog=/home/fred2/RISCV/./sim/prog2 

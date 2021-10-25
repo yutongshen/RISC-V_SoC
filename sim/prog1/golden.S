@@ -1,0 +1,63 @@
+.globl _golden_start
+.section .rodata
+_golden_start:
+  .word 0xfffffff0
+  .word 0xfffffff8
+  .word 0x00000008
+  .word 0x00000001
+  .word 0x00000001
+  .word 0x78787878
+  .word 0x000091a2
+  .word 0x00000003
+  .word 0xfefcfefd
+  .word 0x10305070
+  .word 0xcccccccc
+  .word 0xffffffcc
+  .word 0xffffcccc
+  .word 0x000000cc
+  .word 0x0000cccc
+  .word 0x00000d9d
+  .word 0x00000004
+  .word 0x00000003
+  .word 0x000001a6
+  .word 0x00000ec6
+  .word 0x2468b7a8
+  .word 0x5dbf9f00
+  .word 0x00012b38
+  .word 0xfa2817b7
+  .word 0xff000000
+  .word 0x12345678
+  .word 0x0000f000
+  .word 0x00000f00
+  .word 0x000000f0
+  .word 0x0000000f
+  .word 0x56780000
+  .word 0x78000000
+  .word 0x00005678
+  .word 0x00000078
+  .word 0x12345678
+  .word 0xce780000
+  .word 0xfffff000
+  .word 0xfffff000
+  .word 0xfffff000
+  .word 0xfffff000
+  .word 0xfffff000
+  .word 0xfffff000
+  .word 0x1357a0dc
+  .word 0x13578000
+  .word 0xfffff004
+  .word 0x000e0008
+  .word 0x00000a22
+  .word 0x01234565
+  .word 0x01234564
+  .word 0x0000022a
+  .word 0x00000008
+  .word 0x0000000d
+  .word 0x0000000c
+  .word 0x0000000a
+  .word 0x000e0008
+  .word 0x000e0008
+  .word 0x00000008
+  .word 0x000e1880
+.globl _golden_end
+_golden_end:
