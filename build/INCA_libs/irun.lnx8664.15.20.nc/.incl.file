@@ -4,4 +4,5 @@
 ./opcode.sv
 ./funct.sv
 ./axi_define.h
+./cache_define.h
 ./cpu_tracer_task.sv

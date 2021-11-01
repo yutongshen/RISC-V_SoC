@@ -6,6 +6,7 @@ module dec (
     // Data
     output logic [              `XLEN - 1:0] imm,
     // Control
+    output logic [                      1:0] prv_req,
     output logic                             ill_inst,
     output logic                             fense,
     output logic                             fense_i,
@@ -95,6 +96,7 @@ always_comb begin
     csr_wr       = 1'b0;
     csr_alu_sel  = 1'b0;
     ill_inst     = inst_valid & (inst[1:0] != 2'b11);
+    prv_req      = 2'b0;
     if (inst_valid) begin
         case (opcode)
             OP_LOAD     : begin
@@ -460,9 +462,11 @@ always_comb begin
                                 end
                                 FUNCT12_SRET  : begin
                                     sret         = 1'b1;
+                                    prv_req      = inst[29:28];
                                 end
                                 FUNCT12_MRET  : begin
                                     mret         = 1'b1;
+                                    prv_req      = inst[29:28];
                                 end
                                 default       : begin
                                     ill_inst     = 1'b1;
@@ -484,6 +488,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     FUNCT3_CSRRS : begin
                         imm          = imm_i;
@@ -496,6 +501,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     FUNCT3_CSRRC : begin
                         imm          = imm_i;
@@ -508,6 +514,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     FUNCT3_CSRRWI: begin
                         imm          = imm_i;
@@ -520,6 +527,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     FUNCT3_CSRRSI: begin
                         imm          = imm_i;
@@ -532,6 +540,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     FUNCT3_CSRRCI: begin
                         imm          = imm_i;
@@ -544,6 +553,7 @@ always_comb begin
                         csr_rd       = |inst[11: 7];
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
+                        prv_req      = inst[29:28];
                     end
                     default       : begin
                         ill_inst     = 1'b1;

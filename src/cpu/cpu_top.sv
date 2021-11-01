@@ -30,8 +30,8 @@ logic                             wakeup_event;
 logic                             sleep;
 logic                             stall_wfi;
 logic [                      4:0] inst_valid;
-logic                             irq_en;
 logic [       `IM_ADDR_LEN - 1:0] irq_vec;
+logic [       `IM_ADDR_LEN - 1:0] ret_epc;
 
 // Hazard Control Unit
 logic                             if_stall;
@@ -73,6 +73,7 @@ logic [              `XLEN - 1:0] id_rs2_data;
 logic [                     11:0] id_csr_addr;
 logic [              `XLEN - 1:0] id_imm;
 
+logic [                      1:0] id_prv_req;
 logic                             id_ill_inst;
 logic                             id_fense;
 logic                             id_fense_i;
@@ -108,12 +109,14 @@ logic                             id_csr_wr;
 logic                             id_pmu_csr_wr;
 logic                             id_fpu_csr_wr;
 logic                             id_dbg_csr_wr;
+logic                             id_mmu_csr_wr;
 logic                             id_mpu_csr_wr;
 logic                             id_sru_csr_wr;
 logic [              `XLEN - 1:0] id_csr_rdata;
 logic [              `XLEN - 1:0] id_pmu_csr_rdata;
 logic [              `XLEN - 1:0] id_fpu_csr_rdata;
 logic [              `XLEN - 1:0] id_dbg_csr_rdata;
+logic [              `XLEN - 1:0] id_mmu_csr_rdata;
 logic [              `XLEN - 1:0] id_mpu_csr_rdata;
 logic [              `XLEN - 1:0] id_sru_csr_rdata;
 
@@ -142,6 +145,7 @@ logic                             id2exe_uimm_rs1_sel;
 logic                             id2exe_pmu_csr_wr;
 logic                             id2exe_fpu_csr_wr;
 logic                             id2exe_dbg_csr_wr;
+logic                             id2exe_mmu_csr_wr;
 logic                             id2exe_mpu_csr_wr;
 logic                             id2exe_sru_csr_wr;
 
@@ -155,6 +159,12 @@ logic                             id2exe_mem_sign_ext;
 logic                             id2exe_mem_cal_sel;
 logic                             id2exe_rd_wr;
 logic                             id2exe_wfi;
+logic                             id2exe_ecall;
+logic                             id2exe_ebreak;
+logic                             id2exe_sret;
+logic                             id2exe_mret;
+logic                             id2exe_ill_inst;
+logic [                      1:0] id2exe_prv_req;
 
 // EXE stage
 logic                             exe_alu_zero;
@@ -174,8 +184,18 @@ logic [              `XLEN - 1:0] exe_csr_wdata;
 logic                             exe_pmu_csr_wr;
 logic                             exe_fpu_csr_wr;
 logic                             exe_dbg_csr_wr;
+logic                             exe_mmu_csr_wr;
 logic                             exe_mpu_csr_wr;
 logic                             exe_sru_csr_wr;
+logic                             exe_satp_upd;
+logic                             exe_mstatus_tvm;
+logic                             exe_irq_en;
+logic [                      1:0] exe_prv;
+logic                             exe_trap_en;
+logic [              `XLEN - 1:0] exe_trap_cause;
+logic [              `XLEN - 1:0] exe_trap_val;
+logic [              `XLEN - 1:0] exe_cause;
+logic [              `XLEN - 1:0] exe_tval;
 
 // EXE/MEM pipeline
 logic [       `IM_ADDR_LEN - 1:0] exe2mem_pc;
@@ -199,6 +219,10 @@ logic                             exe2mem_csr_wr;
 logic [                     11:0] exe2mem_csr_waddr;
 logic [              `XLEN - 1:0] exe2mem_csr_wdata;
 logic                             exe2mem_wfi;
+logic [                      1:0] exe2mem_prv;
+logic                             exe2mem_trap_en;
+logic [              `XLEN - 1:0] exe2mem_cause;
+logic [              `XLEN - 1:0] exe2mem_tval;
 
 // MEM stage
 logic [              `XLEN - 1:0] mem_rd_data;
@@ -230,6 +254,10 @@ logic                             mem2wb_csr_wr;
 logic [                     11:0] mem2wb_csr_waddr;
 logic [              `XLEN - 1:0] mem2wb_csr_wdata;
 logic                             mem2wb_wfi;
+logic [                      1:0] mem2wb_prv;
+logic                             mem2wb_trap_en;
+logic [              `XLEN - 1:0] mem2wb_cause;
+logic [              `XLEN - 1:0] mem2wb_tval;
 
 // WB stage
 logic [              `XLEN - 1:0] wb_rd_data;
@@ -268,6 +296,8 @@ hzu u_hzu (
     .inst_valid      ( inst_valid      ),
     .pc_jump_en      ( if_pc_jump_en   ),
     .pc_alu_en       ( if_pc_alu_en    ),
+    .irq_en          ( exe_irq_en      ),
+    .trap_en         ( exe_trap_en     ),
     .id_hazard       ( id_hazard       ),
     .exe_hazard      ( exe_hazard      ),
     .dpu_hazard      ( mem_dpu_hazard  ),
@@ -292,8 +322,10 @@ hzu u_hzu (
 ifu u_ifu (
     .clk        ( clk                          ),
     .rstn       ( rstn_sync                    ),
-    .irq_en     ( irq_en                       ),
+    .irq_en     ( exe_irq_en | exe_trap_en     ),
     .irq_vec    ( irq_vec                      ),
+    .eret_en    ( exe_eret_en                  ),
+    .ret_epc    ( ret_epc                      ),
     .pc_jump_en ( if_pc_jump_en                ),
     .pc_jump    ( if_pc_jump                   ),
     .pc_alu_en  ( if_pc_alu_en                 ),
@@ -351,6 +383,7 @@ idu u_idu (
     .csr_addr     ( id_csr_addr      ),
     .imm          ( id_imm           ),
     // Control
+    .prv_req      ( id_prv_req       ),
     .ill_inst     ( id_ill_inst      ),
     .fense        ( id_fense         ),
     .fense_i      ( id_fense_i       ),
@@ -398,51 +431,21 @@ csr u_csr (
     .pmu_csr_wr    ( id_pmu_csr_wr    ),
     .fpu_csr_wr    ( id_fpu_csr_wr    ),
     .dbg_csr_wr    ( id_dbg_csr_wr    ),
+    .mmu_csr_wr    ( id_mmu_csr_wr    ),
     .mpu_csr_wr    ( id_mpu_csr_wr    ),
     .sru_csr_wr    ( id_sru_csr_wr    ),
     .pmu_csr_rdata ( id_pmu_csr_rdata ),
     .fpu_csr_rdata ( id_fpu_csr_rdata ),
     .dbg_csr_rdata ( id_dbg_csr_rdata ),
+    .mmu_csr_rdata ( id_mmu_csr_rdata ),
     .mpu_csr_rdata ( id_mpu_csr_rdata ),
     .sru_csr_rdata ( id_sru_csr_rdata )
 );
 
-sru u_sru (
-    .clk         ( clk_wfi           ),
-    .clk_free    ( clk               ),
-    .rstn        ( rstn_sync         ),
-    .sleep       ( sleep             ),
-
-    // IRQ signal
-    .msip        ( msip              ),
-    .mtip        ( mtip              ),
-    .meip        ( meip              ),
-    .wakeup      ( wakeup_event      ),
-    .irq_trigger ( irq_en            ),
-
-    // PC control
-    .trap_vec    ( irq_vec           ),
-    .ret_epc     (                   ),
-
-    // Trap signal
-    .epc         ( id2exe_pc         ),
-    .trap_en     ( 1'b0              ),
-    .trap_cause  ( 32'b0             ),
-    .trap_val    ( 32'b0             ),
-    .sret        ( 1'b0              ),
-    .mret        ( 1'b0              ),
-    
-    // CSR interface
-    .csr_wr      ( id2exe_sru_csr_wr & ~exe_stall & ~stall_wfi & ~exe_flush ),
-    .csr_waddr   ( id2exe_csr_waddr  ),
-    .csr_raddr   ( id_csr_addr       ),
-    .csr_wdata   ( exe_csr_wdata     ),
-    .csr_rdata   ( id_sru_csr_rdata  )
-);
-
 // ID Hazard
 assign id_hazard = id_csr_rd &&
-                   (exe_pmu_csr_wr | exe_fpu_csr_wr | exe_dbg_csr_wr | exe_mpu_csr_wr | exe_sru_csr_wr) &&
+                   (exe_pmu_csr_wr | exe_fpu_csr_wr | exe_dbg_csr_wr |
+                    exe_mmu_csr_wr | exe_mpu_csr_wr | exe_sru_csr_wr) &&
                    (id_csr_addr == id2exe_csr_waddr);
 
 
@@ -483,6 +486,12 @@ if (~rstn_sync) begin
     id2exe_mem_cal_sel  <= 1'b0;
     id2exe_rd_wr        <= 1'b0;
     id2exe_wfi          <= 1'b0;
+    id2exe_ecall        <= 1'b0;
+    id2exe_ebreak       <= 1'b0;
+    id2exe_sret         <= 1'b0;
+    id2exe_mret         <= 1'b0;
+    id2exe_ill_inst     <= 1'b0;
+    id2exe_prv_req      <= 2'b0;
 end
 else begin
     if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
@@ -509,6 +518,7 @@ else begin
         id2exe_pmu_csr_wr   <= ~id_flush & id_pmu_csr_wr;
         id2exe_fpu_csr_wr   <= ~id_flush & id_fpu_csr_wr;
         id2exe_dbg_csr_wr   <= ~id_flush & id_dbg_csr_wr;
+        id2exe_mmu_csr_wr   <= ~id_flush & id_mmu_csr_wr;
         id2exe_mpu_csr_wr   <= ~id_flush & id_mpu_csr_wr;
         id2exe_sru_csr_wr   <= ~id_flush & id_sru_csr_wr;
         id2exe_pc_alu_sel   <= id_pc_alu_sel;
@@ -520,6 +530,12 @@ else begin
         id2exe_mem_cal_sel  <= id_mem_cal_sel;
         id2exe_rd_wr        <= ~id_flush & id_rd_wr;
         id2exe_wfi          <= ~id_flush & id_wfi;
+        id2exe_ecall        <= ~id_flush & id_ecall;
+        id2exe_ebreak       <= ~id_flush & id_ebreak;
+        id2exe_sret         <= ~id_flush & id_sret;
+        id2exe_mret         <= ~id_flush & id_mret;
+        id2exe_ill_inst     <= ~id_flush & id_ill_inst;
+        id2exe_prv_req      <= id_prv_req;
     end
     else begin
         id2exe_rs1_data     <= exe_rs1_data;
@@ -564,14 +580,82 @@ alu u_alu (
    .zero_flag ( exe_alu_zero  )
 );
 
-assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_stall;
-assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_stall;
-assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_stall;
-assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_stall;
-assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_stall;
+assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
 
 assign exe_csr_src1 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 assign exe_csr_src2 = id2exe_csr_rdata;
+
+sru u_sru (
+    .clk         ( clk_wfi           ),
+    .clk_free    ( clk               ),
+    .rstn        ( rstn_sync         ),
+    .sleep       ( sleep             ),
+    .prv         ( exe_prv           ),
+    .tvm         ( exe_mstatus_tvm   ),
+
+    // IRQ signal
+    .ext_msip    ( msip              ),
+    .ext_mtip    ( mtip              ),
+    .ext_meip    ( meip              ),
+    .wakeup      ( wakeup_event      ),
+    .irq_trigger ( exe_irq_en        ),
+    .cause       ( exe_cause         ),
+    .tval        ( exe_tval          ),
+
+    // PC control
+    .trap_vec    ( irq_vec           ),
+    .ret_epc     ( ret_epc           ),
+
+    // Trap signal
+    .epc         ( id2exe_pc         ),
+    .trap_en     ( exe_trap_en       ),
+    .trap_cause  ( exe_trap_cause    ),
+    .trap_val    ( exe_trap_val      ),
+    .sret        ( id2exe_sret       ),
+    .mret        ( id2exe_mret       ),
+    .eret_en     ( exe_eret_en       ),
+    
+    // CSR interface
+    .csr_wr      ( exe_sru_csr_wr    ),
+    .csr_waddr   ( id2exe_csr_waddr  ),
+    .csr_raddr   ( id_csr_addr       ),
+    .csr_wdata   ( exe_csr_wdata     ),
+    .csr_rdata   ( id_sru_csr_rdata  )
+);
+
+mmu u_mmu (
+    .clk       ( clk_wfi          ),
+    .rstn      ( rstn_sync        ),
+
+    // CSR interface
+    .csr_wr    ( exe_mmu_csr_wr   ),
+    .csr_waddr ( id2exe_csr_waddr ),
+    .csr_raddr ( id_csr_addr      ),
+    .csr_wdata ( exe_csr_wdata    ),
+    .csr_rdata ( id_mmu_csr_rdata )
+);
+
+assign exe_satp_upd = id2exe_mmu_csr_wr & ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
+
+tpu u_tpu (
+    .inst_valid ( id2exe_inst_valid & ~exe_stall & ~stall_wfi),
+    .inst       ( id2exe_inst       ),
+    .prv_cur    ( exe_prv           ),
+    .prv_req    ( id2exe_prv_req    ),
+    .satp_upd   ( exe_satp_upd      ),
+    .tvm        ( exe_mstatus_tvm   ),
+    .ecall      ( id2exe_ecall      ),
+    .ebreak     ( id2exe_ebreak     ),
+    .ill_inst   ( id2exe_ill_inst   ),
+    .trap_en    ( exe_trap_en       ),
+    .trap_cause ( exe_trap_cause    ),
+    .trap_val   ( exe_trap_val      )
+);
 
 always_comb begin
 exe_csr_wdata = `XLEN'b0;
@@ -606,21 +690,25 @@ if (~rstn_sync) begin
     exe2mem_csr_waddr    <= 12'b0;
     exe2mem_csr_wdata    <= `XLEN'b0;
     exe2mem_wfi          <= 1'b0;
+    exe2mem_prv          <= 2'b0;
+    exe2mem_trap_en      <= 1'b0;
+    exe2mem_cause        <= `XLEN'b0;
+    exe2mem_tval         <= `XLEN'b0;
 end
 else begin
     if (~mem_stall | exe_flush_force) begin
         exe2mem_pc           <= id2exe_pc;
         exe2mem_inst         <= id2exe_inst;
-        exe2mem_inst_valid   <= ~exe_flush & ~irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
-        exe2mem_mem_req      <= ~exe_flush & ~irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
-        exe2mem_mem_wr       <= ~exe_flush & ~irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
+        exe2mem_inst_valid   <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
+        exe2mem_mem_req      <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
+        exe2mem_mem_wr       <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
         exe2mem_mem_byte     <= id2exe_mem_byte;
         exe2mem_mem_sign_ext <= id2exe_mem_sign_ext;
         exe2mem_pc_alu_sel   <= id2exe_pc_alu_sel;
         exe2mem_csr_rdata    <= id2exe_csr_rdata;
         exe2mem_csr_alu_sel  <= id2exe_csr_alu_sel;
         exe2mem_mem_cal_sel  <= id2exe_mem_cal_sel;
-        exe2mem_rd_wr        <= ~exe_flush & ~irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
+        exe2mem_rd_wr        <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
         exe2mem_rd_addr      <= id2exe_rd_addr;
         exe2mem_rs2_addr     <= id2exe_rs2_addr;
         exe2mem_alu_out      <= exe_alu_out;
@@ -629,14 +717,19 @@ else begin
         exe2mem_csr_wr       <= exe_pmu_csr_wr|
                                 exe_fpu_csr_wr|
                                 exe_dbg_csr_wr|
+                                exe_mmu_csr_wr|
                                 exe_mpu_csr_wr|
                                 exe_sru_csr_wr;
         exe2mem_csr_waddr    <= id2exe_csr_waddr;
         exe2mem_csr_wdata    <= exe_csr_wdata;
-        exe2mem_wfi          <= ~exe_flush & ~irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
+        exe2mem_wfi          <= ~exe_flush & ~exe_irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
+        exe2mem_prv          <= exe_prv;
+        exe2mem_trap_en      <= exe_irq_en | exe_trap_en;
+        exe2mem_cause        <= exe_cause;
+        exe2mem_tval         <= exe_tval;
     end
     else begin
-        exe2mem_rs2_data     <= dmem_wdata;
+        exe2mem_rs2_data     <= mem_dpu_wdata;
     end
 end
 end
@@ -697,6 +790,10 @@ if (~rstn_sync) begin
     mem2wb_csr_waddr    <= 12'b0;
     mem2wb_csr_wdata    <= `XLEN'b0;
     mem2wb_wfi          <= 1'b0;
+    mem2wb_prv          <= 2'b0;
+    mem2wb_trap_en      <= 1'b0;
+    mem2wb_cause        <= `XLEN'b0;
+    mem2wb_tval         <= `XLEN'b0;
 end
 else begin
     if (~wb_stall | mem_flush_force) begin
@@ -711,12 +808,16 @@ else begin
         mem2wb_rd_data      <= mem_rd_data;
         mem2wb_mem_addr     <= mem_dpu_addr;
         mem2wb_mem_wdata    <= dmem_wdata;
-        mem2wb_mem_req      <= exe2mem_mem_req;
-        mem2wb_mem_wr       <= exe2mem_mem_wr;
+        mem2wb_mem_req      <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_req;
+        mem2wb_mem_wr       <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_wr;
         mem2wb_csr_wr       <= exe2mem_csr_wr;
         mem2wb_csr_waddr    <= exe2mem_csr_waddr;
         mem2wb_csr_wdata    <= exe2mem_csr_wdata;
         mem2wb_wfi          <= ~mem_flush & ~mem2wb_wfi & ~wakeup_event & exe2mem_wfi;
+        mem2wb_prv          <= exe2mem_prv;
+        mem2wb_trap_en      <= exe2mem_trap_en;
+        mem2wb_cause        <= exe2mem_cause;
+        mem2wb_tval         <= exe2mem_tval;
     end
 end
 end
@@ -747,7 +848,8 @@ cpu_tracer u_cpu_tracer (
     .valid     ( wb_inst_valid    ),
     .pc        ( mem2wb_pc        ),
     .inst      ( mem2wb_inst      ),
-    .rd_wr     ( mem2wb_rd_wr     ),
+    .prv       ( mem2wb_prv       ),
+    .rd_wr     ( wb_rd_wr         ),
     .rd_addr   ( mem2wb_rd_addr   ),
     .rd_data   ( wb_rd_data       ),
     .csr_wr    ( mem2wb_csr_wr    ),
@@ -758,7 +860,10 @@ cpu_tracer u_cpu_tracer (
     .mem_wr    ( mem2wb_mem_wr    ),
     .mem_byte  ( mem2wb_mem_byte  ),
     .mem_rdata ( dmem_rdata       ),
-    .mem_wdata ( mem2wb_mem_wdata )
+    .mem_wdata ( mem2wb_mem_wdata ),
+    .trap_en   ( mem2wb_trap_en   ),
+    .mcause    ( mem2wb_cause     ),
+    .mtval     ( mem2wb_tval      )
 );
 
 endmodule

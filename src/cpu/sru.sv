@@ -44,13 +44,18 @@ module sru (
     input                           clk_free,
     input                           rstn,
     input                           sleep,
+    output logic [             1:0] prv,
+    output logic                    tvm,
 
     // IRQ signal
-    input                           msip,
-    input                           mtip,
-    input                           meip,
+    input                           ext_msip,
+    input                           ext_mtip,
+    input                           ext_meip,
     output logic                    wakeup,
     output logic                    irq_trigger,
+    output logic [       `XLEN-1:0] cause,
+    output logic [       `XLEN-1:0] tval,
+
 
     // PC control
     output logic [`IM_ADDR_LEN-1:0] trap_vec,
@@ -63,6 +68,7 @@ module sru (
     input        [       `XLEN-1:0] trap_val,
     input                           sret,
     input                           mret,
+    output logic                    eret_en,
     
     // CSR interface
     input                           csr_wr,
@@ -72,8 +78,9 @@ module sru (
     output logic [       `XLEN-1:0] csr_rdata
 );
 
-logic [             1:0] prv;
+logic                    trap_m_mode;
 logic                    trap_s_mode;
+logic                    ints_m_mode;
 logic                    ints_s_mode;
 logic [`IM_ADDR_LEN-1:0] vec_offset;
 logic                    msip_d1;
@@ -154,27 +161,60 @@ logic                    mcause_int;
 logic [       `XLEN-2:0] scause_code;
 logic                    scause_int;
 
-assign wakeup      = sleep ? ((msip_toggle & msip) | (mtip_toggle | mtip) | (meip_toggle | meip)):
-                             |(mie & mip);
-assign irq_trigger = (mstatus_mie && |(mie & mip & ~mideleg)) ||
-                     (mstatus_sie && |(mie & mip & mideleg) && prv <= `PRV_S);
+logic [       `XLEN-1:0] ints_en;
+logic [       `XLEN-1:0] ints_m_en;
+logic [       `XLEN-1:0] ints_s_en;
 
+assign ints_en     = mie & mip;
+assign ints_m_en   = mie & mip & ~mideleg;
+assign ints_s_en   = mie & mip &  mideleg;
+
+assign wakeup      = sleep ? ((msip_toggle & ext_msip) | (mtip_toggle | ext_mtip) | (meip_toggle | ext_meip)):
+                             |ints_en;
+assign irq_trigger = ~trap_en && (ints_m_mode || ints_s_mode);
+assign ret_epc     = sret ? sepc : mepc;
+assign eret_en     = ~trap_en && (sret || mret);
+
+assign trap_m_mode = ~trap_s_mode;
 assign trap_s_mode = prv <= `PRV_S && |(medeleg & (`XLEN'b1 << trap_cause[`XLEN-2:0]));
-assign ints_s_mode = prv <= `PRV_S && ~(mstatus_mie && |(~mideleg & mip & mie));
+assign ints_m_mode = ((prv == `PRV_M && mstatus_mie) || prv < `PRV_M) && |(~mideleg & mip & mie);
+assign ints_s_mode = ((prv == `PRV_S && mstatus_sie) || prv < `PRV_S) && |( mideleg & mip & mie) && !ints_m_mode;
 
-assign trap_vec    = ((trap_en ? (trap_s_mode ? stvec : mtvec):
-                                 (ints_s_mode ? stvec : mtvec)) & ~`IM_ADDR_LEN'h3) + vec_offset;
+assign trap_vec    = ((trap_en ? (trap_m_mode ? mtvec : stvec):
+                                 (ints_m_mode ? mtvec : stvec)) & ~`IM_ADDR_LEN'h3) + vec_offset;
 
-assign vec_offset  = (~trap_en && ((trap_s_mode && stvec[0]) || (~trap_s_mode && mtvec[0]))) ? 
-                     ((mie_meie & mip_meip) ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2):
-                      (mie_msie & mip_msip) ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2):
-                      (mie_mtie & mip_mtip) ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2):
-                      (mie_seie & mip_seip) ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2):
-                      (mie_ssie & mip_ssip) ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2):
-                      (mie_stie & mip_stip) ? (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2):
-                                               `IM_ADDR_LEN'd0) : `IM_ADDR_LEN'd0;
+assign vec_offset  = trap_en     ? `IM_ADDR_LEN'd0:
+                     ints_s_mode ? ints_s_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                   ints_s_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                   ints_s_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                   ints_s_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                   ints_s_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                   /*ints_s_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                     ints_m_mode ? ints_m_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   ints_m_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   ints_m_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   ints_m_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   ints_m_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   /*ints_m_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                   `IM_ADDR_LEN'd0;
 
-assign ret_epc = sret ? sepc : mepc;
+
+assign cause       = trap_en     ? trap_cause : 
+                     ints_s_mode ? ints_s_en[`MIP_MEIP_BIT]      ? (`XLEN'd`MIP_MEIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_s_en[`MIP_MSIP_BIT]      ? (`XLEN'd`MIP_MSIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_s_en[`MIP_MTIP_BIT]      ? (`XLEN'd`MIP_MTIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_s_en[`MIP_SEIP_BIT]      ? (`XLEN'd`MIP_SEIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_s_en[`MIP_SSIP_BIT]      ? (`XLEN'd`MIP_SSIP_BIT | (`XLEN'd1 << 31)):
+                                   /*ints_s_en[`MIP_STIP_BIT] ? */ (`XLEN'd`MIP_STIP_BIT | (`XLEN'd1 << 31)):
+                     ints_m_mode ? ints_m_en[`MIP_MEIP_BIT]      ? (`XLEN'd`MIP_MEIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_m_en[`MIP_MSIP_BIT]      ? (`XLEN'd`MIP_MSIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_m_en[`MIP_MTIP_BIT]      ? (`XLEN'd`MIP_MTIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_m_en[`MIP_SEIP_BIT]      ? (`XLEN'd`MIP_SEIP_BIT | (`XLEN'd1 << 31)):
+                                   ints_m_en[`MIP_SSIP_BIT]      ? (`XLEN'd`MIP_SSIP_BIT | (`XLEN'd1 << 31)):
+                                   /*ints_m_en[`MIP_STIP_BIT] ? */ (`XLEN'd`MIP_STIP_BIT | (`XLEN'd1 << 31)):
+                                   `XLEN'd0;
+
+assign tval         = trap_en ? trap_val : `XLEN'd0;
 
 always_ff @(posedge clk_free or negedge rstn) begin
     if (~rstn) begin
@@ -183,15 +223,15 @@ always_ff @(posedge clk_free or negedge rstn) begin
         meip_d1  <= 1'b0;
     end
     else begin
-        msip_d1  <= msip;
-        mtip_d1  <= mtip;
-        meip_d1  <= meip;
+        msip_d1  <= ext_msip;
+        mtip_d1  <= ext_mtip;
+        meip_d1  <= ext_meip;
     end
 end
 
-assign msip_toggle = msip ^ msip_d1;
-assign mtip_toggle = mtip ^ mtip_d1;
-assign meip_toggle = meip ^ meip_d1;
+assign msip_toggle = ext_msip ^ msip_d1;
+assign mtip_toggle = ext_mtip ^ mtip_d1;
+assign meip_toggle = ext_meip ^ meip_d1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) prv <= `PRV_M;
@@ -203,16 +243,16 @@ always_ff @(posedge clk or negedge rstn) begin
             prv <= `PRV_M;
         end
     end
-    else if (mstatus_mie && |(mie & mip) & ~ints_s_mode) begin
+    else if (ints_m_mode) begin
         prv <= `PRV_M;
     end
-    else if (mstatus_sie && |(mie & mip) & ints_s_mode) begin
+    else if (ints_s_mode) begin
         prv <= `PRV_S;
     end
     else if (sret) begin
         prv <= {1'b0, mstatus[`MSTATUS_SPP_BIT]};
     end
-    else if (sret) begin
+    else if (mret) begin
         prv <= mstatus[`MSTATUS_MPP_BIT];
     end
 end
@@ -234,7 +274,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (trap_en && trap_s_mode) begin
         sepc <= epc;
     end
-    else if (mstatus_sie && |(mie & mip) && ints_s_mode) begin
+    else if (ints_s_mode) begin
         sepc <= epc;
     end
     else if (csr_wr && csr_waddr == `CSR_SEPC_ADDR) begin
@@ -246,18 +286,22 @@ assign scause = {scause_int, scause_code};
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
+        scause_int  <= 1'b0;
         scause_code <= {`XLEN-1{1'b0}};
     end
     else if (trap_en && trap_s_mode) begin
         scause_code <= trap_cause[0+:`XLEN-1];
         scause_int  <= trap_cause[`XLEN-1];
     end
-    else if (mstatus_sie && |(mie & mip) && ints_s_mode) begin
+    else if (ints_s_mode) begin
         scause_int  <= 1'b1;
-        scause_code <= (mie_seie & mip_seip & mideleg_seip) ? `MIP_SEIP_BIT:
-                       (mie_ssie & mip_ssip & mideleg_ssip) ? `MIP_SSIP_BIT:
-                       (mie_stie & mip_stip & mideleg_stip) ? `MIP_STIP_BIT:
-                                                              {(`XLEN-1){1'b1}};
+        scause_code <= ints_s_en[`MIP_MEIP_BIT] ? `MIP_MEIP_BIT:
+                       ints_s_en[`MIP_MSIP_BIT] ? `MIP_MSIP_BIT:
+                       ints_s_en[`MIP_MTIP_BIT] ? `MIP_MTIP_BIT:
+                       ints_s_en[`MIP_SEIP_BIT] ? `MIP_SEIP_BIT:
+                       ints_s_en[`MIP_SSIP_BIT] ? `MIP_SSIP_BIT:
+                       ints_s_en[`MIP_STIP_BIT] ? `MIP_STIP_BIT:
+                                                  {(`XLEN-1){1'b1}};
     end
     else if (csr_wr && csr_waddr == `CSR_SCAUSE_ADDR) begin
         scause_code <= csr_wdata[0+:`XLEN-1];
@@ -272,7 +316,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (trap_en && trap_s_mode) begin
         stval <= trap_val;
     end
-    else if (mstatus_sie && |(mie & mip) && ints_s_mode) begin
+    else if (ints_s_mode) begin
         stval <= `XLEN'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_STVAL_ADDR) stval <= csr_wdata;
@@ -290,6 +334,8 @@ assign sstatus = {1'b0, 8'b0, 1'b0, 1'b0, 1'b0,
                   mstatus_fs, 2'b0, 2'b0, mstatus_spp,
                   1'b0, 1'b0, mstatus_spie, 1'b0,
                   1'b0, 1'b0, mstatus_sie, 1'b0};
+
+assign tvm     = mstatus_tvm;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -323,12 +369,12 @@ always_ff @(posedge clk or negedge rstn) begin
             mstatus_mie  <= 1'b0;
         end
     end
-    else if (mstatus_mie && |(mie & mip) & ~ints_s_mode) begin
+    else if (ints_m_mode) begin
         mstatus_mpp  <= prv;
         mstatus_mpie <= mstatus_mie;
         mstatus_mie  <= 1'b0;
     end
-    else if (mstatus_sie && |(mie & mip) & ints_s_mode) begin
+    else if (ints_s_mode) begin
         mstatus_spp  <= prv[0];
         mstatus_spie <= mstatus_sie;
         mstatus_sie  <= 1'b0;
@@ -459,7 +505,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (trap_en && ~trap_s_mode) begin
         mepc <= epc;
     end
-    else if (mstatus_mie && |(mie & mip) && ~ints_s_mode) begin
+    else if (ints_m_mode) begin
         mepc <= epc;
     end
     else if (csr_wr && csr_waddr == `CSR_MEPC_ADDR) begin
@@ -478,15 +524,15 @@ always_ff @(posedge clk or negedge rstn) begin
         mcause_code <= trap_cause[0+:`XLEN-1];
         mcause_int  <= trap_cause[`XLEN-1];
     end
-    else if (mstatus_mie && |(mie & mip) && ~ints_s_mode) begin
+    else if (ints_m_mode) begin
         mcause_int  <= 1'b1;
-        mcause_code <= (mie_meie & mip_meip)                 ? `MIP_MEIP_BIT:
-                       (mie_msie & mip_msip)                 ? `MIP_MSIP_BIT:
-                       (mie_mtie & mip_mtip)                 ? `MIP_MTIP_BIT:
-                       (mie_seie & mip_seip & ~mideleg_seip) ? `MIP_SEIP_BIT:
-                       (mie_ssie & mip_ssip & ~mideleg_ssip) ? `MIP_SSIP_BIT:
-                       (mie_stie & mip_stip & ~mideleg_stip) ? `MIP_STIP_BIT:
-                                                               {(`XLEN-1){1'b1}};
+        mcause_code <= ints_m_en[`MIP_MEIP_BIT] ? `MIP_MEIP_BIT:
+                       ints_m_en[`MIP_MSIP_BIT] ? `MIP_MSIP_BIT:
+                       ints_m_en[`MIP_MTIP_BIT] ? `MIP_MTIP_BIT:
+                       ints_m_en[`MIP_SEIP_BIT] ? `MIP_SEIP_BIT:
+                       ints_m_en[`MIP_SSIP_BIT] ? `MIP_SSIP_BIT:
+                       ints_m_en[`MIP_STIP_BIT] ? `MIP_STIP_BIT:
+                                                  {(`XLEN-1){1'b1}};
     end
     else if (csr_wr && csr_waddr == `CSR_MCAUSE_ADDR) begin
         mcause_code <= csr_wdata[0+:`XLEN-1];
@@ -501,7 +547,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (trap_en && ~trap_s_mode) begin
         mtval <= trap_val;
     end
-    else if (mstatus_mie && |(mie & mip) && ~ints_s_mode) begin
+    else if (ints_m_mode) begin
         mtval <= `XLEN'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_MTVAL_ADDR) begin
@@ -524,9 +570,9 @@ always_ff @(posedge clk_free or negedge rstn) begin
         mip_meip <= 1'b0;
     end
     else if (msip_toggle | mtip_toggle | meip_toggle) begin
-        mip_msip <= (mip_msip & ~msip_toggle) | (msip & msip_toggle);
-        mip_mtip <= (mip_mtip & ~mtip_toggle) | (mtip & mtip_toggle);
-        mip_meip <= (mip_meip & ~meip_toggle) | (meip & meip_toggle);
+        mip_msip <= (mip_msip & ~msip_toggle) | (ext_msip & msip_toggle);
+        mip_mtip <= (mip_mtip & ~mtip_toggle) | (ext_mtip & mtip_toggle);
+        mip_meip <= (mip_meip & ~meip_toggle) | (ext_meip & meip_toggle);
     end
     else if (~sleep) begin
         if (csr_wr && csr_waddr == `CSR_SIP_ADDR)  begin

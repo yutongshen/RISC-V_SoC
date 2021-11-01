@@ -55,6 +55,7 @@ logic [  1: 0] cur_state;
 logic [  1: 0] nxt_state;
 
 logic          req_latch;
+logic          rsend_latch;
 logic [ 10: 0] id_latch;
 logic [  7: 0] cnt;
 logic [ 31: 0] addr_latch;
@@ -144,16 +145,27 @@ always_comb begin
         end
         STATE_RD  : begin
             s_rvalid = (~m_busy & req_latch) | rdata_latch_en;
-            m_cs     = ~m_busy & ~(s_rlast & req_latch) & ~rdata_latch_en;
-            cnt_nxt  = ~m_busy & req_latch & s_rready;
-            addr_nxt = ~m_busy & req_latch & s_rready;
+            m_cs     = ~m_busy & ~(s_rlast & req_latch) & rsend_latch & ~rdata_latch_en;
+            cnt_nxt  = ((~m_busy & req_latch) | rdata_latch_en) & s_rready;
+            addr_nxt = ~m_busy/* & req_latch*/ & s_rready;
         end
     endcase
 end
 
 always_ff @(posedge aclk or negedge aresetn) begin
     if (~aresetn) begin
-        req_latch <= 1'b0;
+        rsend_latch <= 1'b1;
+    end
+    else begin
+        if (cur_state == STATE_RD) begin
+            rsend_latch <= addr_nxt;
+        end
+    end
+end
+
+always_ff @(posedge aclk or negedge aresetn) begin
+    if (~aresetn) begin
+        req_latch   <= 1'b0;
     end
     else begin
         if (cur_state == STATE_RD) begin

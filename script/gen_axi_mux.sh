@@ -190,6 +190,10 @@ for item in "${!r_chn_sideband[@]}"; do
     print_logic_2d s_${item} ${r_chn_sideband[${item}]} ${slvnum} >> ${fname};
 done
 echo "" >> ${fname};
+print_logic s_arsel    ${slvnum} >> ${fname};
+print_logic s_awsel    ${slvnum} >> ${fname};
+print_logic s_wsel     ${slvnum} >> ${fname};
+echo "" >> ${fname};
 print_logic s_arvalid  ${slvnum} >> ${fname};
 print_logic s_arready  ${slvnum} >> ${fname};
 print_logic s_rlast    ${slvnum} >> ${fname};
@@ -246,6 +250,9 @@ echo "" >> ${fname};
 printf "%s %s (\n" "axi_arbitrator_${slvnum}s" "u_axi_arbitrator" >> ${fname};
 print_conn aclk      aclk 1    >> ${fname};
 print_conn aresetn   aresetn   >> ${fname};
+print_conn s_arsel   s_arsel   >> ${fname};
+print_conn s_awsel   s_awsel   >> ${fname};
+print_conn s_wsel    s_wsel    >> ${fname};
 print_conn s_arvalid s_arvalid >> ${fname};
 print_conn s_arready s_arready >> ${fname};
 print_conn s_awvalid s_awvalid >> ${fname};
@@ -273,15 +280,15 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!aw_chn_sideband[@]}"; do
     if [ "${item}" == "awid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_awid[  0+:%3d] | ({%3d{s_awready[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_awid[  0+:%3d] | ({%3d{s_awsel[i]}} & %12s );\n" \
                "" "m_awid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
                            $(log2_ceil ${slvnum}) i >> ${fname};
-        printf "%8s%-10s[%3d+:%3d] = m_awid[%3d+:%3d] | ({%3d{s_awready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s[%3d+:%3d] = m_awid[%3d+:%3d] | ({%3d{s_awsel[i]}} & %-10s[i]);\n" \
                "" "m_awid" $(log2_ceil ${slvnum}) ${aw_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${aw_chn_sideband[${item}]} \
                            ${aw_chn_sideband[${item}]} s_awid >> ${fname};
     else
-        printf "%8s%-10s           = %-10s       | ({%3d{s_awready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s           = %-10s       | ({%3d{s_awsel[i]}} & %-10s[i]);\n" \
                "" m_${item} m_${item} ${aw_chn_sideband[${item}]} s_${item} >> ${fname};
     fi
 done
@@ -297,15 +304,15 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!w_chn_sideband[@]}"; do
     if [ "${item}" == "wid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_wid [  0+:%3d] | ({%3d{s_wready[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_wid [  0+:%3d] | ({%3d{s_wsel[i]}} & %12s );\n" \
                "" "m_wid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
                            $(log2_ceil ${slvnum}) i >> ${fname};
-        printf "%8s%-10s[%3d+:%3d] = m_wid [%3d+:%3d] | ({%3d{s_wready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s[%3d+:%3d] = m_wid [%3d+:%3d] | ({%3d{s_wsel[i]}} & %-10s[i]);\n" \
                "" "m_wid" $(log2_ceil ${slvnum}) ${w_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${w_chn_sideband[${item}]} \
                            ${w_chn_sideband[${item}]} s_wid >> ${fname};
     else
-        printf "%8s%-10s           = %-10s       | ({%3d{s_wready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s           = %-10s       | ({%3d{s_wsel[i]}} & %-10s[i]);\n" \
                "" m_${item} m_${item} ${w_chn_sideband[${item}]} s_${item} >> ${fname};
     fi
 done
@@ -321,15 +328,15 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!ar_chn_sideband[@]}"; do
     if [ "${item}" == "arid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_arid[  0+:%3d] | ({%3d{s_arready[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_arid[  0+:%3d] | ({%3d{s_arsel[i]}} & %12s );\n" \
                "" "m_arid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
                            $(log2_ceil ${slvnum}) i >> ${fname};
-        printf "%8s%-10s[%3d+:%3d] = m_arid[%3d+:%3d] | ({%3d{s_arready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s[%3d+:%3d] = m_arid[%3d+:%3d] | ({%3d{s_arsel[i]}} & %-10s[i]);\n" \
                "" "m_arid" $(log2_ceil ${slvnum}) ${ar_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${ar_chn_sideband[${item}]} \
                            ${ar_chn_sideband[${item}]} s_arid >> ${fname};
     else
-        printf "%8s%-10s           = %-10s       | ({%3d{s_arready[i]}} & %-10s[i]);\n" \
+        printf "%8s%-10s           = %-10s       | ({%3d{s_arsel[i]}} & %-10s[i]);\n" \
                "" m_${item} m_${item} ${ar_chn_sideband[${item}]} s_${item} >> ${fname};
     fi
 done
@@ -383,6 +390,9 @@ printf "endmodule\n\n"                             >> ${fname};
 printf "module %s (\n" "axi_arbitrator_${slvnum}s" >> ${fname};
 print_io i 1         aclk 1                        >> ${fname};
 print_io i 1         aresetn                       >> ${fname};
+print_io o ${slvnum} s_arsel                       >> ${fname};
+print_io o ${slvnum} s_awsel                       >> ${fname};
+print_io o ${slvnum} s_wsel                        >> ${fname};
 print_io i ${slvnum} s_arvalid                     >> ${fname};
 print_io o ${slvnum} s_arready                     >> ${fname};
 print_io i ${slvnum} s_awvalid                     >> ${fname};
@@ -436,10 +446,11 @@ echo "always_comb begin"                                                       >
 echo "    integer i;"                                                          >> ${fname};
 echo "    for (i = 0; i < SLV_NUM; i = i + 1) begin"                           >> ${fname};
 echo "        s_arready[i]  = s_arvalid[i] & (|ar_grant_matrix[i]) & m_arready;" >> ${fname};
+echo "        s_arsel  [i]  = s_arvalid[i] & (|ar_grant_matrix[i]);"           >> ${fname};
 echo "    end"                                                                 >> ${fname};
 echo "end"                                                                     >> ${fname};
 echo ""                                                                        >> ${fname};
-echo "assign m_arvalid = |(s_arready & s_arvalid);"                            >> ${fname};
+echo "assign m_arvalid = |s_arvalid;"                                          >> ${fname};
 echo ""                                                                        >> ${fname};
 echo "// AW arbitrator"                                                        >> ${fname};
 echo "logic [SLV_NUM - 1:0] aw_prior;"                                         >> ${fname};
@@ -472,16 +483,15 @@ echo "        end"                                                             >
 echo "    end"                                                                 >> ${fname};
 echo "end"                                                                     >> ${fname};
 echo ""                                                                        >> ${fname};
-echo "logic [SLV_NUM - 1:0] s_wsel;"                                           >> ${fname};
-echo ""                                                                        >> ${fname};
 echo "always_comb begin"                                                       >> ${fname};
 echo "    integer i;"                                                          >> ${fname};
 echo "    for (i = 0; i < SLV_NUM; i = i + 1) begin"                           >> ${fname};
 echo "        s_awready[i]  = s_awvalid[i] & (|aw_grant_matrix[i]) & ~|s_wsel & m_awready;" >> ${fname};
+echo "        s_awsel  [i]  = s_awvalid[i] & (|aw_grant_matrix[i]);"           >> ${fname};
 echo "    end"                                                                 >> ${fname};
 echo "end"                                                                     >> ${fname};
 echo ""                                                                        >> ${fname};
-echo "assign m_awvalid = |(s_awready & s_awvalid);"                            >> ${fname};
+echo "assign m_awvalid = |s_awvalid;"                                          >> ${fname};
 echo ""                                                                        >> ${fname};
 echo "always_ff @(posedge aclk or negedge aresetn) begin"                      >> ${fname};
 echo "    if (~aresetn) begin"                                                 >> ${fname};
@@ -499,6 +509,7 @@ echo "end"                                                                     >
 echo ""                                                                        >> ${fname};
 echo "assign s_wready = s_wsel & {SLV_NUM{m_wready}};"                         >> ${fname};
 echo ""                                                                        >> ${fname};
-echo "assign m_wvalid = |(s_wsel & s_wvalid) & m_wready;"                      >> ${fname};
+echo "assign m_wvalid = |(s_wsel & s_wvalid);"                                 >> ${fname};
 echo "assign m_wlast  = |(s_wsel & s_wlast);"                                  >> ${fname};
+echo ""                                                                        >> ${fname};
 echo "endmodule"                                                               >> ${fname};

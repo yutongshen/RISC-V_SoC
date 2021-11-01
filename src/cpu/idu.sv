@@ -17,6 +17,7 @@ module idu (
     output logic [              `XLEN - 1:0] rs2_data,
     output logic [              `XLEN - 1:0] imm,
     // Control
+    output logic [                      1:0] prv_req,
     output logic                             ill_inst,
     output logic                             fense,
     output logic                             fense_i,
@@ -73,6 +74,7 @@ dec u_dec (
     // Date
     .imm           ( imm          ),
     // Control
+    .prv_req       ( prv_req      ),
     .ill_inst      ( ill_inst     ),
     .fense         ( fense        ),
     .fense_i       ( fense_i      ),

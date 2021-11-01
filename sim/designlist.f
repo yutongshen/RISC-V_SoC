@@ -11,8 +11,11 @@
 ../src/cpu/csr.sv
 ../src/cpu/sru.sv
 ../src/cpu/alu.sv
+../src/cpu/tpu.sv
 ../src/cpu/dpu.sv
+../src/cpu/mmu.sv
 ../src/cpu/pmu.sv
+../src/cpu/l1c.sv
 ../src/cpu/util.sv
 ../src/bus/axi2mem_bridge.sv
 ../src/bus/mem2axi_bridge.sv
@@ -20,6 +23,8 @@
 ../src/bus/axi_2to1_mux.sv
 ../src/bus/axi_1to2_dec.sv
 ../mdl/sram.sv
+../mdl/sram64x22.sv
+../mdl/sram64x128.sv
 ../mdl/cpu_tracer.sv
 
 +incdir+../include

@@ -28,6 +28,12 @@
 /home/fred2/RISCV/include/cpu_define.h
 ../include/cpu_define.h
 /home/fred2/RISCV/include/cpu_define.h
+../include/cpu_define.h
+/home/fred2/RISCV/include/cpu_define.h
+../include/axi_define.h
+/home/fred2/RISCV/include/axi_define.h
+../include/cache_define.h
+/home/fred2/RISCV/include/cache_define.h
 ../include/axi_define.h
 /home/fred2/RISCV/include/axi_define.h
 ../include/axi_define.h

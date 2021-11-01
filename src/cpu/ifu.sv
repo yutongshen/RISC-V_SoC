@@ -3,6 +3,8 @@ module ifu (
     input                             rstn,
     input                             irq_en,
     input        [`IM_ADDR_LEN - 1:0] irq_vec,
+    input                             eret_en,
+    input        [`IM_ADDR_LEN - 1:0] ret_epc,
     input                             pc_jump_en,
     input        [`IM_ADDR_LEN - 1:0] pc_jump,
     input                             pc_alu_en,
@@ -27,8 +29,9 @@ logic                      inst_latch_valid;
 logic [`IM_DATA_LEN - 1:0] inst_latch;
 logic                      imem_req_latch;
 
-assign jump      = irq_en | pc_jump_en | pc_alu_en;
-assign jump_addr = irq_en    ? irq_vec:
+assign jump      = irq_en | pc_jump_en | pc_alu_en | eret_en;
+assign jump_addr = eret_en   ? ret_epc:
+                   irq_en    ? irq_vec:
                    pc_alu_en ? pc_alu:
                                pc_jump;
 assign pc_nxt    = jump ? jump_addr : (pc_d1 + `IM_ADDR_LEN'h4);

@@ -2,6 +2,8 @@ module hzu (
     input  [4:0] inst_valid,
     input        pc_jump_en,
     input        pc_alu_en,
+    input        irq_en,
+    input        trap_en,
     input        id_hazard,
     input        exe_hazard,
     input        dpu_hazard,
@@ -25,9 +27,10 @@ module hzu (
 logic [4:0] stall_all;
 logic [4:0] flush_all;
 logic [4:0] flush_force_all;
+logic [4:0] flush_trap_all;
 
 assign {wb_stall, mem_stall, exe_stall, id_stall, if_stall} = stall_all/* & inst_valid*/;
-assign {wb_flush, mem_flush, exe_flush, id_flush, if_flush} = flush_all | flush_force_all;
+assign {wb_flush, mem_flush, exe_flush, id_flush, if_flush} = flush_all | flush_trap_all | flush_force_all;
 assign {wb_flush_force, mem_flush_force, exe_flush_force, id_flush_force, if_flush_force} = flush_force_all;
 
 assign stall_all = dpu_hazard ? 5'b11111:
@@ -40,6 +43,8 @@ assign flush_all = dpu_hazard ? 5'b10000:
                    id_hazard  ? 5'b00010:
                                 5'b00000;
 
-assign flush_force_all = pc_alu_en  ? 5'b00011 : 5'b00000;
+assign flush_force_all = (pc_alu_en || irq_en || trap_en)  ? 5'b00011 : 5'b00000;
+
+assign flush_trap_all = (irq_en || trap_en) ? 5'b00100 : 5'b00000;
 
 endmodule

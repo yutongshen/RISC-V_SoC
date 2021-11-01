@@ -1,5 +1,5 @@
 ncverilog(64): 15.20-s084: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
-TOOL:	ncverilog	15.20-s084: Started on Oct 25, 2021 at 00:29:18 CST
+TOOL:	ncverilog	15.20-s084: Started on Nov 01, 2021 at 22:55:58 CST
 ncverilog
 	-sv
 	-f /home/fred2/RISCV/./sim/designlist.f
@@ -16,8 +16,11 @@ ncverilog
 		../src/cpu/csr.sv
 		../src/cpu/sru.sv
 		../src/cpu/alu.sv
+		../src/cpu/tpu.sv
 		../src/cpu/dpu.sv
+		../src/cpu/mmu.sv
 		../src/cpu/pmu.sv
+		../src/cpu/l1c.sv
 		../src/cpu/util.sv
 		../src/bus/axi2mem_bridge.sv
 		../src/bus/mem2axi_bridge.sv
@@ -25,57 +28,16 @@ ncverilog
 		../src/bus/axi_2to1_mux.sv
 		../src/bus/axi_1to2_dec.sv
 		../mdl/sram.sv
+		../mdl/sram64x22.sv
+		../mdl/sram64x128.sv
 		../mdl/cpu_tracer.sv
 		+incdir+../include
 		+nc64bit
 		+access+r
 		+define+FSDB
 	+prog=/home/fred2/RISCV/./sim/prog2
-Recompiling... reason: file '../src/cpu/cpu_top.sv' is newer than expected.
-	expected: Sun Oct 24 23:56:21 2021
-	actual:   Mon Oct 25 00:28:55 2021
-file: ../sim/test.sv
-    $value$plusargs("prog=%s", prog_path);
-                  |
-ncvlog: *W,NOSYST (../sim/test.sv,61|18): System function '$value$plusargs' invoked as a task. Return value will be ignored.
-file: ../src/cpu/cpu_wrap.sv
-	module worklib.cpu_wrap:sv
-		errors: 0, warnings: 0
-file: ../src/cpu/cpu_top.sv
-	module worklib.cpu_top:sv
-		errors: 0, warnings: 0
-		Caching library 'worklib' ....... Done
-	Elaborating the design hierarchy:
-ncelab: *W,DSEMEL: This SystemVerilog design will be simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
-	Building instance overlay tables: .
-assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
-                               |
-ncelab: *W,ZROMCW (../src/cpu/cpu_top.sv,552|31): Zero multiple concatenation multiplier, treated as zero width by enclosing concatenation.
-assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + `XLEN'h4;
-                               |
-ncelab: *W,ZROMCW (../src/cpu/cpu_top.sv,553|31): Zero multiple concatenation multiplier, treated as zero width by enclosing concatenation.
-................... Done
-	Generating native compiled code:
-		worklib.cpu_top:sv <0x50dad257>
-			streams: 197, words: 76793
-		worklib.cpu_wrap:sv <0x0bf7f706>
-			streams:  36, words: 18087
-		worklib.test:sv <0x1b1a0f20>
-			streams:  13, words: 19449
-	Building instance specific data structures.
-	Loading native compiled code:     .................... Done
-	Design hierarchy summary:
-		                  Instances  Unique
-		Modules:                 34      27
-		Registers:             1018     950
-		Scalar wires:           647       -
-		Vectored wires:         700       -
-		Always blocks:          117      90
-		Initial blocks:           6       6
-		Cont. assignments:      256     298
-		Pseudo assignments:     584     584
-		Simulation timescale:  10ps
-	Writing initial simulation snapshot: worklib.test:sv
+	+nclinedebug
+ncverilog: *W,BADPRF: The +nclinedebug option may have an adverse performance impact.
 Loading snapshot worklib.test:sv .................... Done
 ncsim: *W,DSEM2009: This SystemVerilog design is simulated as per IEEE 1800-2009 SystemVerilog simulation semantics. Use -disable_sem2009 option for turning off SV 2009 simulation semantics.
 *Verdi* Loading libsscore_ius152.so
@@ -91,9 +53,9 @@ FSDB Dumper for IUS, Release Verdi_O-2018.09, Linux x86_64/64bit, 08/30/2018
 TEST_END flag detected
 Simulation end!
 END CODE: dead002a
-mcycle:   14546
-minstret: 9730
-Simulation complete via $finish(1) at time 1455750 NS + 6
+mcycle:   20454
+minstret: 9731
+Simulation complete via $finish(1) at time 2046550 NS + 6
 ../sim/test.sv:45     $finish;
 ncsim> exit
-TOOL:	ncverilog	15.20-s084: Exiting on Oct 25, 2021 at 00:29:23 CST  (total: 00:00:05)
+TOOL:	ncverilog	15.20-s084: Exiting on Nov 01, 2021 at 22:56:02 CST  (total: 00:00:04)

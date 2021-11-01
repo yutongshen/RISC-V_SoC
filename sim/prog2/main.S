@@ -6,16 +6,32 @@ main:
   addi sp, sp, -4
   sw s0, 0(sp)
   la s0, _test_start
-  li t1, 0x2
-  li t0, 0x800
-  csrw mie, t0
+
+  la t0, vector
+  csrw mepc, t0
+  li t0, 0x100800
+  csrw mstatus, t0
   la t0, add
   csrw mtvec, t0
+  mret
+  li t0, 0x800
+  csrw mie, t0
+  la t0, vector
+  li t1, 0xb 
+  slli t1, t1, 2
+  sub t0, t0, t1
+  ori t0, t0, 0x1
+  csrw mtvec, t0
   li t0, 0x8
-  csrw mstatus, t0
+  csrs mstatus, t0
   wfi
+  ecall
   j main
+  li t1, 0x2
   csrw mip, t1
+vector:
+  li t0, 0x123
+  csrw sptbr, t0
 add:
   li t0, 0xffffffff # -1
   li t1, 0xffffffff # -1

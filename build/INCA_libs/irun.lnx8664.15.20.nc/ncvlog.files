@@ -15,8 +15,11 @@
 /home/fred2/RISCV/src/cpu/csr.sv
 /home/fred2/RISCV/src/cpu/sru.sv
 /home/fred2/RISCV/src/cpu/alu.sv
+/home/fred2/RISCV/src/cpu/tpu.sv
 /home/fred2/RISCV/src/cpu/dpu.sv
+/home/fred2/RISCV/src/cpu/mmu.sv
 /home/fred2/RISCV/src/cpu/pmu.sv
+/home/fred2/RISCV/src/cpu/l1c.sv
 /home/fred2/RISCV/src/cpu/util.sv
 /home/fred2/RISCV/src/bus/axi2mem_bridge.sv
 /home/fred2/RISCV/src/bus/mem2axi_bridge.sv
@@ -24,4 +27,6 @@
 /home/fred2/RISCV/src/bus/axi_2to1_mux.sv
 /home/fred2/RISCV/src/bus/axi_1to2_dec.sv
 /home/fred2/RISCV/mdl/sram.sv
+/home/fred2/RISCV/mdl/sram64x22.sv
+/home/fred2/RISCV/mdl/sram64x128.sv
 /home/fred2/RISCV/mdl/cpu_tracer.sv

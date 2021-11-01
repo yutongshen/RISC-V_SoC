@@ -220,18 +220,18 @@ Selection-LineWidth = 1
 [FSM_Dlg-Print]
 Orientation = Landscape
 [FileBrowser]
-nWaveOpenFsdbDirHistory = "\"/home/fred2/RISCV/build/top.fsdb\""
+nWaveOpenFsdbDirHistory = "\"/home/fred2/RISCV/build/top.fsdb\"" "\"/home/fred2/RISCV/build/top1.fsdb\""
 [Form]
 version = Verdi_O-2018.09
-wave/unknownSave.fm = 100,100,520,275
+wave/unknownSave.fm = 100,122,520,275
 [General]
 autoSaveSession = FALSE
 TclAutoSource = 
 cmd_enter_form = FALSE
 SyncBrowserDir = TRUE
+version = Verdi_O-2018.09
 SignalCaseInSensitive = FALSE
 ShowWndCtntDuringResizing = FALSE
-version = Verdi_O-2018.09
 [GlobalProp]
 ErrWindow_Font = Helvetica_M_R_12
 [Globals]
@@ -379,11 +379,11 @@ nWave_OpenAliasFile = 767,450,590,340
 QwInfoMsgDlg = 575,375,750,250
 impOptionDlg = 494,25,700,300
 importDesignForm = 398,146,715,574
-QwUserAskDlg = 914,550,324,130
-qWaveSignalDialog = 90,107,800,479
-SetWindowTimeUnitDialog = 635,486,433,86
-openFileDlg = 573,425,602,483
-QwWarnMsgDlg = 650,419,600,250
+qWaveSignalDialog = 184,190,800,479
+QwWarnMsgDlg = 696,627,600,250
+openFileDlg = 800,314,602,483
+SetWindowTimeUnitDialog = 829,537,433,86
+QwUserAskDlg = 914,550,324,134
 [Relationship]
 hideRecursiceNode = FALSE
 [Session Cache]
@@ -569,7 +569,7 @@ pdmlMacro = ID_BLACK
 font = COURIER12
 annotFont = Helvetica_M_R_10
 [Text.1]
-viewport = 263 33 900 700 45
+viewport = 429 105 900 700 45
 [TextPrinter]
 Orientation = Landscape
 Indicator = FALSE
@@ -659,9 +659,9 @@ DefaultLogTimeUnit = "1.000000ns"
 [VIA.oneSearch.preference.vgifColumnSettingRC.setting0]
 parRuleSets = ""
 [VIA.oneSearch.preference.vgifColumnSettingRC.setting0.column0]
-name = Code
+name = Severity
 width = 60
-visualIndex = 2
+visualIndex = 1
 isHidden = TRUE
 isUserChangeColumnVisible = FALSE
 [VIA.oneSearch.preference.vgifColumnSettingRC.setting0.column1]
@@ -683,9 +683,9 @@ visualIndex = 4
 isHidden = FALSE
 isUserChangeColumnVisible = FALSE
 [VIA.oneSearch.preference.vgifColumnSettingRC.setting0.column4]
-name = Severity
+name = Code
 width = 60
-visualIndex = 1
+visualIndex = 2
 isHidden = TRUE
 isUserChangeColumnVisible = FALSE
 [Vi]
@@ -706,7 +706,8 @@ waveform_vertical_scroll_bar = TRUE
 scope_to_save_with_macro
 open_file_dir
 open_rc_file_dir
-viewPort = 346 123 1117 833 252 102
+getSignalForm = 184 190 800 479 164 381 390 89
+viewPort = 0 0 1470 852 252 102
 signalSpacing = 5
 digitalSignalHeight = 15
 analogSignalHeight = 98
@@ -975,7 +976,8 @@ curveWindow_Drag&Drop_Mode = TRUE
 hspiceIncOpenMode = TRUE
 pcSelectMode = TRUE
 hierarchyDelimiter = /
-RecentFile1 = "\"/home/fred2/RISCV/build/top.fsdb\""
+RecentFile1 = "\"/home/fred2/RISCV/build/top1.fsdb\""
+RecentFile2 = "\"/home/fred2/RISCV/build/top.fsdb\""
 open_file_time_range = FALSE
 value_window_aligment = Right
 signal_window_alignment = Auto
@@ -1008,7 +1010,6 @@ SEQAddDriverLoadInSameGroup = TRUE
 autoSyncCursorMarker = FALSE
 autoSyncHorizontalRange = FALSE
 autoSyncVerticalScroll = FALSE
-getSignalForm = 90 107 800 479 164 381 390 89
 [cov_hier_name_column]
 justify = TRUE
 [coverageColors]
@@ -1273,7 +1274,7 @@ AddImportArgument = FALSE
 LineBreakWithScope = TRUE
 StopAfterCompileOption = -s
 [wave.0]
-viewPort = 346 123 1117 833 252 102
+viewPort = 0 0 1470 852 252 102
 [wave.1]
 viewPort = 127 219 960 332 100 65
 [wave.2]

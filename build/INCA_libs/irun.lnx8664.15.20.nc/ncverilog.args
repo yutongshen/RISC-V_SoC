@@ -6,3 +6,4 @@
 -f
 /home/fred2/RISCV/./sim/designlist.f
 +prog=/home/fred2/RISCV/./sim/prog2
++nclinedebug

@@ -20,7 +20,7 @@ ${bld_dir}:
 sim: all | ${bld_dir}
 	@make -C $(root_dir)/$(sim_dir)/prog$(prog);
 	@cd $(bld_dir); \
-	ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog);
+	ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;
 
 axi: | ${bld_dir}
 	# @cd $(root_dir)/$(src_dir)/bus/; \

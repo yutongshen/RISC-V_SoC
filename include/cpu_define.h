@@ -1,13 +1,27 @@
 `ifndef __CPU_DEFINE__
 `define __CPU_DEFINE__
 
-`define IM_ADDR_LEN 32
-`define IM_DATA_LEN 32
+`define RV32
 
-`define DM_ADDR_LEN 32
-`define DM_DATA_LEN 32
+`ifdef RV32
+  `define XLEN 32
+  
+  `define IM_ADDR_LEN 32
+  `define IM_DATA_LEN 32
+  
+  `define DM_ADDR_LEN 32
+  `define DM_DATA_LEN 32
+`else
+  `define XLEN 64
+  
+  `define IM_ADDR_LEN 64
+  `define IM_DATA_LEN 32
+  
+  `define DM_ADDR_LEN 64
+  `define DM_DATA_LEN 64
 
-`define XLEN 32
+`endif
+
 
 `define ALU_OP_LEN 4
 `define CSR_OP_LEN 2
@@ -309,5 +323,22 @@
 `define MIP_MTIP (`XLEN'b1 <<  7)
 `define MIP_SEIP (`XLEN'b1 <<  9)
 `define MIP_MEIP (`XLEN'b1 << 11)
+
+`ifdef RV32
+  `define SATP_PPN_WIDTH  22
+  `define SATP_ASID_WIDTH  9
+  `define SATP_MODE_WIDTH  1
+  `define SATP_PPN_BIT     0+:`SATP_PPN_WIDTH
+  `define SATP_ASID_BIT   22+:`SATP_ASID_WIDTH
+  `define SATP_MODE_BIT   31+:`SATP_MODE_WIDTH
+`else
+  `define SATP_PPN_WIDTH  44
+  `define SATP_ASID_WIDTH 16
+  `define SATP_MODE_WIDTH  4
+  `define SATP_PPN_BIT     0+:`SATP_PPN_WIDTH
+  `define SATP_ASID_BIT   44+:`SATP_ASID_WIDTH
+  `define SATP_MODE_BIT   60+:`SATP_MODE_WIDTH
+`endif
+
 
 `endif

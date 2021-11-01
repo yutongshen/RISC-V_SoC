@@ -48,7 +48,7 @@ end
 initial begin
     wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
     #1;
-    #(`CLK_PRIOD * 2)
+    #(`CLK_PRIOD * 20)
     force u_cpu_wrap.u_cpu_top.meip = 1'b1;
     #(`CLK_PRIOD * 10)
     release u_cpu_wrap.u_cpu_top.meip;

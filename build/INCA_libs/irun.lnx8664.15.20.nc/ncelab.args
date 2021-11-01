@@ -7,6 +7,7 @@
 +nc64bit
 +access+r
 +define+FSDB
++nclinedebug
 -noshowtop
 -ACCESS
 +r

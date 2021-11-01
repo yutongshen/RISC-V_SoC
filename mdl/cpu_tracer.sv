@@ -3,6 +3,7 @@ module cpu_tracer (
     input        valid,
     input [31:0] pc,
     input [31:0] inst,
+    input [ 1:0] prv,
     input        rd_wr,
     input [ 4:0] rd_addr,
     input [31:0] rd_data,
@@ -14,7 +15,10 @@ module cpu_tracer (
     input        mem_wr,
     input [ 3:0] mem_byte,
     input [31:0] mem_rdata,
-    input [31:0] mem_wdata
+    input [31:0] mem_wdata,
+    input        trap_en,
+    input [31:0] mcause,
+    input [31:0] mtval
 );
 
 integer cpu_tracer_file;
@@ -30,30 +34,65 @@ always_ff @(posedge clk) begin
     integer i;
 
     if (valid) begin
-        $fdisplay(cpu_tracer_file, "(%0d ns) %08x:%08x %s", $time,  pc, inst, inst_dec(pc, inst));
-        if (mem_req & ~mem_wr) begin
+        str = prv === `PRV_M ? "M":
+              prv === `PRV_H ? "H":
+              prv === `PRV_S ? "S":
+              prv === `PRV_U ? "U":
+                               "X";
+        $fdisplay(cpu_tracer_file, "(%0d ns) [%s] %08x:%08x %s", $time, str, pc, inst, inst_dec(pc, inst));
+    end
+    if (valid & mem_req & ~mem_wr) begin
+        str = "";
+        for (i = 3; i >= 0; i = i - 1) begin
+            if (mem_byte[i]) $sformat(tmp, "%02x", (mem_rdata >> i*8) & 32'hff);
+            else tmp = "--";
+            str = {str, tmp};
+        end
+        $fdisplay(cpu_tracer_file, "  LOAD  MEM[%08x]: %s", mem_addr & ~32'h3, str);
+    end
+    if (valid & mem_req & mem_wr) begin
+        str = "";
+        for (i = 3; i >= 0; i = i - 1) begin
+            if (mem_byte[i]) $sformat(tmp, "%02x", (mem_wdata >> i*8) & 32'hff);
+            else tmp = "--";
+            str = {str, tmp};
+        end
+        $fdisplay(cpu_tracer_file, "  STORE MEM[%08x]: %s", mem_addr & ~32'h3, str);
+    end
+    if (rd_wr) begin
+        $fdisplay(cpu_tracer_file, "  %-8s  %08x", regs_name(rd_addr), rd_addr ? rd_data : 32'b0);
+    end
+    if (csr_wr) begin
+        $fdisplay(cpu_tracer_file, "  %-8s  %08x", csr_name(csr_waddr), csr_wdata);
+    end
+    if (trap_en) begin
+        if (mcause[31]) begin
+            $fdisplay(cpu_tracer_file, "(%0d ns) Interrupt #%0d, epc = 0x%08x, tval = 0x%08x",
+                      $time, mcause[30:0], pc, mtval);
+        end
+        else begin
             str = "";
-            for (i = 3; i >= 0; i = i - 1) begin
-                if (mem_byte[i]) $sformat(tmp, "%02x", (mem_rdata >> i*8) & 32'hff);
-                else tmp = "--";
-                str = {str, tmp};
-            end
-            $fdisplay(cpu_tracer_file, "  LOAD  MEM[%08x]: %s", mem_addr & ~32'h3, str);
-        end
-        if (mem_req & mem_wr) begin
-            str = "";
-            for (i = 3; i >= 0; i = i - 1) begin
-                if (mem_byte[i]) $sformat(tmp, "%02x", (mem_wdata >> i*8) & 32'hff);
-                else tmp = "--";
-                str = {str, tmp};
-            end
-            $fdisplay(cpu_tracer_file, "  STORE MEM[%08x]: %s", mem_addr & ~32'h3, str);
-        end
-        if (rd_wr) begin
-            $fdisplay(cpu_tracer_file, "  %-8s  %08x", regs_name(rd_addr), rd_addr ? rd_data : 32'b0);
-        end
-        if (csr_wr) begin
-            $fdisplay(cpu_tracer_file, "  %-8s  %08x", csr_name(csr_waddr), csr_wdata);
+            case (mcause)
+                `CAUSE_MISALIGNED_FETCH      : str = "InstructionAddressMisaligned"; 
+                `CAUSE_INSTRUCTION_ACCESS    : str = "InstructionAccessFault";
+                `CAUSE_ILLEGAL_INSTRUCTION   : str = "IllegalInstruction";
+                `CAUSE_BREAKPOINT            : str = "Breakpoint";
+                `CAUSE_MISALIGNED_LOAD       : str = "LoadAddressMisaligned";
+                `CAUSE_LOAD_ACCESS           : str = "LoadAccessFault";
+                `CAUSE_MISALIGNED_STORE      : str = "StoreAddressMisaligned";
+                `CAUSE_STORE_ACCESS          : str = "StoreAccessFault";
+                `CAUSE_USER_ECALL            : str = "UserEcall";
+                `CAUSE_SUPERVISOR_ECALL      : str = "SupervisorEcall";
+                `CAUSE_HYPERVISOR_ECALL      : str = "HypervisorEcall";
+                `CAUSE_MACHINE_ECALL         : str = "MachineEcall";
+                `CAUSE_INSTRUCTION_PAGE_FAULT: str = "InstructionPageFault";
+                `CAUSE_LOAD_PAGE_FAULT       : str = "LoadPageFault";
+                `CAUSE_STORE_PAGE_FAULT      : str = "StorePageFault";
+                default:
+                    $sformat(str, "Unknown exception #%0d", mcause);
+            endcase
+            $fdisplay(cpu_tracer_file, "(%0d ns) %s, epc = 0x%08x, tval = 0x%08x",
+                      $time, str, pc, mtval);
         end
     end
 end

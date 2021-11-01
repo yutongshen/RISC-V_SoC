@@ -26,13 +26,13 @@ TERM=xterm
 SHELL=/bin/sh
 HISTSIZE=1000
 MAKEFLAGS=prog=2
-SSH_CLIENT=180.177.2.91 23300 22
+SSH_CLIENT=180.177.2.91 19905 22
 SELINUX_USE_CURRENT_RANGE=
 OLDPWD=/home/fred2/RISCV
 MGC_LOCATION_MAP=NO_MAP
 QTDIR=/usr/lib64/qt-3.3
 QTINC=/usr/lib64/qt-3.3/include
-SSH_TTY=/dev/pts/2
+SSH_TTY=/dev/pts/13
 GROUP=users
 USER=fred2
 MAKEOVERRIDES=${-*-command-variables-*-}
@@ -64,10 +64,10 @@ LOGNAME=fred2
 MACHTYPE=x86_64
 CVS_RSH=ssh
 QTLIB=/usr/lib64/qt-3.3/lib
-SSH_CONNECTION=180.177.2.91 23300 140.116.245.125 22
+SSH_CONNECTION=180.177.2.91 19905 140.116.245.125 22
 LESSOPEN=|/usr/bin/lesspipe.sh %s
 SHLIB_PATH=/home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64
-DISPLAY=localhost:12.0
+DISPLAY=localhost:20.0
 SYN_MAN_DIR=/home/nfs_cad/synopsys/synthesis/cur/doc/syn/man
 G_BROKEN_FILENAMES=1
 _=/usr/cad/cadence/INCISIV/cur/tools/bin/ncverilog
@@ -95,83 +95,89 @@ argv[13]=../src/cpu/rfu.sv
 argv[14]=../src/cpu/csr.sv
 argv[15]=../src/cpu/sru.sv
 argv[16]=../src/cpu/alu.sv
-argv[17]=../src/cpu/dpu.sv
-argv[18]=../src/cpu/pmu.sv
-argv[19]=../src/cpu/util.sv
-argv[20]=../src/bus/axi2mem_bridge.sv
-argv[21]=../src/bus/mem2axi_bridge.sv
-argv[22]=../src/bus/axi_2to2_biu.sv
-argv[23]=../src/bus/axi_2to1_mux.sv
-argv[24]=../src/bus/axi_1to2_dec.sv
-argv[25]=../mdl/sram.sv
-argv[26]=../mdl/cpu_tracer.sv
-argv[27]=+incdir+../include
-argv[28]=+nc64bit
-argv[29]=+access+r
-argv[30]=+define+FSDB
-argv[31]=+prog=/home/fred2/RISCV/./sim/prog2
-112 profile - 100
-          CPU/Mem usage: 0.070 sys,  0.060 user,  200.60M sys,  0.00M vm
-113 VC callback profile - scalar:0 vector:0
-114 Mon Oct 25 00:29:20 2021
-115 pliAppInit
-116 FSDB_GATE is disabled.
-117 Enable Parallel Dumping.
-118 pliAppMiscSet: New Sim Round
-119 pliEntryInit
-120 LIBSSCORE=found /home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64/libsscore_ius152.so through $LD_LIBRARY_PATH setting.
-121 argv[0]: top.fsdb
-122 argv[0]: 0
-123 argv[1]: (handle)0x491fd98 test
-124 argv[2]: +struct
-125 argv[3]: +mda
-126 FSDB Dumper for IUS, Release Verdi_O-2018.09, Linux x86_64/64bit, 08/30/2018
-127 (C) 1996 - 2018 by Synopsys, Inc.
-128 sps_call_fsdbDumpfile at 0 : /home/fred2/RISCV/sim/test.sv(87)
-129 argv[0]: top.fsdb
-130 *Verdi* FSDB WARNING: The FSDB file already exists. Overwriting the FSDB file may crash the programs that are using this file.
-131 *Verdi* : Create FSDB file 'top.fsdb'
-132 sps_call_fsdbDumpvars at 0 : /home/fred2/RISCV/sim/test.sv(88)
-133 argv[0]: 0
-134 argv[1]: (handle)0x491fda8 test
-135 argv[2]: +struct
-136 argv[3]: +mda
-137 *Verdi* : Begin traversing the scope (test), layer (0).
-138 *Verdi* : Enable +struct and +mda dumping.
-139 *Verdi* : End of traversing.
-140 fsdbDumpvars traverse var: profile - 
-          CPU/Mem usage: 0.100 sys,  0.740 user,  325.94M sys,  0.00M vm
-                   incr: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
-                   accu: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
-              accu incr: 0.020 sys,  0.670 user,  33.72M sys,  0.00M vm
+argv[17]=../src/cpu/tpu.sv
+argv[18]=../src/cpu/dpu.sv
+argv[19]=../src/cpu/mmu.sv
+argv[20]=../src/cpu/pmu.sv
+argv[21]=../src/cpu/l1c.sv
+argv[22]=../src/cpu/util.sv
+argv[23]=../src/bus/axi2mem_bridge.sv
+argv[24]=../src/bus/mem2axi_bridge.sv
+argv[25]=../src/bus/axi_2to2_biu.sv
+argv[26]=../src/bus/axi_2to1_mux.sv
+argv[27]=../src/bus/axi_1to2_dec.sv
+argv[28]=../mdl/sram.sv
+argv[29]=../mdl/sram64x22.sv
+argv[30]=../mdl/sram64x128.sv
+argv[31]=../mdl/cpu_tracer.sv
+argv[32]=+incdir+../include
+argv[33]=+nc64bit
+argv[34]=+access+r
+argv[35]=+define+FSDB
+argv[36]=+prog=/home/fred2/RISCV/./sim/prog2
+argv[37]=+nclinedebug
+118 profile - 100
+          CPU/Mem usage: 0.060 sys,  0.040 user,  201.87M sys,  0.00M vm
+119 VC callback profile - scalar:0 vector:0
+120 Mon Nov  1 22:55:58 2021
+121 pliAppInit
+122 FSDB_GATE is disabled.
+123 Enable Parallel Dumping.
+124 pliAppMiscSet: New Sim Round
+125 pliEntryInit
+126 LIBSSCORE=found /home/nfs_cad/synopsys/verdi/cur/share/PLI/IUS/LINUX64/libsscore_ius152.so through $LD_LIBRARY_PATH setting.
+127 argv[0]: top.fsdb
+128 argv[0]: 0
+129 argv[1]: (handle)0x508fd68 test
+130 argv[2]: +struct
+131 argv[3]: +mda
+132 FSDB Dumper for IUS, Release Verdi_O-2018.09, Linux x86_64/64bit, 08/30/2018
+133 (C) 1996 - 2018 by Synopsys, Inc.
+134 sps_call_fsdbDumpfile at 0 : /home/fred2/RISCV/sim/test.sv(87)
+135 argv[0]: top.fsdb
+136 *Verdi* FSDB WARNING: The FSDB file already exists. Overwriting the FSDB file may crash the programs that are using this file.
+137 *Verdi* : Create FSDB file 'top.fsdb'
+138 sps_call_fsdbDumpvars at 0 : /home/fred2/RISCV/sim/test.sv(88)
+139 argv[0]: 0
+140 argv[1]: (handle)0x508fd78 test
+141 argv[2]: +struct
+142 argv[3]: +mda
+143 *Verdi* : Begin traversing the scope (test), layer (0).
+144 *Verdi* : Enable +struct and +mda dumping.
+145 *Verdi* : End of traversing.
+146 fsdbDumpvars traverse var: profile - 
+          CPU/Mem usage: 0.100 sys,  0.810 user,  327.98M sys,  0.00M vm
+                   incr: 0.030 sys,  0.770 user,  34.48M sys,  0.00M vm
+                   accu: 0.030 sys,  0.770 user,  34.48M sys,  0.00M vm
+              accu incr: 0.030 sys,  0.770 user,  34.48M sys,  0.00M vm
 
-          Count usage: 164473 var,  164420 idcode,  164426 callback
-                 incr: 164473 var,  164420 idcode,  164426 callback
-                 accu: 164473 var,  164420 idcode,  164426 callback
-            accu incr: 164473 var,  164420 idcode,  164426 callback
-141 VC callback profile - scalar:0 vector:0
-142 Mon Oct 25 00:29:21 2021
-143 fsdbDumpvars: profile - 
-          CPU/Mem usage: 0.100 sys,  0.860 user,  336.72M sys,  0.00M vm
-                   incr: 0.000 sys,  0.120 user,  10.78M sys,  0.00M vm
-                   accu: 0.020 sys,  0.790 user,  44.50M sys,  0.00M vm
-              accu incr: 0.000 sys,  0.120 user,  10.78M sys,  0.00M vm
+          Count usage: 165815 var,  165674 idcode,  165680 callback
+                 incr: 165815 var,  165674 idcode,  165680 callback
+                 accu: 165815 var,  165674 idcode,  165680 callback
+            accu incr: 165815 var,  165674 idcode,  165680 callback
+147 VC callback profile - scalar:0 vector:0
+148 Mon Nov  1 22:55:59 2021
+149 fsdbDumpvars: profile - 
+          CPU/Mem usage: 0.110 sys,  0.920 user,  338.89M sys,  0.00M vm
+                   incr: 0.010 sys,  0.110 user,  10.91M sys,  0.00M vm
+                   accu: 0.040 sys,  0.880 user,  45.39M sys,  0.00M vm
+              accu incr: 0.010 sys,  0.110 user,  10.91M sys,  0.00M vm
 
-          Count usage: 164473 var,  164420 idcode,  164426 callback
+          Count usage: 165815 var,  165674 idcode,  165680 callback
                  incr: 0 var,  0 idcode,  0 callback
-                 accu: 164473 var,  164420 idcode,  164426 callback
+                 accu: 165815 var,  165674 idcode,  165680 callback
             accu incr: 0 var,  0 idcode,  0 callback
-144 VC callback profile - scalar:321 vector:164099
-145 Mon Oct 25 00:29:21 2021
-146 End of simulation at 145575000
-147 VC callback profile - scalar:647711 vector:1750201
-148 Mon Oct 25 00:29:22 2021
-149 Begin FSDB profile info:
-150 FSDB Writer : bc1(647711) bcn(1750201) mtf/stf(0/0)
-FSDB Writer elapsed time : flush(0.392808) io wait(0.000000) theadpool wait(0.000000) target functin(0.000000)
+150 VC callback profile - scalar:687 vector:164987
+151 Mon Nov  1 22:55:59 2021
+152 End of simulation at 204655000
+153 VC callback profile - scalar:1387445 vector:3240656
+154 Mon Nov  1 22:56:01 2021
+155 Begin FSDB profile info:
+156 FSDB Writer : bc1(1387445) bcn(3240656) mtf/stf(0/0)
+FSDB Writer elapsed time : flush(0.603661) io wait(0.000000) theadpool wait(0.000000) target functin(0.000000)
 FSDB Writer cpu time : MT Compression : 0
-151 End FSDB profile info
-152 Parallel profile    -  Flush:3 Expand:0 ProduceWait:0 ConsumerWait:15 BlockUsed:16
-153                        ProduceTime:2.102715596 ConsumerTime:0.336490139 Buffer:64MB
-154 SimExit
-155 Sim process exit
+157 End FSDB profile info
+158 Parallel profile    -  Flush:3 Expand:0 ProduceWait:0 ConsumerWait:32 BlockUsed:32
+159                        ProduceTime:3.570135825 ConsumerTime:0.661513876 Buffer:64MB
+160 SimExit
+161 Sim process exit

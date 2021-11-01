@@ -7,7 +7,7 @@ export RISCV_OBJCOPY ?= $(CROSS_PREFIX)objcopy -O verilog
 
 INCDIR := ../include/
 LDFILE := link.ld
-CFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i -mabi=ilp32 -I$(INCDIR)
+CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i -mabi=ilp32 -I$(INCDIR)
 LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i -mabi=ilp32 -T$(LDFILE) -lgcc
 
 

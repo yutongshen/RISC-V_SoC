@@ -17,14 +17,16 @@ FSDBMsgShow = 0
 AnnotationShow = 0
 powerDumped = 0
 [hb]
-viewport = 263 33 900 700 0 0 188 898
+postSimFile = /home/fred2/RISCV/build/top1.fsdb
+syncTime = 1715450
+viewport = 429 105 900 700 0 0 188 898
 activeNode = "test"
 activeScope = "test"
 activeFile = "../sim/test.sv"
 interactiveMode = False
 viewType = Source
 simulatorMode = False
-sourceBeginLine = 5
+sourceBeginLine = 26
 baMode = False
 srcLineNum = True
 AutoWrap = True
@@ -42,7 +44,6 @@ traceIncTopPort = False
 leadingZero = False
 signalPane = False
 Scope1 = "test"
-multipleSelection = 1 5 2 0 0
 sdfCheckUndef = FALSE
 simFlow = FALSE
 [hb.design]
@@ -51,4 +52,29 @@ invokeDir = /home/fred2/RISCV/build
 [hb.sourceTab.1]
 scope = test
 File = /home/fred2/RISCV/sim/test.sv
-Line = 6
+Line = 27
+[nMemoryManager]
+FsdbFile = /home/fred2/RISCV/build/top1.fsdb
+UserActionNum = 0
+nMemWindowNum = 0
+[wave.0]
+viewPort = 0 0 1470 852 252 102
+primaryWindow = TRUE
+SessionFile = /home/fred2/RISCV/build/verdiLog/novas_autosave.ses.wave.0
+displayGrid = FALSE
+hierarchicalName = FALSE
+snap = TRUE
+displayLeadingZeros = FALSE
+fixDelta = FALSE
+displayCursorMarker = FALSE
+autoUpdate = FALSE
+highlightGlitchs = FALSE
+waveformSyncCursorMarker = FALSE
+waveformSyncHorizontalRange = FALSE
+waveformSyncVerticalscroll = FALSE
+displayErrors = TRUE
+displayMsgSymbols = TRUE
+showMsgDescriptions = TRUE
+autoFit = FALSE
+displayDeltaY = FALSE
+centerCursor = FALSE
