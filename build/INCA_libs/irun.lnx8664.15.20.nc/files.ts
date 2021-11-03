@@ -1,10 +1,10 @@
 1635260789 /home/fred2/RISCV/sim/test.sv
-1635713414 /home/fred2/RISCV/src/cpu/cpu_wrap.sv
-1635436594 /home/fred2/RISCV/src/cpu/marb.sv
-1635778531 /home/fred2/RISCV/src/cpu/cpu_top.sv
+1635960368 /home/fred2/RISCV/src/cpu/cpu_wrap.sv
+1635959637 /home/fred2/RISCV/src/cpu/marb.sv
+1635953444 /home/fred2/RISCV/src/cpu/cpu_top.sv
 1634833752 /home/fred2/RISCV/src/cpu/clkmnt.sv
 1635434668 /home/fred2/RISCV/src/cpu/hzu.sv
-1635335276 /home/fred2/RISCV/src/cpu/ifu.sv
+1635954046 /home/fred2/RISCV/src/cpu/ifu.sv
 1635175805 /home/fred2/RISCV/src/cpu/idu.sv
 1635175763 /home/fred2/RISCV/src/cpu/dec.sv
 1632844838 /home/fred2/RISCV/src/cpu/rfu.sv
@@ -13,9 +13,8 @@
 1632844838 /home/fred2/RISCV/src/cpu/alu.sv
 1635774743 /home/fred2/RISCV/src/cpu/tpu.sv
 1634660969 /home/fred2/RISCV/src/cpu/dpu.sv
-1635774210 /home/fred2/RISCV/src/cpu/mmu.sv
 1634658186 /home/fred2/RISCV/src/cpu/pmu.sv
-1635774117 /home/fred2/RISCV/src/cpu/l1c.sv
+1635960346 /home/fred2/RISCV/src/cpu/l1c.sv
 1632844838 /home/fred2/RISCV/src/cpu/util.sv
 1635774134 /home/fred2/RISCV/src/bus/axi2mem_bridge.sv
 1634657698 /home/fred2/RISCV/src/bus/mem2axi_bridge.sv
@@ -26,3 +25,5 @@
 1635425961 /home/fred2/RISCV/mdl/sram64x22.sv
 1635345334 /home/fred2/RISCV/mdl/sram64x128.sv
 1635777990 /home/fred2/RISCV/mdl/cpu_tracer.sv
+1635952516 /home/fred2/RISCV/src/cpu/mmu_csr.sv
+1635959939 /home/fred2/RISCV/src/cpu/mmu.sv

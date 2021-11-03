@@ -4,15 +4,25 @@ module cpu_top (
     input                                    clk,
     input                                    rstn,
     input        [              `XLEN - 1:0] cpu_id,
+    
+    // mmu csr
+    output logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
+    output logic [   `SATP_ASID_WIDTH - 1:0] satp_asid,
+    output logic [   `SATP_MODE_WIDTH - 1:0] satp_mode,
+    output logic                             mstatus_tvm,
+    output logic [                      1:0] prv,
+
     // interrupt interface
     input                                    msip,
     input                                    mtip,
     input                                    meip,
+
     // inst interface
     output logic                             imem_en,
     output logic [       `IM_ADDR_LEN - 1:0] imem_addr,
     input        [       `IM_DATA_LEN - 1:0] imem_rdata,
     input                                    imem_busy,
+
     // data interface                             
     output logic                             dmem_en,
     output logic [       `IM_ADDR_LEN - 1:0] dmem_addr,
@@ -196,6 +206,9 @@ logic [              `XLEN - 1:0] exe_trap_cause;
 logic [              `XLEN - 1:0] exe_trap_val;
 logic [              `XLEN - 1:0] exe_cause;
 logic [              `XLEN - 1:0] exe_tval;
+logic [    `SATP_PPN_WIDTH - 1:0] exe_satp_ppn;
+logic [   `SATP_ASID_WIDTH - 1:0] exe_satp_asid;
+logic [   `SATP_MODE_WIDTH - 1:0] exe_satp_mode;
 
 // EXE/MEM pipeline
 logic [       `IM_ADDR_LEN - 1:0] exe2mem_pc;
@@ -628,9 +641,13 @@ sru u_sru (
     .csr_rdata   ( id_sru_csr_rdata  )
 );
 
-mmu u_mmu (
+mmu_csr u_mmu_csr (
     .clk       ( clk_wfi          ),
     .rstn      ( rstn_sync        ),
+
+    .satp_ppn  ( exe_satp_ppn     ),
+    .satp_asid ( exe_satp_asid    ),
+    .satp_mode ( exe_satp_mode    ),
 
     // CSR interface
     .csr_wr    ( exe_mmu_csr_wr   ),
@@ -656,6 +673,12 @@ tpu u_tpu (
     .trap_cause ( exe_trap_cause    ),
     .trap_val   ( exe_trap_val      )
 );
+
+assign satp_ppn    = exe_satp_ppn;
+assign satp_asid   = exe_satp_asid;
+assign satp_mode   = exe_satp_mode;
+assign mstatus_tvm = exe_mstatus_tvm;
+assign prv         = exe_prv;
 
 always_comb begin
 exe_csr_wdata = `XLEN'b0;

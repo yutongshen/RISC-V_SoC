@@ -98,7 +98,9 @@ assign imem_addr  = pc_d1;
 assign imem_req   = ~imem_busy & ~jump & (inst_valid | ~imem_req_latch);
 
 assign inst_valid = ((imem_req_latch & ~imem_busy) | inst_latch_valid) & ~stall & ~jump;
-assign inst       = inst_latch_valid ? inst_latch : imem_rdata;
+assign inst       = inst_latch_valid ? inst_latch: 
+                    ~imem_busy       ? imem_rdata:
+                                       `IM_DATA_LEN'b0;
 assign pc         = pc_d2;
 
 endmodule

@@ -31,7 +31,7 @@ main:
   csrw mip, t1
 vector:
   li t0, 0x123
-  csrw sptbr, t0
+  csrw satp, t0
 add:
   li t0, 0xffffffff # -1
   li t1, 0xffffffff # -1

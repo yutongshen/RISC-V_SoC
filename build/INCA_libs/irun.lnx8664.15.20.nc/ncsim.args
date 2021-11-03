@@ -2,7 +2,7 @@
 // File created by:  ncverilog
 // Do not modify this file
 //
-+prog=/home/fred2/RISCV/./sim/prog2
++prog=/home/fred2/RISCV/./sim/prog0
 +incdir+../include
 +nc64bit
 +access+r
@@ -12,7 +12,7 @@
 +EMGRLOG
 ncverilog.log
 -XLSTIME
-1635778558
+1635960379
 -XLKEEP
 -XLMODE
 ./INCA_libs/irun.lnx8664.15.20.nc

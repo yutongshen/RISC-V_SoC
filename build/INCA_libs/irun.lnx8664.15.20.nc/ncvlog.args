@@ -21,8 +21,9 @@
 ../src/cpu/alu.sv
 ../src/cpu/tpu.sv
 ../src/cpu/dpu.sv
-../src/cpu/mmu.sv
 ../src/cpu/pmu.sv
+../src/cpu/mmu_csr.sv
+../src/cpu/mmu.sv
 ../src/cpu/l1c.sv
 ../src/cpu/util.sv
 ../src/bus/axi2mem_bridge.sv

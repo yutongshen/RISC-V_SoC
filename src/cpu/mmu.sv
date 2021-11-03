@@ -1,40 +1,36 @@
-module mmu (
-    input clk,
-    input rstn,
+`include "intf_define.h"
 
-    // CSR interface
-    input                           csr_wr,
-    input        [            11:0] csr_waddr,
-    input        [            11:0] csr_raddr,
-    input        [       `XLEN-1:0] csr_wdata,
-    output logic [       `XLEN-1:0] csr_rdata
+module mmu (
+    input                                    clk,
+    input                                    rstn,
+    
+    // mmu csr
+    input        [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
+    input        [   `SATP_ASID_WIDTH - 1:0] satp_asid,
+    input        [   `SATP_MODE_WIDTH - 1:0] satp_mode,
+    input                                    mstatus_tvm,
+    input        [                      1:0] prv,
+
+    // virtual address
+    input                                    va_valid,
+    input        [                     47:0] va,
+
+    // physical address
+    output logic                             pa_valid,
+    output logic [                     55:0] pa,
+    
+    // AXI interface
+    `AXI_INTF_MST_DEF(m, 10)
 );
 
-logic [           `XLEN-1:0] satp;
-logic [ `SATP_PPN_WIDTH-1:0] satp_ppn;
-logic [`SATP_ASID_WIDTH-1:0] satp_asid;
-logic [`SATP_MODE_WIDTH-1:0] satp_mode;
-
-assign satp = {satp_mode, satp_asid, satp_ppn};
+logic [55:0] va_latch;
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        satp_ppn  <= `SATP_PPN_WIDTH'b0;
-        satp_asid <= `SATP_ASID_WIDTH'b0;
-        satp_mode <= `SATP_MODE_WIDTH'b0;
-    end
-    else if (csr_wr && csr_waddr == `CSR_SATP_ADDR) begin
-        satp_ppn  <= csr_wdata[ `SATP_PPN_BIT];
-        satp_asid <= csr_wdata[`SATP_ASID_BIT];
-        satp_mode <= csr_wdata[`SATP_MODE_BIT];
-    end
+    if (~rstn) va_latch <= 56'b0;
+    else       va_latch <= {8'b0, va};
 end
 
-always_comb begin
-    csr_rdata = `XLEN'b0;
-    case (csr_raddr) 
-        `CSR_SATP_ADDR   : csr_rdata = satp;
-    endcase
-end
+assign pa_valid = ~(mstatus_tvm && prv < `PRV_M);
+assign pa       = va_latch;
 
 endmodule

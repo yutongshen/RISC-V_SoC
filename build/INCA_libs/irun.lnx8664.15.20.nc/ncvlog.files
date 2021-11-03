@@ -17,8 +17,9 @@
 /home/fred2/RISCV/src/cpu/alu.sv
 /home/fred2/RISCV/src/cpu/tpu.sv
 /home/fred2/RISCV/src/cpu/dpu.sv
-/home/fred2/RISCV/src/cpu/mmu.sv
 /home/fred2/RISCV/src/cpu/pmu.sv
+/home/fred2/RISCV/src/cpu/mmu_csr.sv
+/home/fred2/RISCV/src/cpu/mmu.sv
 /home/fred2/RISCV/src/cpu/l1c.sv
 /home/fred2/RISCV/src/cpu/util.sv
 /home/fred2/RISCV/src/bus/axi2mem_bridge.sv

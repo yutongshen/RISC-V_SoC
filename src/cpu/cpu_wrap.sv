@@ -1,4 +1,5 @@
 `include "cpu_define.h"
+`include "intf_define.h"
 
 module cpu_wrap (
     input clk,
@@ -17,6 +18,11 @@ logic [(`IM_DATA_LEN >> 3) - 1:0] dmem_strb;
 logic [       `IM_DATA_LEN - 1:0] dmem_wdata;
 logic [       `IM_DATA_LEN - 1:0] dmem_rdata;
 logic                             dmem_busy;
+logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn;
+logic [   `SATP_ASID_WIDTH - 1:0] satp_asid;
+logic [   `SATP_MODE_WIDTH - 1:0] satp_mode;
+logic                             mstatus_tvm;
+logic [                      1:0] prv;
 
 logic          mem_ck_0;
 logic          mem_ck_1;
@@ -37,27 +43,129 @@ logic [ 31: 0] di_1;
 logic [ 31: 0] do_1;
 logic          busy_1;
 
+logic          immu_pa_vld;
+logic [ 55: 0] immu_pa;
+logic          dmmu_pa_vld;
+logic [ 55: 0] dmmu_pa;
+
+`AXI_INTF_DEF(immu, 10)
+`AXI_INTF_DEF(dmmu, 10)
+`AXI_INTF_DEF(l1ic, 10)
+`AXI_INTF_DEF(l1dc, 10)
+
 cpu_top u_cpu_top (
-    .clk         ( clk        ),
-    .rstn        ( rstn       ),
-    .cpu_id      ( `XLEN'd0   ),
+    .clk         ( clk         ),
+    .rstn        ( rstn        ),
+    .cpu_id      ( `XLEN'd0    ),
+
+    // mmu csr
+    .satp_ppn    ( satp_ppn    ),
+    .satp_asid   ( satp_asid   ),
+    .satp_mode   ( satp_mode   ),
+    .mstatus_tvm ( mstatus_tvm ),
+    .prv         ( prv         ),
+   
     // interrupt interface
-    .msip        ( 1'b0       ),
-    .mtip        ( 1'b0       ),
-    .meip        ( 1'b0       ),
+    .msip        ( 1'b0        ),
+    .mtip        ( 1'b0        ),
+    .meip        ( 1'b0        ),
     // inst interface
-    .imem_en     ( imem_en    ),
-    .imem_addr   ( imem_addr  ),
-    .imem_rdata  ( {32{~imem_busy}} & imem_rdata ),
-    .imem_busy   ( imem_busy  ),
+    .imem_en     ( imem_en     ),
+    .imem_addr   ( imem_addr   ),
+    .imem_rdata  ( imem_rdata  ),
+    .imem_busy   ( imem_busy   ),
     // data interface
-    .dmem_en     ( dmem_en    ),
-    .dmem_addr   ( dmem_addr  ),
-    .dmem_write  ( dmem_write ),
-    .dmem_strb   ( dmem_strb  ),
-    .dmem_wdata  ( dmem_wdata ),
-    .dmem_rdata  ( {32{~dmem_busy}} & dmem_rdata ),
-    .dmem_busy   ( dmem_busy  )
+    .dmem_en     ( dmem_en     ),
+    .dmem_addr   ( dmem_addr   ),
+    .dmem_write  ( dmem_write  ),
+    .dmem_strb   ( dmem_strb   ),
+    .dmem_wdata  ( dmem_wdata  ),
+    .dmem_rdata  ( dmem_rdata  ),
+    .dmem_busy   ( dmem_busy   )
+);
+
+mmu u_immu(
+    .clk         ( clk                ),
+    .rstn        ( rstn               ),
+    
+    // mmu csr
+    .satp_ppn    ( satp_ppn           ),
+    .satp_asid   ( satp_asid          ),
+    .satp_mode   ( satp_mode          ),
+    .mstatus_tvm ( mstatus_tvm        ),
+    .prv         ( prv                ),
+
+    // virtual address
+    .va_valid    ( imem_en            ),
+    .va          ( {16'b0, imem_addr} ),
+
+    // physical address
+    .pa_valid    ( immu_pa_valid      ),
+    .pa          ( immu_pa            ),
+    
+    // AXI interface
+    `AXI_INTF_CONNECT(m, immu)
+);
+
+mmu u_dmmu(
+    .clk         ( clk                ),
+    .rstn        ( rstn               ),
+    
+    // mmu csr
+    .satp_ppn    ( satp_ppn           ),
+    .satp_asid   ( satp_asid          ),
+    .satp_mode   ( satp_mode          ),
+    .mstatus_tvm ( mstatus_tvm        ),
+    .prv         ( prv                ),
+
+    // virtual address
+    .va_valid    ( dmem_en            ),
+    .va          ( {16'b0, dmem_addr} ),
+
+    // physical address
+    .pa_valid    ( dmmu_pa_valid      ),
+    .pa          ( dmmu_pa            ),
+    
+    // AXI interface
+    `AXI_INTF_CONNECT(m, dmmu)
+);
+
+l1c u_l1ic (
+    .clk         ( clk           ),
+    .rstn        ( rstn          ),
+
+    .core_bypass ( 1'b0          ),
+    .core_pa_vld ( immu_pa_vld   ),
+    .core_paddr  ( immu_pa[31:0] ),
+    .core_req    ( imem_en       ),
+    .core_wr     ( 1'b0          ),
+    .core_vaddr  ( imem_addr     ),
+    .core_byte   ( 4'hf          ),
+    .core_wdata  ( 32'b0         ),
+    .core_rdata  ( imem_rdata    ),
+    .core_err    (               ),
+    .core_busy   ( imem_busy     ),
+
+    `AXI_INTF_CONNECT(m, l1ic)
+);
+
+l1c u_l1dc (
+    .clk         ( clk           ),
+    .rstn        ( rstn          ),
+
+    .core_bypass ( 1'b0          ),
+    .core_pa_vld ( dmmu_pa_vld   ),
+    .core_paddr  ( dmmu_pa[31:0] ),
+    .core_req    ( dmem_en       ),
+    .core_wr     ( dmem_write    ),
+    .core_vaddr  ( dmem_addr     ),
+    .core_byte   ( dmem_strb     ),
+    .core_wdata  ( dmem_wdata    ),
+    .core_rdata  ( dmem_rdata    ),
+    .core_err    (               ),
+    .core_busy   ( dmem_busy     ),
+
+    `AXI_INTF_CONNECT(m, l1dc)
 );
 
 // assign imem_busy = 1'b0;
@@ -108,27 +216,31 @@ cpu_top u_cpu_top (
 //     force mem_ck_1 = 1'b0;
 // end
 
+
+
 marb u_marb (
     .clk     ( clk        ),
     .rstn    ( rstn       ),
 
-    .s0_cs   ( imem_en    ),
-    .s0_we   ( 1'b0       ),
-    .s0_addr ( imem_addr  ),
-    .s0_byte ( 4'hf       ),
-    .s0_di   ( 32'b0      ),
-    .s0_do   ( imem_rdata ),
-    .s0_busy ( imem_busy  ),
-    .s0_err  (            ),
+    `AXI_INTF_CONNECT(s0, l1ic),
+    `AXI_INTF_CONNECT(s1, l1dc),
+    // .s0_cs   ( imem_en    ),
+    // .s0_we   ( 1'b0       ),
+    // .s0_addr ( imem_addr  ),
+    // .s0_byte ( 4'hf       ),
+    // .s0_di   ( 32'b0      ),
+    // .s0_do   ( imem_rdata ),
+    // .s0_err  (            ),
+    // .s0_busy ( imem_busy  ),
 
-    .s1_cs   ( dmem_en    ),
-    .s1_we   ( dmem_write ),
-    .s1_addr ( dmem_addr  ),
-    .s1_byte ( dmem_strb  ),
-    .s1_di   ( dmem_wdata ),
-    .s1_do   ( dmem_rdata ),
-    .s1_busy ( dmem_busy  ),
-    .s1_err  (            ),
+    // .s1_cs   ( dmem_en    ),
+    // .s1_we   ( dmem_write ),
+    // .s1_addr ( dmem_addr  ),
+    // .s1_byte ( dmem_strb  ),
+    // .s1_di   ( dmem_wdata ),
+    // .s1_do   ( dmem_rdata ),
+    // .s1_err  (            ),
+    // .s1_busy ( dmem_busy  ),
 
     .m0_cs   ( cs_0       ),
     .m0_we   ( we_0       ),

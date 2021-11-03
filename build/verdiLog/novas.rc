@@ -229,9 +229,9 @@ autoSaveSession = FALSE
 TclAutoSource = 
 cmd_enter_form = FALSE
 SyncBrowserDir = TRUE
-version = Verdi_O-2018.09
 SignalCaseInSensitive = FALSE
 ShowWndCtntDuringResizing = FALSE
+version = Verdi_O-2018.09
 [GlobalProp]
 ErrWindow_Font = Helvetica_M_R_12
 [Globals]
@@ -380,10 +380,10 @@ QwInfoMsgDlg = 575,375,750,250
 impOptionDlg = 494,25,700,300
 importDesignForm = 398,146,715,574
 qWaveSignalDialog = 184,190,800,479
-QwWarnMsgDlg = 696,627,600,250
-openFileDlg = 800,314,602,483
-SetWindowTimeUnitDialog = 829,537,433,86
 QwUserAskDlg = 914,550,324,134
+openFileDlg = 757,480,602,483
+QwWarnMsgDlg = 696,627,600,250
+SetWindowTimeUnitDialog = 842,678,433,86
 [Relationship]
 hideRecursiceNode = FALSE
 [Session Cache]
@@ -706,7 +706,6 @@ waveform_vertical_scroll_bar = TRUE
 scope_to_save_with_macro
 open_file_dir
 open_rc_file_dir
-getSignalForm = 184 190 800 479 164 381 390 89
 viewPort = 0 0 1470 852 252 102
 signalSpacing = 5
 digitalSignalHeight = 15
@@ -1010,6 +1009,7 @@ SEQAddDriverLoadInSameGroup = TRUE
 autoSyncCursorMarker = FALSE
 autoSyncHorizontalRange = FALSE
 autoSyncVerticalScroll = FALSE
+getSignalForm = 184 190 800 479 164 381 390 89
 [cov_hier_name_column]
 justify = TRUE
 [coverageColors]

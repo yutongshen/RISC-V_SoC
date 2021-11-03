@@ -8,7 +8,7 @@ start address 0x00000000
 Program Header:
     LOAD off    0x00001000 vaddr 0x00000000 paddr 0x00000000 align 2**12
          filesz 0x00000ea0 memsz 0x00000ea0 flags r-x
-    LOAD off    0x00002000 vaddr 0x00010000 paddr 0x00010000 align 2**12
+    LOAD off    0x00000000 vaddr 0x00010000 paddr 0x00010000 align 2**12
          filesz 0x00000000 memsz 0x00001000 flags rw-
     LOAD off    0x00002000 vaddr 0x00011000 paddr 0x00011000 align 2**12
          filesz 0x00000000 memsz 0x00001000 flags rw-
@@ -21,13 +21,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   2 _test         00001000  00010000  00010000  00002000  2**0
                   ALLOC
-  3 .data         00000000  00011000  00010000  00002000  2**0
+  3 .data         00000000  00011000  00011000  00002000  2**0
                   CONTENTS, ALLOC, LOAD, DATA
   4 .bss          00000000  00011000  00011000  00002000  2**0
                   ALLOC
   5 .stack        00001000  00011000  00011000  00002000  2**0
                   ALLOC
   6 .comment      0000001a  00000000  00000000  00002000  2**0
+                  CONTENTS, READONLY
+  7 .riscv.attributes 0000001e  00000000  00000000  0000201a  2**0
                   CONTENTS, READONLY
 SYMBOL TABLE:
 00000000 l    d  .text	00000000 .text
@@ -37,6 +39,7 @@ SYMBOL TABLE:
 00011000 l    d  .bss	00000000 .bss
 00011000 l    d  .stack	00000000 .stack
 00000000 l    d  .comment	00000000 .comment
+00000000 l    d  .riscv.attributes	00000000 .riscv.attributes
 00000000 l    df *ABS*	00000000 setup.o
 00000084 l       .text	00000000 init_bss
 0000012c l       .text	00000000 fill_block
@@ -360,6 +363,9 @@ Contents of section .rodata:
 Contents of section .comment:
  0000 4743433a 2028474e 55292037 2e312e31  GCC: (GNU) 7.1.1
  0010 20323031 37303530 3900                20170509.      
+Contents of section .riscv.attributes:
+ 0000 411d0000 00726973 63760001 13000000  A....riscv......
+ 0010 05727633 32693270 30000801 0a0b      .rv32i2p0.....  
 
 Disassembly of section .text:
 
@@ -400,7 +406,7 @@ Disassembly of section .text:
 
 00000084 <init_bss>:
   84:	00011517          	auipc	a0,0x11
-  88:	f7c50513          	addi	a0,a0,-132 # 11000 <__data_paddr_start>
+  88:	f7c50513          	addi	a0,a0,-132 # 11000 <__bss_end>
   8c:	00011597          	auipc	a1,0x11
   90:	f7058593          	addi	a1,a1,-144 # 10ffc <_dmem_start+0xffc>
   94:	00000613          	li	a2,0
@@ -408,7 +414,7 @@ Disassembly of section .text:
 
 0000009c <init_sbss>:
   9c:	00011517          	auipc	a0,0x11
-  a0:	f6450513          	addi	a0,a0,-156 # 11000 <__data_paddr_start>
+  a0:	f6450513          	addi	a0,a0,-156 # 11000 <__bss_end>
   a4:	00011597          	auipc	a1,0x11
   a8:	f5858593          	addi	a1,a1,-168 # 10ffc <_dmem_start+0xffc>
   ac:	00000613          	li	a2,0
@@ -416,7 +422,7 @@ Disassembly of section .text:
 
 000000b4 <write_stack_pattern>:
   b4:	00011517          	auipc	a0,0x11
-  b8:	f4c50513          	addi	a0,a0,-180 # 11000 <__data_paddr_start>
+  b8:	f4c50513          	addi	a0,a0,-180 # 11000 <__bss_end>
   bc:	00012597          	auipc	a1,0x12
   c0:	f4058593          	addi	a1,a1,-192 # 11ffc <_gp+0x7fc>
   c4:	00000613          	li	a2,0
@@ -500,7 +506,7 @@ Disassembly of section .text:
 
 000001bc <vector>:
  1bc:	12300293          	li	t0,291
- 1c0:	18029073          	csrw	sptbr,t0
+ 1c0:	18029073          	csrw	satp,t0
 
 000001c4 <add>:
  1c4:	fff00293          	li	t0,-1
@@ -1079,31 +1085,31 @@ Disassembly of section .text:
  9f0:	fffff2b7          	lui	t0,0xfffff
  9f4:	fffff337          	lui	t1,0xfffff
  9f8:	00428313          	addi	t1,t0,4 # fffff004 <__stack+0xfffed004>
- 9fc:	0262da63          	ble	t1,t0,a30 <bge+0x40>
- a00:	0262d863          	ble	t1,t0,a30 <bge+0x40>
- a04:	0262d663          	ble	t1,t0,a30 <bge+0x40>
- a08:	0262d463          	ble	t1,t0,a30 <bge+0x40>
- a0c:	0262d263          	ble	t1,t0,a30 <bge+0x40>
+ 9fc:	0262da63          	bge	t0,t1,a30 <bge+0x40>
+ a00:	0262d863          	bge	t0,t1,a30 <bge+0x40>
+ a04:	0262d663          	bge	t0,t1,a30 <bge+0x40>
+ a08:	0262d463          	bge	t0,t1,a30 <bge+0x40>
+ a0c:	0262d263          	bge	t0,t1,a30 <bge+0x40>
  a10:	ffff0337          	lui	t1,0xffff0
  a14:	ffc28313          	addi	t1,t0,-4
- a18:	00535c63          	ble	t0,t1,a30 <bge+0x40>
- a1c:	00535a63          	ble	t0,t1,a30 <bge+0x40>
- a20:	00535863          	ble	t0,t1,a30 <bge+0x40>
- a24:	00535663          	ble	t0,t1,a30 <bge+0x40>
- a28:	00535463          	ble	t0,t1,a30 <bge+0x40>
+ a18:	00535c63          	bge	t1,t0,a30 <bge+0x40>
+ a1c:	00535a63          	bge	t1,t0,a30 <bge+0x40>
+ a20:	00535863          	bge	t1,t0,a30 <bge+0x40>
+ a24:	00535663          	bge	t1,t0,a30 <bge+0x40>
+ a28:	00535463          	bge	t1,t0,a30 <bge+0x40>
  a2c:	0080006f          	j	a34 <bge+0x44>
  a30:	0012e293          	ori	t0,t0,1
  a34:	00001337          	lui	t1,0x1
  a38:	fff30313          	addi	t1,t1,-1 # fff <__rodata_end+0x15f>
- a3c:	0062d463          	ble	t1,t0,a44 <bge+0x54>
+ a3c:	0062d463          	bge	t0,t1,a44 <bge+0x54>
  a40:	0080006f          	j	a48 <bge+0x58>
  a44:	0022e293          	ori	t0,t0,2
  a48:	00028313          	mv	t1,t0
- a4c:	0062d463          	ble	t1,t0,a54 <bge+0x64>
+ a4c:	0062d463          	bge	t0,t1,a54 <bge+0x64>
  a50:	0042e293          	ori	t0,t0,4
  a54:	fffff337          	lui	t1,0xfffff
  a58:	eee30313          	addi	t1,t1,-274 # ffffeeee <__stack+0xfffeceee>
- a5c:	0062d463          	ble	t1,t0,a64 <bge+0x74>
+ a5c:	0062d463          	bge	t0,t1,a64 <bge+0x74>
  a60:	0082e293          	ori	t0,t0,8
  a64:	00542023          	sw	t0,0(s0)
  a68:	00440413          	addi	s0,s0,4
@@ -1145,31 +1151,31 @@ Disassembly of section .text:
  ae8:	fffff2b7          	lui	t0,0xfffff
  aec:	fffff337          	lui	t1,0xfffff
  af0:	00428313          	addi	t1,t0,4 # fffff004 <__stack+0xfffed004>
- af4:	0262fc63          	bleu	t1,t0,b2c <bgeu+0x44>
- af8:	0262fa63          	bleu	t1,t0,b2c <bgeu+0x44>
- afc:	0262f863          	bleu	t1,t0,b2c <bgeu+0x44>
- b00:	0262f663          	bleu	t1,t0,b2c <bgeu+0x44>
- b04:	0262f463          	bleu	t1,t0,b2c <bgeu+0x44>
+ af4:	0262fc63          	bgeu	t0,t1,b2c <bgeu+0x44>
+ af8:	0262fa63          	bgeu	t0,t1,b2c <bgeu+0x44>
+ afc:	0262f863          	bgeu	t0,t1,b2c <bgeu+0x44>
+ b00:	0262f663          	bgeu	t0,t1,b2c <bgeu+0x44>
+ b04:	0262f463          	bgeu	t0,t1,b2c <bgeu+0x44>
  b08:	00001337          	lui	t1,0x1
  b0c:	fff30313          	addi	t1,t1,-1 # fff <__rodata_end+0x15f>
  b10:	ffc28313          	addi	t1,t0,-4
- b14:	00537c63          	bleu	t0,t1,b2c <bgeu+0x44>
- b18:	00537a63          	bleu	t0,t1,b2c <bgeu+0x44>
- b1c:	00537863          	bleu	t0,t1,b2c <bgeu+0x44>
- b20:	00537663          	bleu	t0,t1,b2c <bgeu+0x44>
- b24:	00537463          	bleu	t0,t1,b2c <bgeu+0x44>
+ b14:	00537c63          	bgeu	t1,t0,b2c <bgeu+0x44>
+ b18:	00537a63          	bgeu	t1,t0,b2c <bgeu+0x44>
+ b1c:	00537863          	bgeu	t1,t0,b2c <bgeu+0x44>
+ b20:	00537663          	bgeu	t1,t0,b2c <bgeu+0x44>
+ b24:	00537463          	bgeu	t1,t0,b2c <bgeu+0x44>
  b28:	0080006f          	j	b30 <bgeu+0x48>
  b2c:	0012e293          	ori	t0,t0,1
  b30:	fff00313          	li	t1,-1
- b34:	0062f463          	bleu	t1,t0,b3c <bgeu+0x54>
+ b34:	0062f463          	bgeu	t0,t1,b3c <bgeu+0x54>
  b38:	0080006f          	j	b40 <bgeu+0x58>
  b3c:	0022e293          	ori	t0,t0,2
  b40:	00028313          	mv	t1,t0
- b44:	0062f463          	bleu	t1,t0,b4c <bgeu+0x64>
+ b44:	0062f463          	bgeu	t0,t1,b4c <bgeu+0x64>
  b48:	0042e293          	ori	t0,t0,4
  b4c:	00001337          	lui	t1,0x1
  b50:	fff30313          	addi	t1,t1,-1 # fff <__rodata_end+0x15f>
- b54:	0062f463          	bleu	t1,t0,b5c <bgeu+0x74>
+ b54:	0062f463          	bgeu	t0,t1,b5c <bgeu+0x74>
  b58:	0082e293          	ori	t0,t0,8
  b5c:	00542023          	sw	t0,0(s0)
  b60:	00440413          	addi	s0,s0,4

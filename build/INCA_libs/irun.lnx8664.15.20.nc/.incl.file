@@ -1,4 +1,5 @@
 ./cpu_define.h
+./intf_define.h
 ./csr_op.sv
 ./alu_op.sv
 ./opcode.sv

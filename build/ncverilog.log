@@ -1,5 +1,5 @@
 ncverilog(64): 15.20-s084: (c) Copyright 1995-2020 Cadence Design Systems, Inc.
-TOOL:	ncverilog	15.20-s084: Started on Nov 01, 2021 at 22:55:58 CST
+TOOL:	ncverilog	15.20-s084: Started on Nov 04, 2021 at 01:26:19 CST
 ncverilog
 	-sv
 	-f /home/fred2/RISCV/./sim/designlist.f
@@ -18,8 +18,9 @@ ncverilog
 		../src/cpu/alu.sv
 		../src/cpu/tpu.sv
 		../src/cpu/dpu.sv
-		../src/cpu/mmu.sv
 		../src/cpu/pmu.sv
+		../src/cpu/mmu_csr.sv
+		../src/cpu/mmu.sv
 		../src/cpu/l1c.sv
 		../src/cpu/util.sv
 		../src/bus/axi2mem_bridge.sv
@@ -35,7 +36,7 @@ ncverilog
 		+nc64bit
 		+access+r
 		+define+FSDB
-	+prog=/home/fred2/RISCV/./sim/prog2
+	+prog=/home/fred2/RISCV/./sim/prog0
 	+nclinedebug
 ncverilog: *W,BADPRF: The +nclinedebug option may have an adverse performance impact.
 Loading snapshot worklib.test:sv .................... Done
@@ -52,10 +53,10 @@ FSDB Dumper for IUS, Release Verdi_O-2018.09, Linux x86_64/64bit, 08/30/2018
 *Verdi* : End of traversing.
 TEST_END flag detected
 Simulation end!
-END CODE: dead002a
-mcycle:   20454
-minstret: 9731
-Simulation complete via $finish(1) at time 2046550 NS + 6
+END CODE: cafecafe
+mcycle:   20349
+minstret: 9684
+Simulation complete via $finish(1) at time 2036050 NS + 6
 ../sim/test.sv:45     $finish;
 ncsim> exit
-TOOL:	ncverilog	15.20-s084: Exiting on Nov 01, 2021 at 22:56:02 CST  (total: 00:00:04)
+TOOL:	ncverilog	15.20-s084: Exiting on Nov 04, 2021 at 01:26:24 CST  (total: 00:00:05)

@@ -1,5 +1,6 @@
 ../include/axi_define.h
 ../src/cpu/hzu.sv
+../src/cpu/mmu_csr.sv
 ../src/cpu/csr.sv
 ../src/cpu/marb.sv
 ../include/alu_op.sv
@@ -31,6 +32,7 @@
 ../src/cpu/l1c.sv
 ../src/cpu/cpu_wrap.sv
 ../include/alu_op.sv
+../include/intf_define.h
 ../src/bus/axi_2to1_mux.sv
 ../include/opcode.sv
 ../include/funct.sv

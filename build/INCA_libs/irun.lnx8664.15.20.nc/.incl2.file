@@ -1,5 +1,9 @@
 ../include/cpu_define.h
 /home/fred2/RISCV/include/cpu_define.h
+../include/intf_define.h
+/home/fred2/RISCV/include/intf_define.h
+../include/intf_define.h
+/home/fred2/RISCV/include/intf_define.h
 ../include/cpu_define.h
 /home/fred2/RISCV/include/cpu_define.h
 ../include/csr_op.sv
@@ -30,6 +34,8 @@
 /home/fred2/RISCV/include/cpu_define.h
 ../include/cpu_define.h
 /home/fred2/RISCV/include/cpu_define.h
+../include/intf_define.h
+/home/fred2/RISCV/include/intf_define.h
 ../include/axi_define.h
 /home/fred2/RISCV/include/axi_define.h
 ../include/cache_define.h
