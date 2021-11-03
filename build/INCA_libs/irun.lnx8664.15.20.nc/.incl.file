@@ -1,9 +1,0 @@
-./cpu_define.h
-./intf_define.h
-./csr_op.sv
-./alu_op.sv
-./opcode.sv
-./funct.sv
-./axi_define.h
-./cache_define.h
-./cpu_tracer_task.sv
