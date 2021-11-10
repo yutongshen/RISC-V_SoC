@@ -12,10 +12,13 @@ module ifu (
     output                            imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
     input        [`IM_DATA_LEN - 1:0] imem_rdata,
+    input        [               1:0] imem_bad,
     input                             imem_busy,
     output logic [`IM_ADDR_LEN - 1:0] pc,
     output       [`IM_DATA_LEN - 1:0] inst,
     output                            inst_valid,
+    output                            page_fault,
+    output                            xes_fault,
     input                             flush,
     input                             stall
 );
@@ -27,6 +30,7 @@ logic [`IM_ADDR_LEN - 1:0] pc_d1;
 logic [`IM_ADDR_LEN - 1:0] pc_d2;
 logic                      inst_latch_valid;
 logic [`IM_DATA_LEN - 1:0] inst_latch;
+logic [               1:0] bad_latch;
 logic                      imem_req_latch;
 
 assign jump      = irq_en | pc_jump_en | pc_alu_en | eret_en;
@@ -83,6 +87,15 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
+        bad_latch <= 2'b0;
+    end
+    else if (~imem_busy & ~inst_latch_valid ) begin
+        bad_latch <= imem_bad;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
         imem_req_latch <= 1'b0;
     end
     else if (imem_req) begin
@@ -101,6 +114,9 @@ assign inst_valid = ((imem_req_latch & ~imem_busy) | inst_latch_valid) & ~stall 
 assign inst       = inst_latch_valid ? inst_latch: 
                     ~imem_busy       ? imem_rdata:
                                        `IM_DATA_LEN'b0;
+assign {xes_fault, page_fault} = inst_latch_valid ? bad_latch: 
+                                 ~imem_busy       ? imem_bad:
+                                                    2'b0;
 assign pc         = pc_d2;
 
 endmodule

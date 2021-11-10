@@ -719,7 +719,7 @@ case (opcode)
             FUNCT3_CSRRS : begin
                 if (!rs1)
                     $sformat(result, "csrr %s,%s", regs_name(rd), csr_name(csr_addr));
-                if (!rd)
+                else if (!rd)
                     $sformat(result, "csrs %s,%s", csr_name(csr_addr), regs_name(rs1));
                 else
                     $sformat(result, "csrrs %s,%s,%s", regs_name(rd), csr_name(csr_addr), regs_name(rs1));

@@ -43,7 +43,7 @@ _golden_start:
   .word 0xfffff000
   .word 0xfffff000
   .word 0xfffff000
-  .word 0x1357a0e8
+  .word 0x12345678
   .word 0x13578000
   .word 0xfffff004
   .word 0x000e0008

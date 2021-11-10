@@ -62,7 +62,7 @@ module sru (
     output logic [`IM_ADDR_LEN-1:0] ret_epc,
 
     // Trap signal
-    input        [`IM_ADDR_LEN-1:0] epc,
+    input        [`IM_ADDR_LEN-1:0] trap_epc,
     input                           trap_en,
     input        [       `XLEN-1:0] trap_cause,
     input        [       `XLEN-1:0] trap_val,
@@ -272,10 +272,10 @@ always_ff @(posedge clk or negedge rstn) begin
         sepc <= `XLEN'b0;
     end
     else if (trap_en && trap_s_mode) begin
-        sepc <= epc;
+        sepc <= trap_epc;
     end
     else if (ints_s_mode) begin
-        sepc <= epc;
+        sepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_SEPC_ADDR) begin
         sepc <= (~`XLEN'h3  & csr_wdata);
@@ -503,10 +503,10 @@ always_ff @(posedge clk or negedge rstn) begin
         mepc <= `XLEN'b0;
     end
     else if (trap_en && ~trap_s_mode) begin
-        mepc <= epc;
+        mepc <= trap_epc;
     end
     else if (ints_m_mode) begin
-        mepc <= epc;
+        mepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_MEPC_ADDR) begin
         mepc <= (~`XLEN'h3  & csr_wdata);

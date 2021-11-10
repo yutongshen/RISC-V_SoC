@@ -4,9 +4,11 @@ module hzu (
     input        pc_alu_en,
     input        irq_en,
     input        trap_en,
+    input        eret_en,
     input        id_hazard,
     input        exe_hazard,
     input        dpu_hazard,
+    input        dpu_fault,
     output       if_stall,
     output       id_stall,
     output       exe_stall,
@@ -38,12 +40,13 @@ assign stall_all = dpu_hazard ? 5'b11111:
                    id_hazard  ? 5'b00011:
                                 5'b00000;
 
-assign flush_all = dpu_hazard ? 5'b10000:
+assign flush_all = dpu_fault  ? 5'b11111:
+                   dpu_hazard ? 5'b10000:
                    exe_hazard ? 5'b00100:
                    id_hazard  ? 5'b00010:
                                 5'b00000;
 
-assign flush_force_all = (pc_alu_en || irq_en || trap_en)  ? 5'b00011 : 5'b00000;
+assign flush_force_all = (pc_alu_en || eret_en || irq_en || trap_en)  ? 5'b00011 : 5'b00000;
 
 assign flush_trap_all = (irq_en || trap_en) ? 5'b00100 : 5'b00000;
 

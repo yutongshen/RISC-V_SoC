@@ -6,6 +6,8 @@ module marb (
 
     `AXI_INTF_SLV_DEF(s0, 10),
     `AXI_INTF_SLV_DEF(s1, 10),
+    `AXI_INTF_SLV_DEF(s2, 10),
+    `AXI_INTF_SLV_DEF(s3, 10),
     // input                  s0_cs, 
     // input                  s0_we, 
     // input         [ 31: 0] s0_addr,
@@ -41,8 +43,8 @@ module marb (
     input                  m1_busy
 );
 
-`AXI_INTF_DEF(m0, 11)
-`AXI_INTF_DEF(m1, 11)
+`AXI_INTF_DEF(m0, 12)
+`AXI_INTF_DEF(m1, 12)
 
 // l1c u_l1ic (
 //     .clk         ( clk        ),
@@ -78,12 +80,14 @@ module marb (
 //     `AXI_INTF_CONNECT(m, m1)
 // );
 
-axi_2to2_biu u_axi_2to2_biu (
+axi_4to2_biu u_axi_4to2_biu (
     .aclk       ( clk        ),
     .aresetn    ( rstn       ),
 
     `AXI_INTF_CONNECT(s0, s0),
     `AXI_INTF_CONNECT(s1, s1),
+    `AXI_INTF_CONNECT(s2, s2),
+    `AXI_INTF_CONNECT(s3, s3),
     `AXI_INTF_CONNECT(m0, m0),
     `AXI_INTF_CONNECT(m1, m1)
 );

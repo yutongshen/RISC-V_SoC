@@ -7,12 +7,36 @@ main:
   sw s0, 0(sp)
   la s0, _test_start
 
+  /* enable virtual addr */
+  li t0, 0x80000004
+  csrw satp, t0
+  li t0, 0x1401
+  li t1, 0x4ffc
+  sw t0, 0(t1)
+  li t0, 0xfffffc0f
+  li t1, 0x5ffc
+  sw t0, -0x00*4(t1)
+  sw t0, -0x20*4(t1)
+  sw t0, -0x40*4(t1)
+  sw t0, -0x60*4(t1)
+  sw t0, -0x80*4(t1)
+  sw t0, -0xa0*4(t1)
+  sw t0, -0xc0*4(t1)
+  sw t0, -0xe0*4(t1)
+
   la t0, vector
+  li t1, 0x1000
+  sub t0, t0, t1
   csrw mepc, t0
   li t0, 0x100800
   csrw mstatus, t0
   la t0, add
   csrw mtvec, t0
+
+  li t0, 0x100800
+  sw t0, 1(t0)
+  beq t0, zero, vector
+
   mret
   li t0, 0x800
   csrw mie, t0
@@ -30,7 +54,28 @@ main:
   li t1, 0x2
   csrw mip, t1
 vector:
-  li t0, 0x123
+  lui t0, 0x1
+  li t1, 0xff0
+  li t2, 0x12345
+  sub t1, t1, t0
+  lui t0, 0x20
+  sw t2, 0(t1)
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  lw t2, 0(t1)
+  add t1, t1, t0
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  sub t1, t1, t0
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  lw t2, 0(t1)
+  sub t1, t1, t0
+  lw t2, 0(t1)
   csrw satp, t0
 add:
   li t0, 0xffffffff # -1
@@ -682,6 +727,7 @@ auipc:
   auipc t2, 0x13579  # t2 = 0x13579af8
   add t1, t1, t2     # t1 = 0x135795ec
   add t0, t0, t1     # t0 = 0x1357a0dc
+  li t0, 0x12345678
   sw t0, 0(s0)
   addi s0, s0, 4
 lui:

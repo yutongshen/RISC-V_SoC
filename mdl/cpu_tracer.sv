@@ -2,6 +2,7 @@ module cpu_tracer (
     input        clk,
     input        valid,
     input [31:0] pc,
+    input [31:0] epc,
     input [31:0] inst,
     input [ 1:0] prv,
     input        rd_wr,
@@ -68,7 +69,7 @@ always_ff @(posedge clk) begin
     if (trap_en) begin
         if (mcause[31]) begin
             $fdisplay(cpu_tracer_file, "(%0d ns) Interrupt #%0d, epc = 0x%08x, tval = 0x%08x",
-                      $time, mcause[30:0], pc, mtval);
+                      $time, mcause[30:0], epc, mtval);
         end
         else begin
             str = "";
@@ -92,7 +93,7 @@ always_ff @(posedge clk) begin
                     $sformat(str, "Unknown exception #%0d", mcause);
             endcase
             $fdisplay(cpu_tracer_file, "(%0d ns) %s, epc = 0x%08x, tval = 0x%08x",
-                      $time, str, pc, mtval);
+                      $time, str, epc, mtval);
         end
     end
 end

@@ -9,6 +9,7 @@ module cpu_wrap (
 logic                             imem_en;
 logic [       `IM_ADDR_LEN - 1:0] imem_addr;
 logic [       `IM_DATA_LEN - 1:0] imem_rdata;
+logic [                      1:0] imem_bad;
 logic                             imem_busy;
 
 logic                             dmem_en;
@@ -17,6 +18,7 @@ logic                             dmem_write;
 logic [(`IM_DATA_LEN >> 3) - 1:0] dmem_strb;
 logic [       `IM_DATA_LEN - 1:0] dmem_wdata;
 logic [       `IM_DATA_LEN - 1:0] dmem_rdata;
+logic [                      1:0] dmem_bad;
 logic                             dmem_busy;
 logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn;
 logic [   `SATP_ASID_WIDTH - 1:0] satp_asid;
@@ -45,8 +47,10 @@ logic          busy_1;
 
 logic          immu_pa_vld;
 logic [ 55: 0] immu_pa;
+logic [  1: 0] immu_pa_bad;
 logic          dmmu_pa_vld;
 logic [ 55: 0] dmmu_pa;
+logic [  1: 0] dmmu_pa_bad;
 
 `AXI_INTF_DEF(immu, 10)
 `AXI_INTF_DEF(dmmu, 10)
@@ -73,6 +77,7 @@ cpu_top u_cpu_top (
     .imem_en     ( imem_en     ),
     .imem_addr   ( imem_addr   ),
     .imem_rdata  ( imem_rdata  ),
+    .imem_bad    ( imem_bad    ),
     .imem_busy   ( imem_busy   ),
     // data interface
     .dmem_en     ( dmem_en     ),
@@ -81,6 +86,7 @@ cpu_top u_cpu_top (
     .dmem_strb   ( dmem_strb   ),
     .dmem_wdata  ( dmem_wdata  ),
     .dmem_rdata  ( dmem_rdata  ),
+    .dmem_bad    ( dmem_bad    ),
     .dmem_busy   ( dmem_busy   )
 );
 
@@ -88,6 +94,10 @@ mmu u_immu(
     .clk         ( clk                ),
     .rstn        ( rstn               ),
     
+    // access type
+    .access_w    ( 1'b0               ),
+    .access_x    ( 1'b1               ),
+
     // mmu csr
     .satp_ppn    ( satp_ppn           ),
     .satp_asid   ( satp_asid          ),
@@ -100,8 +110,9 @@ mmu u_immu(
     .va          ( {16'b0, imem_addr} ),
 
     // physical address
-    .pa_valid    ( immu_pa_valid      ),
+    .pa_valid    ( immu_pa_vld        ),
     .pa          ( immu_pa            ),
+    .pa_bad      ( immu_pa_bad        ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, immu)
@@ -111,6 +122,10 @@ mmu u_dmmu(
     .clk         ( clk                ),
     .rstn        ( rstn               ),
     
+    // access type
+    .access_w    ( dmem_write         ),
+    .access_x    ( 1'b0               ),
+
     // mmu csr
     .satp_ppn    ( satp_ppn           ),
     .satp_asid   ( satp_asid          ),
@@ -123,8 +138,9 @@ mmu u_dmmu(
     .va          ( {16'b0, dmem_addr} ),
 
     // physical address
-    .pa_valid    ( dmmu_pa_valid      ),
+    .pa_valid    ( dmmu_pa_vld        ),
     .pa          ( dmmu_pa            ),
+    .pa_bad      ( dmmu_pa_bad        ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, dmmu)
@@ -136,6 +152,7 @@ l1c u_l1ic (
 
     .core_bypass ( 1'b0          ),
     .core_pa_vld ( immu_pa_vld   ),
+    .core_pa_bad ( immu_pa_bad   ),
     .core_paddr  ( immu_pa[31:0] ),
     .core_req    ( imem_en       ),
     .core_wr     ( 1'b0          ),
@@ -143,7 +160,7 @@ l1c u_l1ic (
     .core_byte   ( 4'hf          ),
     .core_wdata  ( 32'b0         ),
     .core_rdata  ( imem_rdata    ),
-    .core_err    (               ),
+    .core_bad    ( imem_bad      ),
     .core_busy   ( imem_busy     ),
 
     `AXI_INTF_CONNECT(m, l1ic)
@@ -156,13 +173,14 @@ l1c u_l1dc (
     .core_bypass ( 1'b0          ),
     .core_pa_vld ( dmmu_pa_vld   ),
     .core_paddr  ( dmmu_pa[31:0] ),
+    .core_pa_bad ( dmmu_pa_bad   ),
     .core_req    ( dmem_en       ),
     .core_wr     ( dmem_write    ),
     .core_vaddr  ( dmem_addr     ),
     .core_byte   ( dmem_strb     ),
     .core_wdata  ( dmem_wdata    ),
     .core_rdata  ( dmem_rdata    ),
-    .core_err    (               ),
+    .core_bad    ( dmem_bad      ),
     .core_busy   ( dmem_busy     ),
 
     `AXI_INTF_CONNECT(m, l1dc)
@@ -222,25 +240,10 @@ marb u_marb (
     .clk     ( clk        ),
     .rstn    ( rstn       ),
 
-    `AXI_INTF_CONNECT(s0, l1ic),
-    `AXI_INTF_CONNECT(s1, l1dc),
-    // .s0_cs   ( imem_en    ),
-    // .s0_we   ( 1'b0       ),
-    // .s0_addr ( imem_addr  ),
-    // .s0_byte ( 4'hf       ),
-    // .s0_di   ( 32'b0      ),
-    // .s0_do   ( imem_rdata ),
-    // .s0_err  (            ),
-    // .s0_busy ( imem_busy  ),
-
-    // .s1_cs   ( dmem_en    ),
-    // .s1_we   ( dmem_write ),
-    // .s1_addr ( dmem_addr  ),
-    // .s1_byte ( dmem_strb  ),
-    // .s1_di   ( dmem_wdata ),
-    // .s1_do   ( dmem_rdata ),
-    // .s1_err  (            ),
-    // .s1_busy ( dmem_busy  ),
+    `AXI_INTF_CONNECT(s0, immu),
+    `AXI_INTF_CONNECT(s1, dmmu),
+    `AXI_INTF_CONNECT(s2, l1ic),
+    `AXI_INTF_CONNECT(s3, l1dc),
 
     .m0_cs   ( cs_0       ),
     .m0_we   ( we_0       ),

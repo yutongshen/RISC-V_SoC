@@ -17,11 +17,13 @@ logic [      `TLB_IDX_WIDTH-1:0] idx;
 logic [          `TLB_DEPTH-1:0] valid [`TLB_WAY_NUM];
 logic [$clog2(`TLB_WAY_NUM)-1:0] order [`TLB_WAY_NUM][`TLB_DEPTH];
 logic [$clog2(`TLB_WAY_NUM)-1:0] victim_order;
+logic [$clog2(`TLB_WAY_NUM)-1:0] hit_order;
 logic [        `TLB_WAY_NUM-1:0] hit;
 logic [      `TLB_TAG_WIDTH-1:0] tag;
 logic [      `TLB_TAG_WIDTH-1:0] tag_latch;
+logic                            cs_latch;
 logic [        `TLB_WAY_NUM-1:0] victim;
-logic [      `TLB_PTE_WIDTH-1:0] pte_out_arr [`TLB_WAY_NUM]
+logic [      `TLB_PTE_WIDTH-1:0] pte_out_arr [`TLB_WAY_NUM];
 
 assign pte_hit = |hit;
 
@@ -33,12 +35,22 @@ always_ff @(posedge clk or negedge rstn) begin
     else       tag_latch <= tag;
 end
 
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) cs_latch <= 1'b0;
+    else       cs_latch <= cs && ~we;
+end
+
 always_comb begin
     integer i;
 
-    victim_order = {$clog2(`TLB_WAY_NUM)(1'b0)};
+    victim_order = {$clog2(`TLB_WAY_NUM){1'b0}};
     for (i = 0; i < `TLB_WAY_NUM; i = i + 1) begin
-        victim_order = victim_order | {$clog2(`TLB_WAY_NUM){victim[g]}} & order[i][idx];
+        victim_order = victim_order | {$clog2(`TLB_WAY_NUM){victim[i]}} & order[i][idx];
+    end
+
+    hit_order    = {$clog2(`TLB_WAY_NUM){1'b0}};
+    for (i = 0; i < `TLB_WAY_NUM; i = i + 1) begin
+        hit_order    = hit_order    | {$clog2(`TLB_WAY_NUM){hit[i]}}    & order[i][idx];
     end
 end
 
@@ -76,6 +88,15 @@ generate
                     order[g][idx] <= order[g][idx] - {{($clog2(`TLB_WAY_NUM)-1){1'b0}}, 1'b1};
                 end
             end
+            else if (cs_latch && pte_hit) begin
+                if (hit[g]) begin
+                    valid[g][idx] <= 1'b1;
+                    order[g][idx] <= DEFAULT_ORDER;
+                end
+                else if (order[g][idx] > hit_order) begin
+                    order[g][idx] <= order[g][idx] - {{($clog2(`TLB_WAY_NUM)-1){1'b0}}, 1'b1};
+                end
+            end
         end
 
         always_ff @(posedge clk or negedge rstn) begin
@@ -107,4 +128,4 @@ generate
 endgenerate
 
 
-module
+endmodule
