@@ -35,6 +35,9 @@ module dec (
     output logic                             mem_wr,
     output logic [(`DM_DATA_LEN >> 3) - 1:0] mem_byte,
     output logic                             mem_sign_ext,
+    output logic                             tlb_flush_req,
+    output logic                             tlb_flush_all_vaddr,
+    output logic                             tlb_flush_all_asid,
     // WB stage
     output logic                             mem_cal_sel,
     output logic                             reg_wr
@@ -67,36 +70,39 @@ logic [        6: 2] opcode;
 
 assign opcode = inst[6:2];
 always_comb begin
-    imm          = `XLEN'b0;
-    alu_op       = `ALU_OP_LEN'b0;
-    rs1_zero_sel = 1'b0;
-    rs2_imm_sel  = 1'b0;
-    pc_imm_sel   = 1'b0;
-    branch       = 1'b0;
-    branch_zcmp  = 1'b0;
-    pc_alu_sel   = 1'b0;
-    mem_req      = 1'b0;
-    mem_wr       = 1'b0;
-    mem_byte     = {(`DM_DATA_LEN >> 3){1'b0}};
-    mem_sign_ext = 1'b0;
-    mem_cal_sel  = 1'b0;
-    reg_wr       = 1'b0;
-    fense        = 1'b0;
-    fense_i      = 1'b0;
-    ecall        = 1'b0;
-    ebreak       = 1'b0;
-    wfi          = 1'b0;
-    sret         = 1'b0;
-    mret         = 1'b0;
-    jump         = 1'b0;
-    jump_alu     = 1'b0;
-    csr_op       = `CSR_OP_LEN'b0;
-    uimm_rs1_sel = 1'b0;
-    csr_rd       = 1'b0;
-    csr_wr       = 1'b0;
-    csr_alu_sel  = 1'b0;
-    ill_inst     = inst_valid & (inst[1:0] != 2'b11);
-    prv_req      = 2'b0;
+    imm                 = `XLEN'b0;
+    alu_op              = `ALU_OP_LEN'b0;
+    rs1_zero_sel        = 1'b0;
+    rs2_imm_sel         = 1'b0;
+    pc_imm_sel          = 1'b0;
+    branch              = 1'b0;
+    branch_zcmp         = 1'b0;
+    pc_alu_sel          = 1'b0;
+    mem_req             = 1'b0;
+    mem_wr              = 1'b0;
+    mem_byte            = {(`DM_DATA_LEN >> 3){1'b0}};
+    mem_sign_ext        = 1'b0;
+    mem_cal_sel         = 1'b0;
+    reg_wr              = 1'b0;
+    fense               = 1'b0;
+    fense_i             = 1'b0;
+    ecall               = 1'b0;
+    ebreak              = 1'b0;
+    wfi                 = 1'b0;
+    sret                = 1'b0;
+    mret                = 1'b0;
+    jump                = 1'b0;
+    jump_alu            = 1'b0;
+    csr_op              = `CSR_OP_LEN'b0;
+    uimm_rs1_sel        = 1'b0;
+    csr_rd              = 1'b0;
+    csr_wr              = 1'b0;
+    csr_alu_sel         = 1'b0;
+    ill_inst            = inst_valid & (inst[1:0] != 2'b11);
+    prv_req             = 2'b0;
+    tlb_flush_req       = 1'b0;
+    tlb_flush_all_vaddr = 1'b0;
+    tlb_flush_all_asid  = 1'b0;
     if (inst_valid) begin
         case (opcode)
             OP_LOAD     : begin
@@ -443,7 +449,12 @@ always_comb begin
             OP_SYSTEM   : begin
                 case (funct3)
                     FUNCT3_PRIV  : begin
-                        if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
+                        if (funct7 == FUNCT7_SFENCE_VMA) begin
+                            tlb_flush_req       = 1'b1;
+                            tlb_flush_all_vaddr = ~|inst[19:15];
+                            tlb_flush_all_asid  = ~|inst[24:20];
+                        end
+                        else if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
                             case (inst[31:20])
                                 FUNCT12_ECALL: begin
                                     mem_req      = 1'b0;

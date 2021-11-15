@@ -18,7 +18,7 @@ ${bld_dir}:
 	mkdir -p $(bld_dir)
 
 sim: all | ${bld_dir}
-	@make -C $(root_dir)/$(sim_dir)/prog$(prog);
+	@make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa};
 	@cd $(bld_dir); \
 	ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;
 

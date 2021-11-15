@@ -60,10 +60,10 @@ initial begin
     // Random initial
     $value$plusargs("prog=%s", prog_path);
     for (i = 0; i < 16384; i = i + 1) begin
-        prog_byte0[i] = $random();
-        prog_byte1[i] = $random();
-        prog_byte2[i] = $random();
-        prog_byte3[i] = $random();
+        prog_byte0[i] = 8'b0; // $random();
+        prog_byte1[i] = 8'b0; // $random();
+        prog_byte2[i] = 8'b0; // $random();
+        prog_byte3[i] = 8'b0; // $random();
     end
     $readmemh({prog_path, "/sram_0_0.hex"}, prog_byte0);
     $readmemh({prog_path, "/sram_0_1.hex"}, prog_byte1);
@@ -93,5 +93,38 @@ cpu_wrap u_cpu_wrap (
     .clk  ( clk  ),
     .rstn ( rstn )
 );
+
+// For riscv-tests used
+logic [31:0] arg;
+logic [31:0] cmd;
+logic        _flag;
+
+initial begin
+    force u_cpu_wrap.u_sram_0.memory[14'h400] = 32'b0;
+    force u_cpu_wrap.u_sram_0.memory[14'h401] = 32'b0;
+end
+
+always @(posedge clk) begin
+    if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
+        if (u_cpu_wrap.u_sram_0.A == 14'h400) begin
+            arg <= u_cpu_wrap.u_sram_0.DI;
+        end
+        if (u_cpu_wrap.u_sram_0.A == 14'h401) begin
+            cmd <= u_cpu_wrap.u_sram_0.DI;
+            _flag <= 1'b1;
+        end
+    end
+    if (_flag) begin
+        case (cmd)
+            32'h00000000: begin
+                $display("ENDCODE = %x", arg);
+                $finish;
+            end
+            32'h01010000: $write("%c", arg);
+        endcase
+        _flag <= 1'b0;
+    end
+end
+
 
 endmodule

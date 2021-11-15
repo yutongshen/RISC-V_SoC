@@ -23,8 +23,13 @@ logic                             dmem_busy;
 logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn;
 logic [   `SATP_ASID_WIDTH - 1:0] satp_asid;
 logic [   `SATP_MODE_WIDTH - 1:0] satp_mode;
-logic                             mstatus_tvm;
 logic [                      1:0] prv;
+logic                             sum;
+logic                             tlb_flush_req;
+logic                             tlb_flush_all_vaddr;
+logic                             tlb_flush_all_asid;
+logic [              `XLEN - 1:0] tlb_flush_vaddr;
+logic [              `XLEN - 1:0] tlb_flush_asid;
 
 logic          mem_ck_0;
 logic          mem_ck_1;
@@ -52,95 +57,127 @@ logic          dmmu_pa_vld;
 logic [ 55: 0] dmmu_pa;
 logic [  1: 0] dmmu_pa_bad;
 
+logic           uart_psel;
+logic           uart_penable;
+logic  [ 31: 0] uart_paddr;
+logic           uart_pwrite;
+logic  [  3: 0] uart_pstrb;
+logic  [ 31: 0] uart_pwdata;
+logic  [ 31: 0] uart_prdata;
+logic           uart_pslverr;
+logic           uart_pready;
+
+
 `AXI_INTF_DEF(immu, 10)
 `AXI_INTF_DEF(dmmu, 10)
 `AXI_INTF_DEF(l1ic, 10)
 `AXI_INTF_DEF(l1dc, 10)
 
 cpu_top u_cpu_top (
-    .clk         ( clk         ),
-    .rstn        ( rstn        ),
-    .cpu_id      ( `XLEN'd0    ),
+    .clk                 ( clk                 ),
+    .rstn                ( rstn                ),
+    .cpu_id              ( `XLEN'd0            ),
 
     // mmu csr
-    .satp_ppn    ( satp_ppn    ),
-    .satp_asid   ( satp_asid   ),
-    .satp_mode   ( satp_mode   ),
-    .mstatus_tvm ( mstatus_tvm ),
-    .prv         ( prv         ),
+    .satp_ppn            ( satp_ppn            ),
+    .satp_asid           ( satp_asid           ),
+    .satp_mode           ( satp_mode           ),
+    .prv                 ( prv                 ),
+    .sum                 ( sum                 ),
+
+    // TLB control
+    .tlb_flush_req       ( tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
+    .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
+    .tlb_flush_asid      ( tlb_flush_asid      ),
    
     // interrupt interface
-    .msip        ( 1'b0        ),
-    .mtip        ( 1'b0        ),
-    .meip        ( 1'b0        ),
+    .msip                ( 1'b0                ),
+    .mtip                ( 1'b0                ),
+    .meip                ( 1'b0                ),
     // inst interface
-    .imem_en     ( imem_en     ),
-    .imem_addr   ( imem_addr   ),
-    .imem_rdata  ( imem_rdata  ),
-    .imem_bad    ( imem_bad    ),
-    .imem_busy   ( imem_busy   ),
+    .imem_en             ( imem_en             ),
+    .imem_addr           ( imem_addr           ),
+    .imem_rdata          ( imem_rdata          ),
+    .imem_bad            ( imem_bad            ),
+    .imem_busy           ( imem_busy           ),
     // data interface
-    .dmem_en     ( dmem_en     ),
-    .dmem_addr   ( dmem_addr   ),
-    .dmem_write  ( dmem_write  ),
-    .dmem_strb   ( dmem_strb   ),
-    .dmem_wdata  ( dmem_wdata  ),
-    .dmem_rdata  ( dmem_rdata  ),
-    .dmem_bad    ( dmem_bad    ),
-    .dmem_busy   ( dmem_busy   )
+    .dmem_en             ( dmem_en             ),
+    .dmem_addr           ( dmem_addr           ),
+    .dmem_write          ( dmem_write          ),
+    .dmem_strb           ( dmem_strb           ),
+    .dmem_wdata          ( dmem_wdata          ),
+    .dmem_rdata          ( dmem_rdata          ),
+    .dmem_bad            ( dmem_bad            ),
+    .dmem_busy           ( dmem_busy           )
 );
 
 mmu u_immu(
-    .clk         ( clk                ),
-    .rstn        ( rstn               ),
+    .clk                 ( clk                 ),
+    .rstn                ( rstn                ),
     
     // access type
-    .access_w    ( 1'b0               ),
-    .access_x    ( 1'b1               ),
+    .access_w            ( 1'b0                ),
+    .access_x            ( 1'b1                ),
+
+    // TLB control
+    .tlb_flush_req       ( tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
+    .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
+    .tlb_flush_asid      ( tlb_flush_asid      ),
 
     // mmu csr
-    .satp_ppn    ( satp_ppn           ),
-    .satp_asid   ( satp_asid          ),
-    .satp_mode   ( satp_mode          ),
-    .mstatus_tvm ( mstatus_tvm        ),
-    .prv         ( prv                ),
+    .satp_ppn            ( satp_ppn            ),
+    .satp_asid           ( satp_asid           ),
+    .satp_mode           ( satp_mode           ),
+    .prv                 ( prv                 ),
+    .sum                 ( sum                 ),
 
     // virtual address
-    .va_valid    ( imem_en            ),
-    .va          ( {16'b0, imem_addr} ),
+    .va_valid            ( imem_en             ),
+    .va                  ( {16'b0, imem_addr}  ),
 
     // physical address
-    .pa_valid    ( immu_pa_vld        ),
-    .pa          ( immu_pa            ),
-    .pa_bad      ( immu_pa_bad        ),
+    .pa_valid            ( immu_pa_vld         ),
+    .pa                  ( immu_pa             ),
+    .pa_bad              ( immu_pa_bad         ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, immu)
 );
 
 mmu u_dmmu(
-    .clk         ( clk                ),
-    .rstn        ( rstn               ),
+    .clk                 ( clk                 ),
+    .rstn                ( rstn                ),
     
     // access type
-    .access_w    ( dmem_write         ),
-    .access_x    ( 1'b0               ),
+    .access_w            ( dmem_write          ),
+    .access_x            ( 1'b0                ),
+
+    // TLB control
+    .tlb_flush_req       ( tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
+    .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
+    .tlb_flush_asid      ( tlb_flush_asid      ),
 
     // mmu csr
-    .satp_ppn    ( satp_ppn           ),
-    .satp_asid   ( satp_asid          ),
-    .satp_mode   ( satp_mode          ),
-    .mstatus_tvm ( mstatus_tvm        ),
-    .prv         ( prv                ),
+    .satp_ppn            ( satp_ppn            ),
+    .satp_asid           ( satp_asid           ),
+    .satp_mode           ( satp_mode           ),
+    .prv                 ( prv                 ),
+    .sum                 ( sum                 ),
 
     // virtual address
-    .va_valid    ( dmem_en            ),
-    .va          ( {16'b0, dmem_addr} ),
+    .va_valid            ( dmem_en             ),
+    .va                  ( {16'b0, dmem_addr}  ),
 
     // physical address
-    .pa_valid    ( dmmu_pa_vld        ),
-    .pa          ( dmmu_pa            ),
-    .pa_bad      ( dmmu_pa_bad        ),
+    .pa_valid            ( dmmu_pa_vld         ),
+    .pa                  ( dmmu_pa             ),
+    .pa_bad              ( dmmu_pa_bad         ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, dmmu)
@@ -170,7 +207,7 @@ l1c u_l1dc (
     .clk         ( clk           ),
     .rstn        ( rstn          ),
 
-    .core_bypass ( 1'b0          ),
+    .core_bypass ( 1'b1          ),
     .core_pa_vld ( dmmu_pa_vld   ),
     .core_paddr  ( dmmu_pa[31:0] ),
     .core_pa_bad ( dmmu_pa_bad   ),
@@ -237,29 +274,39 @@ l1c u_l1dc (
 
 
 marb u_marb (
-    .clk     ( clk        ),
-    .rstn    ( rstn       ),
+    .clk        ( clk        ),
+    .rstn       ( rstn       ),
 
     `AXI_INTF_CONNECT(s0, immu),
     `AXI_INTF_CONNECT(s1, dmmu),
     `AXI_INTF_CONNECT(s2, l1ic),
     `AXI_INTF_CONNECT(s3, l1dc),
 
-    .m0_cs   ( cs_0       ),
-    .m0_we   ( we_0       ),
-    .m0_addr ( addr_0     ),
-    .m0_byte ( byte_0     ),
-    .m0_di   ( di_0       ),
-    .m0_do   ( do_0       ),
-    .m0_busy ( busy_0     ),
+    .m0_cs      ( cs_0       ),
+    .m0_we      ( we_0       ),
+    .m0_addr    ( addr_0     ),
+    .m0_byte    ( byte_0     ),
+    .m0_di      ( di_0       ),
+    .m0_do      ( do_0       ),
+    .m0_busy    ( busy_0     ),
 
-    .m1_cs   ( cs_1       ),
-    .m1_we   ( we_1       ),
-    .m1_addr ( addr_1     ),
-    .m1_byte ( byte_1     ),
-    .m1_di   ( di_1       ),
-    .m1_do   ( do_1       ),
-    .m1_busy ( busy_1     )
+    .m1_cs      ( cs_1       ),
+    .m1_we      ( we_1       ),
+    .m1_addr    ( addr_1     ),
+    .m1_byte    ( byte_1     ),
+    .m1_di      ( di_1       ),
+    .m1_do      ( do_1       ),
+    .m1_busy    ( busy_1     ),
+
+    .m2_psel    ( uart_psel    ),
+    .m2_penable ( uart_penable ),
+    .m2_paddr   ( uart_paddr   ),
+    .m2_pwrite  ( uart_pwrite  ),
+    .m2_pstrb   ( uart_pstrb   ),
+    .m2_pwdata  ( uart_pwdata  ),
+    .m2_prdata  ( uart_prdata  ),
+    .m2_pslverr ( uart_pslverr ),
+    .m2_pready  ( uart_pready  )
 );
 
 CG u_mem_cg_0 (
@@ -298,4 +345,20 @@ sram u_sram_1 (
 
 assign busy_1 = 1'b0;
 
+uart u_uart(
+    .pclk    ( clk          ),
+    .presetn ( rstn         ),
+    .psel    ( uart_psel    ),
+    .penable ( uart_penable ),
+    .paddr   ( uart_paddr   ),
+    .pwrite  ( uart_pwrite  ),
+    .pstrb   ( uart_pstrb   ),
+    .pwdata  ( uart_pwdata  ),
+    .prdata  ( uart_prdata  ),
+    .pslverr ( uart_pslverr ),
+    .pready  ( uart_pready  ),
+
+    .uart_rx ( 1'b0 ),
+    .uart_tx (  )
+);
 endmodule

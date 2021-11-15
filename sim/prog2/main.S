@@ -24,6 +24,20 @@ main:
   sw t0, -0xc0*4(t1)
   sw t0, -0xe0*4(t1)
 
+  li t0, 0x1000000
+  li t1, 'A'
+  sb t1, 0(t0)
+  li t1, 'B'
+  sb t1, 0(t0)
+  li t1, 0x43
+  sb t1, 0(t0)
+  li t1, 0x44
+  sb t1, 0(t0)
+  li t1, 0x45
+  sb t1, 0(t0)
+  li t1, '\n'
+  sb t1, 0(t0)
+
   la t0, vector
   li t1, 0x1000
   sub t0, t0, t1

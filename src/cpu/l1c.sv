@@ -193,7 +193,7 @@ assign tag_addr   = core_busy ? core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WI
 assign data_addr  = core_busy ? core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]:
                                 core_vaddr      [`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH];
 assign tag_in     = core_paddr_latch[`CACHE_TAG_REGION];
-assign hit        = valid_latch && (tag_out == core_paddr[`CACHE_TAG_REGION]);
+assign hit        = valid_latch && core_pa_vld && (tag_out == core_paddr[`CACHE_TAG_REGION]);
 assign core_rdata = cur_state == STATE_IDLE ? core_rdata_tmp : data_out[{core_vaddr_latch[2+:2], 5'b0}+:32];
 assign m_awid     = 10'b0;
 assign m_awaddr   = core_paddr_latch;

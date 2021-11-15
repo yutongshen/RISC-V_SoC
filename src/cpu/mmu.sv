@@ -10,12 +10,19 @@ module mmu (
     input                                    access_w,
     input                                    access_x,
 
+    // TLB control
+    input                                    tlb_flush_req,
+    input                                    tlb_flush_all_vaddr,
+    input                                    tlb_flush_all_asid,
+    input        [              `XLEN - 1:0] tlb_flush_vaddr,
+    input        [              `XLEN - 1:0] tlb_flush_asid,
+
     // mmu csr
     input        [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
     input        [   `SATP_ASID_WIDTH - 1:0] satp_asid,
     input        [   `SATP_MODE_WIDTH - 1:0] satp_mode,
-    input                                    mstatus_tvm,
     input        [                      1:0] prv,
+    input                                    sum,
 
     // virtual address
     input                                    va_valid,
@@ -67,6 +74,7 @@ logic                      pg_fault_tlb;
 logic                      pg_fault_tmp;
 logic                      pg_fault_tmp_latch;
 logic                      bus_err;
+logic                      ar_done;
 
 logic                      tlb_cs;
 logic                      tlb_we;
@@ -122,7 +130,7 @@ always_comb begin
         end
         STATE_MREQ : begin
             busy         = 1'b1;
-            m_arvalid    = 1'b1;
+            m_arvalid    = ~ar_done;
         end
         STATE_PTE  : begin
             tlb_cs       = leaf && ~pg_fault_tmp;
@@ -136,14 +144,23 @@ end
 assign leaf         = pte_v && (pte_r || pte_x);
 assign pg_fault_tmp = !pte_v || (!pte_r && pte_w) ||
                       (~leaf && ~|level) ||
-                      ( leaf && |vpn_latch) ||
+                      ( leaf && |level && pte_ppn[9:0]) ||
                       ( leaf && access_x_latch && ~pte_x) ||
                       ( leaf && access_r_latch && ~pte_r) ||
-                      ( leaf && access_w_latch && ~pte_w);
+                      ( leaf && access_w_latch && ~pte_w) ||
+                      ( leaf && prv == `PRV_U  && ~pte_u) ||
+                      ( leaf && prv == `PRV_S  &&  pte_u && (~sum || access_x_latch)) ||
+                      ( leaf && access_w_latch && ~pte_d) ||
+                      ( leaf                   && ~pte_a);
 
 assign pg_fault_tlb = (access_x_latch && ~tlb_pte_x) ||
                       (access_r_latch && ~tlb_pte_r) ||
-                      (access_w_latch && ~tlb_pte_w);
+                      (access_w_latch && ~tlb_pte_w) ||
+                      (prv == `PRV_U  && ~tlb_pte_u) ||
+                      (prv == `PRV_S  &&  tlb_pte_u && (~sum || access_x_latch)) ||
+                      (access_w_latch && ~tlb_pte_d) ||
+                      (                  ~tlb_pte_a);
+
 assign tlb_vpn    = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
 assign tlb_pte_in = pte_latch;
 assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} = pte_latch[31:0];
@@ -179,6 +196,18 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else if (m_rvalid && m_rlast) begin
         level <= level - 2'd1;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        ar_done <= 1'b0;
+    end
+    else if (cur_state == STATE_CHECK || cur_state == STATE_PTE) begin
+        ar_done <= 1'b0;
+    end
+    else if (m_arready) begin
+        ar_done <= 1'b1;
     end
 end
 
@@ -264,22 +293,30 @@ end
 
 assign pa_valid = pa_valid_tmp_latch | tlb_data_sel;
 assign pg_fault = pg_fault_tmp_latch | (tlb_data_sel & pg_fault_tlb);
-assign pa       = ({56{pa_valid_tmp_latch}} & {{10{ppn_latch[21]}},   ppn_latch,   va_latch[11:0]}) |
+assign pa       = ({56{pa_valid_tmp_latch}} & {{10{ppn_latch[21]}}, ppn_latch[21:10], level ? va_latch[21:12] : ppn_latch[9:0],  va_latch[11:0]}) |
                   ({56{tlb_data_sel}}       & {{10{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
 assign pa_bad   = {bus_err, pg_fault};
 
-assign va_en    = mstatus_tvm && prv < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
+assign va_en    = prv < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
 
 tlb u_tlb(
-    .clk     ( clk         ),
-    .rstn    ( rstn        ),
+    .clk                 ( clk                 ),
+    .rstn                ( rstn                ),
 
-    .cs      ( tlb_cs      ),
-    .vpn     ( tlb_vpn     ),
-    .we      ( tlb_we      ),
-    .pte_in  ( tlb_pte_in  ),
-    .pte_hit ( tlb_hit     ),
-    .pte_out ( tlb_pte_out )
+    .cs                  ( tlb_cs              ),
+    .vpn                 ( tlb_vpn             ),
+    .we                  ( tlb_we              ),
+    .spage               ( level[0]            ),
+    .pte_in              ( tlb_pte_in          ),
+    .pte_hit             ( tlb_hit             ),
+    .pte_out             ( tlb_pte_out         ),
+
+    .tlb_flush_req       ( tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
+    .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
+    .tlb_flush_asid      ( tlb_flush_asid      )
+
 );
 
 endmodule

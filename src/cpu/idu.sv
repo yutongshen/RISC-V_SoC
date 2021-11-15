@@ -46,6 +46,9 @@ module idu (
     output logic                             mem_wr,
     output logic [(`DM_DATA_LEN >> 3) - 1:0] mem_byte,
     output logic                             mem_sign_ext,
+    output logic                             tlb_flush_req,
+    output logic                             tlb_flush_all_vaddr,
+    output logic                             tlb_flush_all_asid,
     // WB stage
     output logic                             mem_cal_sel,
     output logic                             rd_wr_o
@@ -69,43 +72,46 @@ rfu u_rfu (
 );
 
 dec u_dec (
-    .inst          ( inst         ),
-    .inst_valid    ( inst_valid   ),
+    .inst                ( inst                ),
+    .inst_valid          ( inst_valid          ),
     // Date
-    .imm           ( imm          ),
+    .imm                 ( imm                 ),
     // Control
-    .prv_req       ( prv_req      ),
-    .ill_inst      ( ill_inst     ),
-    .fense         ( fense        ),
-    .fense_i       ( fense_i      ),
-    .ecall         ( ecall        ),
-    .ebreak        ( ebreak       ),
-    .wfi           ( wfi          ),
-    .sret          ( sret         ),
-    .mret          ( mret         ),
-    .jump          ( jump         ),
-    .jump_alu      ( jump_alu     ),
+    .prv_req             ( prv_req             ),
+    .ill_inst            ( ill_inst            ),
+    .fense               ( fense               ),
+    .fense_i             ( fense_i             ),
+    .ecall               ( ecall               ),
+    .ebreak              ( ebreak              ),
+    .wfi                 ( wfi                 ),
+    .sret                ( sret                ),
+    .mret                ( mret                ),
+    .jump                ( jump                ),
+    .jump_alu            ( jump_alu            ),
     // EXE stage
-    .alu_op        ( alu_op       ),
-    .rs1_zero_sel  ( rs1_zero_sel ),
-    .rs2_imm_sel   ( rs2_imm_sel  ),
-    .pc_imm_sel    ( pc_imm_sel   ),
-    .branch        ( branch       ),
-    .branch_zcmp   ( branch_zcmp  ),
-    .csr_op        ( csr_op       ),
-    .uimm_rs1_sel  ( uimm_rs1_sel ),
-    .csr_rd        ( csr_rd       ),
-    .csr_wr        ( csr_wr       ),
+    .alu_op              ( alu_op              ),
+    .rs1_zero_sel        ( rs1_zero_sel        ),
+    .rs2_imm_sel         ( rs2_imm_sel         ),
+    .pc_imm_sel          ( pc_imm_sel          ),
+    .branch              ( branch              ),
+    .branch_zcmp         ( branch_zcmp         ),
+    .csr_op              ( csr_op              ),
+    .uimm_rs1_sel        ( uimm_rs1_sel        ),
+    .csr_rd              ( csr_rd              ),
+    .csr_wr              ( csr_wr              ),
     // MEM stage
-    .pc_alu_sel    ( pc_alu_sel   ),
-    .csr_alu_sel   ( csr_alu_sel  ),
-    .mem_req       ( mem_req      ),
-    .mem_wr        ( mem_wr       ),
-    .mem_byte      ( mem_byte     ),
-    .mem_sign_ext  ( mem_sign_ext ),
+    .pc_alu_sel          ( pc_alu_sel          ),
+    .csr_alu_sel         ( csr_alu_sel         ),
+    .mem_req             ( mem_req             ),
+    .mem_wr              ( mem_wr              ),
+    .mem_byte            ( mem_byte            ),
+    .mem_sign_ext        ( mem_sign_ext        ),
+    .tlb_flush_req       ( tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
     // WB stage
-    .mem_cal_sel   ( mem_cal_sel  ),
-    .reg_wr        ( rd_wr_o      )
+    .mem_cal_sel         ( mem_cal_sel         ),
+    .reg_wr              ( rd_wr_o             )
 );
 
 endmodule

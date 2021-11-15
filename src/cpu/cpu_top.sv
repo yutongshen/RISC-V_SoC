@@ -4,13 +4,20 @@ module cpu_top (
     input                                    clk,
     input                                    rstn,
     input        [              `XLEN - 1:0] cpu_id,
-    
+
     // mmu csr
     output logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
     output logic [   `SATP_ASID_WIDTH - 1:0] satp_asid,
     output logic [   `SATP_MODE_WIDTH - 1:0] satp_mode,
-    output logic                             mstatus_tvm,
     output logic [                      1:0] prv,
+    output logic                             sum,
+
+    // TLB control
+    output logic                             tlb_flush_req,
+    output logic                             tlb_flush_all_vaddr,
+    output logic                             tlb_flush_all_asid,
+    output logic [              `XLEN - 1:0] tlb_flush_vaddr,
+    output logic [              `XLEN - 1:0] tlb_flush_asid,
 
     // interrupt interface
     input                                    msip,
@@ -34,8 +41,6 @@ module cpu_top (
     input        [                      1:0] dmem_bad,
     input                                    dmem_busy
 );
-
-parameter [31:0] INST_NOP = {12'b0, 5'b0, 3'b0, 5'b0, 7'b00_100_11};
 
 logic                             rstn_sync;
 logic                             wakeup_event;
@@ -115,6 +120,9 @@ logic                             id_mem_req;
 logic                             id_mem_wr;
 logic [(`DM_DATA_LEN >> 3) - 1:0] id_mem_byte;
 logic                             id_mem_sign_ext;
+logic                             id_tlb_flush_req;
+logic                             id_tlb_flush_all_vaddr;
+logic                             id_tlb_flush_all_asid;
 
 logic                             id_mem_cal_sel;
 logic                             id_rd_wr;
@@ -183,6 +191,9 @@ logic                             id2exe_ill_inst;
 logic [                      1:0] id2exe_prv_req;
 logic                             id2exe_inst_page_fault;
 logic                             id2exe_inst_xes_fault;
+logic                             id2exe_tlb_flush_req;
+logic                             id2exe_tlb_flush_all_vaddr;
+logic                             id2exe_tlb_flush_all_asid;
 
 // EXE stage
 logic                             exe_alu_zero;
@@ -205,6 +216,8 @@ logic                             exe_dbg_csr_wr;
 logic                             exe_mmu_csr_wr;
 logic                             exe_mpu_csr_wr;
 logic                             exe_sru_csr_wr;
+logic                             exe_sret;
+logic                             exe_mret;
 logic                             exe_satp_upd;
 logic                             exe_mstatus_tvm;
 logic                             exe_irq_en;
@@ -233,9 +246,11 @@ logic                             exe2mem_csr_alu_sel;
 logic                             exe2mem_mem_cal_sel;
 logic                             exe2mem_rd_wr;
 logic [                      4:0] exe2mem_rd_addr;
+logic [                      4:0] exe2mem_rs1_addr;
 logic [                      4:0] exe2mem_rs2_addr;
 logic [              `XLEN - 1:0] exe2mem_alu_out;
 logic [              `XLEN - 1:0] exe2mem_pc2rd;
+logic [              `XLEN - 1:0] exe2mem_rs1_data;
 logic [              `XLEN - 1:0] exe2mem_rs2_data;
 logic                             exe2mem_csr_wr;
 logic [                     11:0] exe2mem_csr_waddr;
@@ -246,10 +261,14 @@ logic                             exe2mem_trap_en;
 logic [              `XLEN - 1:0] exe2mem_cause;
 logic [              `XLEN - 1:0] exe2mem_tval;
 logic [       `IM_ADDR_LEN - 1:0] exe2mem_epc;
+logic                             exe2mem_tlb_flush_req;
+logic                             exe2mem_tlb_flush_all_vaddr;
+logic                             exe2mem_tlb_flush_all_asid;
 
 // MEM stage
 logic [              `XLEN - 1:0] mem_rd_data;
 
+logic [              `XLEN - 1:0] mem_rs1_data;
 logic                             mem_dpu_req;
 logic                             mem_dpu_wr;
 logic [(`DM_DATA_LEN >> 3) - 1:0] mem_dpu_byte;
@@ -304,6 +323,7 @@ logic                             fwd_wb2exe_rd_rs1;
 logic                             fwd_wb2exe_rd_rs2;
 logic                             fwd_mem2exe_rd_rs1;
 logic                             fwd_mem2exe_rd_rs2;
+logic                             fwd_wb2mem_rd_rs1;
 logic                             fwd_wb2mem_rd_rs2;
 
 `include "csr_op.sv"
@@ -410,54 +430,57 @@ end
 
 // ID stage
 idu u_idu (
-    .clk          ( clk_wfi          ),
-    .rstn         ( rstn_sync        ),
-    .inst         ( if2id_inst       ),
-    .inst_valid   ( if2id_inst_valid ),
-    .pc           ( if2id_pc         ),
-    .rd_wr_i      ( wb_rd_wr         ),
-    .rd_addr_i    ( mem2wb_rd_addr   ),
-    .rd_data      ( wb_rd_data       ),
-    .rd_addr_o    ( id_rd_addr       ),
-    .rs1_addr     ( id_rs1_addr      ),
-    .rs2_addr     ( id_rs2_addr      ),
-    .rs1_data     ( id_rs1_data      ),
-    .rs2_data     ( id_rs2_data      ),
-    .csr_addr     ( id_csr_addr      ),
-    .imm          ( id_imm           ),
+    .clk                 ( clk_wfi                ),
+    .rstn                ( rstn_sync              ),
+    .inst                ( if2id_inst             ),
+    .inst_valid          ( if2id_inst_valid       ),
+    .pc                  ( if2id_pc               ),
+    .rd_wr_i             ( wb_rd_wr               ),
+    .rd_addr_i           ( mem2wb_rd_addr         ),
+    .rd_data             ( wb_rd_data             ),
+    .rd_addr_o           ( id_rd_addr             ),
+    .rs1_addr            ( id_rs1_addr            ),
+    .rs2_addr            ( id_rs2_addr            ),
+    .rs1_data            ( id_rs1_data            ),
+    .rs2_data            ( id_rs2_data            ),
+    .csr_addr            ( id_csr_addr            ),
+    .imm                 ( id_imm                 ),
     // Control
-    .prv_req      ( id_prv_req       ),
-    .ill_inst     ( id_ill_inst      ),
-    .fense        ( id_fense         ),
-    .fense_i      ( id_fense_i       ),
-    .ecall        ( id_ecall         ),
-    .ebreak       ( id_ebreak        ),
-    .wfi          ( id_wfi           ),
-    .sret         ( id_sret          ),
-    .mret         ( id_mret          ),
-    .jump         ( id_jump          ),
-    .jump_alu     ( id_jump_alu      ),
+    .prv_req             ( id_prv_req             ),
+    .ill_inst            ( id_ill_inst            ),
+    .fense               ( id_fense               ),
+    .fense_i             ( id_fense_i             ),
+    .ecall               ( id_ecall               ),
+    .ebreak              ( id_ebreak              ),
+    .wfi                 ( id_wfi                 ),
+    .sret                ( id_sret                ),
+    .mret                ( id_mret                ),
+    .jump                ( id_jump                ),
+    .jump_alu            ( id_jump_alu            ),
     // For EXE stage
-    .alu_op       ( id_alu_op        ),
-    .rs1_zero_sel ( id_rs1_zero_sel  ),
-    .rs2_imm_sel  ( id_rs2_imm_sel   ),
-    .pc_imm_sel   ( id_pc_imm_sel    ),
-    .branch       ( id_branch        ),
-    .branch_zcmp  ( id_branch_zcmp   ),
-    .csr_op       ( id_csr_op        ),
-    .uimm_rs1_sel ( id_uimm_rs1_sel  ),
-    .csr_rd       ( id_csr_rd        ),
-    .csr_wr       ( id_csr_wr        ),
+    .alu_op              ( id_alu_op              ),
+    .rs1_zero_sel        ( id_rs1_zero_sel        ),
+    .rs2_imm_sel         ( id_rs2_imm_sel         ),
+    .pc_imm_sel          ( id_pc_imm_sel          ),
+    .branch              ( id_branch              ),
+    .branch_zcmp         ( id_branch_zcmp         ),
+    .csr_op              ( id_csr_op              ),
+    .uimm_rs1_sel        ( id_uimm_rs1_sel        ),
+    .csr_rd              ( id_csr_rd              ),
+    .csr_wr              ( id_csr_wr              ),
     // For MEM stage
-    .pc_alu_sel   ( id_pc_alu_sel    ),
-    .csr_alu_sel  ( id_csr_alu_sel   ),
-    .mem_req      ( id_mem_req       ),
-    .mem_wr       ( id_mem_wr        ),
-    .mem_byte     ( id_mem_byte      ),
-    .mem_sign_ext ( id_mem_sign_ext  ),
+    .pc_alu_sel          ( id_pc_alu_sel          ),
+    .csr_alu_sel         ( id_csr_alu_sel         ),
+    .mem_req             ( id_mem_req             ),
+    .mem_wr              ( id_mem_wr              ),
+    .mem_byte            ( id_mem_byte            ),
+    .mem_sign_ext        ( id_mem_sign_ext        ),
+    .tlb_flush_req       ( id_tlb_flush_req       ),
+    .tlb_flush_all_vaddr ( id_tlb_flush_all_vaddr ),
+    .tlb_flush_all_asid  ( id_tlb_flush_all_asid  ),
     // For WB stage
-    .mem_cal_sel  ( id_mem_cal_sel   ),
-    .rd_wr_o      ( id_rd_wr         )
+    .mem_cal_sel         ( id_mem_cal_sel         ),
+    .rd_wr_o             ( id_rd_wr               )
 );
 
 assign id_fpu_csr_rdata = `XLEN'b0;
@@ -496,98 +519,104 @@ assign id_hazard = (id_csr_rd &&
 // ID/EXE pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
 if (~rstn_sync) begin
-    id2exe_pc                <= `IM_ADDR_LEN'b0;
-    id2exe_inst              <= `IM_DATA_LEN'b0;
-    id2exe_inst_valid        <= 1'b0;
-    id2exe_rd_addr           <= 5'b0;
-    id2exe_rs1_addr          <= 5'b0;
-    id2exe_rs2_addr          <= 5'b0;
-    id2exe_rs1_data          <= `XLEN'b0;
-    id2exe_rs2_data          <= `XLEN'b0;
-    id2exe_csr_waddr         <= 12'b0;
-    id2exe_csr_rdata         <= `XLEN'b0;
-    id2exe_imm               <= `XLEN'b0;
-    id2exe_alu_op            <= `ALU_OP_LEN'b0;
-    id2exe_rs1_zero_sel      <= 1'b0;
-    id2exe_rs2_imm_sel       <= 1'b0;
-    id2exe_pc_imm_sel        <= 1'b0;
-    id2exe_jump_alu          <= 1'b0;
-    id2exe_branch            <= 1'b0;
-    id2exe_branch_zcmp       <= 1'b0;
-    id2exe_csr_op            <= `CSR_OP_LEN'b0;
-    id2exe_uimm_rs1_sel      <= 1'b0;
-    id2exe_pmu_csr_wr        <= 1'b0;
-    id2exe_fpu_csr_wr        <= 1'b0;
-    id2exe_dbg_csr_wr        <= 1'b0;
-    id2exe_mpu_csr_wr        <= 1'b0;
-    id2exe_sru_csr_wr        <= 1'b0;
-    id2exe_pc_alu_sel        <= 1'b0;
-    id2exe_csr_alu_sel       <= 1'b0;
-    id2exe_mem_req           <= 1'b0;
-    id2exe_mem_wr            <= 1'b0;
-    id2exe_mem_byte          <= {(`DM_DATA_LEN >> 3){1'b0}};
-    id2exe_mem_sign_ext      <= 1'b0;
-    id2exe_mem_cal_sel       <= 1'b0;
-    id2exe_rd_wr             <= 1'b0;
-    id2exe_wfi               <= 1'b0;
-    id2exe_ecall             <= 1'b0;
-    id2exe_ebreak            <= 1'b0;
-    id2exe_sret              <= 1'b0;
-    id2exe_mret              <= 1'b0;
-    id2exe_ill_inst          <= 1'b0;
-    id2exe_prv_req           <= 2'b0;
-    id2exe_inst_page_fault   <= 1'b0;
-    id2exe_inst_xes_fault    <= 1'b0;
+    id2exe_pc                  <= `IM_ADDR_LEN'b0;
+    id2exe_inst                <= `IM_DATA_LEN'b0;
+    id2exe_inst_valid          <= 1'b0;
+    id2exe_rd_addr             <= 5'b0;
+    id2exe_rs1_addr            <= 5'b0;
+    id2exe_rs2_addr            <= 5'b0;
+    id2exe_rs1_data            <= `XLEN'b0;
+    id2exe_rs2_data            <= `XLEN'b0;
+    id2exe_csr_waddr           <= 12'b0;
+    id2exe_csr_rdata           <= `XLEN'b0;
+    id2exe_imm                 <= `XLEN'b0;
+    id2exe_alu_op              <= `ALU_OP_LEN'b0;
+    id2exe_rs1_zero_sel        <= 1'b0;
+    id2exe_rs2_imm_sel         <= 1'b0;
+    id2exe_pc_imm_sel          <= 1'b0;
+    id2exe_jump_alu            <= 1'b0;
+    id2exe_branch              <= 1'b0;
+    id2exe_branch_zcmp         <= 1'b0;
+    id2exe_csr_op              <= `CSR_OP_LEN'b0;
+    id2exe_uimm_rs1_sel        <= 1'b0;
+    id2exe_pmu_csr_wr          <= 1'b0;
+    id2exe_fpu_csr_wr          <= 1'b0;
+    id2exe_dbg_csr_wr          <= 1'b0;
+    id2exe_mpu_csr_wr          <= 1'b0;
+    id2exe_sru_csr_wr          <= 1'b0;
+    id2exe_pc_alu_sel          <= 1'b0;
+    id2exe_csr_alu_sel         <= 1'b0;
+    id2exe_mem_req             <= 1'b0;
+    id2exe_mem_wr              <= 1'b0;
+    id2exe_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
+    id2exe_mem_sign_ext        <= 1'b0;
+    id2exe_mem_cal_sel         <= 1'b0;
+    id2exe_rd_wr               <= 1'b0;
+    id2exe_wfi                 <= 1'b0;
+    id2exe_ecall               <= 1'b0;
+    id2exe_ebreak              <= 1'b0;
+    id2exe_sret                <= 1'b0;
+    id2exe_mret                <= 1'b0;
+    id2exe_ill_inst            <= 1'b0;
+    id2exe_prv_req             <= 2'b0;
+    id2exe_inst_page_fault     <= 1'b0;
+    id2exe_inst_xes_fault      <= 1'b0;
+    id2exe_tlb_flush_req       <= 1'b0;
+    id2exe_tlb_flush_all_vaddr <= 1'b0;
+    id2exe_tlb_flush_all_asid  <= 1'b0;
 end
 else begin
     if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
-        id2exe_pc                <= if2id_pc;
-        id2exe_inst              <= if2id_inst;
-        id2exe_inst_valid        <= ~id_flush & if2id_inst_valid;
-        id2exe_rd_addr           <= id_rd_addr;
-        id2exe_rs1_addr          <= id_rs1_addr;
-        id2exe_rs2_addr          <= id_rs2_addr;
-        id2exe_rs1_data          <= id_rs1_data;
-        id2exe_rs2_data          <= id_rs2_data;
-        id2exe_csr_waddr         <= id_csr_addr;
-        id2exe_csr_rdata         <= id_csr_rdata;
-        id2exe_imm               <= id_imm;
-        id2exe_alu_op            <= id_alu_op;
-        id2exe_rs1_zero_sel      <= id_rs1_zero_sel;
-        id2exe_rs2_imm_sel       <= id_rs2_imm_sel;
-        id2exe_pc_imm_sel        <= id_pc_imm_sel;
-        id2exe_jump_alu          <= id_jump_alu;
-        id2exe_branch            <= id_branch;
-        id2exe_branch_zcmp       <= id_branch_zcmp;
-        id2exe_csr_op            <= id_csr_op;
-        id2exe_uimm_rs1_sel      <= id_uimm_rs1_sel;
-        id2exe_pmu_csr_wr        <= ~id_flush & id_pmu_csr_wr;
-        id2exe_fpu_csr_wr        <= ~id_flush & id_fpu_csr_wr;
-        id2exe_dbg_csr_wr        <= ~id_flush & id_dbg_csr_wr;
-        id2exe_mmu_csr_wr        <= ~id_flush & id_mmu_csr_wr;
-        id2exe_mpu_csr_wr        <= ~id_flush & id_mpu_csr_wr;
-        id2exe_sru_csr_wr        <= ~id_flush & id_sru_csr_wr;
-        id2exe_pc_alu_sel        <= id_pc_alu_sel;
-        id2exe_csr_alu_sel       <= id_csr_alu_sel;
-        id2exe_mem_req           <= ~id_flush & id_mem_req;
-        id2exe_mem_wr            <= ~id_flush & id_mem_wr;
-        id2exe_mem_byte          <= id_mem_byte;
-        id2exe_mem_sign_ext      <= id_mem_sign_ext;
-        id2exe_mem_cal_sel       <= id_mem_cal_sel;
-        id2exe_rd_wr             <= ~id_flush & id_rd_wr;
-        id2exe_wfi               <= ~id_flush & id_wfi;
-        id2exe_ecall             <= ~id_flush & id_ecall;
-        id2exe_ebreak            <= ~id_flush & id_ebreak;
-        id2exe_sret              <= ~id_flush & id_sret;
-        id2exe_mret              <= ~id_flush & id_mret;
-        id2exe_ill_inst          <= ~id_flush & id_ill_inst;
-        id2exe_prv_req           <= id_prv_req;
-        id2exe_inst_page_fault   <= if2id_inst_page_fault;
-        id2exe_inst_xes_fault    <= if2id_inst_xes_fault;
+        id2exe_pc                  <= if2id_pc;
+        id2exe_inst                <= if2id_inst;
+        id2exe_inst_valid          <= ~id_flush & if2id_inst_valid;
+        id2exe_rd_addr             <= id_rd_addr;
+        id2exe_rs1_addr            <= id_rs1_addr;
+        id2exe_rs2_addr            <= id_rs2_addr;
+        id2exe_rs1_data            <= id_rs1_data;
+        id2exe_rs2_data            <= id_rs2_data;
+        id2exe_csr_waddr           <= id_csr_addr;
+        id2exe_csr_rdata           <= id_csr_rdata;
+        id2exe_imm                 <= id_imm;
+        id2exe_alu_op              <= id_alu_op;
+        id2exe_rs1_zero_sel        <= id_rs1_zero_sel;
+        id2exe_rs2_imm_sel         <= id_rs2_imm_sel;
+        id2exe_pc_imm_sel          <= id_pc_imm_sel;
+        id2exe_jump_alu            <= id_jump_alu;
+        id2exe_branch              <= id_branch;
+        id2exe_branch_zcmp         <= id_branch_zcmp;
+        id2exe_csr_op              <= id_csr_op;
+        id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
+        id2exe_pmu_csr_wr          <= ~id_flush & id_pmu_csr_wr;
+        id2exe_fpu_csr_wr          <= ~id_flush & id_fpu_csr_wr;
+        id2exe_dbg_csr_wr          <= ~id_flush & id_dbg_csr_wr;
+        id2exe_mmu_csr_wr          <= ~id_flush & id_mmu_csr_wr;
+        id2exe_mpu_csr_wr          <= ~id_flush & id_mpu_csr_wr;
+        id2exe_sru_csr_wr          <= ~id_flush & id_sru_csr_wr;
+        id2exe_pc_alu_sel          <= id_pc_alu_sel;
+        id2exe_csr_alu_sel         <= id_csr_alu_sel;
+        id2exe_mem_req             <= ~id_flush & id_mem_req;
+        id2exe_mem_wr              <= ~id_flush & id_mem_wr;
+        id2exe_mem_byte            <= id_mem_byte;
+        id2exe_mem_sign_ext        <= id_mem_sign_ext;
+        id2exe_mem_cal_sel         <= id_mem_cal_sel;
+        id2exe_rd_wr               <= ~id_flush & id_rd_wr;
+        id2exe_wfi                 <= ~id_flush & id_wfi;
+        id2exe_ecall               <= ~id_flush & id_ecall;
+        id2exe_ebreak              <= ~id_flush & id_ebreak;
+        id2exe_sret                <= ~id_flush & id_sret;
+        id2exe_mret                <= ~id_flush & id_mret;
+        id2exe_ill_inst            <= ~id_flush & id_ill_inst;
+        id2exe_prv_req             <= id_prv_req;
+        id2exe_inst_page_fault     <= if2id_inst_page_fault;
+        id2exe_inst_xes_fault      <= if2id_inst_xes_fault;
+        id2exe_tlb_flush_req       <= ~id_flush & id_tlb_flush_req;
+        id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
+        id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
     end
     else begin
-        id2exe_rs1_data          <= exe_rs1_data;
-        id2exe_rs2_data          <= exe_rs2_data;
+        id2exe_rs1_data            <= exe_rs1_data;
+        id2exe_rs2_data            <= exe_rs2_data;
     end
 end
 end
@@ -596,24 +625,25 @@ end
 // RS1 Forward
 assign fwd_wb2exe_rd_rs1  = mem2wb_rd_wr  & (id2exe_rs1_addr == mem2wb_rd_addr ) & |id2exe_rs1_addr;
 assign fwd_mem2exe_rd_rs1 = exe2mem_rd_wr & (id2exe_rs1_addr == exe2mem_rd_addr) & |id2exe_rs1_addr &
-                        ~(exe2mem_mem_req & ~exe2mem_mem_wr & exe2mem_mem_cal_sel);
+                          ~(exe2mem_mem_req & ~exe2mem_mem_wr & exe2mem_mem_cal_sel);
 assign exe_rs1_data       = fwd_mem2exe_rd_rs1 ? mem_rd_data :
-                        fwd_wb2exe_rd_rs1  ? wb_rd_data  :
-                                             id2exe_rs1_data;
+                            fwd_wb2exe_rd_rs1  ? wb_rd_data  :
+                                                 id2exe_rs1_data;
 
 // RS2 Forward
 assign fwd_wb2exe_rd_rs2  = mem2wb_rd_wr  & (id2exe_rs2_addr == mem2wb_rd_addr ) & |id2exe_rs2_addr;
 assign fwd_mem2exe_rd_rs2 = exe2mem_rd_wr & (id2exe_rs2_addr == exe2mem_rd_addr) & |id2exe_rs2_addr &
                         ~(exe2mem_mem_req & ~exe2mem_mem_wr & exe2mem_mem_cal_sel);
 assign exe_rs2_data       = fwd_mem2exe_rd_rs2 ? mem_rd_data :
-                        fwd_wb2exe_rd_rs2  ? wb_rd_data  :
-                                             id2exe_rs2_data;
+                            fwd_wb2exe_rd_rs2  ? wb_rd_data  :
+                                                 id2exe_rs2_data;
 
 assign exe_hazard   = ((exe2mem_mem_req & ~exe2mem_mem_wr & exe2mem_mem_cal_sel) &
                        (exe2mem_rd_wr & (id2exe_rs1_addr == exe2mem_rd_addr) & |id2exe_rs1_addr |
                         exe2mem_rd_wr & (id2exe_rs2_addr == exe2mem_rd_addr) & |id2exe_rs2_addr)) ||
                       (exe2mem_mem_req & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
-                       id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_branch));
+                       id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_branch |
+                       id2exe_sret | id2exe_mret));
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
 assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + `XLEN'h4;
@@ -636,6 +666,8 @@ assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_w
 assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
 assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
 assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_sret       = id2exe_sret       & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_mret       = id2exe_mret       & ~exe_stall & ~exe_trap_en & ~stall_wfi;
 
 assign exe_csr_src1 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 assign exe_csr_src2 = id2exe_csr_rdata;
@@ -647,6 +679,7 @@ sru u_sru (
     .sleep       ( sleep             ),
     .prv         ( exe_prv           ),
     .tvm         ( exe_mstatus_tvm   ),
+    .sum         ( sum               ),
 
     // IRQ signal
     .ext_msip    ( msip              ),
@@ -666,8 +699,8 @@ sru u_sru (
     .trap_en     ( exe_trap_en       ),
     .trap_cause  ( exe_trap_cause    ),
     .trap_val    ( exe_trap_val      ),
-    .sret        ( id2exe_sret       ),
-    .mret        ( id2exe_mret       ),
+    .sret        ( exe_sret          ),
+    .mret        ( exe_mret          ),
     .eret_en     ( exe_eret_en       ),
     
     // CSR interface
@@ -726,7 +759,6 @@ tpu u_tpu (
 assign satp_ppn    = exe_satp_ppn;
 assign satp_asid   = exe_satp_asid;
 assign satp_mode   = exe_satp_mode;
-assign mstatus_tvm = exe_mstatus_tvm;
 assign prv         = exe_prv;
 
 always_comb begin
@@ -741,68 +773,79 @@ end
 // EXE/MEM pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
 if (~rstn_sync) begin
-    exe2mem_pc           <= `IM_ADDR_LEN'b0;
-    exe2mem_inst         <= `IM_DATA_LEN'b0;
-    exe2mem_inst_valid   <= 1'b0;
-    exe2mem_mem_req      <= 1'b0;
-    exe2mem_mem_wr       <= 1'b0;
-    exe2mem_mem_byte     <= {(`DM_DATA_LEN >> 3){1'b0}};
-    exe2mem_mem_sign_ext <= 1'b0;
-    exe2mem_pc_alu_sel   <= 1'b0;
-    exe2mem_csr_rdata    <= `XLEN'b0;
-    exe2mem_csr_alu_sel  <= 1'b0;
-    exe2mem_mem_cal_sel  <= 1'b0;
-    exe2mem_rd_wr        <= 1'b0;
-    exe2mem_rd_addr      <= 5'b0;
-    exe2mem_rs2_addr     <= 5'b0;
-    exe2mem_alu_out      <= `XLEN'b0;
-    exe2mem_pc2rd        <= `XLEN'b0;
-    exe2mem_rs2_data     <= `XLEN'b0;
-    exe2mem_csr_wr       <= 1'b0;
-    exe2mem_csr_waddr    <= 12'b0;
-    exe2mem_csr_wdata    <= `XLEN'b0;
-    exe2mem_wfi          <= 1'b0;
-    exe2mem_prv          <= 2'b0;
-    exe2mem_trap_en      <= 1'b0;
-    exe2mem_cause        <= `XLEN'b0;
-    exe2mem_tval         <= `XLEN'b0;
-    exe2mem_epc          <= `IM_DATA_LEN'b0;
+    exe2mem_pc                  <= `IM_ADDR_LEN'b0;
+    exe2mem_inst                <= `IM_DATA_LEN'b0;
+    exe2mem_inst_valid          <= 1'b0;
+    exe2mem_mem_req             <= 1'b0;
+    exe2mem_mem_wr              <= 1'b0;
+    exe2mem_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
+    exe2mem_mem_sign_ext        <= 1'b0;
+    exe2mem_pc_alu_sel          <= 1'b0;
+    exe2mem_csr_rdata           <= `XLEN'b0;
+    exe2mem_csr_alu_sel         <= 1'b0;
+    exe2mem_mem_cal_sel         <= 1'b0;
+    exe2mem_rd_wr               <= 1'b0;
+    exe2mem_rd_addr             <= 5'b0;
+    exe2mem_rs1_addr            <= 5'b0;
+    exe2mem_rs2_addr            <= 5'b0;
+    exe2mem_alu_out             <= `XLEN'b0;
+    exe2mem_pc2rd               <= `XLEN'b0;
+    exe2mem_rs1_data            <= `XLEN'b0;
+    exe2mem_rs2_data            <= `XLEN'b0;
+    exe2mem_csr_wr              <= 1'b0;
+    exe2mem_csr_waddr           <= 12'b0;
+    exe2mem_csr_wdata           <= `XLEN'b0;
+    exe2mem_wfi                 <= 1'b0;
+    exe2mem_prv                 <= 2'b0;
+    exe2mem_trap_en             <= 1'b0;
+    exe2mem_cause               <= `XLEN'b0;
+    exe2mem_tval                <= `XLEN'b0;
+    exe2mem_epc                 <= `IM_DATA_LEN'b0;
+    exe2mem_tlb_flush_req       <= 1'b0;
+    exe2mem_tlb_flush_all_vaddr <= 1'b0;
+    exe2mem_tlb_flush_all_asid  <= 1'b0;
 end
 else begin
     if (~mem_stall | exe_flush_force) begin
-        exe2mem_pc           <= id2exe_pc;
-        exe2mem_inst         <= id2exe_inst;
-        exe2mem_inst_valid   <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
-        exe2mem_mem_req      <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
-        exe2mem_mem_wr       <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
-        exe2mem_mem_byte     <= id2exe_mem_byte;
-        exe2mem_mem_sign_ext <= id2exe_mem_sign_ext;
-        exe2mem_pc_alu_sel   <= id2exe_pc_alu_sel;
-        exe2mem_csr_rdata    <= id2exe_csr_rdata;
-        exe2mem_csr_alu_sel  <= id2exe_csr_alu_sel;
-        exe2mem_mem_cal_sel  <= id2exe_mem_cal_sel;
-        exe2mem_rd_wr        <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
-        exe2mem_rd_addr      <= id2exe_rd_addr;
-        exe2mem_rs2_addr     <= id2exe_rs2_addr;
-        exe2mem_alu_out      <= exe_alu_out;
-        exe2mem_pc2rd        <= exe_pc2rd;
-        exe2mem_rs2_data     <= exe_rs2_data;
-        exe2mem_csr_wr       <= exe_pmu_csr_wr|
-                                exe_fpu_csr_wr|
-                                exe_dbg_csr_wr|
-                                exe_mmu_csr_wr|
-                                exe_mpu_csr_wr|
-                                exe_sru_csr_wr;
-        exe2mem_csr_waddr    <= id2exe_csr_waddr;
-        exe2mem_csr_wdata    <= exe_csr_wdata;
-        exe2mem_wfi          <= ~exe_flush & ~exe_irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
-        exe2mem_prv          <= exe_prv;
-        exe2mem_trap_en      <= exe_irq_en | exe_trap_en;
-        exe2mem_cause        <= exe_cause;
-        exe2mem_tval         <= exe_tval;
-        exe2mem_epc          <= exe_trap_epc;
+        exe2mem_pc                  <= id2exe_pc;
+        exe2mem_inst                <= id2exe_inst;
+        exe2mem_inst_valid          <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
+        exe2mem_mem_req             <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
+        exe2mem_mem_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
+        exe2mem_mem_byte            <= id2exe_mem_byte;
+        exe2mem_mem_sign_ext        <= id2exe_mem_sign_ext;
+        exe2mem_pc_alu_sel          <= id2exe_pc_alu_sel;
+        exe2mem_csr_rdata           <= id2exe_csr_rdata;
+        exe2mem_csr_alu_sel         <= id2exe_csr_alu_sel;
+        exe2mem_mem_cal_sel         <= id2exe_mem_cal_sel;
+        exe2mem_rd_wr               <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
+        exe2mem_rd_addr             <= id2exe_rd_addr;
+        exe2mem_rs1_addr            <= id2exe_rs1_addr;
+        exe2mem_rs2_addr            <= id2exe_rs2_addr;
+        exe2mem_alu_out             <= exe_alu_out;
+        exe2mem_pc2rd               <= exe_pc2rd;
+        exe2mem_rs1_data            <= exe_rs1_data;
+        exe2mem_rs2_data            <= exe_rs2_data;
+        exe2mem_csr_wr              <= exe_pmu_csr_wr|
+                                       exe_fpu_csr_wr|
+                                       exe_dbg_csr_wr|
+                                       exe_mmu_csr_wr|
+                                       exe_mpu_csr_wr|
+                                       exe_sru_csr_wr;
+        exe2mem_csr_waddr           <= id2exe_csr_waddr;
+        exe2mem_csr_wdata           <= exe_csr_wdata;
+        exe2mem_wfi                 <= ~exe_flush & ~exe_irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
+        exe2mem_prv                 <= exe_prv;
+        exe2mem_trap_en             <= exe_irq_en | exe_trap_en;
+        exe2mem_cause               <= exe_cause;
+        exe2mem_tval                <= exe_tval;
+        exe2mem_epc                 <= exe_trap_epc;
+        exe2mem_tlb_flush_req       <= ~exe_flush & id2exe_tlb_flush_req;
+        exe2mem_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
+        exe2mem_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
     end
     else begin
+        exe2mem_rs1_data     <= mem_rs1_data;
         exe2mem_rs2_data     <= mem_dpu_wdata;
     end
 end
@@ -810,13 +853,21 @@ end
 
 // MEM stage
 // MEM_ADDR Forward
-assign fwd_wb2mem_rd_rs2  = mem2wb_rd_wr & (exe2mem_rs2_addr == mem2wb_rd_addr) & |exe2mem_rs2_addr;
+assign fwd_wb2mem_rd_rs1  = mem2wb_rd_wr & (exe2mem_rs1_addr == mem2wb_rd_addr) & |mem2wb_rd_addr;
+assign fwd_wb2mem_rd_rs2  = mem2wb_rd_wr & (exe2mem_rs2_addr == mem2wb_rd_addr) & |mem2wb_rd_addr;
 
-assign mem_dpu_req   = exe2mem_mem_req;
+assign mem_dpu_req   = ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_req;
 assign mem_dpu_wr    = exe2mem_mem_wr;
 assign mem_dpu_byte  = exe2mem_mem_byte;
 assign mem_dpu_addr  = exe2mem_alu_out;
+assign mem_rs1_data  = fwd_wb2mem_rd_rs1 ? wb_rd_data : exe2mem_rs1_data;
 assign mem_dpu_wdata = fwd_wb2mem_rd_rs2 ? wb_rd_data : exe2mem_rs2_data;
+
+assign tlb_flush_req       = exe2mem_tlb_flush_req;
+assign tlb_flush_all_vaddr = exe2mem_tlb_flush_all_vaddr;
+assign tlb_flush_all_asid  = exe2mem_tlb_flush_all_asid;
+assign tlb_flush_vaddr     = mem_rs1_data;
+assign tlb_flush_asid      = mem_dpu_wdata;
 
 dpu u_dpu (
     .clk              ( clk_wfi              ),

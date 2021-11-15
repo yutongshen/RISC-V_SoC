@@ -35,7 +35,7 @@ assign mmu_csr_sel = raddr == 12'h180;
 assign mpu_csr_sel = {raddr[11:10], raddr[7]} == 3'b00_1 && ~mmu_csr_sel;
 assign sru_csr_sel = ({raddr[11:10], raddr[7:6]} == 4'b00_00 && ~fpu_csr_sel) ||
                       {raddr[11:10], raddr[7:6]} == 4'b00_01;
-assign fpu_csr_sel = {raddr[11:10], raddr[7:2]} == 7'b00_00000 && raddr[1:0] != 2'b00;
+assign fpu_csr_sel = raddr[11:2] == 10'b0000_0000_00 && raddr[1:0] != 2'b00;
 
 assign pmu_csr_wr = pmu_csr_sel & wr;
 assign fpu_csr_wr = fpu_csr_sel & wr;

@@ -684,7 +684,15 @@ case (opcode)
     OP_SYSTEM   : begin
         case (funct3)
             FUNCT3_PRIV  : begin
-                if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
+                if (funct7 == FUNCT7_SFENCE_VMA) begin
+                    if (!rs1 & !rs2)
+                        $sformat(result, "sfence.vma");
+                    else if (!rs2)
+                        $sformat(result, "sfence.vma %s", regs_name(rs1));
+                    else
+                        $sformat(result, "sfence.vma %s,%s", regs_name(rs1), regs_name(rs2));
+                end
+                else if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
                     case (inst[31:20])
                         FUNCT12_ECALL: begin
                             $sformat(result, "ecall");

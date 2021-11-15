@@ -46,6 +46,7 @@ module sru (
     input                           sleep,
     output logic [             1:0] prv,
     output logic                    tvm,
+    output logic                    sum,
 
     // IRQ signal
     input                           ext_msip,
@@ -55,7 +56,6 @@ module sru (
     output logic                    irq_trigger,
     output logic [       `XLEN-1:0] cause,
     output logic [       `XLEN-1:0] tval,
-
 
     // PC control
     output logic [`IM_ADDR_LEN-1:0] trap_vec,
@@ -336,6 +336,7 @@ assign sstatus = {1'b0, 8'b0, 1'b0, 1'b0, 1'b0,
                   1'b0, 1'b0, mstatus_sie, 1'b0};
 
 assign tvm     = mstatus_tvm;
+assign sum     = mstatus_sum;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
