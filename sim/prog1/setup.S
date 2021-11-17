@@ -1,4 +1,6 @@
 # Define constants
+#define mtime 0x8004000
+
 .section .text
 .align 2
 .globl _start
@@ -37,6 +39,12 @@ _start:
 
  /* initialize global pointer */
  la gp, _gp
+
+ /* initialize mtimecmp */
+ li a0, -1
+ li a1, mtime
+ sw a0, 0(a1)
+ sw a0, 4(a1)
 
 init_bss:
   /* init bss section */

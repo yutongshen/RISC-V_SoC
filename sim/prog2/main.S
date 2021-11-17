@@ -22,9 +22,11 @@ main:
   sw t0, -0x80*4(t1)
   sw t0, -0xa0*4(t1)
   sw t0, -0xc0*4(t1)
-  sw t0, -0xe0*4(t1)
+  # sw t0, -0xe0*4(t1)
 
-  li t0, 0x1000000
+  csrs mie, (1<<3)
+  wfi
+  li t0, 0x10000000
   li t1, 'A'
   sb t1, 0(t0)
   li t1, 'B'
@@ -797,11 +799,11 @@ csrrw:
   addi s0, s0, 4   
   # mip  
   li t0, 0x22a
-  csrrw x0, mip, t0 # mip = 0x22a
-  csrrw t2, mip, x0 # mip = 0x0   t2 = 0x22a
-  csrrw t3, mip, x0 # mip = 0x0   t3 = 0x0
+  csrrw x0, mip, t0 # mip = 0x2a2
+  csrrw t2, mip, x0 # mip = 0x80  t2 = 0x2a2
+  csrrw t3, mip, x0 # mip = 0x80  t3 = 0x80
   add t1, t2, t3  
-  sw t1, 0(s0)  # t1 = 0x22a (mip)
+  sw t1, 0(s0)  # t1 = 0x322 (mip)
   addi s0, s0, 4   
 csrrwi:
 
@@ -824,9 +826,9 @@ csrrwi:
   addi s0, s0, 4   
   
   # mip  
-  csrrwi x0, mip, 0xf # mip = 0xa
-  csrrw t1, mip, x0   # mip = 0x0 t1 = 0xa
-  sw t1, 0(s0)        # t1 = 0xa (mip)
+  csrrwi x0, mip, 0xf # mip = 0x82
+  csrrw t1, mip, x0   # mip = 0x0 t1 = 0x82
+  sw t1, 0(s0)        # t1 = 0x82 (mip)
   addi s0, s0, 4     
 
 csrrs:

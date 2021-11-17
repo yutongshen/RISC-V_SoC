@@ -23,6 +23,8 @@ module mmu (
     input        [   `SATP_MODE_WIDTH - 1:0] satp_mode,
     input        [                      1:0] prv,
     input                                    sum,
+    input                                    mprv,
+    input        [                      1:0] mpp,
 
     // virtual address
     input                                    va_valid,
@@ -75,6 +77,7 @@ logic                      pg_fault_tmp;
 logic                      pg_fault_tmp_latch;
 logic                      bus_err;
 logic                      ar_done;
+logic [               1:0] prv_post;
 
 logic                      tlb_cs;
 logic                      tlb_we;
@@ -141,25 +144,26 @@ always_comb begin
     endcase
 end
 
+assign prv_post     = ~access_x && mprv ? mpp : prv;
 assign leaf         = pte_v && (pte_r || pte_x);
 assign pg_fault_tmp = !pte_v || (!pte_r && pte_w) ||
                       (~leaf && ~|level) ||
                       ( leaf && |level && pte_ppn[9:0]) ||
-                      ( leaf && access_x_latch && ~pte_x) ||
-                      ( leaf && access_r_latch && ~pte_r) ||
-                      ( leaf && access_w_latch && ~pte_w) ||
-                      ( leaf && prv == `PRV_U  && ~pte_u) ||
-                      ( leaf && prv == `PRV_S  &&  pte_u && (~sum || access_x_latch)) ||
-                      ( leaf && access_w_latch && ~pte_d) ||
-                      ( leaf                   && ~pte_a);
+                      ( leaf && access_x_latch     && ~pte_x) ||
+                      ( leaf && access_r_latch     && ~pte_r) ||
+                      ( leaf && access_w_latch     && ~pte_w) ||
+                      ( leaf && prv_post == `PRV_U && ~pte_u) ||
+                      ( leaf && prv_post == `PRV_S &&  pte_u && (~sum || access_x_latch)) ||
+                      ( leaf && access_w_latch     && ~pte_d) ||
+                      ( leaf                       && ~pte_a);
 
-assign pg_fault_tlb = (access_x_latch && ~tlb_pte_x) ||
-                      (access_r_latch && ~tlb_pte_r) ||
-                      (access_w_latch && ~tlb_pte_w) ||
-                      (prv == `PRV_U  && ~tlb_pte_u) ||
-                      (prv == `PRV_S  &&  tlb_pte_u && (~sum || access_x_latch)) ||
-                      (access_w_latch && ~tlb_pte_d) ||
-                      (                  ~tlb_pte_a);
+assign pg_fault_tlb = (access_x_latch     && ~tlb_pte_x) ||
+                      (access_r_latch     && ~tlb_pte_r) ||
+                      (access_w_latch     && ~tlb_pte_w) ||
+                      (prv_post == `PRV_U && ~tlb_pte_u) ||
+                      (prv_post == `PRV_S &&  tlb_pte_u && (~sum || access_x_latch)) ||
+                      (access_w_latch     && ~tlb_pte_d) ||
+                      (                      ~tlb_pte_a);
 
 assign tlb_vpn    = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
 assign tlb_pte_in = pte_latch;
@@ -297,7 +301,7 @@ assign pa       = ({56{pa_valid_tmp_latch}} & {{10{ppn_latch[21]}}, ppn_latch[21
                   ({56{tlb_data_sel}}       & {{10{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
 assign pa_bad   = {bus_err, pg_fault};
 
-assign va_en    = prv < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
+assign va_en    = prv_post < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
 
 tlb u_tlb(
     .clk                 ( clk                 ),

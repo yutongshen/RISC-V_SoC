@@ -124,7 +124,7 @@ generate
 
         always_ff @(posedge clk or negedge rstn) begin
             if (~rstn) valid_latch <= 1'b0;
-            else       valid_latch <= valid[g][idx];
+            else       valid_latch <= valid[g][idx] && ~tlb_flush_req;
         end
 
         always_ff @(posedge clk or negedge rstn) begin

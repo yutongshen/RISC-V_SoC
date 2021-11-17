@@ -1,3 +1,5 @@
+#define msip 0x8000000
+
 .section .text
 .align 2
 .globl main
@@ -651,11 +653,11 @@ bgeu:
   sw t0, 0(s0)
   addi s0, s0, 4
 auipc:
-  auipc t0, 0x00000  # t0 = 0x00000af0
-  auipc t1, 0xfffff  # t1 = 0xfffffaf4
-  auipc t2, 0x13579  # t2 = 0x13579af8
-  add t1, t1, t2     # t1 = 0x135795ec
-  add t0, t0, t1     # t0 = 0x1357a0dc
+  auipc t0, 0x00000  # t0 = 0x00000b00
+  auipc t1, 0xfffff  # t1 = 0xfffffb04
+  auipc t2, 0x13579  # t2 = 0x13579b08
+  add t1, t1, t2     # t1 = 0x1357960c
+  add t0, t0, t1     # t0 = 0x1357a10c
   sw t0, 0(s0)
   addi s0, s0, 4
 lui:
@@ -710,12 +712,15 @@ csrrw:
   sw t1, 0(s0)  # t1 = 0x01234564 (mepc)
   addi s0, s0, 4   
   # mip  
+  li t0, 1
+  li t1, msip
+  sw t0, 0(t1)
   li t0, 0x22a
   csrrw x0, mip, t0 # mip = 0x22a
   csrrw t2, mip, x0 # mip = 0x0   t2 = 0x22a
-  csrrw t3, mip, x0 # mip = 0x0   t3 = 0x0
+  csrrw t3, mip, x0 # mip = 0x0   t3 = 0x8
   add t1, t2, t3  
-  sw t1, 0(s0)  # t1 = 0x22a (mip)
+  sw t1, 0(s0)  # t1 = 0x232 (mip)
   addi s0, s0, 4   
 csrrwi:
 

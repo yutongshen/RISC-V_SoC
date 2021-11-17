@@ -10,6 +10,7 @@ module l1c (
     input        [                      1:0] core_pa_bad, // [0]: pg_fault, [1]: bus_err
     input        [  `CACHE_ADDR_WIDTH - 1:0] core_paddr,
     input                                    core_bypass,
+    input                                    core_flush,
     input                                    core_wr,
     input        [  `CACHE_ADDR_WIDTH - 1:0] core_vaddr,
     input        [  `CACHE_DATA_WIDTH - 1:0] core_wdata,
@@ -235,13 +236,13 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)               core_paddr_latch <= `CACHE_ADDR_WIDTH'b0;
+    if (~rstn)            core_paddr_latch <= `CACHE_ADDR_WIDTH'b0;
     else if (core_pa_vld) core_paddr_latch <= core_paddr;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn)           valid_latch <= 1'b0;
-    else if (~core_busy) valid_latch <= valid[idx] && core_req;
+    else if (~core_busy) valid_latch <= ~core_flush && valid[idx] && core_req;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -268,7 +269,8 @@ always_ff @(posedge clk or negedge rstn) begin
         valid <= 64'b0;
     end
     else begin
-        if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= 1'b1;
+        if (core_flush)    valid <= 64'b0;
+        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= 1'b1;
     end
 end
 

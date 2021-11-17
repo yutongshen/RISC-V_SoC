@@ -18,14 +18,15 @@
 ../src/cpu/mmu.sv
 ../src/cpu/tlb.sv
 ../src/cpu/l1c.sv
+../src/cpu/clint.sv
 ../src/cpu/util.sv
 ../src/cpu/uart.sv
 ../src/bus/axi2mem_bridge.sv
 ../src/bus/mem2axi_bridge.sv
 ../src/bus/axi2apb_bridge.sv
-../src/bus/axi_4to3_biu.sv
+../src/bus/axi_4to4_biu.sv
 ../src/bus/axi_4to1_mux.sv
-../src/bus/axi_1to3_dec.sv
+../src/bus/axi_1to4_dec.sv
 ../mdl/sram.sv
 ../mdl/sram32x31.sv
 ../mdl/sram32x64.sv

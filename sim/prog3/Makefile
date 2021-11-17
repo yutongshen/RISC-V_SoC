@@ -1,7 +1,9 @@
 ELF_NAME := main
 
 ifeq ($(isa),)
-  isa := rv32ui-v-add
+  ISA := rv32ui-v-add
+else
+  ISA := $(isa)
 endif
 
 export CROSS_PREFIX ?= riscv64-unknown-elf-
@@ -31,7 +33,7 @@ OBJ     := $(OBJ_C) $(OBJ_S) $(OBJ_BMP)
 all: build_elf build_log build_hex
 
 build_elf:
-	ln -sf ../../../riscv-tests/isa/$(isa) $(ELF_NAME)
+	ln -sf ../../../riscv-tests/isa/$(ISA) $(ELF_NAME)
 	# $(RISCV_GCC) $^ $(LDFLAGS) -o $(ELF_NAME)
 
 build_log: $(ELF_NAME)

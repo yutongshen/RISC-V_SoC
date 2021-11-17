@@ -48,10 +48,10 @@ end
 initial begin
     wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
     #1;
-    #(`CLK_PRIOD * 20)
-    force u_cpu_wrap.u_cpu_top.meip = 1'b1;
+    #(`CLK_PRIOD * 5)
+    force u_cpu_wrap.u_cpu_top.msip = 1'b1;
     #(`CLK_PRIOD * 10)
-    release u_cpu_wrap.u_cpu_top.meip;
+    release u_cpu_wrap.u_cpu_top.msip;
 end
 
 // sram initial
@@ -97,7 +97,7 @@ cpu_wrap u_cpu_wrap (
 // For riscv-tests used
 logic [31:0] arg;
 logic [31:0] cmd;
-logic        _flag;
+logic [ 1:0] _flag;
 
 initial begin
     force u_cpu_wrap.u_sram_0.memory[14'h400] = 32'b0;
@@ -105,16 +105,33 @@ initial begin
 end
 
 always @(posedge clk) begin
-    if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
+    if (~rstn) begin
+        arg <= 32'b0;
+        cmd <= 32'b0;
+    end
+    else if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
         if (u_cpu_wrap.u_sram_0.A == 14'h400) begin
             arg <= u_cpu_wrap.u_sram_0.DI;
         end
-        if (u_cpu_wrap.u_sram_0.A == 14'h401) begin
+        else if (u_cpu_wrap.u_sram_0.A == 14'h401) begin
             cmd <= u_cpu_wrap.u_sram_0.DI;
-            _flag <= 1'b1;
         end
     end
-    if (_flag) begin
+end
+
+always @(posedge clk) begin
+    if (~rstn) begin
+        _flag <= 2'b0;
+    end
+    else if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
+        if (_flag) begin
+            _flag <= {_flag[0], 1'b0};
+        end
+        else if (u_cpu_wrap.u_sram_0.A == 14'h400) begin
+            _flag <= 2'b1;
+        end
+    end
+    else if (_flag[1]) begin
         case (cmd)
             32'h00000000: begin
                 $display("ENDCODE = %x", arg);
@@ -122,7 +139,7 @@ always @(posedge clk) begin
             end
             32'h01010000: $write("%c", arg);
         endcase
-        _flag <= 1'b0;
+        _flag <= 2'b0;
     end
 end
 

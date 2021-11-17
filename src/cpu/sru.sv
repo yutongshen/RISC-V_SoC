@@ -45,8 +45,11 @@ module sru (
     input                           rstn,
     input                           sleep,
     output logic [             1:0] prv,
+    output logic                    tsr,
     output logic                    tvm,
     output logic                    sum,
+    output logic                    mprv,
+    output logic [             1:0] mpp,
 
     // IRQ signal
     input                           ext_msip,
@@ -86,9 +89,6 @@ logic [`IM_ADDR_LEN-1:0] vec_offset;
 logic                    msip_d1;
 logic                    mtip_d1;
 logic                    meip_d1;
-logic                    msip_toggle;
-logic                    mtip_toggle;
-logic                    meip_toggle;
 
 logic [       `XLEN-1:0] sstatus;
 // logic [       `XLEN-1:0] sedeleg;
@@ -155,6 +155,10 @@ logic                    mip_mtip;
 logic                    mip_seip;
 logic                    mip_meip;
 
+logic [             1:0] misa_mxl;
+logic [            25:0] misa_ext;
+
+
 logic [       `XLEN-2:0] mcause_code;
 logic                    mcause_int;
 
@@ -169,8 +173,7 @@ assign ints_en     = mie & mip;
 assign ints_m_en   = mie & mip & ~mideleg;
 assign ints_s_en   = mie & mip &  mideleg;
 
-assign wakeup      = sleep ? ((msip_toggle & ext_msip) | (mtip_toggle | ext_mtip) | (meip_toggle | ext_meip)):
-                             |ints_en;
+assign wakeup      = |ints_en;
 assign irq_trigger = ~trap_en && (ints_m_mode || ints_s_mode);
 assign ret_epc     = sret ? sepc : mepc;
 assign eret_en     = ~trap_en && (sret || mret);
@@ -215,23 +218,6 @@ assign cause       = trap_en     ? trap_cause :
                                    `XLEN'd0;
 
 assign tval         = trap_en ? trap_val : `XLEN'd0;
-
-always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn) begin
-        msip_d1  <= 1'b0;
-        mtip_d1  <= 1'b0;
-        meip_d1  <= 1'b0;
-    end
-    else begin
-        msip_d1  <= ext_msip;
-        mtip_d1  <= ext_mtip;
-        meip_d1  <= ext_meip;
-    end
-end
-
-assign msip_toggle = ext_msip ^ msip_d1;
-assign mtip_toggle = ext_mtip ^ mtip_d1;
-assign meip_toggle = ext_meip ^ meip_d1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) prv <= `PRV_M;
@@ -322,7 +308,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_STVAL_ADDR) stval <= csr_wdata;
 end
 
-assign mstatus = {mstatus_sd, 8'b0, mstatus_tsr, mstatus_tw, mstatus_tvm,
+assign mstatus = {mstatus_sd, 8'b0, mstatus_tsr, /*mstatus_tw*/1'b0, mstatus_tvm,
                   mstatus_mxr, mstatus_sum, mstatus_mprv, mstatus_xs,
                   mstatus_fs, mstatus_mpp, 2'b0, mstatus_spp,
                   mstatus_mpie, 1'b0, mstatus_spie, 1'b0,
@@ -336,7 +322,10 @@ assign sstatus = {1'b0, 8'b0, 1'b0, 1'b0, 1'b0,
                   1'b0, 1'b0, mstatus_sie, 1'b0};
 
 assign tvm     = mstatus_tvm;
+assign tsr     = mstatus_tsr;
 assign sum     = mstatus_sum;
+assign mprv    = mstatus_mprv;
+assign mpp     = mstatus_mpp;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -418,8 +407,19 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
+assign misa = misa_mxl == 2'h1 ? {{`XLEN-32{1'b0}}, misa_mxl, 4'b0, misa_ext}:
+              misa_mxl == 2'h2 ? {misa_mxl, {`XLEN-28{1'b0}}, misa_ext}:
+                                 `XLEN'b0;
+
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) misa <= `XLEN'b0;
+    if (~rstn) begin
+`ifdef RV32
+        misa_mxl <= 2'h1;
+`else
+        misa_mxl <= 2'h2;
+`endif
+        misa_ext <= 26'b0;
+    end
 end
 
 assign medeleg = {{(`XLEN-16){1'b0}}, medeleg_stpgfault, 1'b0, medeleg_ldpgfault,
@@ -563,17 +563,28 @@ assign sip = {{(`XLEN-2){1'b0}}, mip_ssip, 1'b0};
 
 always_ff @(posedge clk_free or negedge rstn) begin
     if (~rstn) begin
-        mip_ssip <= 1'b0;
+        msip_d1  <= 1'b0;
+        mtip_d1  <= 1'b0;
+        meip_d1  <= 1'b0;
         mip_msip <= 1'b0;
-        mip_stip <= 1'b0;
         mip_mtip <= 1'b0;
-        mip_seip <= 1'b0;
         mip_meip <= 1'b0;
     end
-    else if (msip_toggle | mtip_toggle | meip_toggle) begin
-        mip_msip <= (mip_msip & ~msip_toggle) | (ext_msip & msip_toggle);
-        mip_mtip <= (mip_mtip & ~mtip_toggle) | (ext_mtip & mtip_toggle);
-        mip_meip <= (mip_meip & ~meip_toggle) | (ext_meip & meip_toggle);
+    else begin
+        msip_d1  <= ext_msip;
+        mtip_d1  <= ext_mtip;
+        meip_d1  <= ext_meip;
+        mip_msip <= msip_d1;
+        mip_mtip <= mtip_d1;
+        mip_meip <= meip_d1;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        mip_ssip <= 1'b0;
+        mip_stip <= 1'b0;
+        mip_seip <= 1'b0;
     end
     else if (~sleep) begin
         if (csr_wr && csr_waddr == `CSR_SIP_ADDR)  begin
@@ -581,7 +592,6 @@ always_ff @(posedge clk_free or negedge rstn) begin
         end
         else if (csr_wr && csr_waddr == `CSR_MIP_ADDR) begin
             mip_ssip <= csr_wdata[1];
-            mip_msip <= csr_wdata[3];
             mip_stip <= csr_wdata[5];
             mip_seip <= csr_wdata[9];
         end
@@ -603,7 +613,7 @@ always_comb begin
         `CSR_STVAL_ADDR     : csr_rdata = stval;
         `CSR_SIP_ADDR       : csr_rdata = sip & mideleg;
         `CSR_MSTATUS_ADDR   : csr_rdata = mstatus;
-        `CSR_MISA_ADDR      : csr_rdata = `XLEN'b0;
+        `CSR_MISA_ADDR      : csr_rdata = misa;
         `CSR_MEDELEG_ADDR   : csr_rdata = medeleg;
         `CSR_MIDELEG_ADDR   : csr_rdata = mideleg;
         `CSR_MIE_ADDR       : csr_rdata = mie;

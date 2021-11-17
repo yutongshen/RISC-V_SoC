@@ -158,6 +158,7 @@ always_comb begin
                             mem_wr       = 1'b0;
                             reg_wr       = 1'b0;
                             fense_i      = 1'b1;
+                            pc_imm_sel   = 1'b0;
                         end
                         else ill_inst     = 1'b1;
                     end
@@ -453,6 +454,7 @@ always_comb begin
                             tlb_flush_req       = 1'b1;
                             tlb_flush_all_vaddr = ~|inst[19:15];
                             tlb_flush_all_asid  = ~|inst[24:20];
+                            pc_imm_sel   = 1'b0;
                         end
                         else if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
                             case (inst[31:20])

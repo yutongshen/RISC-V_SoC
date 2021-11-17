@@ -50,11 +50,11 @@ _golden_start:
   .word 0x00000a22
   .word 0x01234565
   .word 0x01234564
-  .word 0x0000022a
+  .word 0x00000322
   .word 0x00000008
   .word 0x0000000d
   .word 0x0000000c
-  .word 0x0000000a
+  .word 0x00000082
   .word 0x000e0008
   .word 0x000e0008
   .word 0x00000008

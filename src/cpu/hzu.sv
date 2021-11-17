@@ -5,6 +5,7 @@ module hzu (
     input        irq_en,
     input        trap_en,
     input        eret_en,
+    input        pl_restart_en,
     input        id_hazard,
     input        exe_hazard,
     input        dpu_hazard,
@@ -46,7 +47,9 @@ assign flush_all = dpu_fault  ? 5'b11111:
                    id_hazard  ? 5'b00010:
                                 5'b00000;
 
-assign flush_force_all = (pc_alu_en || eret_en || irq_en || trap_en)  ? 5'b00011 : 5'b00000;
+assign flush_force_all = pl_restart_en                               ? 5'b00111:
+                         (pc_alu_en || eret_en || irq_en || trap_en) ? 5'b00011:
+                                                                       5'b00000;
 
 assign flush_trap_all = (irq_en || trap_en) ? 5'b00100 : 5'b00000;
 

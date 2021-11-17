@@ -12,15 +12,32 @@ XTEND_MMAP    := ./script/build_mmap -x
 TMDL_PARSE_C  := ./script/tmdl_parse -c
 TMDL_PARSE_S  := ./script/tmdl_parse -s
 
+ISA           := $(wildcard ../riscv-tests/isa/rv32*i-*)
+ISA           := $(patsubst ../riscv-tests/isa/%,%,$(ISA))
+ISA           := $(patsubst %.dump,,$(ISA))
+
 .PHONY: all
 
 ${bld_dir}:
 	mkdir -p $(bld_dir)
 
 sim: all | ${bld_dir}
-	@make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa};
-	@cd $(bld_dir); \
-	ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;
+	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
+	    for i in $(ISA); do \
+	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;); \
+	        res=$$(echo "$${res}" | grep "ENDCODE = 00000001"); \
+	        if [ "$${res}" == "" ]; then \
+	            echo "There are some error in $${i}"; \
+	        else \
+				echo "$${i} pass"; \
+	        fi; \
+	    done; \
+	else \
+	    make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa}; \
+	    cd $(bld_dir); \
+	    ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug; \
+	fi;
 
 axi: | ${bld_dir}
 	# @cd $(root_dir)/$(src_dir)/bus/; \
