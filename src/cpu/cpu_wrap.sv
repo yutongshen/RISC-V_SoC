@@ -90,8 +90,6 @@ logic           uart_pready;
 `AXI_INTF_DEF(l1ic, 10)
 `AXI_INTF_DEF(l1dc, 10)
 
-assign meip = 1'b0;
-
 cpu_top u_cpu_top (
     .clk                 ( clk                 ),
     .rstn                ( rstn                ),
@@ -253,21 +251,23 @@ l1c u_l1dc (
     `AXI_INTF_CONNECT(m, l1dc)
 );
 
-clint u_clint (
-    .clk     ( clk          ),
-    .rstn    ( rstn         ),
-    .psel    ( intc_psel    ),
-    .penable ( intc_penable ),
-    .paddr   ( intc_paddr   ),
-    .pwrite  ( intc_pwrite  ),
-    .pstrb   ( intc_pstrb   ),
-    .pwdata  ( intc_pwdata  ),
-    .prdata  ( intc_prdata  ),
-    .pslverr ( intc_pslverr ),
-    .pready  ( intc_pready  ),
-
-    .msip    ( msip         ),
-    .mtip    ( mtip         )
+intc u_intc(
+    .clk    ( clk          ),
+    .rstn   ( rstn         ),
+    .psel   ( intc_psel    ),
+    .penable( intc_penable ),
+    .paddr  ( intc_paddr   ),
+    .pwrite ( intc_pwrite  ),
+    .pstrb  ( intc_pstrb   ),
+    .pwdata ( intc_pwdata  ),
+    .prdata ( intc_prdata  ),
+    .pslverr( intc_pslverr ),
+    .pready ( intc_pready  ),
+                            
+    .msip   ( msip         ),
+    .mtip   ( mtip         ),
+    .meip   ( meip         ),
+    .ints   ( 32'b0        )
 );
 
 marb u_marb (

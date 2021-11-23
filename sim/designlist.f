@@ -18,7 +18,9 @@
 ../src/cpu/mmu.sv
 ../src/cpu/tlb.sv
 ../src/cpu/l1c.sv
+../src/cpu/intc.sv
 ../src/cpu/clint.sv
+../src/cpu/plic.sv
 ../src/cpu/util.sv
 ../src/cpu/uart.sv
 ../src/bus/axi2mem_bridge.sv

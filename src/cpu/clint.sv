@@ -1,7 +1,5 @@
-`define CPU_NUM 1
-`define CLINT_MSIP    16'h0000
-`define CLINT_TIMECMP 16'h4000
-`define CLINT_TIME    16'hbff8
+`include "soc_define.h"
+`include "clint_mmap.h"
 
 module clint (
     input                        clk,
@@ -29,12 +27,12 @@ logic [63:0] mtime;
 
 genvar g;
 generate
-    for (g = 0; g < `CPU_NUM; g = g + 1) begin: g_msip_reg
+    for (g = 0; g < `CPU_NUM; g = g + 1) begin: g_apb_reg
         always_ff @(posedge clk or negedge rstn) begin
             if (~rstn) begin
                 msip[g] <= 1'b0;
             end
-            else if (penable & psel && paddr[15:0] == `CLINT_MSIP + 16'h4 * g[15:0]) begin
+            else if (penable && psel && pwrite && paddr[15:0] == `CLINT_MSIP + 16'h4 * g[15:0]) begin
                 msip[g] <= pwdata[0];
             end
         end
@@ -42,10 +40,10 @@ generate
             if (~rstn) begin
                 mtimecmp[g] <= 64'b0;
             end
-            else if (penable & psel && paddr[15:0] == `CLINT_TIMECMP + 16'h8 * g[15:0]) begin
+            else if (penable && psel && pwrite && paddr[15:0] == `CLINT_TIMECMP + 16'h8 * g[15:0]) begin
                 mtimecmp[g][31:0] <= pwdata;
             end
-            else if (penable & psel && paddr[15:0] == `CLINT_TIMECMP + 16'h8 * g[15:0] + 16'h4) begin
+            else if (penable && psel && pwrite && paddr[15:0] == `CLINT_TIMECMP + 16'h8 * g[15:0] + 16'h4) begin
                 mtimecmp[g][63:32] <= pwdata;
             end
         end
@@ -64,10 +62,10 @@ always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         mtime <= 64'b0;
     end
-    else if (penable & psel && paddr[15:0] == `CLINT_TIME) begin
+    else if (penable && psel && pwrite && paddr[15:0] == `CLINT_TIME) begin
         mtime[31:0] <= pwdata;
     end
-    else if (penable & psel && paddr[15:0] == `CLINT_TIME + 16'h4) begin
+    else if (penable && psel && pwrite && paddr[15:0] == `CLINT_TIME + 16'h4) begin
         mtime[63:32] <= pwdata;
     end
     else begin

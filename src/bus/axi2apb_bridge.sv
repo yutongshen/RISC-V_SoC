@@ -125,7 +125,7 @@ always_comb begin
     s_arready = 1'b0;
     s_rvalid  = 1'b0;
     psel      = 1'b0;
-    pwrite    = 1'b1;
+    pwrite    = 1'b0;
     id_upd    = 1'b0;
     cnt_upd   = 1'b0;
     addr_upd  = 1'b0;

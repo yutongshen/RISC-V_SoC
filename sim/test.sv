@@ -46,12 +46,48 @@ always @(posedge simend) begin
 end
 
 initial begin
-    wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
-    #1;
-    #(`CLK_PRIOD * 5)
-    force u_cpu_wrap.u_cpu_top.msip = 1'b1;
-    #(`CLK_PRIOD * 10)
-    release u_cpu_wrap.u_cpu_top.msip;
+    // wait (u_cpu_wrap.u_intc.u_plic.int_en[0] != 32'b0);
+    #(`CLK_PRIOD * 5);
+    force u_cpu_wrap.u_intc.ints  = -32'b1;
+    // force u_cpu_wrap.u_plic.int_en[0] = 32'h55555555;
+    // force u_cpu_wrap.u_plic.int_prior[0]  = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[1]  = 32'h1;
+    // force u_cpu_wrap.u_plic.int_prior[2]  = 32'h2;
+    // force u_cpu_wrap.u_plic.int_prior[3]  = 32'h3;
+    // force u_cpu_wrap.u_plic.int_prior[4]  = 32'h4;
+    // force u_cpu_wrap.u_plic.int_prior[5]  = 32'h5;
+    // force u_cpu_wrap.u_plic.int_prior[6]  = 32'h6;
+    // force u_cpu_wrap.u_plic.int_prior[7]  = 32'h7;
+    // force u_cpu_wrap.u_plic.int_prior[8]  = 32'h8;
+    // force u_cpu_wrap.u_plic.int_prior[9]  = 32'h9;
+    // force u_cpu_wrap.u_plic.int_prior[10] = 32'h9;
+    // force u_cpu_wrap.u_plic.int_prior[11] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[12] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[13] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[14] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[15] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[16] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[17] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[18] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[19] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[20] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[21] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[22] = 32'hA;
+    // force u_cpu_wrap.u_plic.int_prior[23] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[24] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[25] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[26] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[27] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[28] = 32'hA;
+    // force u_cpu_wrap.u_plic.int_prior[29] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[30] = 32'h0;
+    // force u_cpu_wrap.u_plic.int_prior[31] = 32'h0;
+    // wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
+    // #1;
+    // #(`CLK_PRIOD * 5)
+    // force u_cpu_wrap.u_cpu_top.msip = 1'b1;
+    // #(`CLK_PRIOD * 10)
+    // release u_cpu_wrap.u_cpu_top.msip;
 end
 
 // sram initial
@@ -60,10 +96,10 @@ initial begin
     // Random initial
     $value$plusargs("prog=%s", prog_path);
     for (i = 0; i < 16384; i = i + 1) begin
-        prog_byte0[i] = 8'b0; // $random();
-        prog_byte1[i] = 8'b0; // $random();
-        prog_byte2[i] = 8'b0; // $random();
-        prog_byte3[i] = 8'b0; // $random();
+        prog_byte0[i] = 8'h0; // $random();
+        prog_byte1[i] = 8'h0; // $random();
+        prog_byte2[i] = 8'h0; // $random();
+        prog_byte3[i] = 8'h0; // $random();
     end
     $readmemh({prog_path, "/sram_0_0.hex"}, prog_byte0);
     $readmemh({prog_path, "/sram_0_1.hex"}, prog_byte1);
@@ -98,11 +134,6 @@ cpu_wrap u_cpu_wrap (
 logic [31:0] arg;
 logic [31:0] cmd;
 logic [ 1:0] _flag;
-
-initial begin
-    force u_cpu_wrap.u_sram_0.memory[14'h400] = 32'b0;
-    force u_cpu_wrap.u_sram_0.memory[14'h401] = 32'b0;
-end
 
 always @(posedge clk) begin
     if (~rstn) begin
@@ -140,6 +171,8 @@ always @(posedge clk) begin
             32'h01010000: $write("%c", arg);
         endcase
         _flag <= 2'b0;
+        u_cpu_wrap.u_sram_0.memory[14'h400] = 32'b0;
+        u_cpu_wrap.u_sram_0.memory[14'h401] = 32'b0;
     end
 end
 

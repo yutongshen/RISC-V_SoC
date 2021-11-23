@@ -7,6 +7,47 @@ main:
   sw s0, 0(sp)
   la s0, _test_start
 
+  /*plic test*/
+  li t0, 0x0c001000 #irq pending
+  lw t1, 0(t0)
+  li t0, 0x0c002000 #irq enable
+  li t1, -1
+  sw t1, 0(t0)
+  li t0, 0x0c001080 #irq type
+  li t1, 0
+  sw t1, 0(t0)
+  li t0, 0x0c001100 #irq polarity
+  li t1, -1
+  sw t1, 0(t0)
+  li t0, 0x0c000000 #irq priority
+  li t1, 0xff
+  sw t1, 0xc(t0)
+  li t0, 0x0c000000 #irq priority
+  li t1, 0xfff
+  sw t1, 0x1c(t0)
+
+  li t0, 0x0c200004 #irq claim/complete
+  lw t1, 0(t0)
+
+  li t0, 0x0c000000 #irq priority
+  li t1, 0xffff
+  sw t1, 0x40(t0)
+
+  li t0, 0x0c200004 #irq claim/complete
+  sw t1, 0(t0)
+
+  li t0, 0x0c001100 #irq polarity
+  li t1, 0
+  sw t1, 0(t0)
+
+  li t0, 0x0c001100 #irq polarity
+  li t1, -1
+  sw t1, 0(t0)
+
+  li t0, 0x0c002000 #irq enable
+  li t1, 0
+  sw t1, 0(t0)
+
   /* enable virtual addr */
   li t0, 0x80000004
   csrw satp, t0
@@ -25,7 +66,7 @@ main:
   # sw t0, -0xe0*4(t1)
 
   csrs mie, (1<<3)
-  wfi
+  # wfi
   li t0, 0x10000000
   li t1, 'A'
   sb t1, 0(t0)
