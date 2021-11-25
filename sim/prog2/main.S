@@ -7,6 +7,15 @@ main:
   sw s0, 0(sp)
   la s0, _test_start
 
+  /*pmp test*/
+  li t0, 0xe
+  li t1, 0x4321ffff
+  li t2, 0x1234ffff
+  csrw pmpaddr0, t1
+  csrw pmpcfg0, t0
+  csrw pmpaddr0, t2
+  csrr t0, pmpaddr0
+
   /*plic test*/
   li t0, 0x0c001000 #irq pending
   lw t1, 0(t0)

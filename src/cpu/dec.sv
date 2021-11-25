@@ -48,6 +48,15 @@ module dec (
 `include "opcode.sv"
 `include "funct.sv"
 
+logic [        4:0] rs1_addr;
+logic [        4:0] rs2_addr;
+logic [        4:0] rd_addr;
+
+assign rs1_addr = inst[19:15];
+assign rs2_addr = inst[24:20];
+assign rd_addr  = inst[11: 7];
+
+
 logic [`XLEN - 1:0] imm_i;
 logic [`XLEN - 1:0] imm_s;
 logic [`XLEN - 1:0] imm_b;
@@ -498,7 +507,7 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b0;
-                        csr_rd       = |inst[11: 7];
+                        csr_rd       = |rd_addr;
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
@@ -511,8 +520,8 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b0;
-                        csr_rd       = |inst[11: 7];
-                        csr_wr       = 1'b1;
+                        csr_rd       = |rd_addr;
+                        csr_wr       = |rs1_addr;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
                     end
@@ -524,8 +533,8 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b0;
-                        csr_rd       = |inst[11: 7];
-                        csr_wr       = 1'b1;
+                        csr_rd       = |rd_addr;
+                        csr_wr       = |rs1_addr;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
                     end
@@ -537,7 +546,7 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b1;
-                        csr_rd       = |inst[11: 7];
+                        csr_rd       = |rd_addr;
                         csr_wr       = 1'b1;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
@@ -550,8 +559,8 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b1;
-                        csr_rd       = |inst[11: 7];
-                        csr_wr       = 1'b1;
+                        csr_rd       = |rd_addr;
+                        csr_wr       = |rs1_addr;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
                     end
@@ -563,8 +572,8 @@ always_comb begin
                         pc_alu_sel   = 1'b0;
                         reg_wr       = 1'b1;
                         uimm_rs1_sel = 1'b1;
-                        csr_rd       = |inst[11: 7];
-                        csr_wr       = 1'b1;
+                        csr_rd       = |rd_addr;
+                        csr_wr       = |rs1_addr;
                         csr_alu_sel  = 1'b1;
                         prv_req      = inst[29:28];
                     end

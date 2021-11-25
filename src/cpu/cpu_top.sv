@@ -503,7 +503,6 @@ idu u_idu (
 
 assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
-assign id_mpu_csr_rdata = `XLEN'b0;
 
 csr u_csr (
     .clk           ( clk_wfi          ),
@@ -752,6 +751,50 @@ mmu_csr u_mmu_csr (
     .csr_rdata ( id_mmu_csr_rdata )
 );
 
+mpu_csr u_mpu_csr (
+    .clk       ( clk_wfi          ),
+    .rstn      ( rstn_sync        ),
+    .pmp0cfg   (  ),
+    .pmp1cfg   (  ),
+    .pmp2cfg   (  ),
+    .pmp3cfg   (  ),
+    .pmp4cfg   (  ),
+    .pmp5cfg   (  ),
+    .pmp6cfg   (  ),
+    .pmp7cfg   (  ),
+    .pmp8cfg   (  ),
+    .pmp9cfg   (  ),
+    .pmp10cfg  (  ),
+    .pmp11cfg  (  ),
+    .pmp12cfg  (  ),
+    .pmp13cfg  (  ),
+    .pmp14cfg  (  ),
+    .pmp15cfg  (  ),
+    .pmp0addr  (  ),
+    .pmp1addr  (  ),
+    .pmp2addr  (  ),
+    .pmp3addr  (  ),
+    .pmp4addr  (  ),
+    .pmp5addr  (  ),
+    .pmp6addr  (  ),
+    .pmp7addr  (  ),
+    .pmp8addr  (  ),
+    .pmp9addr  (  ),
+    .pmp10addr (  ),
+    .pmp11addr (  ),
+    .pmp12addr (  ),
+    .pmp13addr (  ),
+    .pmp14addr (  ),
+    .pmp15addr (  ),
+
+    // CSR interface
+    .csr_wr    ( exe_mpu_csr_wr   ),
+    .csr_waddr ( id2exe_csr_waddr ),
+    .csr_raddr ( id_csr_addr      ),
+    .csr_wdata ( exe_csr_wdata    ),
+    .csr_rdata ( id_mpu_csr_rdata )
+
+);
 assign exe_satp_upd = id2exe_mmu_csr_wr & ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
 assign exe_inst_misaligned         = id2exe_inst_misaligned | (if_pc_alu_en & |if_pc_alu[1]);
 assign exe_inst_misaligned_badaddr = {id2exe_inst_misaligned ? (id2exe_imm[`XLEN-1:1] + id2exe_pc[`XLEN-1:1]):

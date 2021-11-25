@@ -324,6 +324,17 @@
 `define MIP_SEIP (`XLEN'b1 <<  9)
 `define MIP_MEIP (`XLEN'b1 << 11)
 
+`define PMPCFG_L_BIT 7
+`define PMPCFG_A_BIT 3+:2
+`define PMPCFG_X_BIT 2
+`define PMPCFG_W_BIT 1
+`define PMPCFG_R_BIT 0
+
+`define PMPCFG_A_OFF   2'h0
+`define PMPCFG_A_TOR   2'h1
+`define PMPCFG_A_NA4   2'h2
+`define PMPCFG_A_NAPOT 2'h3
+
 `ifdef RV32
   `define SATP_PPN_WIDTH  22
   `define SATP_ASID_WIDTH  9
@@ -340,5 +351,6 @@
   `define SATP_MODE_BIT   60+:`SATP_MODE_WIDTH
 `endif
 
+`define PADDR_LEN       (`SATP_PPN_WIDTH + 12)
 
 `endif

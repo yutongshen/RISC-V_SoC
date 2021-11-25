@@ -14,6 +14,8 @@
 ../src/cpu/tpu.sv
 ../src/cpu/dpu.sv
 ../src/cpu/pmu.sv
+../src/cpu/mpu_csr.sv
+../src/cpu/mpu.sv
 ../src/cpu/mmu_csr.sv
 ../src/cpu/mmu.sv
 ../src/cpu/tlb.sv
