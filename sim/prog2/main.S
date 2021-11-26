@@ -8,13 +8,10 @@ main:
   la s0, _test_start
 
   /*pmp test*/
-  li t0, 0xe
-  li t1, 0x4321ffff
-  li t2, 0x1234ffff
+  li t0, 0x1f
+  li t1, 0x7fffffff
   csrw pmpaddr0, t1
   csrw pmpcfg0, t0
-  csrw pmpaddr0, t2
-  csrr t0, pmpaddr0
 
   /*plic test*/
   li t0, 0x0c001000 #irq pending
@@ -63,7 +60,8 @@ main:
   li t0, 0x1401
   li t1, 0x4ffc
   sw t0, 0(t1)
-  li t0, 0xfffffc0f
+  # li t0, 0xfffffc0f
+  li t0, 0xcf
   li t1, 0x5ffc
   sw t0, -0x00*4(t1)
   sw t0, -0x20*4(t1)
@@ -96,12 +94,13 @@ main:
   csrw mepc, t0
   li t0, 0x100800
   csrw mstatus, t0
-  la t0, add
+  la t0, main
   csrw mtvec, t0
 
-  li t0, 0x100800
-  sw t0, 1(t0)
-  beq t0, zero, vector
+  # misaligned test
+  # li t0, 0x100800
+  # sw t0, 1(t0)
+  # beq t0, zero, vector
 
   mret
   li t0, 0x800

@@ -10,6 +10,13 @@ module mmu (
     input                                    access_w,
     input                                    access_x,
 
+    // mpu csr
+    input                                    pmp_v,
+    input                                    pmp_l,
+    input                                    pmp_x,
+    input                                    pmp_w,
+    input                                    pmp_r,
+
     // TLB control
     input                                    tlb_flush_req,
     input                                    tlb_flush_all_vaddr,
@@ -34,21 +41,24 @@ module mmu (
     output logic                             pa_valid,
     output logic [                      1:0] pa_bad,
     output logic [                     55:0] pa,
+    output logic [                     55:0] pa_pre,
     
     // AXI interface
     `AXI_INTF_MST_DEF(m, 10)
 );
 
-parameter [1:0] STATE_IDLE  = 2'b00,
-                STATE_CHECK = 2'b01,
-                STATE_MREQ  = 2'b10,
-                STATE_PTE   = 2'b11;
+parameter [2:0] STATE_IDLE  = 3'b000,
+                STATE_CHECK = 3'b001,
+                STATE_MREQ  = 3'b010,
+                STATE_PTE   = 3'b011,
+                STATE_PMP   = 3'b100;
 
-logic [               1:0] cur_state;
-logic [               1:0] nxt_state;
+logic [               2:0] cur_state;
+logic [               2:0] nxt_state;
 
 logic                      va_en;
 logic [              55:0] va_latch;
+logic [              55:0] pa_latch;
 logic [              19:0] vpn_latch;
 logic [              21:0] ppn_latch;
 logic                      busy;
@@ -67,17 +77,26 @@ logic                      pte_x,   tlb_pte_x;
 logic                      pte_w,   tlb_pte_w;
 logic                      pte_r,   tlb_pte_r;
 logic                      pte_v,   tlb_pte_v;
+logic                      tlb_pmp_v;
+logic                      tlb_pmp_l;
+logic                      tlb_pmp_x;
+logic                      tlb_pmp_w;
+logic                      tlb_pmp_r;
 logic                      tlb_data_sel;
 logic [               1:0] level;
 logic                      pa_valid_tmp;
 logic                      pa_valid_tmp_latch;
+logic                      pmp_err;
+logic                      pmp_err_pte;
+logic                      pmp_err_tlb;
 logic                      pg_fault;
 logic                      pg_fault_tlb;
-logic                      pg_fault_tmp;
-logic                      pg_fault_tmp_latch;
+logic                      pg_fault_pte;
+logic                      pg_fault_pte_latch;
 logic                      bus_err;
 logic                      ar_done;
 logic [               1:0] prv_post;
+logic [               1:0] prv_latch;
 
 logic                      tlb_cs;
 logic                      tlb_we;
@@ -108,7 +127,12 @@ always_comb begin
                                                  STATE_MREQ;
         end
         STATE_PTE  : begin
-            nxt_state = pg_fault_tmp || leaf ? STATE_IDLE : STATE_MREQ;
+            nxt_state = pg_fault_pte ? STATE_IDLE:
+                        leaf         ? STATE_PMP :
+                                       STATE_MREQ;
+        end
+        STATE_PMP  : begin
+            nxt_state = STATE_IDLE;
         end
     endcase
 end
@@ -136,9 +160,13 @@ always_comb begin
             m_arvalid    = ~ar_done;
         end
         STATE_PTE  : begin
-            tlb_cs       = leaf && ~pg_fault_tmp;
+            pa_valid_tmp = leaf ||  pg_fault_pte;
+            busy         = 1'b1;
+        end
+        STATE_PMP  : begin
+            pa_valid_tmp = 1'b1;
+            tlb_cs       = 1'b1;
             tlb_we       = 1'b1;
-            pa_valid_tmp = leaf || pg_fault_tmp;
             busy         = 1'b1;
         end
     endcase
@@ -146,24 +174,37 @@ end
 
 assign prv_post     = ~access_x && mprv ? mpp : prv;
 assign leaf         = pte_v && (pte_r || pte_x);
-assign pg_fault_tmp = !pte_v || (!pte_r && pte_w) ||
+assign pg_fault_pte = !pte_v || (!pte_r && pte_w) ||
                       (~leaf && ~|level) ||
                       ( leaf && |level && pte_ppn[9:0]) ||
-                      ( leaf && access_x_latch     && ~pte_x) ||
-                      ( leaf && access_r_latch     && ~pte_r) ||
-                      ( leaf && access_w_latch     && ~pte_w) ||
-                      ( leaf && prv_post == `PRV_U && ~pte_u) ||
-                      ( leaf && prv_post == `PRV_S &&  pte_u && (~sum || access_x_latch)) ||
-                      ( leaf && access_w_latch     && ~pte_d) ||
-                      ( leaf                       && ~pte_a);
+                      ( leaf && access_x_latch      && ~pte_x) ||
+                      ( leaf && access_r_latch      && ~pte_r) ||
+                      ( leaf && access_w_latch      && ~pte_w) ||
+                      ( leaf && prv_latch == `PRV_U && ~pte_u) ||
+                      ( leaf && prv_latch == `PRV_S &&  pte_u && (~sum || access_x_latch)) ||
+                      ( leaf && access_w_latch      && ~pte_d) ||
+                      ( leaf                        && ~pte_a);
 
-assign pg_fault_tlb = (access_x_latch     && ~tlb_pte_x) ||
-                      (access_r_latch     && ~tlb_pte_r) ||
-                      (access_w_latch     && ~tlb_pte_w) ||
-                      (prv_post == `PRV_U && ~tlb_pte_u) ||
-                      (prv_post == `PRV_S &&  tlb_pte_u && (~sum || access_x_latch)) ||
-                      (access_w_latch     && ~tlb_pte_d) ||
-                      (                      ~tlb_pte_a);
+assign pg_fault_tlb = (access_x_latch      && ~tlb_pte_x) ||
+                      (access_r_latch      && ~tlb_pte_r) ||
+                      (access_w_latch      && ~tlb_pte_w) ||
+                      (prv_latch == `PRV_U && ~tlb_pte_u) ||
+                      (prv_latch == `PRV_S &&  tlb_pte_u && (~sum || access_x_latch)) ||
+                      (access_w_latch      && ~tlb_pte_d) ||
+                      (                       ~tlb_pte_a);
+
+assign pmp_err_pte  = (!pmp_v && prv_latch != `PRV_M) ||
+                      (( pmp_l || prv_latch != `PRV_M) &&
+                      ((!pmp_x && access_x_latch) ||
+                       (!pmp_w && access_w_latch) ||
+                       (!pmp_r && access_r_latch)));
+                    
+assign pmp_err_tlb  = (!tlb_pmp_v && prv_latch != `PRV_M) ||
+                      (( tlb_pmp_l || prv_latch != `PRV_M) &&
+                      ((!tlb_pmp_x && access_x_latch) ||
+                       (!tlb_pmp_w && access_w_latch) ||
+                       (!tlb_pmp_r && access_r_latch)));
+                    
 
 assign tlb_vpn    = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
 assign tlb_pte_in = pte_latch;
@@ -257,12 +298,19 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn)             pa_latch <= 56'b0;
+    else if (pa_valid_tmp) pa_latch <= pa_pre;
+end
+
+always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
+        prv_latch      <= 2'b0;
         access_r_latch <= 1'b0;
         access_w_latch <= 1'b0;
         access_x_latch <= 1'b0;
     end
     else if (va_valid) begin
+        prv_latch      <= prv_post;
         access_r_latch <= ~access_x & ~access_w;
         access_w_latch <= ~access_x &  access_w;
         access_x_latch <=  access_x;
@@ -270,19 +318,23 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) pa_valid_tmp_latch <= 1'b0;
-    else       pa_valid_tmp_latch <= pa_valid_tmp;
+    if (~rstn) begin
+        pa_valid_tmp_latch <= 1'b0;
+    end
+    else begin
+        pa_valid_tmp_latch <= pa_valid_tmp && !(cur_state == STATE_PTE && !pg_fault_pte);
+    end
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        pg_fault_tmp_latch <= 1'b0;
+        pg_fault_pte_latch <= 1'b0;
     end
     else if (cur_state == STATE_IDLE) begin
-        pg_fault_tmp_latch <= 1'b0;
+        pg_fault_pte_latch <= 1'b0;
     end
     else if (cur_state == STATE_PTE) begin
-        pg_fault_tmp_latch <= pg_fault_tmp;
+        pg_fault_pte_latch <= pg_fault_pte;
     end
 end
 
@@ -296,10 +348,14 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 assign pa_valid = pa_valid_tmp_latch | tlb_data_sel;
-assign pg_fault = pg_fault_tmp_latch | (tlb_data_sel & pg_fault_tlb);
-assign pa       = ({56{pa_valid_tmp_latch}} & {{10{ppn_latch[21]}}, ppn_latch[21:10], level ? va_latch[21:12] : ppn_latch[9:0],  va_latch[11:0]}) |
+assign pg_fault = pg_fault_pte_latch | (tlb_data_sel & pg_fault_tlb);
+assign pmp_err  = tlb_data_sel ? pmp_err_tlb : pmp_err_pte;
+assign pa       = ({56{pa_valid_tmp_latch}} & pa_latch) |
                   ({56{tlb_data_sel}}       & {{10{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
-assign pa_bad   = {bus_err, pg_fault};
+assign pa_bad   = {(bus_err | pmp_err) & ~pg_fault, pg_fault};
+
+assign pa_pre   = va_en ? {{22{pte_ppn[21]}}, pte_ppn[21:10], level ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]} :
+                          {8'b0, va};
 
 assign va_en    = prv_post < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
 
@@ -311,9 +367,19 @@ tlb u_tlb(
     .vpn                 ( tlb_vpn             ),
     .we                  ( tlb_we              ),
     .spage               ( level[0]            ),
-    .pte_in              ( tlb_pte_in          ),
     .pte_hit             ( tlb_hit             ),
+    .pte_in              ( tlb_pte_in          ),
+    .pmp_v_in            ( pmp_v               ),
+    .pmp_l_in            ( pmp_l               ),
+    .pmp_x_in            ( pmp_x               ),
+    .pmp_w_in            ( pmp_w               ),
+    .pmp_r_in            ( pmp_r               ),
     .pte_out             ( tlb_pte_out         ),
+    .pmp_v_out           ( tlb_pmp_v           ),
+    .pmp_l_out           ( tlb_pmp_l           ),
+    .pmp_x_out           ( tlb_pmp_x           ),
+    .pmp_w_out           ( tlb_pmp_w           ),
+    .pmp_r_out           ( tlb_pmp_r           ),
 
     .tlb_flush_req       ( tlb_flush_req       ),
     .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),

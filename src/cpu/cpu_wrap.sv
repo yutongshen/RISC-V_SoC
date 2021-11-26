@@ -24,6 +24,22 @@ logic [       `IM_DATA_LEN - 1:0] dmem_wdata;
 logic [       `IM_DATA_LEN - 1:0] dmem_rdata;
 logic [                      1:0] dmem_bad;
 logic                             dmem_busy;
+
+logic [                  8 - 1:0] pmpcfg  [16];
+logic [              `XLEN - 1:0] pmpaddr [16];
+
+logic                             ipmp_v;
+logic                             ipmp_l;
+logic                             ipmp_x;
+logic                             ipmp_w;
+logic                             ipmp_r;
+
+logic                             dpmp_v;
+logic                             dpmp_l;
+logic                             dpmp_x;
+logic                             dpmp_w;
+logic                             dpmp_r;
+
 logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn;
 logic [   `SATP_ASID_WIDTH - 1:0] satp_asid;
 logic [   `SATP_MODE_WIDTH - 1:0] satp_mode;
@@ -58,11 +74,13 @@ logic [ 31: 0] do_1;
 logic          busy_1;
 
 logic          immu_pa_vld;
-logic [ 55: 0] immu_pa;
 logic [  1: 0] immu_pa_bad;
+logic [ 55: 0] immu_pa;
+logic [ 55: 0] immu_pa_pre;
 logic          dmmu_pa_vld;
-logic [ 55: 0] dmmu_pa;
 logic [  1: 0] dmmu_pa_bad;
+logic [ 55: 0] dmmu_pa;
+logic [ 55: 0] dmmu_pa_pre;
 
 logic           intc_psel;
 logic           intc_penable;
@@ -94,6 +112,10 @@ cpu_top u_cpu_top (
     .clk                 ( clk                 ),
     .rstn                ( rstn                ),
     .cpu_id              ( `XLEN'd0            ),
+
+    // mpu csr
+    .pmpcfg              ( pmpcfg              ),
+    .pmpaddr             ( pmpaddr             ),
 
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
@@ -150,6 +172,13 @@ mmu u_immu(
     .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
     .tlb_flush_asid      ( tlb_flush_asid      ),
 
+    // mpu csr
+    .pmp_v               ( ipmp_v              ),
+    .pmp_l               ( ipmp_l              ),
+    .pmp_x               ( ipmp_x              ),
+    .pmp_w               ( ipmp_w              ),
+    .pmp_r               ( ipmp_r              ),
+
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
@@ -165,8 +194,9 @@ mmu u_immu(
 
     // physical address
     .pa_valid            ( immu_pa_vld         ),
-    .pa                  ( immu_pa             ),
     .pa_bad              ( immu_pa_bad         ),
+    .pa                  ( immu_pa             ),
+    .pa_pre              ( immu_pa_pre         ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, immu)
@@ -187,6 +217,13 @@ mmu u_dmmu(
     .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
     .tlb_flush_asid      ( tlb_flush_asid      ),
 
+    // mpu csr
+    .pmp_v               ( dpmp_v              ),
+    .pmp_l               ( dpmp_l              ),
+    .pmp_x               ( dpmp_x              ),
+    .pmp_w               ( dpmp_w              ),
+    .pmp_r               ( dpmp_r              ),
+
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
@@ -202,11 +239,42 @@ mmu u_dmmu(
 
     // physical address
     .pa_valid            ( dmmu_pa_vld         ),
-    .pa                  ( dmmu_pa             ),
     .pa_bad              ( dmmu_pa_bad         ),
+    .pa                  ( dmmu_pa             ),
+    .pa_pre              ( dmmu_pa_pre         ),
     
     // AXI interface
     `AXI_INTF_CONNECT(m, dmmu)
+);
+
+mpu u_impu (
+    .clk      ( clk         ),
+    .rstn     ( rstn        ),
+    .pmpcfg   ( pmpcfg      ),
+    .pmpaddr  ( pmpaddr     ),
+    .paddr    ( immu_pa_pre ),
+
+    .pmp_v    ( ipmp_v      ),
+    .pmp_l    ( ipmp_l      ),
+    .pmp_x    ( ipmp_x      ),
+    .pmp_w    ( ipmp_w      ),
+    .pmp_r    ( ipmp_r      )
+        
+);
+
+mpu u_dmpu (
+    .clk      ( clk         ),
+    .rstn     ( rstn        ),
+    .pmpcfg   ( pmpcfg      ),
+    .pmpaddr  ( pmpaddr     ),
+    .paddr    ( dmmu_pa_pre ),
+
+    .pmp_v    ( dpmp_v      ),
+    .pmp_l    ( dpmp_l      ),
+    .pmp_x    ( dpmp_x      ),
+    .pmp_w    ( dpmp_w      ),
+    .pmp_r    ( dpmp_r      )
+        
 );
 
 l1c u_l1ic (

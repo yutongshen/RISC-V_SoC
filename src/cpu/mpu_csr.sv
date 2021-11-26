@@ -25,38 +25,8 @@
 module mpu_csr (
     input                    clk,
     input                    rstn,
-    output logic [      7:0] pmp0cfg,
-    output logic [      7:0] pmp1cfg,
-    output logic [      7:0] pmp2cfg,
-    output logic [      7:0] pmp3cfg,
-    output logic [      7:0] pmp4cfg,
-    output logic [      7:0] pmp5cfg,
-    output logic [      7:0] pmp6cfg,
-    output logic [      7:0] pmp7cfg,
-    output logic [      7:0] pmp8cfg,
-    output logic [      7:0] pmp9cfg,
-    output logic [      7:0] pmp10cfg,
-    output logic [      7:0] pmp11cfg,
-    output logic [      7:0] pmp12cfg,
-    output logic [      7:0] pmp13cfg,
-    output logic [      7:0] pmp14cfg,
-    output logic [      7:0] pmp15cfg,
-    output logic [`XLEN-1:0] pmp0addr,
-    output logic [`XLEN-1:0] pmp1addr,
-    output logic [`XLEN-1:0] pmp2addr,
-    output logic [`XLEN-1:0] pmp3addr,
-    output logic [`XLEN-1:0] pmp4addr,
-    output logic [`XLEN-1:0] pmp5addr,
-    output logic [`XLEN-1:0] pmp6addr,
-    output logic [`XLEN-1:0] pmp7addr,
-    output logic [`XLEN-1:0] pmp8addr,
-    output logic [`XLEN-1:0] pmp9addr,
-    output logic [`XLEN-1:0] pmp10addr,
-    output logic [`XLEN-1:0] pmp11addr,
-    output logic [`XLEN-1:0] pmp12addr,
-    output logic [`XLEN-1:0] pmp13addr,
-    output logic [`XLEN-1:0] pmp14addr,
-    output logic [`XLEN-1:0] pmp15addr,
+    output logic [    8-1:0] pmpcfg  [16],
+    output logic [`XLEN-1:0] pmpaddr [16],
 
     // CSR interface
     input                    csr_wr,
@@ -94,44 +64,18 @@ logic [      1:0] pmpcfg_a [16];
 logic [     15:0] pmpcfg_x;
 logic [     15:0] pmpcfg_w;
 logic [     15:0] pmpcfg_r;
-logic [`XLEN-1:0] pmpaddr  [16];
 
-assign pmp0cfg  = {pmpcfg_l[0 ], 2'b0, pmpcfg_a[0 ], pmpcfg_x[0 ], pmpcfg_w[0 ], pmpcfg_r[0 ]};
-assign pmp1cfg  = {pmpcfg_l[1 ], 2'b0, pmpcfg_a[1 ], pmpcfg_x[1 ], pmpcfg_w[1 ], pmpcfg_r[1 ]};
-assign pmp2cfg  = {pmpcfg_l[2 ], 2'b0, pmpcfg_a[2 ], pmpcfg_x[2 ], pmpcfg_w[2 ], pmpcfg_r[2 ]};
-assign pmp3cfg  = {pmpcfg_l[3 ], 2'b0, pmpcfg_a[3 ], pmpcfg_x[3 ], pmpcfg_w[3 ], pmpcfg_r[3 ]};
-assign pmp4cfg  = {pmpcfg_l[4 ], 2'b0, pmpcfg_a[4 ], pmpcfg_x[4 ], pmpcfg_w[4 ], pmpcfg_r[4 ]};
-assign pmp5cfg  = {pmpcfg_l[5 ], 2'b0, pmpcfg_a[5 ], pmpcfg_x[5 ], pmpcfg_w[5 ], pmpcfg_r[5 ]};
-assign pmp6cfg  = {pmpcfg_l[6 ], 2'b0, pmpcfg_a[6 ], pmpcfg_x[6 ], pmpcfg_w[6 ], pmpcfg_r[6 ]};
-assign pmp7cfg  = {pmpcfg_l[7 ], 2'b0, pmpcfg_a[7 ], pmpcfg_x[7 ], pmpcfg_w[7 ], pmpcfg_r[7 ]};
-assign pmp8cfg  = {pmpcfg_l[8 ], 2'b0, pmpcfg_a[8 ], pmpcfg_x[8 ], pmpcfg_w[8 ], pmpcfg_r[8 ]};
-assign pmp9cfg  = {pmpcfg_l[9 ], 2'b0, pmpcfg_a[9 ], pmpcfg_x[9 ], pmpcfg_w[9 ], pmpcfg_r[9 ]};
-assign pmp10cfg = {pmpcfg_l[10], 2'b0, pmpcfg_a[10], pmpcfg_x[10], pmpcfg_w[10], pmpcfg_r[10]};
-assign pmp11cfg = {pmpcfg_l[11], 2'b0, pmpcfg_a[11], pmpcfg_x[11], pmpcfg_w[11], pmpcfg_r[11]};
-assign pmp12cfg = {pmpcfg_l[12], 2'b0, pmpcfg_a[12], pmpcfg_x[12], pmpcfg_w[12], pmpcfg_r[12]};
-assign pmp13cfg = {pmpcfg_l[13], 2'b0, pmpcfg_a[13], pmpcfg_x[13], pmpcfg_w[13], pmpcfg_r[13]};
-assign pmp14cfg = {pmpcfg_l[14], 2'b0, pmpcfg_a[14], pmpcfg_x[14], pmpcfg_w[14], pmpcfg_r[14]};
-assign pmp15cfg = {pmpcfg_l[15], 2'b0, pmpcfg_a[15], pmpcfg_x[15], pmpcfg_w[15], pmpcfg_r[15]};
+always_comb begin
+    integer i;
+    for (i = 0; i < 16; i = i + 1) begin
+        pmpcfg[i] = {pmpcfg_l[i], 2'b0, pmpcfg_a[i], pmpcfg_x[i], pmpcfg_w[i], pmpcfg_r[i]};
+    end
 
-assign pmp0addr  = pmpaddr[0 ];
-assign pmp1addr  = pmpaddr[1 ];
-assign pmp2addr  = pmpaddr[2 ];
-assign pmp3addr  = pmpaddr[3 ];
-assign pmp4addr  = pmpaddr[4 ];
-assign pmp5addr  = pmpaddr[5 ];
-assign pmp6addr  = pmpaddr[6 ];
-assign pmp7addr  = pmpaddr[7 ];
-assign pmp8addr  = pmpaddr[8 ];
-assign pmp9addr  = pmpaddr[9 ];
-assign pmp10addr = pmpaddr[10];
-assign pmp11addr = pmpaddr[11];
-assign pmp12addr = pmpaddr[12];
-assign pmp13addr = pmpaddr[13];
-assign pmp14addr = pmpaddr[14];
-assign pmp15addr = pmpaddr[15];
-
-assign pmpcfg0 = {pmp7cfg,  pmp6cfg,  pmp5cfg,  pmp4cfg,  pmp3cfg,  pmp2cfg,  pmp1cfg, pmp0cfg};
-assign pmpcfg2 = {pmp15cfg, pmp14cfg, pmp13cfg, pmp12cfg, pmp11cfg, pmp10cfg, pmp9cfg, pmp8cfg};
+    for (i = 0; i < 8; i = i + 1) begin
+        pmpcfg0[i*8+:8] = pmpcfg[i  ];
+        pmpcfg2[i*8+:8] = pmpcfg[i+8];
+    end
+end
 
 always_ff @(posedge clk or negedge rstn) begin
     integer i;
@@ -204,8 +148,8 @@ always_ff @(posedge clk or negedge rstn) begin
                 pmpaddr[i] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
             end
         end
-        if (csr_wr && csr_waddr == CSR_PMPADDR_ADDR[16] && !pmpcfg_l[16]) begin
-            pmpaddr[16] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
+        if (csr_wr && csr_waddr == CSR_PMPADDR_ADDR[15] && !pmpcfg_l[15]) begin
+            pmpaddr[15] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
         end
     end
 end

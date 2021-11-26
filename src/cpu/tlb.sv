@@ -8,9 +8,19 @@ module tlb (
     input        [`TLB_VPN_WIDTH-1:0] vpn,
     input                             we,
     input                             spage,
-    input        [`TLB_PTE_WIDTH-1:0] pte_in,
     output logic                      pte_hit,
+    input        [`TLB_PTE_WIDTH-1:0] pte_in,
+    input                             pmp_v_in,
+    input                             pmp_l_in,
+    input                             pmp_x_in,
+    input                             pmp_w_in,
+    input                             pmp_r_in,
     output logic [`TLB_PTE_WIDTH-1:0] pte_out,
+    output logic                      pmp_v_out,
+    output logic                      pmp_l_out,
+    output logic                      pmp_x_out,
+    output logic                      pmp_w_out,
+    output logic                      pmp_r_out,
     
     input                             tlb_flush_req,
     input                             tlb_flush_all_vaddr,
@@ -156,5 +166,10 @@ generate
     end
 endgenerate
 
+assign pmp_v_out = 1'b1;
+assign pmp_l_out = 1'b0;
+assign pmp_x_out = 1'b1;
+assign pmp_w_out = 1'b0;
+assign pmp_r_out = 1'b0;
 
 endmodule

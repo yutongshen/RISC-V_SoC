@@ -152,7 +152,7 @@ always_comb begin
             data_cs      = core_req && ~core_bypass;
         end
         STATE_CMP   : begin
-            core_busy    = ~hit;
+            core_busy    = ~hit || |core_pa_bad;
             tag_cs       = ~core_pa_vld || (hit && core_req && ~core_bypass);
             data_cs      = ~core_pa_vld || (hit && core_req && ~core_bypass);
         end
@@ -222,7 +222,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (cur_state == STATE_IDLE) core_bad <= 2'b00;
     else if (m_bresp[1] && m_bvalid)  core_bad <= 2'b10;
     else if (m_rresp[1] && m_rvalid)  core_bad <= 2'b10;
-    else if (core_pa_vld)             core_bad <= {core_pa_bad[1], ~core_pa_bad[1] & core_pa_bad[0]};
+    else if (core_pa_vld)             core_bad <= core_pa_bad;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
