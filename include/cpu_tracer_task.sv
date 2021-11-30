@@ -44,6 +44,8 @@ endfunction
 
 function string csr_name;
 input [11:0] csr_addr;
+string csr_id;
+$sformat(csr_id, "0x%0x", csr_addr);
 
 casex (csr_addr)
     `CSR_USTATUS_ADDR       : return "ustatus";       
@@ -171,6 +173,26 @@ casex (csr_addr)
     `CSR_PMPADDR13_ADDR     : return "pmpaddr13";     
     `CSR_PMPADDR14_ADDR     : return "pmpaddr14";     
     `CSR_PMPADDR15_ADDR     : return "pmpaddr15";     
+    `CSR_PMACFG0_ADDR       : return "pmacfg0";       
+    `CSR_PMACFG1_ADDR       : return "pmacfg1";       
+    `CSR_PMACFG2_ADDR       : return "pmacfg2";       
+    `CSR_PMACFG3_ADDR       : return "pmacfg3";       
+    `CSR_PMAADDR0_ADDR      : return "pmaaddr0";      
+    `CSR_PMAADDR1_ADDR      : return "pmaaddr1";      
+    `CSR_PMAADDR2_ADDR      : return "pmaaddr2";      
+    `CSR_PMAADDR3_ADDR      : return "pmaaddr3";      
+    `CSR_PMAADDR4_ADDR      : return "pmaaddr4";      
+    `CSR_PMAADDR5_ADDR      : return "pmaaddr5";      
+    `CSR_PMAADDR6_ADDR      : return "pmaaddr6";      
+    `CSR_PMAADDR7_ADDR      : return "pmaaddr7";      
+    `CSR_PMAADDR8_ADDR      : return "pmaaddr8";      
+    `CSR_PMAADDR9_ADDR      : return "pmaaddr9";      
+    `CSR_PMAADDR10_ADDR     : return "pmaaddr10";     
+    `CSR_PMAADDR11_ADDR     : return "pmaaddr11";     
+    `CSR_PMAADDR12_ADDR     : return "pmaaddr12";     
+    `CSR_PMAADDR13_ADDR     : return "pmaaddr13";     
+    `CSR_PMAADDR14_ADDR     : return "pmaaddr14";     
+    `CSR_PMAADDR15_ADDR     : return "pmaaddr15";     
     `CSR_MCYCLE_ADDR        : return "mcycle";        
     `CSR_MINSTRET_ADDR      : return "minstret";      
     `CSR_MHPMCOUNTER3_ADDR  : return "mhpmcounter3";  
@@ -270,7 +292,7 @@ casex (csr_addr)
     `CSR_DCSR_ADDR          : return "dcsr";          
     `CSR_DPC_ADDR           : return "dpc";           
     `CSR_DSCRATCH_ADDR      : return "dscratch";      
-    default: return "unknown csr";
+    default: return csr_id;
 endcase
 
 endfunction

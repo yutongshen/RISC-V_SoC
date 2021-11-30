@@ -17,6 +17,11 @@ module mmu (
     input                                    pmp_w,
     input                                    pmp_r,
 
+    input                                    pma_v,
+    input                                    pma_l,
+    input                                    pma_c,
+    input                                    pma_e,
+
     // TLB control
     input                                    tlb_flush_req,
     input                                    tlb_flush_all_vaddr,
@@ -36,6 +41,9 @@ module mmu (
     // virtual address
     input                                    va_valid,
     input        [                     47:0] va,
+
+    // Cache ctrl
+    output logic                             cache_bypass,
 
     // physical address
     output logic                             pa_valid,
@@ -347,9 +355,10 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
+assign cache_bypass = ~pma_c;
 assign pa_valid = pa_valid_tmp_latch | tlb_data_sel;
 assign pg_fault = pg_fault_pte_latch | (tlb_data_sel & pg_fault_tlb);
-assign pmp_err  = tlb_data_sel ? pmp_err_tlb : pmp_err_pte;
+assign pmp_err  = /* tlb_data_sel ? pmp_err_tlb : */pmp_err_pte;
 assign pa       = ({56{pa_valid_tmp_latch}} & pa_latch) |
                   ({56{tlb_data_sel}}       & {{10{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
 assign pa_bad   = {(bus_err | pmp_err) & ~pg_fault, pg_fault};

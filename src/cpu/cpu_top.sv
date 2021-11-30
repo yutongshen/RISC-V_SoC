@@ -8,6 +8,8 @@ module cpu_top (
     // mpu csr
     output logic [                  8 - 1:0] pmpcfg  [16],
     output logic [              `XLEN - 1:0] pmpaddr [16],
+    output logic [                  8 - 1:0] pmacfg  [16],
+    output logic [              `XLEN - 1:0] pmaaddr [16],
 
     // mmu csr
     output logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
@@ -175,6 +177,7 @@ logic                             id2exe_branch;
 logic                             id2exe_branch_zcmp;
 logic [        `CSR_OP_LEN - 1:0] id2exe_csr_op;
 logic                             id2exe_uimm_rs1_sel;
+logic                             id2exe_csr_rd;
 logic                             id2exe_pmu_csr_wr;
 logic                             id2exe_fpu_csr_wr;
 logic                             id2exe_dbg_csr_wr;
@@ -560,6 +563,7 @@ if (~rstn_sync) begin
     id2exe_branch_zcmp         <= 1'b0;
     id2exe_csr_op              <= `CSR_OP_LEN'b0;
     id2exe_uimm_rs1_sel        <= 1'b0;
+    id2exe_csr_rd              <= 1'b0;
     id2exe_pmu_csr_wr          <= 1'b0;
     id2exe_fpu_csr_wr          <= 1'b0;
     id2exe_dbg_csr_wr          <= 1'b0;
@@ -610,6 +614,7 @@ else begin
         id2exe_branch_zcmp         <= id_branch_zcmp;
         id2exe_csr_op              <= id_csr_op;
         id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
+        id2exe_csr_rd              <= ~id_flush & id_csr_rd;
         id2exe_pmu_csr_wr          <= ~id_flush & id_pmu_csr_wr;
         id2exe_fpu_csr_wr          <= ~id_flush & id_fpu_csr_wr;
         id2exe_dbg_csr_wr          <= ~id_flush & id_dbg_csr_wr;
@@ -760,6 +765,8 @@ mpu_csr u_mpu_csr (
     .rstn      ( rstn_sync        ),
     .pmpcfg    ( pmpcfg           ),
     .pmpaddr   ( pmpaddr          ),
+    .pmacfg    ( pmacfg           ),
+    .pmaaddr   ( pmaaddr          ),
 
     // CSR interface
     .csr_wr    ( exe_mpu_csr_wr   ),
@@ -769,7 +776,8 @@ mpu_csr u_mpu_csr (
     .csr_rdata ( id_mpu_csr_rdata )
 
 );
-assign exe_satp_upd = id2exe_mmu_csr_wr & ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
+assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) &
+                      ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
 assign exe_inst_misaligned         = id2exe_inst_misaligned | (if_pc_alu_en & |if_pc_alu[1]);
 assign exe_inst_misaligned_badaddr = {id2exe_inst_misaligned ? (id2exe_imm[`XLEN-1:1] + id2exe_pc[`XLEN-1:1]):
                                                                if_pc_alu[`XLEN-1:1]

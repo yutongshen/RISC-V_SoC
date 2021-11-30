@@ -27,18 +27,28 @@ logic                             dmem_busy;
 
 logic [                  8 - 1:0] pmpcfg  [16];
 logic [              `XLEN - 1:0] pmpaddr [16];
+logic [                  8 - 1:0] pmacfg  [16];
+logic [              `XLEN - 1:0] pmaaddr [16];
 
 logic                             ipmp_v;
 logic                             ipmp_l;
 logic                             ipmp_x;
 logic                             ipmp_w;
 logic                             ipmp_r;
+logic                             ipma_v;
+logic                             ipma_l;
+logic                             ipma_c;
+logic                             ipma_e;
 
 logic                             dpmp_v;
 logic                             dpmp_l;
 logic                             dpmp_x;
 logic                             dpmp_w;
 logic                             dpmp_r;
+logic                             dpma_v;
+logic                             dpma_l;
+logic                             dpma_c;
+logic                             dpma_e;
 
 logic [    `SATP_PPN_WIDTH - 1:0] satp_ppn;
 logic [   `SATP_ASID_WIDTH - 1:0] satp_asid;
@@ -73,10 +83,13 @@ logic [ 31: 0] di_1;
 logic [ 31: 0] do_1;
 logic          busy_1;
 
+logic          icache_bypass;
 logic          immu_pa_vld;
 logic [  1: 0] immu_pa_bad;
 logic [ 55: 0] immu_pa;
 logic [ 55: 0] immu_pa_pre;
+
+logic          dcache_bypass;
 logic          dmmu_pa_vld;
 logic [  1: 0] dmmu_pa_bad;
 logic [ 55: 0] dmmu_pa;
@@ -116,6 +129,8 @@ cpu_top u_cpu_top (
     // mpu csr
     .pmpcfg              ( pmpcfg              ),
     .pmpaddr             ( pmpaddr             ),
+    .pmacfg              ( pmacfg              ),
+    .pmaaddr             ( pmaaddr             ),
 
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
@@ -179,6 +194,11 @@ mmu u_immu(
     .pmp_w               ( ipmp_w              ),
     .pmp_r               ( ipmp_r              ),
 
+    .pma_v               ( ipma_v              ),
+    .pma_l               ( ipma_l              ),
+    .pma_c               ( ipma_c              ),
+    .pma_e               ( ipma_e              ),
+
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
@@ -191,6 +211,9 @@ mmu u_immu(
     // virtual address
     .va_valid            ( imem_en             ),
     .va                  ( {16'b0, imem_addr}  ),
+
+    // Cache bypass
+    .cache_bypass        ( icache_bypass       ),
 
     // physical address
     .pa_valid            ( immu_pa_vld         ),
@@ -224,6 +247,11 @@ mmu u_dmmu(
     .pmp_w               ( dpmp_w              ),
     .pmp_r               ( dpmp_r              ),
 
+    .pma_v               ( dpma_v              ),
+    .pma_l               ( dpma_l              ),
+    .pma_c               ( dpma_c              ),
+    .pma_e               ( dpma_e              ),
+
     // mmu csr
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
@@ -236,6 +264,9 @@ mmu u_dmmu(
     // virtual address
     .va_valid            ( dmem_en             ),
     .va                  ( {16'b0, dmem_addr}  ),
+
+    // Cache bypass
+    .cache_bypass        ( dcache_bypass       ),
 
     // physical address
     .pa_valid            ( dmmu_pa_vld         ),
@@ -252,13 +283,20 @@ mpu u_impu (
     .rstn     ( rstn        ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
-    .paddr    ( immu_pa_pre ),
+    .pmacfg   ( pmacfg      ),
+    .pmaaddr  ( pmaaddr     ),
+    .paddr    ( immu_pa     ),
 
     .pmp_v    ( ipmp_v      ),
     .pmp_l    ( ipmp_l      ),
     .pmp_x    ( ipmp_x      ),
     .pmp_w    ( ipmp_w      ),
-    .pmp_r    ( ipmp_r      )
+    .pmp_r    ( ipmp_r      ),
+        
+    .pma_v    ( ipma_v      ),
+    .pma_l    ( ipma_l      ),
+    .pma_c    ( ipma_c      ),
+    .pma_e    ( ipma_e      )
         
 );
 
@@ -267,21 +305,28 @@ mpu u_dmpu (
     .rstn     ( rstn        ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
-    .paddr    ( dmmu_pa_pre ),
+    .pmacfg   ( pmacfg      ),
+    .pmaaddr  ( pmaaddr     ),
+    .paddr    ( dmmu_pa     ),
 
     .pmp_v    ( dpmp_v      ),
     .pmp_l    ( dpmp_l      ),
     .pmp_x    ( dpmp_x      ),
     .pmp_w    ( dpmp_w      ),
-    .pmp_r    ( dpmp_r      )
+    .pmp_r    ( dpmp_r      ),
         
+    .pma_v    ( dpma_v      ),
+    .pma_l    ( dpma_l      ),
+    .pma_c    ( dpma_c      ),
+    .pma_e    ( dpma_e      )
+
 );
 
 l1c u_l1ic (
     .clk         ( clk           ),
     .rstn        ( rstn          ),
 
-    .core_bypass ( 1'b0          ),
+    .core_bypass ( icache_bypass ),
     .core_flush  ( ic_flush      ),
     .core_pa_vld ( immu_pa_vld   ),
     .core_pa_bad ( immu_pa_bad   ),
@@ -302,7 +347,7 @@ l1c u_l1dc (
     .clk         ( clk           ),
     .rstn        ( rstn          ),
 
-    .core_bypass ( 1'b1          ),
+    .core_bypass ( dcache_bypass ),
     .core_flush  ( 1'b0          ),
     .core_pa_vld ( dmmu_pa_vld   ),
     .core_paddr  ( dmmu_pa[31:0] ),

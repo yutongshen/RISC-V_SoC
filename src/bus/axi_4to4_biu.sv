@@ -250,36 +250,67 @@ module axi_4to4_biu (
     output logic           m3_rready
 );
 
-logic [  1: 0] i_awburst;
-logic [ 11: 0] i_awid;
-logic [ 31: 0] i_awaddr;
-logic [  2: 0] i_awsize;
-logic [  7: 0] i_awlen;
-logic          i_awvalid;
-logic          i_awready;
-logic [  3: 0] i_wstrb;
-logic [ 11: 0] i_wid;
-logic [ 31: 0] i_wdata;
-logic          i_wlast;
-logic          i_wvalid;
-logic          i_wready;
-logic [ 11: 0] i_bid;
-logic [  1: 0] i_bresp;
-logic          i_bvalid;
-logic          i_bready;
-logic [ 31: 0] i_araddr;
-logic [  1: 0] i_arburst;
-logic [  2: 0] i_arsize;
-logic [ 11: 0] i_arid;
-logic [  7: 0] i_arlen;
-logic          i_arvalid;
-logic          i_arready;
-logic [ 31: 0] i_rdata;
-logic [  1: 0] i_rresp;
-logic [ 11: 0] i_rid;
-logic          i_rlast;
-logic          i_rvalid;
-logic          i_rready;
+logic [  1: 0] i1_awburst;
+logic [ 11: 0] i1_awid;
+logic [ 31: 0] i1_awaddr;
+logic [  2: 0] i1_awsize;
+logic [  7: 0] i1_awlen;
+logic          i1_awvalid;
+logic          i1_awready;
+logic [  3: 0] i1_wstrb;
+logic [ 11: 0] i1_wid;
+logic [ 31: 0] i1_wdata;
+logic          i1_wlast;
+logic          i1_wvalid;
+logic          i1_wready;
+logic [ 11: 0] i1_bid;
+logic [  1: 0] i1_bresp;
+logic          i1_bvalid;
+logic          i1_bready;
+logic [ 31: 0] i1_araddr;
+logic [  1: 0] i1_arburst;
+logic [  2: 0] i1_arsize;
+logic [ 11: 0] i1_arid;
+logic [  7: 0] i1_arlen;
+logic          i1_arvalid;
+logic          i1_arready;
+logic [ 31: 0] i1_rdata;
+logic [  1: 0] i1_rresp;
+logic [ 11: 0] i1_rid;
+logic          i1_rlast;
+logic          i1_rvalid;
+logic          i1_rready;
+
+logic [  1: 0] i2_awburst;
+logic [ 11: 0] i2_awid;
+logic [ 31: 0] i2_awaddr;
+logic [  2: 0] i2_awsize;
+logic [  7: 0] i2_awlen;
+logic          i2_awvalid;
+logic          i2_awready;
+logic [  3: 0] i2_wstrb;
+logic [ 11: 0] i2_wid;
+logic [ 31: 0] i2_wdata;
+logic          i2_wlast;
+logic          i2_wvalid;
+logic          i2_wready;
+logic [ 11: 0] i2_bid;
+logic [  1: 0] i2_bresp;
+logic          i2_bvalid;
+logic          i2_bready;
+logic [ 31: 0] i2_araddr;
+logic [  1: 0] i2_arburst;
+logic [  2: 0] i2_arsize;
+logic [ 11: 0] i2_arid;
+logic [  7: 0] i2_arlen;
+logic          i2_arvalid;
+logic          i2_arready;
+logic [ 31: 0] i2_rdata;
+logic [  1: 0] i2_rresp;
+logic [ 11: 0] i2_rid;
+logic          i2_rlast;
+logic          i2_rvalid;
+logic          i2_rready;
 
 axi_4to1_mux u_mux (
     .aclk          ( aclk       ),
@@ -404,71 +435,140 @@ axi_4to1_mux u_mux (
     .s3_rlast      ( s3_rlast   ),
     .s3_rvalid     ( s3_rvalid  ),
     .s3_rready     ( s3_rready  ),
-    .m_awburst     ( i_awburst  ),
-    .m_awid        ( i_awid     ),
-    .m_awaddr      ( i_awaddr   ),
-    .m_awsize      ( i_awsize   ),
-    .m_awlen       ( i_awlen    ),
-    .m_awvalid     ( i_awvalid  ),
-    .m_awready     ( i_awready  ),
-    .m_wstrb       ( i_wstrb    ),
-    .m_wid         ( i_wid      ),
-    .m_wdata       ( i_wdata    ),
-    .m_wlast       ( i_wlast    ),
-    .m_wvalid      ( i_wvalid   ),
-    .m_wready      ( i_wready   ),
-    .m_bid         ( i_bid      ),
-    .m_bresp       ( i_bresp    ),
-    .m_bvalid      ( i_bvalid   ),
-    .m_bready      ( i_bready   ),
-    .m_araddr      ( i_araddr   ),
-    .m_arburst     ( i_arburst  ),
-    .m_arsize      ( i_arsize   ),
-    .m_arid        ( i_arid     ),
-    .m_arlen       ( i_arlen    ),
-    .m_arvalid     ( i_arvalid  ),
-    .m_arready     ( i_arready  ),
-    .m_rdata       ( i_rdata    ),
-    .m_rresp       ( i_rresp    ),
-    .m_rid         ( i_rid      ),
-    .m_rlast       ( i_rlast    ),
-    .m_rvalid      ( i_rvalid   ),
-    .m_rready      ( i_rready   )
+    .m_awburst     ( i1_awburst  ),
+    .m_awid        ( i1_awid     ),
+    .m_awaddr      ( i1_awaddr   ),
+    .m_awsize      ( i1_awsize   ),
+    .m_awlen       ( i1_awlen    ),
+    .m_awvalid     ( i1_awvalid  ),
+    .m_awready     ( i1_awready  ),
+    .m_wstrb       ( i1_wstrb    ),
+    .m_wid         ( i1_wid      ),
+    .m_wdata       ( i1_wdata    ),
+    .m_wlast       ( i1_wlast    ),
+    .m_wvalid      ( i1_wvalid   ),
+    .m_wready      ( i1_wready   ),
+    .m_bid         ( i1_bid      ),
+    .m_bresp       ( i1_bresp    ),
+    .m_bvalid      ( i1_bvalid   ),
+    .m_bready      ( i1_bready   ),
+    .m_araddr      ( i1_araddr   ),
+    .m_arburst     ( i1_arburst  ),
+    .m_arsize      ( i1_arsize   ),
+    .m_arid        ( i1_arid     ),
+    .m_arlen       ( i1_arlen    ),
+    .m_arvalid     ( i1_arvalid  ),
+    .m_arready     ( i1_arready  ),
+    .m_rdata       ( i1_rdata    ),
+    .m_rresp       ( i1_rresp    ),
+    .m_rid         ( i1_rid      ),
+    .m_rlast       ( i1_rlast    ),
+    .m_rvalid      ( i1_rvalid   ),
+    .m_rready      ( i1_rready   )
+);
+
+axi_slice u_axi_slice (
+    .aclk          ( aclk       ),
+    .aresetn       ( aresetn    ),
+
+    // AXI slave port
+    .s_awpayload   ( {i1_awburst,
+                      i1_awid  ,
+                      i1_awaddr,
+                      i1_awsize,
+                      i1_awlen} ),
+    .s_awvalid     ( i1_awvalid ),
+    .s_awready     ( i1_awready ),
+    .s_wpayload    ( {i1_wstrb,
+                      i1_wid  ,
+                      i1_wdata,
+                      i1_wlast} ),
+    .s_wvalid      ( i1_wvalid  ),
+    .s_wready      ( i1_wready  ),
+    .s_bpayload    ( {i1_bid,
+                      i1_bresp} ),
+    .s_bvalid      ( i1_bvalid  ),
+    .s_bready      ( i1_bready  ),
+    .s_arpayload   ( {i1_araddr,
+                      i1_arburst,
+                      i1_arsize,
+                      i1_arid,
+                      i1_arlen} ),
+    .s_arvalid     ( i1_arvalid ),
+    .s_arready     ( i1_arready ),
+    .s_rpayload    ( {i1_rdata,
+                      i1_rresp,
+                      i1_rid,
+                      i1_rlast} ),
+    .s_rvalid      ( i1_rvalid  ),
+    .s_rready      ( i1_rready  ),
+
+    // AXI master port
+    .m_awpayload   ( {i2_awburst,
+                      i2_awid  ,
+                      i2_awaddr,
+                      i2_awsize,
+                      i2_awlen} ),
+    .m_awvalid     ( i2_awvalid ),
+    .m_awready     ( i2_awready ),
+    .m_wpayload    ( {i2_wstrb,
+                      i2_wid  ,
+                      i2_wdata,
+                      i2_wlast} ),
+    .m_wvalid      ( i2_wvalid  ),
+    .m_wready      ( i2_wready  ),
+    .m_bpayload    ( {i2_bid,
+                      i2_bresp} ),
+    .m_bvalid      ( i2_bvalid  ),
+    .m_bready      ( i2_bready  ),
+    .m_arpayload   ( {i2_araddr,
+                      i2_arburst,
+                      i2_arsize,
+                      i2_arid,
+                      i2_arlen} ),
+    .m_arvalid     ( i2_arvalid ),
+    .m_arready     ( i2_arready ),
+    .m_rpayload    ( {i2_rdata,
+                      i2_rresp,
+                      i2_rid,
+                      i2_rlast} ),
+    .m_rvalid      ( i2_rvalid  ),
+    .m_rready      ( i2_rready  )
 );
 
 axi_1to4_dec u_dec (
     .aclk          ( aclk       ),
     .aresetn       ( aresetn    ),
-    .s_awburst     ( i_awburst  ),
-    .s_awid        ( i_awid     ),
-    .s_awaddr      ( i_awaddr   ),
-    .s_awsize      ( i_awsize   ),
-    .s_awlen       ( i_awlen    ),
-    .s_awvalid     ( i_awvalid  ),
-    .s_awready     ( i_awready  ),
-    .s_wstrb       ( i_wstrb    ),
-    .s_wid         ( i_wid      ),
-    .s_wdata       ( i_wdata    ),
-    .s_wlast       ( i_wlast    ),
-    .s_wvalid      ( i_wvalid   ),
-    .s_wready      ( i_wready   ),
-    .s_bid         ( i_bid      ),
-    .s_bresp       ( i_bresp    ),
-    .s_bvalid      ( i_bvalid   ),
-    .s_bready      ( i_bready   ),
-    .s_araddr      ( i_araddr   ),
-    .s_arburst     ( i_arburst  ),
-    .s_arsize      ( i_arsize   ),
-    .s_arid        ( i_arid     ),
-    .s_arlen       ( i_arlen    ),
-    .s_arvalid     ( i_arvalid  ),
-    .s_arready     ( i_arready  ),
-    .s_rdata       ( i_rdata    ),
-    .s_rresp       ( i_rresp    ),
-    .s_rid         ( i_rid      ),
-    .s_rlast       ( i_rlast    ),
-    .s_rvalid      ( i_rvalid   ),
-    .s_rready      ( i_rready   ),
+    .s_awburst     ( i2_awburst  ),
+    .s_awid        ( i2_awid     ),
+    .s_awaddr      ( i2_awaddr   ),
+    .s_awsize      ( i2_awsize   ),
+    .s_awlen       ( i2_awlen    ),
+    .s_awvalid     ( i2_awvalid  ),
+    .s_awready     ( i2_awready  ),
+    .s_wstrb       ( i2_wstrb    ),
+    .s_wid         ( i2_wid      ),
+    .s_wdata       ( i2_wdata    ),
+    .s_wlast       ( i2_wlast    ),
+    .s_wvalid      ( i2_wvalid   ),
+    .s_wready      ( i2_wready   ),
+    .s_bid         ( i2_bid      ),
+    .s_bresp       ( i2_bresp    ),
+    .s_bvalid      ( i2_bvalid   ),
+    .s_bready      ( i2_bready   ),
+    .s_araddr      ( i2_araddr   ),
+    .s_arburst     ( i2_arburst  ),
+    .s_arsize      ( i2_arsize   ),
+    .s_arid        ( i2_arid     ),
+    .s_arlen       ( i2_arlen    ),
+    .s_arvalid     ( i2_arvalid  ),
+    .s_arready     ( i2_arready  ),
+    .s_rdata       ( i2_rdata    ),
+    .s_rresp       ( i2_rresp    ),
+    .s_rid         ( i2_rid      ),
+    .s_rlast       ( i2_rlast    ),
+    .s_rvalid      ( i2_rvalid   ),
+    .s_rready      ( i2_rready   ),
     .m0_awburst    ( m0_awburst ),
     .m0_awid       ( m0_awid    ),
     .m0_awaddr     ( m0_awaddr  ),

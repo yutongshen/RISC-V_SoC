@@ -1,3 +1,24 @@
+#define pmacfg0        0x3c0
+#define pmacfg1        0x3c1
+#define pmacfg2        0x3c2
+#define pmacfg3        0x3c3
+#define pmaaddr0       0x3d0
+#define pmaaddr1       0x3d1
+#define pmaaddr2       0x3d2
+#define pmaaddr3       0x3d3
+#define pmaaddr4       0x3d4
+#define pmaaddr5       0x3d5
+#define pmaaddr6       0x3d6
+#define pmaaddr7       0x3d7
+#define pmaaddr8       0x3d8
+#define pmaaddr9       0x3d9
+#define pmaaddr10      0x3da
+#define pmaaddr11      0x3db
+#define pmaaddr12      0x3dc
+#define pmaaddr13      0x3dd
+#define pmaaddr14      0x3de
+#define pmaaddr15      0x3df
+
 .section .text
 .align 2
 .globl main
@@ -12,6 +33,11 @@ main:
   li t1, 0x7fffffff
   csrw pmpaddr0, t1
   csrw pmpcfg0, t0
+
+  li t0, 0x1f
+  li t1, 0x7fffffff
+  csrw pmaaddr0, t1
+  csrw pmacfg0, t0
 
   /*plic test*/
   li t0, 0x0c001000 #irq pending

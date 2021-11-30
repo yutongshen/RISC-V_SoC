@@ -104,18 +104,17 @@ always_comb begin
     case (cur_state)
         STATE_IDLE  : begin
             nxt_state = core_req ? core_wr     ? STATE_WRITE:
-                                   core_bypass ? STATE_READ:
                                                  STATE_CMP:
                                    STATE_IDLE;
         end
         STATE_CMP   : begin
             nxt_state = ~core_pa_vld ? STATE_CMP :
                         |core_pa_bad ? STATE_IDLE:
+                         core_bypass ? STATE_READ:
                         hit ? core_req ? core_wr     ? STATE_WRITE:
-                                         core_bypass ? STATE_READ:
                                                        STATE_CMP:
-                                         STATE_IDLE:
-                              STATE_MREQ;
+                                       STATE_IDLE:
+                                       STATE_MREQ;
         end
         STATE_MREQ  : begin
             nxt_state = m_arready ? STATE_REFILL : STATE_MREQ;
@@ -148,13 +147,13 @@ always_comb begin
     case (cur_state)
         STATE_IDLE  : begin
             core_busy    = 1'b0;
-            tag_cs       = core_req && ~core_bypass;
-            data_cs      = core_req && ~core_bypass;
+            tag_cs       = core_req;
+            data_cs      = core_req;
         end
         STATE_CMP   : begin
             core_busy    = ~hit || |core_pa_bad;
-            tag_cs       = ~core_pa_vld || (hit && core_req && ~core_bypass);
-            data_cs      = ~core_pa_vld || (hit && core_req && ~core_bypass);
+            tag_cs       = ~core_pa_vld || (hit && core_req);
+            data_cs      = ~core_pa_vld || (hit && core_req);
         end
         STATE_MREQ  : begin
             core_busy    = 1'b1;
@@ -226,8 +225,8 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)           core_bypass_latch <= 1'b0;
-    else if (~core_busy) core_bypass_latch <= core_bypass;
+    if (~rstn)            core_bypass_latch <= 1'b0;
+    else if (core_pa_vld) core_bypass_latch <= core_bypass;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -294,8 +293,8 @@ always_ff @(posedge clk or negedge rstn) begin
     else begin
         if (core_pa_vld) begin
             arvalid_tmp <= 1'b1;
-            awvalid_tmp <= 1'b1;
-            wvalid_tmp  <= 1'b1;
+            awvalid_tmp <= cur_state == STATE_WRITE;
+            wvalid_tmp  <= cur_state == STATE_WRITE;
         end
         else begin
             if (m_arready || cur_state == STATE_IDLE) arvalid_tmp <= 1'b0;

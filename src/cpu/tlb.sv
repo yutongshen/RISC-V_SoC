@@ -169,7 +169,7 @@ endgenerate
 assign pmp_v_out = 1'b1;
 assign pmp_l_out = 1'b0;
 assign pmp_x_out = 1'b1;
-assign pmp_w_out = 1'b0;
-assign pmp_r_out = 1'b0;
+assign pmp_w_out = 1'b1;
+assign pmp_r_out = 1'b1;
 
 endmodule

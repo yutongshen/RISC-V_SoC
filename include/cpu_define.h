@@ -156,6 +156,26 @@
 `define CSR_PMPADDR13_ADDR      12'h3bd
 `define CSR_PMPADDR14_ADDR      12'h3be
 `define CSR_PMPADDR15_ADDR      12'h3bf
+`define CSR_PMACFG0_ADDR        12'h3c0
+`define CSR_PMACFG1_ADDR        12'h3c1
+`define CSR_PMACFG2_ADDR        12'h3c2
+`define CSR_PMACFG3_ADDR        12'h3c3
+`define CSR_PMAADDR0_ADDR       12'h3d0
+`define CSR_PMAADDR1_ADDR       12'h3d1
+`define CSR_PMAADDR2_ADDR       12'h3d2
+`define CSR_PMAADDR3_ADDR       12'h3d3
+`define CSR_PMAADDR4_ADDR       12'h3d4
+`define CSR_PMAADDR5_ADDR       12'h3d5
+`define CSR_PMAADDR6_ADDR       12'h3d6
+`define CSR_PMAADDR7_ADDR       12'h3d7
+`define CSR_PMAADDR8_ADDR       12'h3d8
+`define CSR_PMAADDR9_ADDR       12'h3d9
+`define CSR_PMAADDR10_ADDR      12'h3da
+`define CSR_PMAADDR11_ADDR      12'h3db
+`define CSR_PMAADDR12_ADDR      12'h3dc
+`define CSR_PMAADDR13_ADDR      12'h3dd
+`define CSR_PMAADDR14_ADDR      12'h3de
+`define CSR_PMAADDR15_ADDR      12'h3df
 `define CSR_MCYCLE_ADDR         12'hb00
 `define CSR_MINSTRET_ADDR       12'hb02
 `define CSR_MHPMCOUNTER3_ADDR   12'hb03
@@ -334,6 +354,16 @@
 `define PMPCFG_A_TOR   2'h1
 `define PMPCFG_A_NA4   2'h2
 `define PMPCFG_A_NAPOT 2'h3
+
+`define PMACFG_L_BIT 7
+`define PMACFG_A_BIT 3+:2
+`define PMACFG_C_BIT 1
+`define PMACFG_E_BIT 0
+
+`define PMACFG_A_OFF   2'h0
+`define PMACFG_A_TOR   2'h1
+`define PMACFG_A_NA4   2'h2
+`define PMACFG_A_NAPOT 2'h3
 
 `ifdef RV32
   `define SATP_PPN_WIDTH  22

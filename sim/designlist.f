@@ -31,6 +31,7 @@
 ../src/bus/axi_4to4_biu.sv
 ../src/bus/axi_4to1_mux.sv
 ../src/bus/axi_1to4_dec.sv
+../src/bus/axi_slice.sv
 ../mdl/sram.sv
 ../mdl/sram32x31.sv
 ../mdl/sram32x64.sv
