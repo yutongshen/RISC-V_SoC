@@ -9,8 +9,9 @@ module="axi_${1}to${2}_biu";
 mux="axi_${1}to1_mux";
 dec="axi_1to${2}_dec";
 outstanding="${3}";
-sbfile="${4}";
-mapfile="${5}";
+slice="${4}"
+sbfile="${5}";
+mapfile="${6}";
 
 ./$(dirname ${0})/gen_axi_mux.sh ${slvnum} ${sbfile};
 ./$(dirname ${0})/gen_axi_dec.sh ${mstnum} ${outstanding} ${sbfile} ${mapfile} $(log2_ceil ${slvnum});
@@ -88,6 +89,30 @@ declare -p w_chn_sideband
 declare -p b_chn_sideband
 declare -p ar_chn_sideband
 declare -p r_chn_sideband
+
+if [ "${slice}" != "0" ]; then
+    aw_pld_len=$(log2_ceil ${slvnum});
+    for item in "${!aw_chn_sideband[@]}"; do
+        aw_pld_len=`expr ${aw_pld_len} + ${aw_chn_sideband[${item}]}`;
+    done
+    w_pld_len=`expr $(log2_ceil ${slvnum}) + 1`;
+    for item in "${!w_chn_sideband[@]}"; do
+        w_pld_len=`expr ${w_pld_len} + ${w_chn_sideband[${item}]}`;
+    done
+    b_pld_len=$(log2_ceil ${slvnum});
+    for item in "${!b_chn_sideband[@]}"; do
+        b_pld_len=`expr ${b_pld_len} + ${b_chn_sideband[${item}]}`;
+    done
+    ar_pld_len=$(log2_ceil ${slvnum});
+    for item in "${!ar_chn_sideband[@]}"; do
+        ar_pld_len=`expr ${ar_pld_len} + ${ar_chn_sideband[${item}]}`;
+    done
+    r_pld_len=`expr $(log2_ceil ${slvnum}) + 1`;
+    for item in "${!r_chn_sideband[@]}"; do
+        r_pld_len=`expr ${r_pld_len} + ${r_chn_sideband[${item}]}`;
+    done
+    ./$(dirname ${0})/gen_axi_slice.sh ${aw_pld_len} ${w_pld_len} ${b_pld_len} ${ar_pld_len} ${r_pld_len};
+fi
 
 # get slave mapping
 tmp=0;
@@ -206,53 +231,105 @@ for (( i = 0; i < ${mstnum}; i++ )); do
 done
 printf "\n);\n\n"               >> ${fname};
 
-for item in "${!aw_chn_sideband[@]}"; do
-    if [ "${item}" == "awid" ]; then
-        print_logic i_${item} `expr ${aw_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
-    else
-        print_logic i_${item} ${aw_chn_sideband[${item}]} >> ${fname};
-    fi
-done
-print_logic i_awvalid 1 >> ${fname};
-print_logic i_awready 1 >> ${fname};
-for item in "${!w_chn_sideband[@]}"; do
-    if [ "${item}" == "wid" ]; then
-        print_logic i_${item} `expr ${w_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
-    else
-        print_logic i_${item} ${w_chn_sideband[${item}]} >> ${fname};
-    fi
-done
-print_logic i_wlast  1 >> ${fname};
-print_logic i_wvalid 1 >> ${fname};
-print_logic i_wready 1 >> ${fname};
-for item in "${!b_chn_sideband[@]}"; do
-    if [ "${item}" == "bid" ]; then
-        print_logic i_${item} `expr ${b_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
-    else
-        print_logic i_${item} ${b_chn_sideband[${item}]} >> ${fname};
-    fi
-done
-print_logic i_bvalid 1 >> ${fname};
-print_logic i_bready 1 >> ${fname};
-for item in "${!ar_chn_sideband[@]}"; do
-    if [ "${item}" == "arid" ]; then
-        print_logic i_${item} `expr ${ar_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
-    else
-        print_logic i_${item} ${ar_chn_sideband[${item}]} >> ${fname};
-    fi
-done
-print_logic i_arvalid 1 >> ${fname};
-print_logic i_arready 1 >> ${fname};
-for item in "${!r_chn_sideband[@]}"; do
-    if [ "${item}" == "rid" ]; then
-        print_logic i_${item} `expr ${r_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
-    else
-        print_logic i_${item} ${r_chn_sideband[${item}]} >> ${fname};
-    fi
-done
-print_logic i_rlast  1 >> ${fname};
-print_logic i_rvalid 1 >> ${fname};
-print_logic i_rready 1 >> ${fname};
+if [ "${slice}" != "0" ]; then
+    for (( i = 0; i < 2; i++ )); do
+        for item in "${!aw_chn_sideband[@]}"; do
+            if [ "${item}" == "awid" ]; then
+                print_logic i${i}_${item} `expr ${aw_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+            else
+                print_logic i${i}_${item} ${aw_chn_sideband[${item}]} >> ${fname};
+            fi
+        done
+        print_logic i${i}_awvalid 1 >> ${fname};
+        print_logic i${i}_awready 1 >> ${fname};
+        for item in "${!w_chn_sideband[@]}"; do
+            if [ "${item}" == "wid" ]; then
+                print_logic i${i}_${item} `expr ${w_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+            else
+                print_logic i${i}_${item} ${w_chn_sideband[${item}]} >> ${fname};
+            fi
+        done
+        print_logic i${i}_wlast  1 >> ${fname};
+        print_logic i${i}_wvalid 1 >> ${fname};
+        print_logic i${i}_wready 1 >> ${fname};
+        for item in "${!b_chn_sideband[@]}"; do
+            if [ "${item}" == "bid" ]; then
+                print_logic i${i}_${item} `expr ${b_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+            else
+                print_logic i${i}_${item} ${b_chn_sideband[${item}]} >> ${fname};
+            fi
+        done
+        print_logic i${i}_bvalid 1 >> ${fname};
+        print_logic i${i}_bready 1 >> ${fname};
+        for item in "${!ar_chn_sideband[@]}"; do
+            if [ "${item}" == "arid" ]; then
+                print_logic i${i}_${item} `expr ${ar_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+            else
+                print_logic i${i}_${item} ${ar_chn_sideband[${item}]} >> ${fname};
+            fi
+        done
+        print_logic i${i}_arvalid 1 >> ${fname};
+        print_logic i${i}_arready 1 >> ${fname};
+        for item in "${!r_chn_sideband[@]}"; do
+            if [ "${item}" == "rid" ]; then
+                print_logic i${i}_${item} `expr ${r_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+            else
+                print_logic i${i}_${item} ${r_chn_sideband[${item}]} >> ${fname};
+            fi
+        done
+        print_logic i${i}_rlast  1 >> ${fname};
+        print_logic i${i}_rvalid 1 >> ${fname};
+        print_logic i${i}_rready 1 >> ${fname};
+    done
+else
+    for item in "${!aw_chn_sideband[@]}"; do
+        if [ "${item}" == "awid" ]; then
+            print_logic i_${item} `expr ${aw_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+        else
+            print_logic i_${item} ${aw_chn_sideband[${item}]} >> ${fname};
+        fi
+    done
+    print_logic i_awvalid 1 >> ${fname};
+    print_logic i_awready 1 >> ${fname};
+    for item in "${!w_chn_sideband[@]}"; do
+        if [ "${item}" == "wid" ]; then
+            print_logic i_${item} `expr ${w_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+        else
+            print_logic i_${item} ${w_chn_sideband[${item}]} >> ${fname};
+        fi
+    done
+    print_logic i_wlast  1 >> ${fname};
+    print_logic i_wvalid 1 >> ${fname};
+    print_logic i_wready 1 >> ${fname};
+    for item in "${!b_chn_sideband[@]}"; do
+        if [ "${item}" == "bid" ]; then
+            print_logic i_${item} `expr ${b_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+        else
+            print_logic i_${item} ${b_chn_sideband[${item}]} >> ${fname};
+        fi
+    done
+    print_logic i_bvalid 1 >> ${fname};
+    print_logic i_bready 1 >> ${fname};
+    for item in "${!ar_chn_sideband[@]}"; do
+        if [ "${item}" == "arid" ]; then
+            print_logic i_${item} `expr ${ar_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+        else
+            print_logic i_${item} ${ar_chn_sideband[${item}]} >> ${fname};
+        fi
+    done
+    print_logic i_arvalid 1 >> ${fname};
+    print_logic i_arready 1 >> ${fname};
+    for item in "${!r_chn_sideband[@]}"; do
+        if [ "${item}" == "rid" ]; then
+            print_logic i_${item} `expr ${r_chn_sideband[${item}]} + $(log2_ceil ${slvnum})` >> ${fname};
+        else
+            print_logic i_${item} ${r_chn_sideband[${item}]} >> ${fname};
+        fi
+    done
+    print_logic i_rlast  1 >> ${fname};
+    print_logic i_rvalid 1 >> ${fname};
+    print_logic i_rready 1 >> ${fname};
+fi
 
 printf "\n%s u_mux (\n" ${mux}                                     >> ${fname};
 print_conn aclk    aclk 1                                          >> ${fname};
@@ -286,65 +363,240 @@ for (( i = 0; i < ${slvnum}; i++ )); do
     print_conn s${i}_rvalid s${i}_rvalid  >> ${fname};
     print_conn s${i}_rready s${i}_rready  >> ${fname};
 done
-   for item in "${!aw_chn_sideband[@]}"; do
-       print_conn m_${item} i_${item} >> ${fname};
-   done
-   print_conn m_awvalid i_awvalid  >> ${fname};
-   print_conn m_awready i_awready  >> ${fname};
-   for item in "${!w_chn_sideband[@]}"; do
-       print_conn m_${item} i_${item} >> ${fname};
-   done
-   print_conn m_wlast  i_wlast   >> ${fname};
-   print_conn m_wvalid i_wvalid  >> ${fname};
-   print_conn m_wready i_wready  >> ${fname};
-   for item in "${!b_chn_sideband[@]}"; do
-       print_conn m_${item} i_${item} >> ${fname};
-   done
-   print_conn m_bvalid i_bvalid  >> ${fname};
-   print_conn m_bready i_bready  >> ${fname};
-   for item in "${!ar_chn_sideband[@]}"; do
-       print_conn m_${item} i_${item} >> ${fname};
-   done
-   print_conn m_arvalid i_arvalid  >> ${fname};
-   print_conn m_arready i_arready  >> ${fname};
-   for item in "${!r_chn_sideband[@]}"; do
-       print_conn m_${item} i_${item} >> ${fname};
-   done
-   print_conn m_rlast  i_rlast   >> ${fname};
-   print_conn m_rvalid i_rvalid  >> ${fname};
-   print_conn m_rready i_rready  >> ${fname};
+if [ "${slice}" != "0" ]; then
+    for item in "${!aw_chn_sideband[@]}"; do
+        print_conn m_${item} i0_${item} >> ${fname};
+    done
+    print_conn m_awvalid i0_awvalid  >> ${fname};
+    print_conn m_awready i0_awready  >> ${fname};
+    for item in "${!w_chn_sideband[@]}"; do
+        print_conn m_${item} i0_${item} >> ${fname};
+    done
+    print_conn m_wlast  i0_wlast   >> ${fname};
+    print_conn m_wvalid i0_wvalid  >> ${fname};
+    print_conn m_wready i0_wready  >> ${fname};
+    for item in "${!b_chn_sideband[@]}"; do
+        print_conn m_${item} i0_${item} >> ${fname};
+    done
+    print_conn m_bvalid i0_bvalid  >> ${fname};
+    print_conn m_bready i0_bready  >> ${fname};
+    for item in "${!ar_chn_sideband[@]}"; do
+        print_conn m_${item} i0_${item} >> ${fname};
+    done
+    print_conn m_arvalid i0_arvalid  >> ${fname};
+    print_conn m_arready i0_arready  >> ${fname};
+    for item in "${!r_chn_sideband[@]}"; do
+        print_conn m_${item} i0_${item} >> ${fname};
+    done
+    print_conn m_rlast  i0_rlast   >> ${fname};
+    print_conn m_rvalid i0_rvalid  >> ${fname};
+    print_conn m_rready i0_rready  >> ${fname};
+else
+    for item in "${!aw_chn_sideband[@]}"; do
+        print_conn m_${item} i_${item} >> ${fname};
+    done
+    print_conn m_awvalid i_awvalid  >> ${fname};
+    print_conn m_awready i_awready  >> ${fname};
+    for item in "${!w_chn_sideband[@]}"; do
+        print_conn m_${item} i_${item} >> ${fname};
+    done
+    print_conn m_wlast  i_wlast   >> ${fname};
+    print_conn m_wvalid i_wvalid  >> ${fname};
+    print_conn m_wready i_wready  >> ${fname};
+    for item in "${!b_chn_sideband[@]}"; do
+        print_conn m_${item} i_${item} >> ${fname};
+    done
+    print_conn m_bvalid i_bvalid  >> ${fname};
+    print_conn m_bready i_bready  >> ${fname};
+    for item in "${!ar_chn_sideband[@]}"; do
+        print_conn m_${item} i_${item} >> ${fname};
+    done
+    print_conn m_arvalid i_arvalid  >> ${fname};
+    print_conn m_arready i_arready  >> ${fname};
+    for item in "${!r_chn_sideband[@]}"; do
+        print_conn m_${item} i_${item} >> ${fname};
+    done
+    print_conn m_rlast  i_rlast   >> ${fname};
+    print_conn m_rvalid i_rvalid  >> ${fname};
+    print_conn m_rready i_rready  >> ${fname};
+fi
 printf "\n);\n\n"                             >> ${fname};
+
+if [ "${slice}" != "0" ]; then
+    print_logic s_awpayload ${aw_pld_len}  >> ${fname};
+    print_logic s_wpayload  ${w_pld_len}   >> ${fname};
+    print_logic s_bpayload  ${b_pld_len}   >> ${fname};
+    print_logic s_arpayload ${ar_pld_len}  >> ${fname};
+    print_logic s_rpayload  ${r_pld_len}   >> ${fname};
+    print_logic m_awpayload ${aw_pld_len}  >> ${fname};
+    print_logic m_wpayload  ${w_pld_len}   >> ${fname};
+    print_logic m_bpayload  ${b_pld_len}   >> ${fname};
+    print_logic m_arpayload ${ar_pld_len}  >> ${fname};
+    print_logic m_rpayload  ${r_pld_len}   >> ${fname};
+
+    printf "\n"                            >> ${fname};
+    tmp=();
+    for item in "${!aw_chn_sideband[@]}"; do
+        tmp+=(i0_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign s_awpayload = {${tmp//,/, }};\n" >> ${fname};
+    tmp=(i0_wlast);
+    for item in "${!w_chn_sideband[@]}"; do
+        tmp+=(i0_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign s_wpayload  = {${tmp//,/, }};\n" >> ${fname};
+    tmp=();
+    for item in "${!b_chn_sideband[@]}"; do
+        tmp+=(i0_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign {${tmp//,/, }} = s_bpayload;\n" >> ${fname};
+    tmp=();
+    for item in "${!ar_chn_sideband[@]}"; do
+        tmp+=(i0_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign s_arpayload = {${tmp//,/, }};\n" >> ${fname};
+    tmp=(i0_rlast);
+    for item in "${!r_chn_sideband[@]}"; do
+        tmp+=(i0_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign {${tmp//,/, }} = s_rpayload;\n" >> ${fname};
+
+    printf "\n"                            >> ${fname};
+    tmp=();
+    for item in "${!aw_chn_sideband[@]}"; do
+        tmp+=(i1_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign {${tmp//,/, }} = m_awpayload;\n" >> ${fname};
+    tmp=(i1_wlast);
+    for item in "${!w_chn_sideband[@]}"; do
+        tmp+=(i1_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign {${tmp//,/, }} = m_wpayload;\n" >> ${fname};
+    tmp=();
+    for item in "${!b_chn_sideband[@]}"; do
+        tmp+=(i1_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign m_bpayload = {${tmp//,/, }};\n" >> ${fname};
+    tmp=();
+    for item in "${!ar_chn_sideband[@]}"; do
+        tmp+=(i1_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign {${tmp//,/, }} = m_arpayload;\n" >> ${fname};
+    tmp=(i1_rlast);
+    for item in "${!r_chn_sideband[@]}"; do
+        tmp+=(i1_${item});
+    done
+    tmp=$(IFS=,;echo "${tmp[*]}");
+    printf "assign m_rpayload = {${tmp//,/, }};\n" >> ${fname};
+
+    printf "\n"                            >> ${fname};
+    printf "axi_slice u_axi_slice (\n"                                 >> ${fname};
+    print_conn aclk    aclk 1                                          >> ${fname};
+    print_conn aresetn aresetn                                         >> ${fname};
+    # slave port
+    print_conn s_awpayload s_awpayload                                 >> ${fname};
+    print_conn s_awvalid   i0_awvalid                                  >> ${fname};
+    print_conn s_awready   i0_awready                                  >> ${fname};
+    print_conn s_wpayload  s_wpayload                                  >> ${fname};
+    print_conn s_wvalid    i0_wvalid                                   >> ${fname};
+    print_conn s_wready    i0_wready                                   >> ${fname};
+    print_conn s_bpayload  s_bpayload                                  >> ${fname};
+    print_conn s_bvalid    i0_bvalid                                   >> ${fname};
+    print_conn s_bready    i0_bready                                   >> ${fname};
+    print_conn s_arpayload s_arpayload                                 >> ${fname};
+    print_conn s_arvalid   i0_arvalid                                  >> ${fname};
+    print_conn s_arready   i0_arready                                  >> ${fname};
+    print_conn s_rpayload  s_rpayload                                  >> ${fname};
+    print_conn s_rvalid    i0_rvalid                                   >> ${fname};
+    print_conn s_rready    i0_rready                                   >> ${fname};
+    # master port
+    print_conn m_awpayload m_awpayload                                 >> ${fname};
+    print_conn m_awvalid   i1_awvalid                                  >> ${fname};
+    print_conn m_awready   i1_awready                                  >> ${fname};
+    print_conn m_wpayload  m_wpayload                                  >> ${fname};
+    print_conn m_wvalid    i1_wvalid                                   >> ${fname};
+    print_conn m_wready    i1_wready                                   >> ${fname};
+    print_conn m_bpayload  m_bpayload                                  >> ${fname};
+    print_conn m_bvalid    i1_bvalid                                   >> ${fname};
+    print_conn m_bready    i1_bready                                   >> ${fname};
+    print_conn m_arpayload m_arpayload                                 >> ${fname};
+    print_conn m_arvalid   i1_arvalid                                  >> ${fname};
+    print_conn m_arready   i1_arready                                  >> ${fname};
+    print_conn m_rpayload  m_rpayload                                  >> ${fname};
+    print_conn m_rvalid    i1_rvalid                                   >> ${fname};
+    print_conn m_rready    i1_rready                                   >> ${fname};
+    printf "\n);\n\n"                                                  >> ${fname};
+fi
 
 printf "%s u_dec (\n" ${dec}                                       >> ${fname};
 print_conn aclk    aclk 1                                          >> ${fname};
 print_conn aresetn aresetn                                         >> ${fname};
-for item in "${!aw_chn_sideband[@]}"; do
-    print_conn s_${item} i_${item} >> ${fname};
-done
-print_conn s_awvalid i_awvalid  >> ${fname};
-print_conn s_awready i_awready  >> ${fname};
-for item in "${!w_chn_sideband[@]}"; do
-    print_conn s_${item} i_${item} >> ${fname};
-done
-print_conn s_wlast  i_wlast   >> ${fname};
-print_conn s_wvalid i_wvalid  >> ${fname};
-print_conn s_wready i_wready  >> ${fname};
-for item in "${!b_chn_sideband[@]}"; do
-    print_conn s_${item} i_${item} >> ${fname};
-done
-print_conn s_bvalid i_bvalid  >> ${fname};
-print_conn s_bready i_bready  >> ${fname};
-for item in "${!ar_chn_sideband[@]}"; do
-    print_conn s_${item} i_${item} >> ${fname};
-done
-print_conn s_arvalid i_arvalid  >> ${fname};
-print_conn s_arready i_arready  >> ${fname};
-for item in "${!r_chn_sideband[@]}"; do
-    print_conn s_${item} i_${item} >> ${fname};
-done
-print_conn s_rlast  i_rlast   >> ${fname};
-print_conn s_rvalid i_rvalid  >> ${fname};
-print_conn s_rready i_rready  >> ${fname};
+if [ "${slice}" != "0" ]; then
+    for item in "${!aw_chn_sideband[@]}"; do
+        print_conn s_${item} i1_${item} >> ${fname};
+    done
+    print_conn s_awvalid i1_awvalid  >> ${fname};
+    print_conn s_awready i1_awready  >> ${fname};
+    for item in "${!w_chn_sideband[@]}"; do
+        print_conn s_${item} i1_${item} >> ${fname};
+    done
+    print_conn s_wlast  i1_wlast   >> ${fname};
+    print_conn s_wvalid i1_wvalid  >> ${fname};
+    print_conn s_wready i1_wready  >> ${fname};
+    for item in "${!b_chn_sideband[@]}"; do
+        print_conn s_${item} i1_${item} >> ${fname};
+    done
+    print_conn s_bvalid i1_bvalid  >> ${fname};
+    print_conn s_bready i1_bready  >> ${fname};
+    for item in "${!ar_chn_sideband[@]}"; do
+        print_conn s_${item} i1_${item} >> ${fname};
+    done
+    print_conn s_arvalid i1_arvalid  >> ${fname};
+    print_conn s_arready i1_arready  >> ${fname};
+    for item in "${!r_chn_sideband[@]}"; do
+        print_conn s_${item} i1_${item} >> ${fname};
+    done
+    print_conn s_rlast  i1_rlast   >> ${fname};
+    print_conn s_rvalid i1_rvalid  >> ${fname};
+    print_conn s_rready i1_rready  >> ${fname};
+else
+    for item in "${!aw_chn_sideband[@]}"; do
+        print_conn s_${item} i_${item} >> ${fname};
+    done
+    print_conn s_awvalid i_awvalid  >> ${fname};
+    print_conn s_awready i_awready  >> ${fname};
+    for item in "${!w_chn_sideband[@]}"; do
+        print_conn s_${item} i_${item} >> ${fname};
+    done
+    print_conn s_wlast  i_wlast   >> ${fname};
+    print_conn s_wvalid i_wvalid  >> ${fname};
+    print_conn s_wready i_wready  >> ${fname};
+    for item in "${!b_chn_sideband[@]}"; do
+        print_conn s_${item} i_${item} >> ${fname};
+    done
+    print_conn s_bvalid i_bvalid  >> ${fname};
+    print_conn s_bready i_bready  >> ${fname};
+    for item in "${!ar_chn_sideband[@]}"; do
+        print_conn s_${item} i_${item} >> ${fname};
+    done
+    print_conn s_arvalid i_arvalid  >> ${fname};
+    print_conn s_arready i_arready  >> ${fname};
+    for item in "${!r_chn_sideband[@]}"; do
+        print_conn s_${item} i_${item} >> ${fname};
+    done
+    print_conn s_rlast  i_rlast   >> ${fname};
+    print_conn s_rvalid i_rvalid  >> ${fname};
+    print_conn s_rready i_rready  >> ${fname};
+fi
 for (( i = 0; i < ${mstnum}; i++ )); do
     for item in "${!aw_chn_sideband[@]}"; do
         print_conn m${i}_${item} m${i}_${item} >> ${fname};

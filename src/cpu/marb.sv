@@ -102,7 +102,7 @@ module marb (
 //     `AXI_INTF_CONNECT(m, m1)
 // );
 
-axi_4to4_biu u_axi_4to3_biu (
+axi_4to4_biu u_axi_4to4_biu (
     .aclk       ( clk        ),
     .aresetn    ( rstn       ),
 

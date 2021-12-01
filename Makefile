@@ -36,7 +36,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug; \
+	    ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +define+CPULOG +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}

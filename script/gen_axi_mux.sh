@@ -280,9 +280,9 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!aw_chn_sideband[@]}"; do
     if [ "${item}" == "awid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_awid[  0+:%3d] | ({%3d{s_awsel[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_awid[  0+:%3d] | ({%3d{s_awsel[i]}} & %-12s );\n" \
                "" "m_awid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
-                           $(log2_ceil ${slvnum}) i >> ${fname};
+                           $(log2_ceil ${slvnum}) "i[0+:$(log2_ceil ${slvnum})]" >> ${fname};
         printf "%8s%-10s[%3d+:%3d] = m_awid[%3d+:%3d] | ({%3d{s_awsel[i]}} & %-10s[i]);\n" \
                "" "m_awid" $(log2_ceil ${slvnum}) ${aw_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${aw_chn_sideband[${item}]} \
@@ -304,9 +304,9 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!w_chn_sideband[@]}"; do
     if [ "${item}" == "wid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_wid [  0+:%3d] | ({%3d{s_wsel[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_wid [  0+:%3d] | ({%3d{s_wsel[i]}} & %-12s );\n" \
                "" "m_wid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
-                           $(log2_ceil ${slvnum}) i >> ${fname};
+                           $(log2_ceil ${slvnum}) "i[0+:$(log2_ceil ${slvnum})]" >> ${fname};
         printf "%8s%-10s[%3d+:%3d] = m_wid [%3d+:%3d] | ({%3d{s_wsel[i]}} & %-10s[i]);\n" \
                "" "m_wid" $(log2_ceil ${slvnum}) ${w_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${w_chn_sideband[${item}]} \
@@ -328,9 +328,9 @@ done
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!ar_chn_sideband[@]}"; do
     if [ "${item}" == "arid" ]; then
-        printf "%8s%-10s[  0+:%3d] = m_arid[  0+:%3d] | ({%3d{s_arsel[i]}} & %12s );\n" \
+        printf "%8s%-10s[  0+:%3d] = m_arid[  0+:%3d] | ({%3d{s_arsel[i]}} & %-12s );\n" \
                "" "m_arid" $(log2_ceil ${slvnum}) $(log2_ceil ${slvnum}) \
-                           $(log2_ceil ${slvnum}) i >> ${fname};
+                           $(log2_ceil ${slvnum}) "i[0+:$(log2_ceil ${slvnum})]" >> ${fname};
         printf "%8s%-10s[%3d+:%3d] = m_arid[%3d+:%3d] | ({%3d{s_arsel[i]}} & %-10s[i]);\n" \
                "" "m_arid" $(log2_ceil ${slvnum}) ${ar_chn_sideband[${item}]} \
                            $(log2_ceil ${slvnum}) ${ar_chn_sideband[${item}]} \

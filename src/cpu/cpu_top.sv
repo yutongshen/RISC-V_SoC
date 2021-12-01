@@ -1046,6 +1046,7 @@ pmu u_pmu (
     .csr_rdata  ( id_pmu_csr_rdata  )
 );
 
+`ifdef CPULOG
 // Tracer
 cpu_tracer u_cpu_tracer (
     .clk       ( clk_wfi          ),
@@ -1070,5 +1071,6 @@ cpu_tracer u_cpu_tracer (
     .mcause    ( mem2wb_cause     ),
     .mtval     ( mem2wb_tval      )
 );
+`endif
 
 endmodule
