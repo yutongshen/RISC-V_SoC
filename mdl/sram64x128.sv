@@ -11,7 +11,7 @@ module sram64x128 (
 logic [127:0] data_out_pre;
 logic [127:0] memory [64];
 
-assign data_out_pre = CS ? memory[A] : 128'hz;
+assign data_out_pre = CS ? memory[A] : 128'hx;
 
 always_ff @(posedge CK) begin
     integer i;

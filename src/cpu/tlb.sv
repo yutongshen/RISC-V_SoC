@@ -103,13 +103,13 @@ generate
                 for (i = 0; i < `TLB_DEPTH; i = i + 1) begin
                     valid[g][i]   <= 1'b0;
                     spg_bit[g][i] <= 1'b0;
-                    order[g][i]   <= g;
+                    order[g][i]   <= g[$clog2(`TLB_WAY_NUM)-1:0];
                 end
             end
             else if (tlb_flush_req) begin
                 for (i = 0; i < `TLB_DEPTH; i = i + 1) begin
                     valid[g][i]   <= 1'b0;
-                    order[g][i]   <= g;
+                    order[g][i]   <= g[$clog2(`TLB_WAY_NUM)-1:0];
                 end
             end
             else if (cs && we) begin

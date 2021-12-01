@@ -174,7 +174,8 @@ always_comb begin
             core_busy    = 1'b1;
             m_awvalid    = awvalid_tmp;
             m_wvalid     = wvalid_tmp;
-            data_cs      = hit && core_pa_vld && ~core_pa_bad && ~core_bypass_latch;
+            tag_cs       = 1'b1;
+            data_cs      = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch;
             data_we      = 1'b1;
             data_byte    = {12'b0, {m_wstrb}} << {core_vaddr_latch[3:2], 2'b0};
             data_in      = {4{m_wdata}};

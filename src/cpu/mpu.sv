@@ -40,11 +40,11 @@ generate
         assign mask_tmp = {pmpaddr[g], pmpcfg[g][`PMPCFG_A_BIT] != `PMPCFG_A_NA4};
         assign mask     = {~(mask_tmp & ~(mask_tmp + {`XLEN'b0, 1'b1})), 2'b0};
 
-        assign napot_match = !(({pmpaddr[g][0+:`PADDR_LEN-2], 2'b0} ^ paddr) & mask[0+:`PADDR_LEN]);
-        if (g == 0) begin
+        assign napot_match = ~|(({pmpaddr[g][0+:`PADDR_LEN-2], 2'b0} ^ paddr) & mask[0+:`PADDR_LEN]);
+        if (g == 0) begin: g_first
             assign tor_match = {`PADDR_LEN{1'b0}} <= paddr && paddr < {pmpaddr[g][0+:`PADDR_LEN-2], 2'b0};
         end
-        else begin
+        else begin: g_non_first
             assign tor_match = {pmpaddr[g-1][0+:`PADDR_LEN-2], 2'b0} <= paddr &&
                                paddr < {pmpaddr[g][0+:`PADDR_LEN-2], 2'b0};
         end
@@ -110,11 +110,11 @@ generate
         assign mask_tmp = {pmaaddr[g], pmacfg[g][`PMACFG_A_BIT] != `PMACFG_A_NA4};
         assign mask     = {~(mask_tmp & ~(mask_tmp + {`XLEN'b0, 1'b1})), 2'b0};
 
-        assign napot_match = !(({pmaaddr[g][0+:`PADDR_LEN-2], 2'b0} ^ paddr) & mask[0+:`PADDR_LEN]);
-        if (g == 0) begin
+        assign napot_match = ~|(({pmaaddr[g][0+:`PADDR_LEN-2], 2'b0} ^ paddr) & mask[0+:`PADDR_LEN]);
+        if (g == 0) begin: g_first
             assign tor_match = {`PADDR_LEN{1'b0}} <= paddr && paddr < {pmaaddr[g][0+:`PADDR_LEN-2], 2'b0};
         end
-        else begin
+        else begin: g_non_first
             assign tor_match = {pmaaddr[g-1][0+:`PADDR_LEN-2], 2'b0} <= paddr &&
                                paddr < {pmaaddr[g][0+:`PADDR_LEN-2], 2'b0};
         end

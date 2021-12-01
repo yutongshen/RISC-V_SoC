@@ -115,14 +115,14 @@ generate
 
         for (gvar_j = 0; gvar_j < 10; gvar_j = gvar_j + 1) begin: g_cmp_tree_lvl
             for (gvar_k = 0; gvar_k <= CMP_TREE_NUM[gvar_j] - 1; gvar_k = gvar_k + 2) begin: g_cmp
-                if (gvar_k == CMP_TREE_NUM[gvar_j] - 1) begin
+                if (gvar_k == CMP_TREE_NUM[gvar_j] - 1) begin: g_remainder
                     assign en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k];
                     assign id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
-                    if (gvar_j > 0) begin
+                    if (gvar_j > 0) begin: g_non_first
                         assign id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k][0+:gvar_j];
                     end
                 end
-                else begin
+                else begin: g_cmp
                     always_comb begin
                         if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
                             en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k + 1];
@@ -133,7 +133,7 @@ generate
                             id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
                         end
                     end
-                    if (gvar_j > 0) begin
+                    if (gvar_j > 0) begin: g_non_first
                         always_comb begin
                             if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
                                 id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k+1][0+:gvar_j];
@@ -255,7 +255,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4 && int_id[i]) begin
+            if (~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4 && |int_id[i]) begin
                 if (pwrite) begin
                     int_id   [i] <= 32'b0;
                     claim_id [i] <= 32'b0;
@@ -265,7 +265,7 @@ always_ff @(posedge clk or negedge rstn) begin
                     claim_id [i] <= int_id[i];
                 end
             end
-            else if (int_max_pri[i] > threshold[i] && !claim_id[i]) begin
+            else if (int_max_pri[i] > threshold[i] && ~|claim_id[i]) begin
                 int_id   [i] <= int_id_tmp[i];
                 cmplet_id[i] <= 32'b0;
             end

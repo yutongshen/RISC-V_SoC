@@ -11,7 +11,7 @@ module sram (
 logic [31:0] data_out_pre;
 logic [31:0] memory [16384];
 
-assign data_out_pre = CS ? memory[A] : 32'hz;
+assign data_out_pre = CS ? memory[A] : 32'hx;
 
 always_ff @(posedge CK) begin
     if (CS & WE) begin

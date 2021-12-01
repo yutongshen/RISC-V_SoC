@@ -184,7 +184,7 @@ assign prv_post     = ~access_x && mprv ? mpp : prv;
 assign leaf         = pte_v && (pte_r || pte_x);
 assign pg_fault_pte = !pte_v || (!pte_r && pte_w) ||
                       (~leaf && ~|level) ||
-                      ( leaf && |level && pte_ppn[9:0]) ||
+                      ( leaf && |level && |pte_ppn[9:0]) ||
                       ( leaf && access_x_latch      && ~pte_x) ||
                       ( leaf && access_r_latch      && ~pte_r) ||
                       ( leaf && access_w_latch      && ~pte_w) ||
@@ -348,7 +348,7 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        bus_err <= 22'b0;
+        bus_err <= 1'b0;
     end
     else begin
         bus_err <= m_rvalid && m_rresp[1];
@@ -360,10 +360,10 @@ assign pa_valid = pa_valid_tmp_latch | tlb_data_sel;
 assign pg_fault = pg_fault_pte_latch | (tlb_data_sel & pg_fault_tlb);
 assign pmp_err  = /* tlb_data_sel ? pmp_err_tlb : */pmp_err_pte;
 assign pa       = ({56{pa_valid_tmp_latch}} & pa_latch) |
-                  ({56{tlb_data_sel}}       & {{10{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
+                  ({56{tlb_data_sel}}       & {{22{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]});
 assign pa_bad   = {(bus_err | pmp_err) & ~pg_fault, pg_fault};
 
-assign pa_pre   = va_en ? {{22{pte_ppn[21]}}, pte_ppn[21:10], level ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]} :
+assign pa_pre   = va_en ? {{22{pte_ppn[21]}}, pte_ppn[21:10], |level ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]} :
                           {8'b0, va};
 
 assign va_en    = prv_post < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;

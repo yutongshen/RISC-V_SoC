@@ -372,6 +372,9 @@
   `define SATP_PPN_BIT     0+:`SATP_PPN_WIDTH
   `define SATP_ASID_BIT   22+:`SATP_ASID_WIDTH
   `define SATP_MODE_BIT   31+:`SATP_MODE_WIDTH
+
+  `define MCAUSE_CODE_WIDTH 31
+
 `else
   `define SATP_PPN_WIDTH  44
   `define SATP_ASID_WIDTH 16
@@ -379,6 +382,8 @@
   `define SATP_PPN_BIT     0+:`SATP_PPN_WIDTH
   `define SATP_ASID_BIT   44+:`SATP_ASID_WIDTH
   `define SATP_MODE_BIT   60+:`SATP_MODE_WIDTH
+
+  `define MCAUSE_CODE_WIDTH 63
 `endif
 
 `define PADDR_LEN       (`SATP_PPN_WIDTH + 12)

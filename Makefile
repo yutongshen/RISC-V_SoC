@@ -51,7 +51,7 @@ axi: | ${bld_dir}
 
 verdi: ${bld_dir}
 	@cd $(bld_dir); \
-	verdi -sverilog -f $(root_dir)/$(sim_dir)/$(flist) &
+	verdi -sverilog -f $(root_dir)/$(sim_dir)/$(flist) +define+CPULOG &
 
 verdi_axi: ${bld_dir}
 	@cd $(bld_dir); \

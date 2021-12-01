@@ -10,7 +10,7 @@ module sram32x31 (
 logic [30:0] data_out_pre;
 logic [30:0] memory [32];
 
-assign data_out_pre = CS ? memory[A] : 31'hz;
+assign data_out_pre = CS ? memory[A] : 31'hx;
 
 always_ff @(posedge CK) begin
     integer i;

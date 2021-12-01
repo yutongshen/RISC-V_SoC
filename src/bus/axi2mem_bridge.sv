@@ -56,7 +56,7 @@ logic [  1: 0] nxt_state;
 
 logic          req_latch;
 logic          rsend_latch;
-logic [ 10: 0] id_latch;
+logic [ 11: 0] id_latch;
 logic [  7: 0] cnt;
 logic [ 31: 0] addr_latch;
 logic [ 31: 0] addr_mask_latch;
@@ -205,7 +205,7 @@ end
 
 always_ff @(posedge aclk or negedge aresetn) begin
     if (~aresetn) begin
-        id_latch <= 11'b0;
+        id_latch <= 12'b0;
     end
     else begin
         if (id_upd) begin

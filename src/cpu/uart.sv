@@ -19,6 +19,8 @@ logic [31:0] prdata_t;
 logic [ 7:0] txdata;
 logic [ 7:0] rxdata;
 
+assign rxdata = 8'b0;
+
 always_ff @(posedge pclk or negedge presetn) begin
     if (~presetn) begin
         txdata <= 8'b0;

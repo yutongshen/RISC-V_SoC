@@ -1,5 +1,7 @@
 clear -all
 
+config_rtlds -rule -disable -category { FILEFORMAT }
+config_rtlds -rule -disable -tag { ARY_NR_SLRG }
 # Config rules
 config_rtlds -rule -enable -domain { LINT AUTO_FORMAL }
 config_rtlds -rule -disable -tag { CAS_IS_DFRC SIG_IS_DLCK SIG_NO_TGFL SIG_NO_TGRS SIG_NO_TGST FSM_NO_MTRN FSM_NO_TRRN }

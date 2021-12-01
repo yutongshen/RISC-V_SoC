@@ -281,12 +281,12 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else if (ints_s_mode) begin
         scause_int  <= 1'b1;
-        scause_code <= ints_s_en[`MIP_MEIP_BIT] ? `MIP_MEIP_BIT:
-                       ints_s_en[`MIP_MSIP_BIT] ? `MIP_MSIP_BIT:
-                       ints_s_en[`MIP_MTIP_BIT] ? `MIP_MTIP_BIT:
-                       ints_s_en[`MIP_SEIP_BIT] ? `MIP_SEIP_BIT:
-                       ints_s_en[`MIP_SSIP_BIT] ? `MIP_SSIP_BIT:
-                       ints_s_en[`MIP_STIP_BIT] ? `MIP_STIP_BIT:
+        scause_code <= ints_s_en[`MIP_MEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MEIP_BIT:
+                       ints_s_en[`MIP_MSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MSIP_BIT:
+                       ints_s_en[`MIP_MTIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MTIP_BIT:
+                       ints_s_en[`MIP_SEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SEIP_BIT:
+                       ints_s_en[`MIP_SSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SSIP_BIT:
+                       ints_s_en[`MIP_STIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_STIP_BIT:
                                                   {(`XLEN-1){1'b1}};
     end
     else if (csr_wr && csr_waddr == `CSR_SCAUSE_ADDR) begin
@@ -527,12 +527,12 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else if (ints_m_mode) begin
         mcause_int  <= 1'b1;
-        mcause_code <= ints_m_en[`MIP_MEIP_BIT] ? `MIP_MEIP_BIT:
-                       ints_m_en[`MIP_MSIP_BIT] ? `MIP_MSIP_BIT:
-                       ints_m_en[`MIP_MTIP_BIT] ? `MIP_MTIP_BIT:
-                       ints_m_en[`MIP_SEIP_BIT] ? `MIP_SEIP_BIT:
-                       ints_m_en[`MIP_SSIP_BIT] ? `MIP_SSIP_BIT:
-                       ints_m_en[`MIP_STIP_BIT] ? `MIP_STIP_BIT:
+        mcause_code <= ints_m_en[`MIP_MEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MEIP_BIT:
+                       ints_m_en[`MIP_MSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MSIP_BIT:
+                       ints_m_en[`MIP_MTIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_MTIP_BIT:
+                       ints_m_en[`MIP_SEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SEIP_BIT:
+                       ints_m_en[`MIP_SSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SSIP_BIT:
+                       ints_m_en[`MIP_STIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_STIP_BIT:
                                                   {(`XLEN-1){1'b1}};
     end
     else if (csr_wr && csr_waddr == `CSR_MCAUSE_ADDR) begin

@@ -285,7 +285,7 @@ mpu u_impu (
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
     .pmaaddr  ( pmaaddr     ),
-    .paddr    ( immu_pa     ),
+    .paddr    ( immu_pa[33:0] ),
 
     .pmp_v    ( ipmp_v      ),
     .pmp_l    ( ipmp_l      ),
@@ -307,7 +307,7 @@ mpu u_dmpu (
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
     .pmaaddr  ( pmaaddr     ),
-    .paddr    ( dmmu_pa     ),
+    .paddr    ( dmmu_pa[33:0] ),
 
     .pmp_v    ( dpmp_v      ),
     .pmp_l    ( dpmp_l      ),

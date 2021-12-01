@@ -351,31 +351,33 @@ printf "%4sinteger i;\n\n"                                                 >> ${
 printf "%4sfor (i = 0; i < %d; i = i + 1) begin\n" "" ${slvnum} >> ${fname};
 for item in "${!b_chn_sideband[@]}"; do
     if [ "${item}" == "bid" ]; then
-        printf "%8s%-10s[i] = {%3d{bsel == i}} & %-5s[%3d+:%3d];\n" \
-               "" s_${item} ${b_chn_sideband[${item}]} m_${item} \
-                  $(log2_ceil ${slvnum}) ${b_chn_sideband[${item}]}        >> ${fname};
+        printf "%8s%-10s[i] = {%3d{bsel == i[0+:%3d]}} & %-5s[%3d+:%3d];\n" \
+               "" s_${item} ${b_chn_sideband[${item}]} $(log2_ceil ${slvnum}) \
+               m_${item} $(log2_ceil ${slvnum}) ${b_chn_sideband[${item}]} >> ${fname};
     else
-        printf "%8s%-10s[i] = {%3d{bsel == i}} & %s;\n" \
-               "" s_${item} ${b_chn_sideband[${item}]} m_${item}           >> ${fname};
+        printf "%8s%-10s[i] = {%3d{bsel == i[0+:%3d]}} & %s;\n" \
+               "" s_${item} ${b_chn_sideband[${item}]} $(log2_ceil ${slvnum}) \
+               m_${item}                                                   >> ${fname};
     fi
 done
-printf "%8s%-10s[i] = {%3d{bsel == i}} & %s;\n" \
-       "" s_bvalid 1 m_bvalid                                              >> ${fname};
+printf "%8s%-10s[i] = {%3d{bsel == i[0+:%3d]}} & %s;\n" \
+       "" s_bvalid 1 $(log2_ceil ${slvnum}) m_bvalid                       >> ${fname};
 echo ""                                                                    >> ${fname};
 for item in "${!r_chn_sideband[@]}"; do
     if [ "${item}" == "rid" ]; then
-        printf "%8s%-10s[i] = {%3d{rsel == i}} & %-5s[%3d+:%3d];\n" \
-               "" s_${item} ${r_chn_sideband[${item}]} m_${item} \
-                  $(log2_ceil ${slvnum}) ${r_chn_sideband[${item}]}        >> ${fname};
+        printf "%8s%-10s[i] = {%3d{rsel == i[0+:%3d]}} & %-5s[%3d+:%3d];\n" \
+               "" s_${item} ${r_chn_sideband[${item}]} $(log2_ceil ${slvnum}) \
+               m_${item} $(log2_ceil ${slvnum}) ${r_chn_sideband[${item}]} >> ${fname};
     else
-        printf "%8s%-10s[i] = {%3d{rsel == i}} & %s;\n" \
-               "" s_${item} ${r_chn_sideband[${item}]} m_${item}           >> ${fname};
+        printf "%8s%-10s[i] = {%3d{rsel == i[0+:%3d]}} & %s;\n" \
+               "" s_${item} ${r_chn_sideband[${item}]} $(log2_ceil ${slvnum}) \
+               m_${item}                                                   >> ${fname};
     fi
 done
-printf "%8s%-10s[i] = {%3d{rsel == i}} & %s;\n" \
-       "" s_rlast  1 m_rlast                                               >> ${fname};
-printf "%8s%-10s[i] = {%3d{rsel == i}} & %s;\n" \
-       "" s_rvalid 1 m_rvalid                                              >> ${fname};
+printf "%8s%-10s[i] = {%3d{rsel == i[0+:%3d]}} & %s;\n" \
+       "" s_rlast  1 $(log2_ceil ${slvnum}) m_rlast                        >> ${fname};
+printf "%8s%-10s[i] = {%3d{rsel == i[0+:%3d]}} & %s;\n" \
+       "" s_rvalid 1 $(log2_ceil ${slvnum}) m_rvalid                       >> ${fname};
 printf "%4send\n" >> ${fname};
 printf "end\n\n"                                                           >> ${fname};
 printf "assign %-4s = %-5s[  0+:%3d];\n" bsel m_bid $(log2_ceil ${slvnum}) >> ${fname};

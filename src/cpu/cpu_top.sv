@@ -433,24 +433,24 @@ assign if_pc_alu     = ({`IM_ADDR_LEN{id2exe_jump_alu}}  & exe_alu_out) |
 
 // IF/ID pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-if (~rstn_sync) begin
-    if2id_pc              <= `IM_ADDR_LEN'b0;
-    if2id_inst            <= `IM_DATA_LEN'b0;
-    if2id_inst_valid      <= 1'b0;
-    if2id_inst_misaligned <= 1'b0;
-    if2id_inst_page_fault <= 1'b0;
-    if2id_inst_xes_fault  <= 1'b0;
-end
-else begin
-    if ((~id_stall & ~stall_wfi) | if_flush_force) begin
-        if2id_pc              <= if_pc;
-        if2id_inst            <= if_inst;
-        if2id_inst_valid      <= ~if_flush & if_inst_valid;
-        if2id_inst_misaligned <= if_inst_misaligned;
-        if2id_inst_page_fault <= if_inst_page_fault;
-        if2id_inst_xes_fault  <= if_inst_xes_fault;
+    if (~rstn_sync) begin
+        if2id_pc              <= `IM_ADDR_LEN'b0;
+        if2id_inst            <= `IM_DATA_LEN'b0;
+        if2id_inst_valid      <= 1'b0;
+        if2id_inst_misaligned <= 1'b0;
+        if2id_inst_page_fault <= 1'b0;
+        if2id_inst_xes_fault  <= 1'b0;
     end
-end
+    else begin
+        if ((~id_stall & ~stall_wfi) | if_flush_force) begin
+            if2id_pc              <= if_pc;
+            if2id_inst            <= if_inst;
+            if2id_inst_valid      <= ~if_flush & if_inst_valid;
+            if2id_inst_misaligned <= if_inst_misaligned;
+            if2id_inst_page_fault <= if_inst_page_fault;
+            if2id_inst_xes_fault  <= if_inst_xes_fault;
+        end
+    end
 end
 
 // ID stage
@@ -542,113 +542,114 @@ assign id_hazard = (id_csr_rd &&
 
 // ID/EXE pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-if (~rstn_sync) begin
-    id2exe_pc                  <= `IM_ADDR_LEN'b0;
-    id2exe_inst                <= `IM_DATA_LEN'b0;
-    id2exe_inst_valid          <= 1'b0;
-    id2exe_rd_addr             <= 5'b0;
-    id2exe_rs1_addr            <= 5'b0;
-    id2exe_rs2_addr            <= 5'b0;
-    id2exe_rs1_data            <= `XLEN'b0;
-    id2exe_rs2_data            <= `XLEN'b0;
-    id2exe_csr_waddr           <= 12'b0;
-    id2exe_csr_rdata           <= `XLEN'b0;
-    id2exe_imm                 <= `XLEN'b0;
-    id2exe_alu_op              <= `ALU_OP_LEN'b0;
-    id2exe_rs1_zero_sel        <= 1'b0;
-    id2exe_rs2_imm_sel         <= 1'b0;
-    id2exe_pc_imm_sel          <= 1'b0;
-    id2exe_jump_alu            <= 1'b0;
-    id2exe_branch              <= 1'b0;
-    id2exe_branch_zcmp         <= 1'b0;
-    id2exe_csr_op              <= `CSR_OP_LEN'b0;
-    id2exe_uimm_rs1_sel        <= 1'b0;
-    id2exe_csr_rd              <= 1'b0;
-    id2exe_pmu_csr_wr          <= 1'b0;
-    id2exe_fpu_csr_wr          <= 1'b0;
-    id2exe_dbg_csr_wr          <= 1'b0;
-    id2exe_mpu_csr_wr          <= 1'b0;
-    id2exe_sru_csr_wr          <= 1'b0;
-    id2exe_pc_alu_sel          <= 1'b0;
-    id2exe_csr_alu_sel         <= 1'b0;
-    id2exe_mem_req             <= 1'b0;
-    id2exe_mem_wr              <= 1'b0;
-    id2exe_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
-    id2exe_mem_sign_ext        <= 1'b0;
-    id2exe_mem_cal_sel         <= 1'b0;
-    id2exe_rd_wr               <= 1'b0;
-    id2exe_wfi                 <= 1'b0;
-    id2exe_ecall               <= 1'b0;
-    id2exe_ebreak              <= 1'b0;
-    id2exe_sret                <= 1'b0;
-    id2exe_mret                <= 1'b0;
-    id2exe_ill_inst            <= 1'b0;
-    id2exe_prv_req             <= 2'b0;
-    id2exe_inst_misaligned     <= 1'b0;
-    id2exe_inst_page_fault     <= 1'b0;
-    id2exe_inst_xes_fault      <= 1'b0;
-    id2exe_tlb_flush_req       <= 1'b0;
-    id2exe_tlb_flush_all_vaddr <= 1'b0;
-    id2exe_tlb_flush_all_asid  <= 1'b0;
-    id2exe_fense_i             <= 1'b0;
-end
-else begin
-    if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
-        id2exe_pc                  <= if2id_pc;
-        id2exe_inst                <= if2id_inst;
-        id2exe_inst_valid          <= ~id_flush & if2id_inst_valid;
-        id2exe_rd_addr             <= id_rd_addr;
-        id2exe_rs1_addr            <= id_rs1_addr;
-        id2exe_rs2_addr            <= id_rs2_addr;
-        id2exe_rs1_data            <= id_rs1_data;
-        id2exe_rs2_data            <= id_rs2_data;
-        id2exe_csr_waddr           <= id_csr_addr;
-        id2exe_csr_rdata           <= id_csr_rdata;
-        id2exe_imm                 <= id_imm;
-        id2exe_alu_op              <= id_alu_op;
-        id2exe_rs1_zero_sel        <= id_rs1_zero_sel;
-        id2exe_rs2_imm_sel         <= id_rs2_imm_sel;
-        id2exe_pc_imm_sel          <= id_pc_imm_sel;
-        id2exe_jump_alu            <= id_jump_alu;
-        id2exe_branch              <= id_branch;
-        id2exe_branch_zcmp         <= id_branch_zcmp;
-        id2exe_csr_op              <= id_csr_op;
-        id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
-        id2exe_csr_rd              <= ~id_flush & id_csr_rd;
-        id2exe_pmu_csr_wr          <= ~id_flush & id_pmu_csr_wr;
-        id2exe_fpu_csr_wr          <= ~id_flush & id_fpu_csr_wr;
-        id2exe_dbg_csr_wr          <= ~id_flush & id_dbg_csr_wr;
-        id2exe_mmu_csr_wr          <= ~id_flush & id_mmu_csr_wr;
-        id2exe_mpu_csr_wr          <= ~id_flush & id_mpu_csr_wr;
-        id2exe_sru_csr_wr          <= ~id_flush & id_sru_csr_wr;
-        id2exe_pc_alu_sel          <= id_pc_alu_sel;
-        id2exe_csr_alu_sel         <= id_csr_alu_sel;
-        id2exe_mem_req             <= ~id_flush & id_mem_req;
-        id2exe_mem_wr              <= ~id_flush & id_mem_wr;
-        id2exe_mem_byte            <= id_mem_byte;
-        id2exe_mem_sign_ext        <= id_mem_sign_ext;
-        id2exe_mem_cal_sel         <= id_mem_cal_sel;
-        id2exe_rd_wr               <= ~id_flush & id_rd_wr;
-        id2exe_wfi                 <= ~id_flush & id_wfi;
-        id2exe_ecall               <= ~id_flush & id_ecall;
-        id2exe_ebreak              <= ~id_flush & id_ebreak;
-        id2exe_sret                <= ~id_flush & id_sret;
-        id2exe_mret                <= ~id_flush & id_mret;
-        id2exe_ill_inst            <= ~id_flush & id_ill_inst;
-        id2exe_prv_req             <= id_prv_req;
-        id2exe_inst_misaligned     <= if_pc_jump_en & |if_pc_jump[1];
-        id2exe_inst_page_fault     <= if2id_inst_page_fault;
-        id2exe_inst_xes_fault      <= if2id_inst_xes_fault;
-        id2exe_tlb_flush_req       <= ~id_flush & id_tlb_flush_req;
-        id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
-        id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
-        id2exe_fense_i             <= ~id_flush & id_fense_i;
+    if (~rstn_sync) begin
+        id2exe_pc                  <= `IM_ADDR_LEN'b0;
+        id2exe_inst                <= `IM_DATA_LEN'b0;
+        id2exe_inst_valid          <= 1'b0;
+        id2exe_rd_addr             <= 5'b0;
+        id2exe_rs1_addr            <= 5'b0;
+        id2exe_rs2_addr            <= 5'b0;
+        id2exe_rs1_data            <= `XLEN'b0;
+        id2exe_rs2_data            <= `XLEN'b0;
+        id2exe_csr_waddr           <= 12'b0;
+        id2exe_csr_rdata           <= `XLEN'b0;
+        id2exe_imm                 <= `XLEN'b0;
+        id2exe_alu_op              <= `ALU_OP_LEN'b0;
+        id2exe_rs1_zero_sel        <= 1'b0;
+        id2exe_rs2_imm_sel         <= 1'b0;
+        id2exe_pc_imm_sel          <= 1'b0;
+        id2exe_jump_alu            <= 1'b0;
+        id2exe_branch              <= 1'b0;
+        id2exe_branch_zcmp         <= 1'b0;
+        id2exe_csr_op              <= `CSR_OP_LEN'b0;
+        id2exe_uimm_rs1_sel        <= 1'b0;
+        id2exe_csr_rd              <= 1'b0;
+        id2exe_pmu_csr_wr          <= 1'b0;
+        id2exe_fpu_csr_wr          <= 1'b0;
+        id2exe_dbg_csr_wr          <= 1'b0;
+        id2exe_mmu_csr_wr          <= 1'b0;
+        id2exe_mpu_csr_wr          <= 1'b0;
+        id2exe_sru_csr_wr          <= 1'b0;
+        id2exe_pc_alu_sel          <= 1'b0;
+        id2exe_csr_alu_sel         <= 1'b0;
+        id2exe_mem_req             <= 1'b0;
+        id2exe_mem_wr              <= 1'b0;
+        id2exe_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
+        id2exe_mem_sign_ext        <= 1'b0;
+        id2exe_mem_cal_sel         <= 1'b0;
+        id2exe_rd_wr               <= 1'b0;
+        id2exe_wfi                 <= 1'b0;
+        id2exe_ecall               <= 1'b0;
+        id2exe_ebreak              <= 1'b0;
+        id2exe_sret                <= 1'b0;
+        id2exe_mret                <= 1'b0;
+        id2exe_ill_inst            <= 1'b0;
+        id2exe_prv_req             <= 2'b0;
+        id2exe_inst_misaligned     <= 1'b0;
+        id2exe_inst_page_fault     <= 1'b0;
+        id2exe_inst_xes_fault      <= 1'b0;
+        id2exe_tlb_flush_req       <= 1'b0;
+        id2exe_tlb_flush_all_vaddr <= 1'b0;
+        id2exe_tlb_flush_all_asid  <= 1'b0;
+        id2exe_fense_i             <= 1'b0;
     end
     else begin
-        id2exe_rs1_data            <= exe_rs1_data;
-        id2exe_rs2_data            <= exe_rs2_data;
+        if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
+            id2exe_pc                  <= if2id_pc;
+            id2exe_inst                <= if2id_inst;
+            id2exe_inst_valid          <= ~id_flush & if2id_inst_valid;
+            id2exe_rd_addr             <= id_rd_addr;
+            id2exe_rs1_addr            <= id_rs1_addr;
+            id2exe_rs2_addr            <= id_rs2_addr;
+            id2exe_rs1_data            <= id_rs1_data;
+            id2exe_rs2_data            <= id_rs2_data;
+            id2exe_csr_waddr           <= id_csr_addr;
+            id2exe_csr_rdata           <= id_csr_rdata;
+            id2exe_imm                 <= id_imm;
+            id2exe_alu_op              <= id_alu_op;
+            id2exe_rs1_zero_sel        <= id_rs1_zero_sel;
+            id2exe_rs2_imm_sel         <= id_rs2_imm_sel;
+            id2exe_pc_imm_sel          <= id_pc_imm_sel;
+            id2exe_jump_alu            <= id_jump_alu;
+            id2exe_branch              <= id_branch;
+            id2exe_branch_zcmp         <= id_branch_zcmp;
+            id2exe_csr_op              <= id_csr_op;
+            id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
+            id2exe_csr_rd              <= ~id_flush & id_csr_rd;
+            id2exe_pmu_csr_wr          <= ~id_flush & id_pmu_csr_wr;
+            id2exe_fpu_csr_wr          <= ~id_flush & id_fpu_csr_wr;
+            id2exe_dbg_csr_wr          <= ~id_flush & id_dbg_csr_wr;
+            id2exe_mmu_csr_wr          <= ~id_flush & id_mmu_csr_wr;
+            id2exe_mpu_csr_wr          <= ~id_flush & id_mpu_csr_wr;
+            id2exe_sru_csr_wr          <= ~id_flush & id_sru_csr_wr;
+            id2exe_pc_alu_sel          <= id_pc_alu_sel;
+            id2exe_csr_alu_sel         <= id_csr_alu_sel;
+            id2exe_mem_req             <= ~id_flush & id_mem_req;
+            id2exe_mem_wr              <= ~id_flush & id_mem_wr;
+            id2exe_mem_byte            <= id_mem_byte;
+            id2exe_mem_sign_ext        <= id_mem_sign_ext;
+            id2exe_mem_cal_sel         <= id_mem_cal_sel;
+            id2exe_rd_wr               <= ~id_flush & id_rd_wr;
+            id2exe_wfi                 <= ~id_flush & id_wfi;
+            id2exe_ecall               <= ~id_flush & id_ecall;
+            id2exe_ebreak              <= ~id_flush & id_ebreak;
+            id2exe_sret                <= ~id_flush & id_sret;
+            id2exe_mret                <= ~id_flush & id_mret;
+            id2exe_ill_inst            <= ~id_flush & id_ill_inst;
+            id2exe_prv_req             <= id_prv_req;
+            id2exe_inst_misaligned     <= if_pc_jump_en & |if_pc_jump[1];
+            id2exe_inst_page_fault     <= if2id_inst_page_fault;
+            id2exe_inst_xes_fault      <= if2id_inst_xes_fault;
+            id2exe_tlb_flush_req       <= ~id_flush & id_tlb_flush_req;
+            id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
+            id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
+            id2exe_fense_i             <= ~id_flush & id_fense_i;
+        end
+        else begin
+            id2exe_rs1_data            <= exe_rs1_data;
+            id2exe_rs2_data            <= exe_rs2_data;
+        end
     end
-end
 end
 
 // EXE stage
@@ -779,9 +780,9 @@ mpu_csr u_mpu_csr (
 assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) &
                       ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
 assign exe_inst_misaligned         = id2exe_inst_misaligned | (if_pc_alu_en & |if_pc_alu[1]);
-assign exe_inst_misaligned_badaddr = {id2exe_inst_misaligned ? (id2exe_imm[`XLEN-1:1] + id2exe_pc[`XLEN-1:1]):
-                                                               if_pc_alu[`XLEN-1:1]
-                                      , 1'b0};
+assign exe_inst_misaligned_badaddr[`XLEN-1:1] = id2exe_inst_misaligned ? (id2exe_imm[`XLEN-1:1] + id2exe_pc[`XLEN-1:1]):
+                                                                          if_pc_alu[`XLEN-1:1];
+assign exe_inst_misaligned_badaddr[0]         = 1'b0;
 
 tpu u_tpu (
     .inst_valid       ( id2exe_inst_valid & ~exe_stall & ~stall_wfi),
@@ -831,86 +832,86 @@ end
 
 // EXE/MEM pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-if (~rstn_sync) begin
-    exe2mem_pc                  <= `IM_ADDR_LEN'b0;
-    exe2mem_inst                <= `IM_DATA_LEN'b0;
-    exe2mem_inst_valid          <= 1'b0;
-    exe2mem_mem_req             <= 1'b0;
-    exe2mem_mem_wr              <= 1'b0;
-    exe2mem_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
-    exe2mem_mem_sign_ext        <= 1'b0;
-    exe2mem_pc_alu_sel          <= 1'b0;
-    exe2mem_csr_rdata           <= `XLEN'b0;
-    exe2mem_csr_alu_sel         <= 1'b0;
-    exe2mem_mem_cal_sel         <= 1'b0;
-    exe2mem_rd_wr               <= 1'b0;
-    exe2mem_rd_addr             <= 5'b0;
-    exe2mem_rs1_addr            <= 5'b0;
-    exe2mem_rs2_addr            <= 5'b0;
-    exe2mem_alu_out             <= `XLEN'b0;
-    exe2mem_pc2rd               <= `XLEN'b0;
-    exe2mem_rs1_data            <= `XLEN'b0;
-    exe2mem_rs2_data            <= `XLEN'b0;
-    exe2mem_csr_wr              <= 1'b0;
-    exe2mem_csr_waddr           <= 12'b0;
-    exe2mem_csr_wdata           <= `XLEN'b0;
-    exe2mem_wfi                 <= 1'b0;
-    exe2mem_prv                 <= 2'b0;
-    exe2mem_trap_en             <= 1'b0;
-    exe2mem_cause               <= `XLEN'b0;
-    exe2mem_tval                <= `XLEN'b0;
-    exe2mem_epc                 <= `IM_DATA_LEN'b0;
-    exe2mem_tlb_flush_req       <= 1'b0;
-    exe2mem_tlb_flush_all_vaddr <= 1'b0;
-    exe2mem_tlb_flush_all_asid  <= 1'b0;
-    exe2mem_fense_i             <= 1'b0;
-end
-else begin
-    if (~mem_stall | exe_flush_force) begin
-        exe2mem_pc                  <= id2exe_pc;
-        exe2mem_inst                <= id2exe_inst;
-        exe2mem_inst_valid          <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
-        exe2mem_mem_req             <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
-        exe2mem_mem_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
-        exe2mem_mem_byte            <= id2exe_mem_byte;
-        exe2mem_mem_sign_ext        <= id2exe_mem_sign_ext;
-        exe2mem_pc_alu_sel          <= id2exe_pc_alu_sel;
-        exe2mem_csr_rdata           <= id2exe_csr_rdata;
-        exe2mem_csr_alu_sel         <= id2exe_csr_alu_sel;
-        exe2mem_mem_cal_sel         <= id2exe_mem_cal_sel;
-        exe2mem_rd_wr               <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
-        exe2mem_rd_addr             <= id2exe_rd_addr;
-        exe2mem_rs1_addr            <= id2exe_rs1_addr;
-        exe2mem_rs2_addr            <= id2exe_rs2_addr;
-        exe2mem_alu_out             <= exe_alu_out;
-        exe2mem_pc2rd               <= exe_pc2rd;
-        exe2mem_rs1_data            <= exe_rs1_data;
-        exe2mem_rs2_data            <= exe_rs2_data;
-        exe2mem_csr_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) &
-                                       (exe_pmu_csr_wr|
-                                        exe_fpu_csr_wr|
-                                        exe_dbg_csr_wr|
-                                        exe_mmu_csr_wr|
-                                        exe_mpu_csr_wr|
-                                        exe_sru_csr_wr);
-        exe2mem_csr_waddr           <= id2exe_csr_waddr;
-        exe2mem_csr_wdata           <= exe_csr_wdata;
-        exe2mem_wfi                 <= ~exe_flush & ~exe_irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
-        exe2mem_prv                 <= exe_prv;
-        exe2mem_trap_en             <= exe_irq_en | exe_trap_en;
-        exe2mem_cause               <= exe_cause;
-        exe2mem_tval                <= exe_tval;
-        exe2mem_epc                 <= exe_trap_epc;
-        exe2mem_tlb_flush_req       <= ~exe_flush & id2exe_tlb_flush_req;
-        exe2mem_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
-        exe2mem_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
-        exe2mem_fense_i             <= ~exe_flush & id2exe_fense_i;
+    if (~rstn_sync) begin
+        exe2mem_pc                  <= `IM_ADDR_LEN'b0;
+        exe2mem_inst                <= `IM_DATA_LEN'b0;
+        exe2mem_inst_valid          <= 1'b0;
+        exe2mem_mem_req             <= 1'b0;
+        exe2mem_mem_wr              <= 1'b0;
+        exe2mem_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
+        exe2mem_mem_sign_ext        <= 1'b0;
+        exe2mem_pc_alu_sel          <= 1'b0;
+        exe2mem_csr_rdata           <= `XLEN'b0;
+        exe2mem_csr_alu_sel         <= 1'b0;
+        exe2mem_mem_cal_sel         <= 1'b0;
+        exe2mem_rd_wr               <= 1'b0;
+        exe2mem_rd_addr             <= 5'b0;
+        exe2mem_rs1_addr            <= 5'b0;
+        exe2mem_rs2_addr            <= 5'b0;
+        exe2mem_alu_out             <= `XLEN'b0;
+        exe2mem_pc2rd               <= `XLEN'b0;
+        exe2mem_rs1_data            <= `XLEN'b0;
+        exe2mem_rs2_data            <= `XLEN'b0;
+        exe2mem_csr_wr              <= 1'b0;
+        exe2mem_csr_waddr           <= 12'b0;
+        exe2mem_csr_wdata           <= `XLEN'b0;
+        exe2mem_wfi                 <= 1'b0;
+        exe2mem_prv                 <= 2'b0;
+        exe2mem_trap_en             <= 1'b0;
+        exe2mem_cause               <= `XLEN'b0;
+        exe2mem_tval                <= `XLEN'b0;
+        exe2mem_epc                 <= `IM_DATA_LEN'b0;
+        exe2mem_tlb_flush_req       <= 1'b0;
+        exe2mem_tlb_flush_all_vaddr <= 1'b0;
+        exe2mem_tlb_flush_all_asid  <= 1'b0;
+        exe2mem_fense_i             <= 1'b0;
     end
     else begin
-        exe2mem_rs1_data     <= mem_rs1_data;
-        exe2mem_rs2_data     <= mem_dpu_wdata;
+        if (~mem_stall | exe_flush_force) begin
+            exe2mem_pc                  <= id2exe_pc;
+            exe2mem_inst                <= id2exe_inst;
+            exe2mem_inst_valid          <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
+            exe2mem_mem_req             <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
+            exe2mem_mem_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
+            exe2mem_mem_byte            <= id2exe_mem_byte;
+            exe2mem_mem_sign_ext        <= id2exe_mem_sign_ext;
+            exe2mem_pc_alu_sel          <= id2exe_pc_alu_sel;
+            exe2mem_csr_rdata           <= id2exe_csr_rdata;
+            exe2mem_csr_alu_sel         <= id2exe_csr_alu_sel;
+            exe2mem_mem_cal_sel         <= id2exe_mem_cal_sel;
+            exe2mem_rd_wr               <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
+            exe2mem_rd_addr             <= id2exe_rd_addr;
+            exe2mem_rs1_addr            <= id2exe_rs1_addr;
+            exe2mem_rs2_addr            <= id2exe_rs2_addr;
+            exe2mem_alu_out             <= exe_alu_out;
+            exe2mem_pc2rd               <= exe_pc2rd;
+            exe2mem_rs1_data            <= exe_rs1_data;
+            exe2mem_rs2_data            <= exe_rs2_data;
+            exe2mem_csr_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2mem_wfi | mem2wb_wfi) & ~wakeup_event) &
+                                           (exe_pmu_csr_wr|
+                                            exe_fpu_csr_wr|
+                                            exe_dbg_csr_wr|
+                                            exe_mmu_csr_wr|
+                                            exe_mpu_csr_wr|
+                                            exe_sru_csr_wr);
+            exe2mem_csr_waddr           <= id2exe_csr_waddr;
+            exe2mem_csr_wdata           <= exe_csr_wdata;
+            exe2mem_wfi                 <= ~exe_flush & ~exe_irq_en & ~exe2mem_wfi & ~wakeup_event & id2exe_wfi;
+            exe2mem_prv                 <= exe_prv;
+            exe2mem_trap_en             <= exe_irq_en | exe_trap_en;
+            exe2mem_cause               <= exe_cause;
+            exe2mem_tval                <= exe_tval;
+            exe2mem_epc                 <= exe_trap_epc;
+            exe2mem_tlb_flush_req       <= ~exe_flush & id2exe_tlb_flush_req;
+            exe2mem_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
+            exe2mem_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
+            exe2mem_fense_i             <= ~exe_flush & id2exe_fense_i;
+        end
+        else begin
+            exe2mem_rs1_data     <= mem_rs1_data;
+            exe2mem_rs2_data     <= mem_dpu_wdata;
+        end
     end
-end
 end
 
 // MEM stage
@@ -974,56 +975,56 @@ assign mem_rd_data = exe2mem_pc_alu_sel  ? exe2mem_pc2rd :
 
 // MEM/WB pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-if (~rstn_sync) begin
-    mem2wb_pc           <= `IM_ADDR_LEN'b0;
-    mem2wb_inst         <= `IM_DATA_LEN'b0;
-    mem2wb_inst_valid   <= 1'b0;
-    mem2wb_rd_wr        <= 1'b0;
-    mem2wb_rd_addr      <= 5'b0;
-    mem2wb_mem_byte     <= {(`DM_DATA_LEN >> 3){1'b0}};
-    mem2wb_mem_sign_ext <= 1'b0;
-    mem2wb_mem_cal_sel  <= 1'b0;
-    mem2wb_rd_data      <= `XLEN'b0;
-    mem2wb_mem_addr     <= `DM_ADDR_LEN'b0;
-    mem2wb_mem_wdata    <= `DM_DATA_LEN'b0;
-    mem2wb_mem_req      <= 1'b0;
-    mem2wb_mem_wr       <= 1'b0;
-    mem2wb_csr_wr       <= 1'b0;
-    mem2wb_csr_waddr    <= 12'b0;
-    mem2wb_csr_wdata    <= `XLEN'b0;
-    mem2wb_wfi          <= 1'b0;
-    mem2wb_prv          <= 2'b0;
-    mem2wb_trap_en      <= 1'b0;
-    mem2wb_cause        <= `XLEN'b0;
-    mem2wb_tval         <= `XLEN'b0;
-    mem2wb_epc          <= `IM_ADDR_LEN'b0;;
-end
-else begin
-    if (~wb_stall | mem_flush_force) begin
-        mem2wb_pc           <= exe2mem_pc;
-        mem2wb_inst         <= exe2mem_inst;
-        mem2wb_inst_valid   <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_inst_valid;
-        mem2wb_rd_wr        <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_rd_wr;
-        mem2wb_rd_addr      <= exe2mem_rd_addr;
-        mem2wb_mem_byte     <= dmem_strb;
-        mem2wb_mem_sign_ext <= exe2mem_mem_sign_ext;
-        mem2wb_mem_cal_sel  <= exe2mem_mem_cal_sel;
-        mem2wb_rd_data      <= mem_rd_data;
-        mem2wb_mem_addr     <= mem_dpu_addr;
-        mem2wb_mem_wdata    <= dmem_wdata;
-        mem2wb_mem_req      <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_req;
-        mem2wb_mem_wr       <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_wr;
-        mem2wb_csr_wr       <= exe2mem_csr_wr;
-        mem2wb_csr_waddr    <= exe2mem_csr_waddr;
-        mem2wb_csr_wdata    <= exe2mem_csr_wdata;
-        mem2wb_wfi          <= ~mem_flush & ~mem2wb_wfi & ~wakeup_event & exe2mem_wfi;
-        mem2wb_prv          <= exe2mem_prv;
-        mem2wb_trap_en      <= exe2mem_trap_en;
-        mem2wb_cause        <= exe2mem_cause;
-        mem2wb_tval         <= exe2mem_tval;
-        mem2wb_epc          <= exe2mem_epc;
+    if (~rstn_sync) begin
+        mem2wb_pc           <= `IM_ADDR_LEN'b0;
+        mem2wb_inst         <= `IM_DATA_LEN'b0;
+        mem2wb_inst_valid   <= 1'b0;
+        mem2wb_rd_wr        <= 1'b0;
+        mem2wb_rd_addr      <= 5'b0;
+        mem2wb_mem_byte     <= {(`DM_DATA_LEN >> 3){1'b0}};
+        mem2wb_mem_sign_ext <= 1'b0;
+        mem2wb_mem_cal_sel  <= 1'b0;
+        mem2wb_rd_data      <= `XLEN'b0;
+        mem2wb_mem_addr     <= `DM_ADDR_LEN'b0;
+        mem2wb_mem_wdata    <= `DM_DATA_LEN'b0;
+        mem2wb_mem_req      <= 1'b0;
+        mem2wb_mem_wr       <= 1'b0;
+        mem2wb_csr_wr       <= 1'b0;
+        mem2wb_csr_waddr    <= 12'b0;
+        mem2wb_csr_wdata    <= `XLEN'b0;
+        mem2wb_wfi          <= 1'b0;
+        mem2wb_prv          <= 2'b0;
+        mem2wb_trap_en      <= 1'b0;
+        mem2wb_cause        <= `XLEN'b0;
+        mem2wb_tval         <= `XLEN'b0;
+        mem2wb_epc          <= `IM_ADDR_LEN'b0;;
     end
-end
+    else begin
+        if (~wb_stall | mem_flush_force) begin
+            mem2wb_pc           <= exe2mem_pc;
+            mem2wb_inst         <= exe2mem_inst;
+            mem2wb_inst_valid   <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_inst_valid;
+            mem2wb_rd_wr        <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_rd_wr;
+            mem2wb_rd_addr      <= exe2mem_rd_addr;
+            mem2wb_mem_byte     <= dmem_strb;
+            mem2wb_mem_sign_ext <= exe2mem_mem_sign_ext;
+            mem2wb_mem_cal_sel  <= exe2mem_mem_cal_sel;
+            mem2wb_rd_data      <= mem_rd_data;
+            mem2wb_mem_addr     <= mem_dpu_addr;
+            mem2wb_mem_wdata    <= dmem_wdata;
+            mem2wb_mem_req      <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_req;
+            mem2wb_mem_wr       <= ~mem_flush & ~(mem2wb_wfi & ~wakeup_event) & exe2mem_mem_wr;
+            mem2wb_csr_wr       <= exe2mem_csr_wr;
+            mem2wb_csr_waddr    <= exe2mem_csr_waddr;
+            mem2wb_csr_wdata    <= exe2mem_csr_wdata;
+            mem2wb_wfi          <= ~mem_flush & ~mem2wb_wfi & ~wakeup_event & exe2mem_wfi;
+            mem2wb_prv          <= exe2mem_prv;
+            mem2wb_trap_en      <= exe2mem_trap_en;
+            mem2wb_cause        <= exe2mem_cause;
+            mem2wb_tval         <= exe2mem_tval;
+            mem2wb_epc          <= exe2mem_epc;
+        end
+    end
 end
 
 // WB stage
