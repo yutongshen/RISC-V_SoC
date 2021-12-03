@@ -51,24 +51,45 @@ module idu (
     output logic                             tlb_flush_all_asid,
     // WB stage
     output logic                             mem_cal_sel,
-    output logic                             rd_wr_o
+    output logic                             rd_wr_o,
+    
+    input                                    halted,
+    input        [                     11:0] dbg_addr,
+    input        [                     31:0] dbg_wdata,
+    input                                    dbg_gpr_rd,
+    input                                    dbg_gpr_wr,
+    output logic [                     31:0] dbg_gpr_out,
+    input                                    dbg_csr_rd,
+    input                                    dbg_csr_wr
 );
+
+logic csr_rd_tmp;
+logic csr_wr_tmp;
 
 assign rd_addr_o = inst[11: 7];
 assign rs1_addr  = inst[19:15];
 assign rs2_addr  = inst[24:20];
-assign csr_addr  = inst[31:20];
+assign csr_addr  = (halted && (dbg_csr_rd || dbg_csr_wr)) ? dbg_addr : inst[31:20];
+
+assign csr_rd    = csr_rd_tmp || (halted && dbg_csr_rd);
+assign csr_wr    = csr_wr_tmp || (halted && dbg_csr_wr);
 
 rfu u_rfu (
-    .clk      ( ~clk      ),
-    .rstn     ( rstn      ),
-    .rs1_addr ( rs1_addr  ),
-    .rs2_addr ( rs2_addr  ),
-    .rs1_data ( rs1_data  ),
-    .rs2_data ( rs2_data  ),
-    .wen      ( rd_wr_i   ),
-    .rd_addr  ( rd_addr_i ),
-    .rd_data  ( rd_data   )
+    .clk          ( ~clk          ),
+    .rstn         ( rstn          ),
+    .rs1_addr     ( rs1_addr      ),
+    .rs2_addr     ( rs2_addr      ),
+    .rs1_data     ( rs1_data      ),
+    .rs2_data     ( rs2_data      ),
+    .wen          ( rd_wr_i       ),
+    .rd_addr      ( rd_addr_i     ),
+    .rd_data      ( rd_data       ),
+    .halted       ( halted        ),
+    .dbg_gpr_addr ( dbg_addr[4:0] ),
+    .dbg_gpr_in   ( dbg_wdata     ),
+    .dbg_gpr_rd   ( dbg_gpr_rd    ),
+    .dbg_gpr_wr   ( dbg_gpr_wr    ),
+    .dbg_gpr_out  ( dbg_gpr_out   )
 );
 
 dec u_dec (
@@ -97,8 +118,8 @@ dec u_dec (
     .branch_zcmp         ( branch_zcmp         ),
     .csr_op              ( csr_op              ),
     .uimm_rs1_sel        ( uimm_rs1_sel        ),
-    .csr_rd              ( csr_rd              ),
-    .csr_wr              ( csr_wr              ),
+    .csr_rd              ( csr_rd_tmp          ),
+    .csr_wr              ( csr_wr_tmp          ),
     // MEM stage
     .pc_alu_sel          ( pc_alu_sel          ),
     .csr_alu_sel         ( csr_alu_sel         ),

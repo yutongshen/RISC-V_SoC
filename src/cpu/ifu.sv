@@ -23,7 +23,10 @@ module ifu (
     output logic                      page_fault,
     output logic                      xes_fault,
     input                             flush,
-    input                             stall
+    input                             stall,
+    input                             attach,
+    input                             dbg_exec,
+    input        [`IM_ADDR_LEN - 1:0] dbg_inst
 );
 
 logic                      jump;
@@ -45,7 +48,9 @@ assign jump_addr = pl_restart_en ? pl_restart:
                    irq_en        ? irq_vec:
                    pc_alu_en     ? pc_alu:
                                    pc_jump;
-assign pc_nxt    = jump ? jump_addr : (pc_d1 + `IM_ADDR_LEN'h4);
+assign pc_nxt    = jump   ? jump_addr:
+                   attach ? pc:
+                            (pc_d1 + `IM_ADDR_LEN'h4);
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -128,8 +133,12 @@ assign imem_addr      = pc_d1;
 assign imem_req_tmp   = ~imem_busy & ~jump & (inst_valid | ~imem_req_latch);
 assign imem_req       = imem_req_tmp & ~misaligned_tmp;
 
-assign inst_valid = ((imem_req_latch & ~imem_busy) | inst_latch_valid | misaligned) & ~stall & ~jump;
-assign inst       = inst_latch_valid ? inst_latch: 
+assign inst_valid = attach ? dbg_exec :
+                            ((imem_req_latch & ~imem_busy) | inst_latch_valid | misaligned) &
+                            ~stall & ~jump;
+
+assign inst       = attach           ? dbg_inst:
+                    inst_latch_valid ? inst_latch: 
                     ~imem_busy       ? imem_rdata:
                                        `IM_DATA_LEN'b0;
 assign {xes_fault, page_fault} = inst_latch_valid ? bad_latch: 

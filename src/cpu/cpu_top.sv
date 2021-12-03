@@ -48,7 +48,22 @@ module cpu_top (
     output logic [       `IM_DATA_LEN - 1:0] dmem_wdata,
     input        [       `IM_DATA_LEN - 1:0] dmem_rdata,
     input        [                      1:0] dmem_bad,
-    input                                    dmem_busy
+    input                                    dmem_busy,
+
+    // debug intface
+    input        [                     11:0] dbg_addr,
+    input        [                     31:0] dbg_wdata,
+    input                                    dbg_gpr_rd,
+    input                                    dbg_gpr_wr,
+    output logic [                     31:0] dbg_gpr_out,
+    input                                    dbg_csr_rd,
+    input                                    dbg_csr_wr,
+    output logic [                     31:0] dbg_csr_out,
+    output logic [       `IM_ADDR_LEN - 1:0] dbg_pc_out,
+    input                                    dbg_exec,
+    input        [       `IM_ADDR_LEN - 1:0] dbg_inst,
+    input                                    attach,
+    output logic                             halted
 );
 
 logic                             rstn_sync;
@@ -95,6 +110,7 @@ logic                             if2id_inst_misaligned;
 logic                             if2id_inst_page_fault;
 logic                             if2id_inst_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
+logic                             if2id_attach;
 
 // ID stage
 logic [                      4:0] id_rd_addr;
@@ -208,6 +224,9 @@ logic                             id2exe_tlb_flush_req;
 logic                             id2exe_tlb_flush_all_vaddr;
 logic                             id2exe_tlb_flush_all_asid;
 logic                             id2exe_fense_i;
+logic                             id2exe_attach;
+logic                             id2exe_ext_csr_wr;
+logic [              `XLEN - 1:0] id2exe_ext_csr_wdata;
 
 // EXE stage
 logic                             exe_alu_zero;
@@ -282,6 +301,7 @@ logic                             exe2mem_tlb_flush_req;
 logic                             exe2mem_tlb_flush_all_vaddr;
 logic                             exe2mem_tlb_flush_all_asid;
 logic                             exe2mem_fense_i;
+logic                             exe2mem_attach;
 
 // MEM stage
 logic [              `XLEN - 1:0] mem_rd_data;
@@ -330,6 +350,7 @@ logic                             mem2wb_trap_en;
 logic [              `XLEN - 1:0] mem2wb_cause;
 logic [              `XLEN - 1:0] mem2wb_tval;
 logic [       `IM_ADDR_LEN - 1:0] mem2wb_epc;
+logic                             mem2wb_attach;
 
 // WB stage
 logic [              `XLEN - 1:0] wb_rd_data;
@@ -420,7 +441,10 @@ ifu u_ifu (
     .page_fault    ( if_inst_page_fault           ),
     .xes_fault     ( if_inst_xes_fault            ),
     .flush         ( if_flush                     ),
-    .stall         ( if_stall | stall_wfi | sleep )
+    .stall         ( if_stall | stall_wfi | sleep ),
+    .attach        ( attach                       ),
+    .dbg_exec      ( dbg_exec                     ),
+    .dbg_inst      ( dbg_inst                     )
 );
 
 assign exe_branch_match = id2exe_branch & (id2exe_branch_zcmp == exe_alu_zero);
@@ -440,6 +464,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if2id_inst_misaligned <= 1'b0;
         if2id_inst_page_fault <= 1'b0;
         if2id_inst_xes_fault  <= 1'b0;
+        if2id_attach          <= 1'b0;
     end
     else begin
         if ((~id_stall & ~stall_wfi) | if_flush_force) begin
@@ -449,6 +474,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             if2id_inst_misaligned <= if_inst_misaligned;
             if2id_inst_page_fault <= if_inst_page_fault;
             if2id_inst_xes_fault  <= if_inst_xes_fault;
+            if2id_attach          <= attach;
         end
     end
 end
@@ -505,7 +531,16 @@ idu u_idu (
     .tlb_flush_all_asid  ( id_tlb_flush_all_asid  ),
     // For WB stage
     .mem_cal_sel         ( id_mem_cal_sel         ),
-    .rd_wr_o             ( id_rd_wr               )
+    .rd_wr_o             ( id_rd_wr               ),
+
+    .halted              ( halted                 ),
+    .dbg_addr            ( dbg_addr               ),
+    .dbg_wdata           ( dbg_wdata              ),
+    .dbg_gpr_rd          ( dbg_gpr_rd             ),
+    .dbg_gpr_wr          ( dbg_gpr_wr             ),
+    .dbg_gpr_out         ( dbg_gpr_out            ),
+    .dbg_csr_rd          ( dbg_csr_rd             ),
+    .dbg_csr_wr          ( dbg_csr_wr             )
 );
 
 assign id_fpu_csr_rdata = `XLEN'b0;
@@ -531,6 +566,8 @@ csr u_csr (
     .mpu_csr_rdata ( id_mpu_csr_rdata ),
     .sru_csr_rdata ( id_sru_csr_rdata )
 );
+
+assign dbg_csr_out = id_csr_rdata;
 
 // ID Hazard
 assign id_hazard = (id_csr_rd &&
@@ -592,6 +629,9 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         id2exe_tlb_flush_all_vaddr <= 1'b0;
         id2exe_tlb_flush_all_asid  <= 1'b0;
         id2exe_fense_i             <= 1'b0;
+        id2exe_attach              <= 1'b0;
+        id2exe_ext_csr_wr          <= 1'b0;
+        id2exe_ext_csr_wdata       <= 32'b0;
     end
     else begin
         if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
@@ -644,6 +684,9 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
             id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
             id2exe_fense_i             <= ~id_flush & id_fense_i;
+            id2exe_attach              <= if2id_attach;
+            id2exe_ext_csr_wr          <= dbg_csr_wr;
+            id2exe_ext_csr_wdata       <= dbg_wdata;
         end
         else begin
             id2exe_rs1_data            <= exe_rs1_data;
@@ -822,12 +865,17 @@ assign satp_mode   = exe_satp_mode;
 assign prv         = exe_prv;
 
 always_comb begin
-    exe_csr_wdata = `XLEN'b0;
-    case (id2exe_csr_op)
-        CSR_OP_NONE: exe_csr_wdata = exe_csr_src1;
-        CSR_OP_SET : exe_csr_wdata = exe_csr_src2 |  exe_csr_src1;
-        CSR_OP_CLR : exe_csr_wdata = exe_csr_src2 & ~exe_csr_src1;
-    endcase
+    if (id2exe_ext_csr_wr) begin
+        exe_csr_wdata = id2exe_ext_csr_wdata;
+    end
+    else begin
+        exe_csr_wdata = `XLEN'b0;
+        case (id2exe_csr_op)
+            CSR_OP_NONE: exe_csr_wdata = exe_csr_src1;
+            CSR_OP_SET : exe_csr_wdata = exe_csr_src2 |  exe_csr_src1;
+            CSR_OP_CLR : exe_csr_wdata = exe_csr_src2 & ~exe_csr_src1;
+        endcase
+    end
 end
 
 // EXE/MEM pipeline
@@ -865,6 +913,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         exe2mem_tlb_flush_all_vaddr <= 1'b0;
         exe2mem_tlb_flush_all_asid  <= 1'b0;
         exe2mem_fense_i             <= 1'b0;
+        exe2mem_attach              <= 1'b0;
     end
     else begin
         if (~mem_stall | exe_flush_force) begin
@@ -906,6 +955,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             exe2mem_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
             exe2mem_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
             exe2mem_fense_i             <= ~exe_flush & id2exe_fense_i;
+            exe2mem_attach              <= id2exe_attach;
         end
         else begin
             exe2mem_rs1_data     <= mem_rs1_data;
@@ -997,7 +1047,8 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         mem2wb_trap_en      <= 1'b0;
         mem2wb_cause        <= `XLEN'b0;
         mem2wb_tval         <= `XLEN'b0;
-        mem2wb_epc          <= `IM_ADDR_LEN'b0;;
+        mem2wb_epc          <= `IM_ADDR_LEN'b0;
+        mem2wb_attach       <= 1'b0;
     end
     else begin
         if (~wb_stall | mem_flush_force) begin
@@ -1023,6 +1074,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             mem2wb_cause        <= exe2mem_cause;
             mem2wb_tval         <= exe2mem_tval;
             mem2wb_epc          <= exe2mem_epc;
+            mem2wb_attach       <= exe2mem_attach;
         end
     end
 end
@@ -1032,6 +1084,9 @@ assign wb_rd_data    = mem2wb_mem_cal_sel ?  mem_dpu_rdata : mem2wb_rd_data;
 assign wb_rd_wr      = ~wb_flush & mem2wb_rd_wr;
 assign wb_inst_valid = ~wb_flush & mem2wb_inst_valid;
 assign wb_wfi        = ~wb_flush /*& ~wakeup_event*/ & mem2wb_wfi;
+
+assign dbg_pc_out    = mem2wb_pc;
+assign halted        = mem2wb_attach;
 
 // PMU
 pmu u_pmu (
@@ -1070,7 +1125,8 @@ cpu_tracer u_cpu_tracer (
     .mem_wdata ( mem2wb_mem_wdata ),
     .trap_en   ( mem2wb_trap_en   ),
     .mcause    ( mem2wb_cause     ),
-    .mtval     ( mem2wb_tval      )
+    .mtval     ( mem2wb_tval      ),
+    .halted    ( halted           )
 );
 `endif
 

@@ -25,7 +25,7 @@ always_ff @(posedge pclk or negedge presetn) begin
     if (~presetn) begin
         txdata <= 8'b0;
     end
-    else if (penable & psel && paddr[11:0] == 12'b0) begin
+    else if (~penable && psel && pwrite && paddr[11:0] == 12'b0) begin
         $write("%c", pwdata[7:0]);
         txdata <= pwdata[7:0];
     end

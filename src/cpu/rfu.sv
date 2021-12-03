@@ -1,26 +1,39 @@
 module rfu (
-    input                clk,
-    input                rstn,
-    input  [        4:0] rs1_addr,
-    input  [        4:0] rs2_addr,
-    output [`XLEN - 1:0] rs1_data,
-    output [`XLEN - 1:0] rs2_data,
-    input                wen,
-    input  [        4:0] rd_addr,
-    input  [`XLEN - 1:0] rd_data
+    input                      clk,
+    input                      rstn,
+    input        [        4:0] rs1_addr,
+    input        [        4:0] rs2_addr,
+    output logic [`XLEN - 1:0] rs1_data,
+    output logic [`XLEN - 1:0] rs2_data,
+    input                      wen,
+    input        [        4:0] rd_addr,
+    input        [`XLEN - 1:0] rd_data,
+
+    input                      halted,
+    input        [        4:0] dbg_gpr_addr,
+    input        [       31:0] dbg_gpr_in,
+    input                      dbg_gpr_rd,
+    input                      dbg_gpr_wr,
+    output logic [       31:0] dbg_gpr_out
 );
 
 logic               rstn_sync;
 logic [`XLEN - 1:0] gpr [0:31];
 integer             i;
 
-// assign gpr[0] = {`XLEN{1'b0}};
+logic [        4:0] rd_addr_dbg;
+logic               wen_dbg;
+logic [       31:0] rd_data_dbg;
 
 resetn_synchronizer u_sync (
     .clk        ( clk       ),
     .rstn_async ( rstn      ),
     .rstn_sync  ( rstn_sync )
 );
+
+assign rd_addr_dbg = (halted && dbg_gpr_wr) ? dbg_gpr_addr : rd_addr;
+assign wen_dbg     = wen || (halted && dbg_gpr_wr);
+assign rd_data_dbg = (halted && dbg_gpr_wr) ? dbg_gpr_in : rd_data;
 
 always_ff @(posedge clk or negedge rstn_sync) begin
     if (~rstn_sync) begin
@@ -29,13 +42,15 @@ always_ff @(posedge clk or negedge rstn_sync) begin
         end
     end
     else begin
-        if (wen & |rd_addr) begin
-            gpr[rd_addr] <= rd_data;
+        if (wen_dbg & |rd_addr_dbg) begin
+            gpr[rd_addr_dbg] <= rd_data_dbg;
         end
     end
 end
 
 assign rs1_data = gpr[rs1_addr];
 assign rs2_data = gpr[rs2_addr];
+
+assign dbg_gpr_out = gpr[dbg_gpr_addr];
 
 endmodule

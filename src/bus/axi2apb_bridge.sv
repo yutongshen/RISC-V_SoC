@@ -5,32 +5,32 @@ module axi2apb_bridge (
     input                  aresetn,
     // AXI slave port
     input         [  1: 0] s_awburst,
-    input         [ 11: 0] s_awid,
+    input         [ 12: 0] s_awid,
     input         [ 31: 0] s_awaddr,
     input         [  2: 0] s_awsize,
     input         [  7: 0] s_awlen,
     input                  s_awvalid,
     output logic           s_awready,
     input         [  3: 0] s_wstrb,
-    input         [ 11: 0] s_wid,
+    input         [ 12: 0] s_wid,
     input         [ 31: 0] s_wdata,
     input                  s_wlast,
     input                  s_wvalid,
     output logic           s_wready,
-    output logic  [ 11: 0] s_bid,
+    output logic  [ 12: 0] s_bid,
     output logic  [  1: 0] s_bresp,
     output logic           s_bvalid,
     input                  s_bready,
     input         [ 31: 0] s_araddr,
     input         [  1: 0] s_arburst,
     input         [  2: 0] s_arsize,
-    input         [ 11: 0] s_arid,
+    input         [ 12: 0] s_arid,
     input         [  7: 0] s_arlen,
     input                  s_arvalid,
     output logic           s_arready,
     output logic  [ 31: 0] s_rdata,
     output logic  [  1: 0] s_rresp,
-    output logic  [ 11: 0] s_rid,
+    output logic  [ 12: 0] s_rid,
     output logic           s_rlast,
     output logic           s_rvalid,
     input                  s_rready,
@@ -57,7 +57,7 @@ parameter [2:0] STATE_IDLE  = 3'b000,
 logic [  2: 0] cur_state;
 logic [  2: 0] nxt_state;
 
-logic [ 11: 0] id_latch;
+logic [ 12: 0] id_latch;
 logic [  7: 0] cnt;
 logic [ 31: 0] addr_latch;
 logic [ 31: 0] addr_mask_latch;
@@ -205,7 +205,7 @@ end
 
 always_ff @(posedge aclk or negedge aresetn) begin
     if (~aresetn) begin
-        id_latch <= 12'b0;
+        id_latch <= 13'b0;
     end
     else begin
         if (id_upd) begin

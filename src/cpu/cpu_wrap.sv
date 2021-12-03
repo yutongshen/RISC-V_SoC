@@ -2,9 +2,54 @@
 `include "intf_define.h"
 
 module cpu_wrap (
-    input clk,
-    input rstn
+    input                  clk,
+    input                  rstn,
+
+    // external AXI interface
+    input         [  1: 0] ext_awburst,
+    input         [  9: 0] ext_awid,
+    input         [ 31: 0] ext_awaddr,
+    input         [  2: 0] ext_awsize,
+    input         [  7: 0] ext_awlen,
+    input                  ext_awvalid,
+    output logic           ext_awready,
+    input         [  3: 0] ext_wstrb,
+    input         [  9: 0] ext_wid,
+    input         [ 31: 0] ext_wdata,
+    input                  ext_wlast,
+    input                  ext_wvalid,
+    output logic           ext_wready,
+    output logic  [  9: 0] ext_bid,
+    output logic  [  1: 0] ext_bresp,
+    output logic           ext_bvalid,
+    input                  ext_bready,
+    input         [ 31: 0] ext_araddr,
+    input         [  1: 0] ext_arburst,
+    input         [  2: 0] ext_arsize,
+    input         [  9: 0] ext_arid,
+    input         [  7: 0] ext_arlen,
+    input                  ext_arvalid,
+    output logic           ext_arready,
+    output logic  [ 31: 0] ext_rdata,
+    output logic  [  1: 0] ext_rresp,
+    output logic  [  9: 0] ext_rid,
+    output logic           ext_rlast,
+    output logic           ext_rvalid,
+    input                  ext_rready,
+
+    // debug APB interface
+    input                  dbg_psel,
+    input                  dbg_penable,
+    input         [ 31: 0] dbg_paddr,
+    input                  dbg_pwrite,
+    input         [  3: 0] dbg_pstrb,
+    input         [ 31: 0] dbg_pwdata,
+    output logic  [ 31: 0] dbg_prdata,
+    output logic           dbg_pslverr,
+    output logic           dbg_pready
 );
+
+logic                             core_rstn;
 
 logic                             msip;
 logic                             mtip;
@@ -95,25 +140,59 @@ logic [  1: 0] dmmu_pa_bad;
 logic [ 55: 0] dmmu_pa;
 logic [ 55: 0] dmmu_pa_pre;
 
-logic           intc_psel;
-logic           intc_penable;
-logic  [ 31: 0] intc_paddr;
-logic           intc_pwrite;
-logic  [  3: 0] intc_pstrb;
-logic  [ 31: 0] intc_pwdata;
-logic  [ 31: 0] intc_prdata;
-logic           intc_pslverr;
-logic           intc_pready;
+logic          core_psel;
+logic          core_penable;
+logic [ 31: 0] core_paddr;
+logic          core_pwrite;
+logic [  3: 0] core_pstrb;
+logic [ 31: 0] core_pwdata;
+logic [ 31: 0] core_prdata;
+logic          core_pslverr;
+logic          core_pready;
 
-logic           uart_psel;
-logic           uart_penable;
-logic  [ 31: 0] uart_paddr;
-logic           uart_pwrite;
-logic  [  3: 0] uart_pstrb;
-logic  [ 31: 0] uart_pwdata;
-logic  [ 31: 0] uart_prdata;
-logic           uart_pslverr;
-logic           uart_pready;
+logic          intc_psel;
+logic          intc_penable;
+logic [ 31: 0] intc_paddr;
+logic          intc_pwrite;
+logic [  3: 0] intc_pstrb;
+logic [ 31: 0] intc_pwdata;
+logic [ 31: 0] intc_prdata;
+logic          intc_pslverr;
+logic          intc_pready;
+
+logic          cfgreg_psel;
+logic          cfgreg_penable;
+logic [ 31: 0] cfgreg_paddr;
+logic          cfgreg_pwrite;
+logic [  3: 0] cfgreg_pstrb;
+logic [ 31: 0] cfgreg_pwdata;
+logic [ 31: 0] cfgreg_prdata;
+logic          cfgreg_pslverr;
+logic          cfgreg_pready;
+
+logic          uart_psel;
+logic          uart_penable;
+logic [ 31: 0] uart_paddr;
+logic          uart_pwrite;
+logic [  3: 0] uart_pstrb;
+logic [ 31: 0] uart_pwdata;
+logic [ 31: 0] uart_prdata;
+logic          uart_pslverr;
+logic          uart_pready;
+
+logic  [ 11: 0] dbg_addr;
+logic  [ 31: 0] dbg_wdata;
+logic           dbg_gpr_rd;
+logic           dbg_gpr_wr;
+logic  [ 31: 0] dbg_gpr_rdata;
+logic           dbg_csr_rd;
+logic           dbg_csr_wr;
+logic  [ 31: 0] dbg_csr_rdata;
+logic  [ 31: 0] dbg_pc;
+logic  [ 31: 0] dbg_inst;
+logic           dbg_exec;
+logic           dbg_halted;
+logic           dbg_attach;
 
 
 `AXI_INTF_DEF(immu, 10)
@@ -123,7 +202,7 @@ logic           uart_pready;
 
 cpu_top u_cpu_top (
     .clk                 ( clk                 ),
-    .rstn                ( rstn                ),
+    .rstn                ( core_rstn           ),
     .cpu_id              ( `XLEN'd0            ),
 
     // mpu csr
@@ -169,12 +248,27 @@ cpu_top u_cpu_top (
     .dmem_wdata          ( dmem_wdata          ),
     .dmem_rdata          ( dmem_rdata          ),
     .dmem_bad            ( dmem_bad            ),
-    .dmem_busy           ( dmem_busy           )
+    .dmem_busy           ( dmem_busy           ),
+
+    // debug intface
+    .dbg_addr            ( dbg_addr            ),
+    .dbg_wdata           ( dbg_wdata           ),
+    .dbg_gpr_rd          ( dbg_gpr_rd          ),
+    .dbg_gpr_wr          ( dbg_gpr_wr          ),
+    .dbg_gpr_out         ( dbg_gpr_rdata       ),
+    .dbg_csr_rd          ( dbg_csr_rd          ),
+    .dbg_csr_wr          ( dbg_csr_wr          ),
+    .dbg_csr_out         ( dbg_csr_rdata       ),
+    .dbg_pc_out          ( dbg_pc              ),
+    .dbg_exec            ( dbg_exec            ),
+    .dbg_inst            ( dbg_inst            ),
+    .attach              ( dbg_attach          ),
+    .halted              ( dbg_halted          )
 );
 
 mmu u_immu(
     .clk                 ( clk                 ),
-    .rstn                ( rstn                ),
+    .rstn                ( core_rstn           ),
     
     // access type
     .access_w            ( 1'b0                ),
@@ -227,7 +321,7 @@ mmu u_immu(
 
 mmu u_dmmu(
     .clk                 ( clk                 ),
-    .rstn                ( rstn                ),
+    .rstn                ( core_rstn           ),
     
     // access type
     .access_w            ( dmem_write          ),
@@ -280,7 +374,7 @@ mmu u_dmmu(
 
 mpu u_impu (
     .clk      ( clk         ),
-    .rstn     ( rstn        ),
+    .rstn     ( core_rstn   ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
@@ -302,7 +396,7 @@ mpu u_impu (
 
 mpu u_dmpu (
     .clk      ( clk         ),
-    .rstn     ( rstn        ),
+    .rstn     ( core_rstn   ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
@@ -324,7 +418,7 @@ mpu u_dmpu (
 
 l1c u_l1ic (
     .clk         ( clk           ),
-    .rstn        ( rstn          ),
+    .rstn        ( core_rstn     ),
 
     .core_bypass ( icache_bypass ),
     .core_flush  ( ic_flush      ),
@@ -345,7 +439,7 @@ l1c u_l1ic (
 
 l1c u_l1dc (
     .clk         ( clk           ),
-    .rstn        ( rstn          ),
+    .rstn        ( core_rstn     ),
 
     .core_bypass ( dcache_bypass ),
     .core_flush  ( 1'b0          ),
@@ -364,9 +458,43 @@ l1c u_l1dc (
     `AXI_INTF_CONNECT(m, l1dc)
 );
 
+assign intc_psel      = core_paddr[27] && core_psel;
+assign intc_penable   = core_paddr[27] && core_penable;
+assign intc_paddr     = core_paddr;
+assign intc_pwrite    = core_pwrite;
+assign intc_pstrb     = core_pstrb;
+assign intc_pwdata    = core_pwdata;
+
+assign cfgreg_psel    = ~core_paddr[27] && core_psel;
+assign cfgreg_penable = ~core_paddr[27] && core_penable;
+assign cfgreg_paddr   = core_paddr;
+assign cfgreg_pwrite  = core_pwrite;
+assign cfgreg_pstrb   = core_pstrb;
+assign cfgreg_pwdata  = core_pwdata;
+
+assign core_prdata    = core_paddr[27] ? intc_prdata  : cfgreg_prdata;
+assign core_pslverr   = core_paddr[27] ? intc_pslverr : cfgreg_pslverr;
+assign core_pready    = core_paddr[27] ? intc_pready  : cfgreg_pready;
+
+cfgreg u_cfgreg (
+    .pclk      ( clk            ),
+    .presetn   ( rstn           ),
+    .psel      ( cfgreg_psel    ),
+    .penable   ( cfgreg_penable ),
+    .paddr     ( cfgreg_paddr   ),
+    .pwrite    ( cfgreg_pwrite  ),
+    .pstrb     ( cfgreg_pstrb   ),
+    .pwdata    ( cfgreg_pwdata  ),
+    .prdata    ( cfgreg_prdata  ),
+    .pslverr   ( cfgreg_pslverr ),
+    .pready    ( cfgreg_pready  ),
+
+    .core_rstn ( core_rstn      )
+);
+
 intc u_intc(
     .clk    ( clk          ),
-    .rstn   ( rstn         ),
+    .rstn   ( core_rstn    ),
     .psel   ( intc_psel    ),
     .penable( intc_penable ),
     .paddr  ( intc_paddr   ),
@@ -391,6 +519,7 @@ marb u_marb (
     `AXI_INTF_CONNECT(s1, dmmu),
     `AXI_INTF_CONNECT(s2, l1ic),
     `AXI_INTF_CONNECT(s3, l1dc),
+    `AXI_INTF_CONNECT(s4, ext),
 
     .m0_cs      ( cs_0         ),
     .m0_we      ( we_0         ),
@@ -408,15 +537,15 @@ marb u_marb (
     .m1_do      ( do_1         ),
     .m1_busy    ( busy_1       ),
 
-    .m2_psel    ( intc_psel    ),
-    .m2_penable ( intc_penable ),
-    .m2_paddr   ( intc_paddr   ),
-    .m2_pwrite  ( intc_pwrite  ),
-    .m2_pstrb   ( intc_pstrb   ),
-    .m2_pwdata  ( intc_pwdata  ),
-    .m2_prdata  ( intc_prdata  ),
-    .m2_pslverr ( intc_pslverr ),
-    .m2_pready  ( intc_pready  ),
+    .m2_psel    ( core_psel    ),
+    .m2_penable ( core_penable ),
+    .m2_paddr   ( core_paddr   ),
+    .m2_pwrite  ( core_pwrite  ),
+    .m2_pstrb   ( core_pstrb   ),
+    .m2_pwdata  ( core_pwdata  ),
+    .m2_prdata  ( core_prdata  ),
+    .m2_pslverr ( core_pslverr ),
+    .m2_pready  ( core_pready  ),
 
     .m3_psel    ( uart_psel    ),
     .m3_penable ( uart_penable ),
@@ -464,6 +593,34 @@ sram u_sram_1 (
 );
 
 assign busy_1 = 1'b0;
+
+dbgapb u_dbgapb (
+    .pclk      ( clk           ),
+    .presetn   ( core_rstn     ),
+    .psel      ( dbg_psel      ),
+    .penable   ( dbg_penable   ),
+    .paddr     ( dbg_paddr     ),
+    .pwrite    ( dbg_pwrite    ),
+    .pstrb     ( dbg_pstrb     ),
+    .pwdata    ( dbg_pwdata    ),
+    .prdata    ( dbg_prdata    ),
+    .pslverr   ( dbg_pslverr   ),
+    .pready    ( dbg_pready    ),
+
+    .addr_out  ( dbg_addr      ),
+    .wdata_out ( dbg_wdata     ),
+    .gpr_rd    ( dbg_gpr_rd    ),
+    .gpr_wr    ( dbg_gpr_wr    ),
+    .gpr_in    ( dbg_gpr_rdata ),
+    .csr_rd    ( dbg_csr_rd    ),
+    .csr_wr    ( dbg_csr_wr    ),
+    .csr_in    ( dbg_csr_rdata ),
+    .pc        ( dbg_pc        ),
+    .inst_out  ( dbg_inst      ),
+    .exec      ( dbg_exec      ),
+    .halted    ( dbg_halted    ),
+    .attach    ( dbg_attach    )
+);
 
 uart u_uart(
     .pclk    ( clk          ),

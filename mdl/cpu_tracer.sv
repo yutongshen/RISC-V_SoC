@@ -19,10 +19,12 @@ module cpu_tracer (
     input [31:0] mem_wdata,
     input        trap_en,
     input [31:0] mcause,
-    input [31:0] mtval
+    input [31:0] mtval,
+    input        halted
 );
 
 integer cpu_tracer_file;
+logic   halted_dly;
 
 `include "cpu_tracer_task.sv"
 
@@ -31,8 +33,19 @@ initial begin
 end
 
 always_ff @(posedge clk) begin
+    halted_dly <= halted;
+end
+
+always_ff @(posedge clk) begin
     string str, tmp;
     integer i;
+
+    if (halted_dly === 1'b0 && halted === 1'b1) begin
+        $fdisplay(cpu_tracer_file, "(%0d ns) Enter halted mode", $time);
+    end
+    else if (halted_dly === 1'b1 && halted === 1'b0) begin
+        $fdisplay(cpu_tracer_file, "(%0d ns) Leave halted mode", $time);
+    end
 
     if (valid) begin
         str = prv === `PRV_M ? "M":
@@ -40,7 +53,8 @@ always_ff @(posedge clk) begin
               prv === `PRV_S ? "S":
               prv === `PRV_U ? "U":
                                "X";
-        $fdisplay(cpu_tracer_file, "(%0d ns) [%s] %08x:%08x %s", $time, str, pc, inst, inst_dec(pc, inst));
+        $fdisplay(cpu_tracer_file, "(%0d ns) %0s[%s] %08x:%08x %s", $time, halted ? "[DBG]" : "",
+                  str, pc, inst, inst_dec(pc, inst));
     end
     if (valid & mem_req & ~mem_wr) begin
         str = "";
