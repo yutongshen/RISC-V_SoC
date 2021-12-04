@@ -34,14 +34,14 @@
 `define ADDI(RD, RS1, IMM) {IMM, RS1, 3'b000, RD, 7'b0010011}
 
 initial begin
-    repeat (20000) @(posedge clk);
+    repeat (20000) @(negedge clk);
     dbgapb_wr(`DBGAPB_DBG_EN, 32'b1);
     dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_ATTACH});
     dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
     dbg_rdata = 32'b0;
     dbgapb_status_rd;
     while (dbg_rdata != 32'h3) begin
-        @(posedge clk);
+        @(negedge clk);
         dbgapb_status_rd;
     end
     dbgapb_pc_rd;

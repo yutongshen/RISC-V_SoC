@@ -7,7 +7,7 @@
 `include "dbgapb_define.h"
 `include "intf_define.h"
 
-// `define DBG_TEST
+`define DBG_TEST
 
 module test;
 
@@ -301,8 +301,10 @@ dbg_pwrite  = 1'b1;
 dbg_pstrb   = 4'hf;
 dbg_pwdata  = wdata;
 @(posedge clk);
+@(negedge clk);
 dbg_penable = 1'b1;
 do @(posedge (clk)); while (dbg_pready !== 1'b1);
+@(negedge clk);
 dbg_psel    = 1'b0;
 dbg_penable = 1'b0;
 dbg_pwrite  = 1'b0;
@@ -316,8 +318,10 @@ dbg_penable = 1'b0;
 dbg_paddr   = addr;
 dbg_pwrite  = 1'b0;
 @(posedge clk);
+@(negedge clk);
 dbg_penable = 1'b1;
 do @(posedge (clk)); while (dbg_pready !== 1'b1);
+@(negedge clk);
 dbg_rdata   = dbg_prdata;
 dbg_psel    = 1'b0;
 dbg_penable = 1'b0;

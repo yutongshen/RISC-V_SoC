@@ -254,11 +254,28 @@ always_ff @(posedge pclk or negedge presetn) begin
     end
 end
 
+always_comb begin
+    nxt_ready_cnt = 10'b0;
+    case (paddr[11:0])
+        `DBGAPB_INST_WR: begin
+            case (dbg_inst[11:0])
+                `INST_EXECUTE   : nxt_ready_cnt = 10'h5;
+                `INST_STATUS_RD : nxt_ready_cnt = 10'h1;
+                `INST_PC_RD     : nxt_ready_cnt = 10'h1;
+                `INST_GPR_RD    : nxt_ready_cnt = 10'h1;
+                `INST_CSR_RD    : nxt_ready_cnt = 10'h1;
+                `INST_GPR_WR    : nxt_ready_cnt = 10'h1;
+                `INST_CSR_WR    : nxt_ready_cnt = 10'h2;
+            endcase
+        end
+    endcase
+end
+
 always_ff @(posedge pclk or negedge presetn) begin
     if (~presetn) begin
         ready_cnt <= 10'b0;
     end
-    else if (~penable && psel) begin
+    else if (apb_wr) begin
         ready_cnt <= nxt_ready_cnt;
     end
     else if (|ready_cnt) begin
@@ -267,7 +284,7 @@ always_ff @(posedge pclk or negedge presetn) begin
 end
 
 assign pslverr = 1'b0;
-// assign pready  = ~|ready_cnt;
-assign pready  = 1'b0;
+assign pready  = ~|ready_cnt;
+// assign pready  = 1'b1;
 
 endmodule
