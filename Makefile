@@ -3,7 +3,9 @@ src_dir       := ./src
 inc_dir       := ./include
 bld_dir       := ./build
 sim_dir       := ./sim
+scrp_dir      := ./script
 flist         := designlist.f
+simlist       := sim.f
 err_ignore    := 2> /dev/null || :
 
 INIT_MMAP     := ./script/build_mmap -i 
@@ -21,7 +23,21 @@ ISA           := $(patsubst %.dump,,$(ISA))
 ${bld_dir}:
 	mkdir -p $(bld_dir)
 
+verdi.f: | ${bld_dir}
+	@rm -f ${bld_dir}/verdi.f;
+	@touch ${bld_dir}/verdi.f;
+	@cat $(root_dir)/$(sim_dir)/$(simlist) >> ${bld_dir}/verdi.f;
+	@echo "../src/cpu_wrap_nodef.all.sv"   >> ${bld_dir}/verdi.f;
+	#@cat $(root_dir)/$(sim_dir)/$(flist)   >> ${bld_dir}/verdi.f;
+
+merge:
+	@cd ${src_dir};\
+	$(root_dir)/${scrp_dir}/merge_sv.sh $(root_dir)/$(sim_dir)/$(flist) cpu_wrap.all.sv;
+	@cd ${src_dir};\
+	$(root_dir)/${scrp_dir}/expand_def.sh $(root_dir)/$(sim_dir)/$(flist) cpu_wrap.all.sv cpu_wrap_nodef.all.sv;
+
 sim: all | ${bld_dir}
+	@make verdi.f;
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
@@ -36,7 +52,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +define+CPULOG +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug; \
+	    ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}
@@ -50,8 +66,9 @@ axi: | ${bld_dir}
 	# ncverilog -sv -f $(root_dir)/$(sim_dir)/axi_verify.f;
 
 verdi: ${bld_dir}
+	@make verdi.f;
 	@cd $(bld_dir); \
-	verdi -sverilog -f $(root_dir)/$(sim_dir)/$(flist) +define+CPULOG &
+	verdi -sverilog -f verdi.f &
 
 verdi_axi: ${bld_dir}
 	@cd $(bld_dir); \

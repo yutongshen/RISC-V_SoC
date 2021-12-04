@@ -1,4 +1,3 @@
-../sim/test.sv
 ../src/cpu/cpu_wrap.sv
 ../src/cpu/marb.sv
 ../src/cpu/cpu_top.sv
@@ -28,7 +27,6 @@
 ../src/cpu/util.sv
 ../src/cpu/uart.sv
 ../src/bus/axi2mem_bridge.sv
-../src/bus/mem2axi_bridge.sv
 ../src/bus/axi2apb_bridge.sv
 ../src/bus/axi_5to4_biu.sv
 ../src/bus/axi_5to1_mux.sv
@@ -39,10 +37,4 @@
 ../mdl/sram32x64.sv
 ../mdl/sram64x22.sv
 ../mdl/sram64x128.sv
-../mdl/cpu_tracer.sv
-
 +incdir+../include
-
-+nc64bit
-+access+r
-+define+FSDB
