@@ -7,7 +7,7 @@
 `include "dbgapb_define.h"
 `include "intf_define.h"
 
-`define DBG_TEST
+// `define DBG_TEST
 
 module test;
 
@@ -16,13 +16,14 @@ integer       i;
 logic         clk;
 logic         rstn;
 
-`AXI_INTF_DEF(ext, 10);
+`AXI_INTF_DEF(axi_ext, 10)
 
 logic         dbg_psel;
 logic         dbg_penable;
 logic [31: 0] dbg_paddr;
 logic         dbg_pwrite;
 logic [ 3: 0] dbg_pstrb;
+logic [ 2: 0] dbg_pprot;
 logic [31: 0] dbg_pwdata;
 logic [31: 0] dbg_prdata;
 logic         dbg_pslverr;
@@ -50,7 +51,7 @@ initial begin
     rstn   <= 1'b1;
     repeat (10) @(posedge clk);
 	axi_wr(32'h0400_0000, 32'h1);
-    repeat (100000) @(posedge clk);
+    repeat (200000) @(posedge clk);
     simend <= 1'b1;
 end
 
@@ -155,7 +156,7 @@ cpu_wrap u_cpu_wrap (
     .rstn        ( rstn          ),
 
     // external AXI interface
-    `AXI_INTF_CONNECT(ext, ext),
+    `AXI_INTF_CONNECT(axi_ext, axi_ext),
 
     // debug APB interface
     .dbg_psel    ( dbg_psel      ),
@@ -163,6 +164,7 @@ cpu_wrap u_cpu_wrap (
     .dbg_paddr   ( dbg_paddr     ),
     .dbg_pwrite  ( dbg_pwrite    ),
     .dbg_pstrb   ( dbg_pstrb     ),
+    .dbg_pprot   ( dbg_pprot     ),
     .dbg_pwdata  ( dbg_pwdata    ),
     .dbg_prdata  ( dbg_prdata    ),
     .dbg_pslverr ( dbg_pslverr   ),
@@ -333,6 +335,7 @@ dbg_penable = 1'b0;
 dbg_paddr   = 32'b0;
 dbg_pwrite  = 1'b0;
 dbg_pstrb   = 4'b0;
+dbg_pprot   = 3'b0;
 dbg_pwdata  = 32'b0;
 endtask
 
@@ -371,9 +374,9 @@ axi_w_chn_send(wid, wdata, wstrb, wlast);
 end join_none
 wait fork;
 
-ext_bready  = 1'b1;
-do @(posedge (clk)); while (ext_bvalid !== 1'b1);
-ext_bready  = 1'b0;
+axi_ext_bready  = 1'b1;
+do @(posedge (clk)); while (axi_ext_bvalid !== 1'b1);
+axi_ext_bready  = 1'b0;
 
 endtask
 
@@ -384,14 +387,14 @@ input [ 7: 0] awlen;
 input [ 2: 0] awsize;
 input [ 1: 0] awburst;
 
-ext_awburst = awburst;
-ext_awid    = awid;
-ext_awaddr  = awaddr;
-ext_awsize  = awsize;
-ext_awlen   = awlen;
-ext_awvalid = 1'b1;
-do @(posedge (clk)); while (ext_awready !== 1'b1);
-ext_awvalid = 1'b0;
+axi_ext_awburst = awburst;
+axi_ext_awid    = awid;
+axi_ext_awaddr  = awaddr;
+axi_ext_awsize  = awsize;
+axi_ext_awlen   = awlen;
+axi_ext_awvalid = 1'b1;
+do @(posedge (clk)); while (axi_ext_awready !== 1'b1);
+axi_ext_awvalid = 1'b0;
 endtask
 
 task axi_w_chn_send;
@@ -400,35 +403,35 @@ input [31: 0] wdata;
 input [ 3: 0] wstrb;
 input         wlast;
 
-ext_wstrb  = wstrb;
-ext_wid    = wid;
-ext_wdata  = wdata;
-ext_wlast  = wlast;
-ext_wvalid = 1'b1;
-do @(posedge (clk)); while (ext_wready !== 1'b1);
-ext_wvalid = 1'b0;
+axi_ext_wstrb  = wstrb;
+axi_ext_wid    = wid;
+axi_ext_wdata  = wdata;
+axi_ext_wlast  = wlast;
+axi_ext_wvalid = 1'b1;
+do @(posedge (clk)); while (axi_ext_wready !== 1'b1);
+axi_ext_wvalid = 1'b0;
 endtask
 
 task axi_init;
-ext_awburst = 2'b0;
-ext_awid    = 10'b0;
-ext_awaddr  = 32'b0;
-ext_awsize  = 3'b0;
-ext_awlen   = 8'b0;
-ext_awvalid = 1'b0;
-ext_wstrb   = 4'b0;
-ext_wid     = 10'b0;
-ext_wdata   = 32'b0;
-ext_wlast   = 1'b0;
-ext_wvalid  = 1'b0;
-ext_bready  = 1'b0;
-ext_araddr  = 10'b0;
-ext_arburst = 2'b0;
-ext_arsize  = 3'b0;
-ext_arid    = 10'b0;
-ext_arlen   = 8'b0;
-ext_arvalid = 1'b0;
-ext_rready  = 1'b0;
+axi_ext_awburst = 2'b0;
+axi_ext_awid    = 10'b0;
+axi_ext_awaddr  = 32'b0;
+axi_ext_awsize  = 3'b0;
+axi_ext_awlen   = 8'b0;
+axi_ext_awvalid = 1'b0;
+axi_ext_wstrb   = 4'b0;
+axi_ext_wid     = 10'b0;
+axi_ext_wdata   = 32'b0;
+axi_ext_wlast   = 1'b0;
+axi_ext_wvalid  = 1'b0;
+axi_ext_bready  = 1'b0;
+axi_ext_araddr  = 10'b0;
+axi_ext_arburst = 2'b0;
+axi_ext_arsize  = 3'b0;
+axi_ext_arid    = 10'b0;
+axi_ext_arlen   = 8'b0;
+axi_ext_arvalid = 1'b0;
+axi_ext_rready  = 1'b0;
 endtask
 
 endmodule

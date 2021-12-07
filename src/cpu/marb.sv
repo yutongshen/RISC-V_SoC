@@ -69,40 +69,6 @@ module marb (
 `AXI_INTF_DEF(m2, 13)
 `AXI_INTF_DEF(m3, 13)
 
-// l1c u_l1ic (
-//     .clk         ( clk        ),
-//     .rstn        ( rstn       ),
-// 
-//     .core_req    ( s0_cs      ),
-//     .core_bypass ( 1'b0       ),
-//     .core_wr     ( s0_we      ),
-//     .core_addr   ( s0_addr    ),
-//     .core_wdata  ( s0_di      ),
-//     .core_byte   ( s0_byte    ),
-//     .core_rdata  ( s0_do      ),
-//     .core_err    ( s0_err     ),
-//     .core_busy   ( s0_busy    ),
-// 
-//     `AXI_INTF_CONNECT(m, m0)
-// );
-// 
-// l1c u_l1dc (
-//     .clk         ( clk        ),
-//     .rstn        ( rstn       ),
-// 
-//     .core_req    ( s1_cs      ),
-//     .core_bypass ( 1'b0       ),
-//     .core_wr     ( s1_we      ),
-//     .core_addr   ( s1_addr    ),
-//     .core_wdata  ( s1_di      ),
-//     .core_byte   ( s1_byte    ),
-//     .core_rdata  ( s1_do      ),
-//     .core_err    ( s1_err     ),
-//     .core_busy   ( s1_busy    ),
-// 
-//     `AXI_INTF_CONNECT(m, m1)
-// );
-
 axi_5to4_biu u_axi_5to4_biu (
     .aclk       ( clk        ),
     .aresetn    ( rstn       ),

@@ -29,10 +29,20 @@ main:
   la s0, _test_start
 
   /*pmp test*/
-  li t0, 0x1f
-  li t1, 0x7fffffff
+  li t0, 0x98
+  li t1, 0xcd
   csrw pmpaddr0, t1
   csrw pmpcfg0, t0
+
+  li t0, 0x1f00
+  li t1, 0xc9
+  csrw pmpaddr1, t1
+  csrw pmpcfg0, t0
+
+  # li t0, 0x1f00
+  # li t1, 0x7fffffff
+  # csrw pmpaddr1, t1
+  # csrw pmpcfg0, t0
 
   li t0, 0x1f
   li t1, 0x7fffffff
@@ -118,7 +128,7 @@ main:
   li t1, 0x1000
   sub t0, t0, t1
   csrw mepc, t0
-  li t0, 0x100800
+  li t0, 0x800
   csrw mstatus, t0
   la t0, main
   csrw mtvec, t0
@@ -147,6 +157,7 @@ main:
 vector:
   lui t0, 0x1
   li t1, 0xff0
+  sfence.vma
   li t2, 0x12345
   sub t1, t1, t0
   lui t0, 0x20

@@ -24,11 +24,12 @@ ${bld_dir}:
 	mkdir -p $(bld_dir)
 
 verdi.f: | ${bld_dir}
+	@make merge;
 	@rm -f ${bld_dir}/verdi.f;
 	@touch ${bld_dir}/verdi.f;
 	@cat $(root_dir)/$(sim_dir)/$(simlist) >> ${bld_dir}/verdi.f;
-	@echo "../src/cpu_wrap_nodef.all.sv"   >> ${bld_dir}/verdi.f;
-	#@cat $(root_dir)/$(sim_dir)/$(flist)   >> ${bld_dir}/verdi.f;
+	#@echo "../src/cpu_wrap_nodef.all.sv"   >> ${bld_dir}/verdi.f;
+	@cat $(root_dir)/$(sim_dir)/$(flist)   >> ${bld_dir}/verdi.f;
 
 merge:
 	@cd ${src_dir};\
@@ -41,7 +42,7 @@ sim: all | ${bld_dir}
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
-	        res=$$(cd $(bld_dir); ncverilog -sv -f $(root_dir)/$(sim_dir)/$(flist) +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;); \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;); \
 	        res=$$(echo "$${res}" | grep "ENDCODE = 00000001"); \
 	        if [ "$${res}" == "" ]; then \
 	            echo "There are some error in $${i}"; \

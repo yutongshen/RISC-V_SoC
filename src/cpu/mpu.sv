@@ -71,28 +71,28 @@ always_comb begin
     end
 end
 
-assign pmp_v = pmp_v_tmp;
-assign pmp_l = pmp_l_tmp;
-assign pmp_x = pmp_x_tmp;
-assign pmp_w = pmp_w_tmp;
-assign pmp_r = pmp_r_tmp;
+// assign pmp_v = pmp_v_tmp;
+// assign pmp_l = pmp_l_tmp;
+// assign pmp_x = pmp_x_tmp;
+// assign pmp_w = pmp_w_tmp;
+// assign pmp_r = pmp_r_tmp;
 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (~rstn) begin
-//         pmp_v <= 1'b0;
-//         pmp_l <= 1'b0;
-//         pmp_x <= 1'b0;
-//         pmp_w <= 1'b0;
-//         pmp_r <= 1'b0;
-//     end
-//     else begin
-//         pmp_v <= pmp_v_tmp;
-//         pmp_l <= pmp_l_tmp;
-//         pmp_x <= pmp_x_tmp;
-//         pmp_w <= pmp_w_tmp;
-//         pmp_r <= pmp_r_tmp;
-//     end
-// end
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        pmp_v <= 1'b0;
+        pmp_l <= 1'b0;
+        pmp_x <= 1'b0;
+        pmp_w <= 1'b0;
+        pmp_r <= 1'b0;
+    end
+    else begin
+        pmp_v <= pmp_v_tmp;
+        pmp_l <= pmp_l_tmp;
+        pmp_x <= pmp_x_tmp;
+        pmp_w <= pmp_w_tmp;
+        pmp_r <= pmp_r_tmp;
+    end
+end
 
 logic [     15:0] pma_match;
 logic             pma_v_tmp;
@@ -143,26 +143,24 @@ always_comb begin
     end
 end
 
-assign pma_v = pma_v_tmp;
-assign pma_l = pma_l_tmp;
-assign pma_c = pma_c_tmp;
-assign pma_e = pma_e_tmp;
+// assign pma_v = pma_v_tmp;
+// assign pma_l = pma_l_tmp;
+// assign pma_c = pma_c_tmp;
+// assign pma_e = pma_e_tmp;
 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (~rstn) begin
-//         pma_v <= 1'b0;
-//         pma_l <= 1'b0;
-//         pma_x <= 1'b0;
-//         pma_w <= 1'b0;
-//         pma_r <= 1'b0;
-//     end
-//     else begin
-//         pma_v <= pma_v_tmp;
-//         pma_l <= pma_l_tmp;
-//         pma_x <= pma_x_tmp;
-//         pma_w <= pma_w_tmp;
-//         pma_r <= pma_r_tmp;
-//     end
-// end
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        pma_v <= 1'b0;
+        pma_l <= 1'b0;
+        pma_c <= 1'b0;
+        pma_e <= 1'b0;
+    end
+    else begin
+        pma_v <= pma_v_tmp;
+        pma_l <= pma_l_tmp;
+        pma_c <= pma_c_tmp;
+        pma_e <= pma_e_tmp;
+    end
+end
 
 endmodule

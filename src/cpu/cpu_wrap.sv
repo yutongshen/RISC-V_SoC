@@ -6,36 +6,36 @@ module cpu_wrap (
     input                  rstn,
 
     // external AXI interface
-    input         [  1: 0] ext_awburst,
-    input         [  9: 0] ext_awid,
-    input         [ 31: 0] ext_awaddr,
-    input         [  2: 0] ext_awsize,
-    input         [  7: 0] ext_awlen,
-    input                  ext_awvalid,
-    output logic           ext_awready,
-    input         [  3: 0] ext_wstrb,
-    input         [  9: 0] ext_wid,
-    input         [ 31: 0] ext_wdata,
-    input                  ext_wlast,
-    input                  ext_wvalid,
-    output logic           ext_wready,
-    output logic  [  9: 0] ext_bid,
-    output logic  [  1: 0] ext_bresp,
-    output logic           ext_bvalid,
-    input                  ext_bready,
-    input         [ 31: 0] ext_araddr,
-    input         [  1: 0] ext_arburst,
-    input         [  2: 0] ext_arsize,
-    input         [  9: 0] ext_arid,
-    input         [  7: 0] ext_arlen,
-    input                  ext_arvalid,
-    output logic           ext_arready,
-    output logic  [ 31: 0] ext_rdata,
-    output logic  [  1: 0] ext_rresp,
-    output logic  [  9: 0] ext_rid,
-    output logic           ext_rlast,
-    output logic           ext_rvalid,
-    input                  ext_rready,
+    input         [  1: 0] axi_ext_awburst,
+    input         [  9: 0] axi_ext_awid,
+    input         [ 31: 0] axi_ext_awaddr,
+    input         [  2: 0] axi_ext_awsize,
+    input         [  7: 0] axi_ext_awlen,
+    input                  axi_ext_awvalid,
+    output logic           axi_ext_awready,
+    input         [  3: 0] axi_ext_wstrb,
+    input         [  9: 0] axi_ext_wid,
+    input         [ 31: 0] axi_ext_wdata,
+    input                  axi_ext_wlast,
+    input                  axi_ext_wvalid,
+    output logic           axi_ext_wready,
+    output logic  [  9: 0] axi_ext_bid,
+    output logic  [  1: 0] axi_ext_bresp,
+    output logic           axi_ext_bvalid,
+    input                  axi_ext_bready,
+    input         [ 31: 0] axi_ext_araddr,
+    input         [  1: 0] axi_ext_arburst,
+    input         [  2: 0] axi_ext_arsize,
+    input         [  9: 0] axi_ext_arid,
+    input         [  7: 0] axi_ext_arlen,
+    input                  axi_ext_arvalid,
+    output logic           axi_ext_arready,
+    output logic  [ 31: 0] axi_ext_rdata,
+    output logic  [  1: 0] axi_ext_rresp,
+    output logic  [  9: 0] axi_ext_rid,
+    output logic           axi_ext_rlast,
+    output logic           axi_ext_rvalid,
+    input                  axi_ext_rready,
 
     // debug APB interface
     input                  dbg_psel,
@@ -43,6 +43,7 @@ module cpu_wrap (
     input         [ 31: 0] dbg_paddr,
     input                  dbg_pwrite,
     input         [  3: 0] dbg_pstrb,
+    input         [  2: 0] dbg_pprot,
     input         [ 31: 0] dbg_pwdata,
     output logic  [ 31: 0] dbg_prdata,
     output logic           dbg_pslverr,
@@ -199,6 +200,7 @@ logic           dbg_attach;
 `AXI_INTF_DEF(dmmu, 10)
 `AXI_INTF_DEF(l1ic, 10)
 `AXI_INTF_DEF(l1dc, 10)
+`AXI_INTF_DEF(axi_ext_remap, 10)
 
 cpu_top u_cpu_top (
     .clk                 ( clk                 ),
@@ -379,7 +381,7 @@ mpu u_impu (
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
     .pmaaddr  ( pmaaddr     ),
-    .paddr    ( immu_pa[33:0] ),
+    .paddr    ( immu_pa_pre[33:0] ),
 
     .pmp_v    ( ipmp_v      ),
     .pmp_l    ( ipmp_l      ),
@@ -401,7 +403,7 @@ mpu u_dmpu (
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
     .pmaaddr  ( pmaaddr     ),
-    .paddr    ( dmmu_pa[33:0] ),
+    .paddr    ( dmmu_pa_pre[33:0] ),
 
     .pmp_v    ( dpmp_v      ),
     .pmp_l    ( dpmp_l      ),
@@ -511,6 +513,14 @@ intc u_intc(
     .ints   ( 32'b0        )
 );
 
+iommu u_iommu (
+    .aclk       ( clk          ),
+    .aresetn    ( rstn         ),
+
+    `AXI_INTF_CONNECT(s, axi_ext),
+    `AXI_INTF_CONNECT(m, axi_ext_remap)
+);
+
 marb u_marb (
     .clk        ( clk          ),
     .rstn       ( rstn         ),
@@ -519,7 +529,7 @@ marb u_marb (
     `AXI_INTF_CONNECT(s1, dmmu),
     `AXI_INTF_CONNECT(s2, l1ic),
     `AXI_INTF_CONNECT(s3, l1dc),
-    `AXI_INTF_CONNECT(s4, ext),
+    `AXI_INTF_CONNECT(s4, axi_ext_remap),
 
     .m0_cs      ( cs_0         ),
     .m0_we      ( we_0         ),
