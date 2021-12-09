@@ -494,25 +494,6 @@ cfgreg u_cfgreg (
     .core_rstn ( core_rstn      )
 );
 
-intc u_intc(
-    .clk    ( clk          ),
-    .rstn   ( core_rstn    ),
-    .psel   ( intc_psel    ),
-    .penable( intc_penable ),
-    .paddr  ( intc_paddr   ),
-    .pwrite ( intc_pwrite  ),
-    .pstrb  ( intc_pstrb   ),
-    .pwdata ( intc_pwdata  ),
-    .prdata ( intc_prdata  ),
-    .pslverr( intc_pslverr ),
-    .pready ( intc_pready  ),
-                            
-    .msip   ( msip         ),
-    .mtip   ( mtip         ),
-    .meip   ( meip         ),
-    .ints   ( 32'b0        )
-);
-
 iommu u_iommu (
     .aclk       ( clk          ),
     .aresetn    ( rstn         ),
@@ -568,6 +549,48 @@ marb u_marb (
     .m3_pready  ( uart_pready  )
 );
 
+// assign msip = 1'b0;
+// assign mtip = 1'b0;
+// assign meip = 1'b0;
+// 
+// assign core_rstn = rstn;
+// 
+// assign imem_bad  = 2'b0;
+// assign imem_busy = 1'b0;
+// 
+// always_ff @(posedge clk or negedge rstn) begin
+//     if (~rstn) begin
+//         imem_rdata <= 32'b0;
+//     end
+//     else begin
+//         imem_rdata <= u_sram_0.memory[imem_addr[15:2]];
+//     end
+// end
+// 
+// assign dmem_bad  = 2'b0;
+// assign dmem_busy = 1'b0;
+// 
+// always_ff @(posedge clk or negedge rstn) begin
+//     if (~rstn) begin
+//         dmem_rdata <= 32'b0;
+//     end
+//     else begin
+//         dmem_rdata <= dmem_addr[16] ? u_sram_1.memory[dmem_addr[15:2]] : u_sram_0.memory[dmem_addr[15:2]];
+//     end
+// end
+// 
+// always_ff @(posedge clk or negedge rstn) begin
+//     if (dmem_write & dmem_en & dmem_addr[16]) begin
+//         if (dmem_strb[0]) u_sram_1.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
+//         if (dmem_strb[1]) u_sram_1.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
+//         if (dmem_strb[2]) u_sram_1.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
+//         if (dmem_strb[3]) u_sram_1.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
+//     end
+// end
+// 
+// assign cs_0 = 1'b0;
+// assign cs_1 = 1'b0;
+
 CG u_mem_cg_0 (
     .CK   ( clk      ),
     .EN   ( cs_0     ),
@@ -603,6 +626,29 @@ sram u_sram_1 (
 );
 
 assign busy_1 = 1'b0;
+
+intc u_intc(
+    .clk    ( clk          ),
+    .rstn   ( core_rstn    ),
+    .psel   ( intc_psel    ),
+    .penable( intc_penable ),
+    .paddr  ( intc_paddr   ),
+    .pwrite ( intc_pwrite  ),
+    .pstrb  ( intc_pstrb   ),
+    .pwdata ( intc_pwdata  ),
+    .prdata ( intc_prdata  ),
+    .pslverr( intc_pslverr ),
+    .pready ( intc_pready  ),
+                            
+    .msip   ( msip         ),
+    .mtip   ( mtip         ),
+    .meip   ( meip         ),
+`ifdef DC
+    .ints   ( ~32'b0       )
+`else
+    .ints   ( 32'b0        )
+`endif
+);
 
 dbgapb u_dbgapb (
     .pclk      ( clk           ),

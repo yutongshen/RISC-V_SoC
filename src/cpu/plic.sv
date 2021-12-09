@@ -21,6 +21,9 @@ module plic (
 logic [        31:0] claim_id    [`CPU_NUM];
 logic [        31:0] cmplet_id   [`CPU_NUM];
 
+logic [`INT_NUM-1:1] claim;
+logic [`INT_NUM-1:1] cmplet;
+
 logic [`INT_NUM-1:0] int_pend;
 logic [`INT_NUM-1:0] int_type;
 logic [`INT_NUM-1:0] int_pol;
@@ -31,6 +34,8 @@ logic [        31:0] threshold   [`CPU_NUM];
 
 logic [        31:0] int_id_tmp  [`CPU_NUM];
 logic [        31:0] int_max_pri [`CPU_NUM];
+
+logic                apb_wr;
 
 logic [        31:0] prdata_t;
 logic [        31:0] prdata_pri;
@@ -72,27 +77,25 @@ genvar gvar_j;
 genvar gvar_k;
 generate
     for (gvar_i = 1; gvar_i < `INT_NUM; gvar_i = gvar_i + 1) begin: g_gateway
-        logic claim;
-        logic cmplet;
 
         always_comb begin
             integer i;
-            claim  = 1'b0;
-            cmplet = 1'b0;
+            claim [gvar_i] = 1'b0;
+            cmplet[gvar_i] = 1'b0;
             for (i = 0; i < `CPU_NUM; i = i + 1) begin
-                claim  = claim  | (claim_id [i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
-                cmplet = cmplet | (cmplet_id[i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
+                claim [gvar_i] = claim [gvar_i] | (claim_id [i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
+                cmplet[gvar_i] = cmplet[gvar_i] | (cmplet_id[i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
             end
         end
 
         gateway u_gateway(
             .clk      ( clk              ),
             .rstn     ( rstn             ),
-            .src      ( ints[gvar_i]     ),
+            .src      ( ints    [gvar_i] ),
             .src_type ( int_type[gvar_i] ), // 0: edge, 1: level
-            .src_pol  ( int_pol[gvar_i]  ), // 0: high, 1: low
-            .claim    ( claim            ),
-            .cmplet   ( cmplet           ),
+            .src_pol  ( int_pol [gvar_i] ), // 0: high, 1: low
+            .claim    ( claim   [gvar_i] ),
+            .cmplet   ( cmplet  [gvar_i] ),
             .pend     ( int_pend[gvar_i] )
         );
     end
@@ -114,32 +117,93 @@ generate
         end
 
         for (gvar_j = 0; gvar_j < 10; gvar_j = gvar_j + 1) begin: g_cmp_tree_lvl
-            for (gvar_k = 0; gvar_k <= CMP_TREE_NUM[gvar_j] - 1; gvar_k = gvar_k + 2) begin: g_cmp
-                if (gvar_k == CMP_TREE_NUM[gvar_j] - 1) begin: g_remainder
-                    assign en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k];
-                    assign id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
-                    if (gvar_j > 0) begin: g_non_first
-                        assign id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k][0+:gvar_j];
-                    end
-                end
-                else begin: g_cmp
-                    always_comb begin
-                        if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
-                            en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k + 1];
-                            id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b1;
-                        end
-                        else begin
-                            en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k];
-                            id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
-                        end
-                    end
-                    if (gvar_j > 0) begin: g_non_first
-                        always_comb begin
-                            if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
-                                id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k+1][0+:gvar_j];
+            if (gvar_j % 3 == 2) begin: g_pipelining
+                for (gvar_k = 0; gvar_k <= CMP_TREE_NUM[gvar_j] - 1; gvar_k = gvar_k + 2) begin: g_cmp
+                    if (gvar_k == CMP_TREE_NUM[gvar_j] - 1) begin: g_remainder
+                        always_ff @(posedge clk or negedge rstn) begin
+                            if (~rstn) begin
+                                en_ints_pri[gvar_j+1][gvar_k>>1]     <= 32'b0;
+                                id_sel[gvar_j+1][gvar_k>>1][gvar_j]  <= 1'b0;
                             end
                             else begin
-                                id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k][0+:gvar_j];
+                                en_ints_pri[gvar_j+1][gvar_k>>1]     <= en_ints_pri[gvar_j][gvar_k];
+                                id_sel[gvar_j+1][gvar_k>>1][gvar_j]  <= 1'b0;
+                            end
+                        end
+                        if (gvar_j > 0) begin: g_non_first
+                            always_ff @(posedge clk or negedge rstn) begin
+                                if (~rstn) begin
+                                    id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] <= {gvar_j{1'b0}};
+                                end
+                                else begin
+                                    id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] <= id_sel[gvar_j][gvar_k][0+:gvar_j];
+                                end
+                            end
+                        end
+                    end
+                    else begin: g_cmp
+                        always_ff @(posedge clk or negedge rstn) begin
+                            if (~rstn) begin
+                                en_ints_pri[gvar_j+1][gvar_k>>1]     <= 32'b0;
+                                id_sel[gvar_j+1][gvar_k>>1][gvar_j]  <= 1'b0;
+                            end
+                            else begin
+                                if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
+                                    en_ints_pri[gvar_j+1][gvar_k>>1]     <= en_ints_pri[gvar_j][gvar_k + 1];
+                                    id_sel[gvar_j+1][gvar_k>>1][gvar_j]  <= 1'b1;
+                                end
+                                else begin
+                                    en_ints_pri[gvar_j+1][gvar_k>>1]     <= en_ints_pri[gvar_j][gvar_k];
+                                    id_sel[gvar_j+1][gvar_k>>1][gvar_j]  <= 1'b0;
+                                end
+                            end
+                        end
+                        if (gvar_j > 0) begin: g_non_first
+                            always_ff @(posedge clk or negedge rstn) begin
+                                if (~rstn) begin
+                                    id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] <= {gvar_j{1'b0}};
+                                end
+                                else begin
+                                    if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
+                                        id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] <= id_sel[gvar_j][gvar_k+1][0+:gvar_j];
+                                    end
+                                    else begin
+                                        id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] <= id_sel[gvar_j][gvar_k][0+:gvar_j];
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+            else begin: g_non_pipelining
+                for (gvar_k = 0; gvar_k <= CMP_TREE_NUM[gvar_j] - 1; gvar_k = gvar_k + 2) begin: g_cmp
+                    if (gvar_k == CMP_TREE_NUM[gvar_j] - 1) begin: g_remainder
+                        assign en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k];
+                        assign id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
+                        if (gvar_j > 0) begin: g_non_first
+                            assign id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k][0+:gvar_j];
+                        end
+                    end
+                    else begin: g_cmp
+                        always_comb begin
+                            if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
+                                en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k + 1];
+                                id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b1;
+                            end
+                            else begin
+                                en_ints_pri[gvar_j+1][gvar_k>>1]     = en_ints_pri[gvar_j][gvar_k];
+                                id_sel[gvar_j+1][gvar_k>>1][gvar_j]  = 1'b0;
+                            end
+                        end
+                        if (gvar_j > 0) begin: g_non_first
+                            always_comb begin
+                                if (en_ints_pri[gvar_j][gvar_k] < en_ints_pri[gvar_j][gvar_k + 1]) begin
+                                    id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k+1][0+:gvar_j];
+                                end
+                                else begin
+                                    id_sel[gvar_j+1][gvar_k>>1][0+:gvar_j] = id_sel[gvar_j][gvar_k][0+:gvar_j];
+                                end
                             end
                         end
                     end
@@ -152,19 +216,28 @@ generate
     end
 endgenerate
 
-always_ff @(posedge clk or negedge rstn) begin
+// always_ff @(posedge clk or negedge rstn) begin
+//     integer i;
+//     if (~rstn) begin
+//         for (i = 0; i < `CPU_NUM; i = i + 1) begin
+//             meip[i] <= 1'b0;
+//         end
+//     end
+//     else begin
+//         for (i = 0; i < `CPU_NUM; i = i + 1) begin
+//             meip[i] <= int_max_pri[i] > threshold[i];
+//         end
+//     end
+// end
+
+always_comb begin
     integer i;
-    if (~rstn) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            meip[i] <= 1'b0;
-        end
-    end
-    else begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            meip[i] <= int_max_pri[i] > threshold[i];
-        end
+    for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        meip[i] <= claim_id[i] != int_id[i];
     end
 end
+
+assign apb_wr = ~penable & psel & pwrite;
 
 always_ff @(posedge clk or negedge rstn) begin
     integer i;
@@ -173,7 +246,7 @@ always_ff @(posedge clk or negedge rstn) begin
             int_prior[i] <= 32'b0;
         end
     end
-    else if (penable & psel & pwrite) begin
+    else if (apb_wr) begin
         for (i = 1; i < `INT_NUM; i = i + 1) begin
             if (paddr[25:0] == `PLIC_INT_PRIOR + 26'h4 * i[25:0]) begin
                 int_prior[i] <= pwdata;
@@ -187,7 +260,7 @@ always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         int_type <= `INT_NUM'b0;
     end
-    else if (penable & psel & pwrite) begin
+    else if (apb_wr) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
             if (paddr[25:0] == `PLIC_INT_TYPE + i[28:3]) begin
                 int_type[i+:32] <= pwdata;
@@ -201,7 +274,7 @@ always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         int_pol <= `INT_NUM'b0;
     end
-    else if (penable & psel & pwrite) begin
+    else if (apb_wr) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
             if (paddr[25:0] == `PLIC_INT_POL + i[28:3]) begin
                 int_pol[i+:32] <= pwdata;
@@ -217,7 +290,7 @@ always_ff @(posedge clk or negedge rstn) begin
             int_en[j] <= `INT_NUM'b0;
         end
     end
-    else if (penable & psel & pwrite) begin
+    else if (apb_wr) begin
         for (j = 0; j < `CPU_NUM; j = j + 1) begin
             for (i = 0; i < `INT_NUM; i = i + 32) begin
                 if (paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]) begin
@@ -235,7 +308,7 @@ always_ff @(posedge clk or negedge rstn) begin
             threshold[i] <= 32'b0;
         end
     end
-    else if (penable & psel & pwrite) begin
+    else if (apb_wr) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
             if (paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]) begin
                 threshold[i] <= pwdata;
@@ -249,24 +322,48 @@ always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
             int_id   [i] <= 32'b0;
+        end
+    end
+    else begin
+        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+            if (!(~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4)) begin
+                if (~|claim_id[i]) begin // non-preemptive
+                    int_id   [i] <= int_max_pri[i] > threshold[i] ? int_id_tmp[i] : 32'b0;
+                end
+            end
+        end
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    integer i;
+    if (~rstn) begin
+        for (i = 0; i < `CPU_NUM; i = i + 1) begin
             claim_id [i] <= 32'b0;
+        end
+    end
+    else begin
+        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+            if (~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
+                claim_id [i] <= pwrite ? 32'b0 : int_id[i];
+            end
+        end
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    integer i;
+    if (~rstn) begin
+        for (i = 0; i < `CPU_NUM; i = i + 1) begin
             cmplet_id[i] <= 32'b0;
         end
     end
     else begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4 && |int_id[i]) begin
-                if (pwrite) begin
-                    int_id   [i] <= 32'b0;
-                    claim_id [i] <= 32'b0;
-                    cmplet_id[i] <= claim_id[i];
-                end
-                else begin
-                    claim_id [i] <= int_id[i];
-                end
+            if (apb_wr && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
+                cmplet_id[i] <= claim_id[i];
             end
-            else if (int_max_pri[i] > threshold[i] && ~|claim_id[i]) begin
-                int_id   [i] <= int_id_tmp[i];
+            else begin
                 cmplet_id[i] <= 32'b0;
             end
         end

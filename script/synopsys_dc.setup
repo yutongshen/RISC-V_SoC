@@ -1,0 +1,26 @@
+set company "CIC"
+set designer "Student"
+
+set CoreSearchPath /usr/cad/CBDK/CBDK018_UMC_Faraday_v1.0/orig_lib/fsa0m_a/2009Q2v2.0/GENERIC_CORE/FrontEnd/synopsys/
+set IOSearchPath /usr/cad/CBDK/CBDK018_UMC_Faraday_v1.0/orig_lib/fsa0m_a/2008Q3v1.2/T33_GENERIC_IO/FrontEnd/synopsys/
+set MemoryPath ../lib/SRAM
+set DefintionPath ../include
+
+set search_path    "$CoreSearchPath $IOSearchPath $MemoryPath $DefintionPath $search_path"
+set target_library " fsa0m_a_generic_core_ss1p62v125c.db fsa0m_a_generic_core_ff1p98vm40c.db SRAM_WC.db SRAM_BC.db fsa0m_a_t33_generic_io_ss1p62v125c.db fsa0m_a_t33_generic_io_ff1p98vm40c.db"
+set synthetic_library "dw_foundation.sldb"
+set link_library   "* $target_library $synthetic_library"
+set symbol_library "fsa0m_a_generic_core.sdb fsa0m_a_t33_generic_io.sdb"
+
+set_min_lib "fsa0m_a_generic_core_ss1p62v125c.db" \
+       -min "fsa0m_a_generic_core_ff1p98vm40c.db"     ; # for core lib
+set_min_lib "fsa0m_a_t33_generic_io_ss1p62v125c.db" \
+       -min "fsa0m_a_t33_generic_io_ff1p98vm40c.db"   ; # for IO lib
+set_min_lib "SRAM_WC.db" \
+       -min "SRAM_BC.db"                              ; # for Memory
+
+set verilogout_no_tri true
+set hdlin_enable_presto_for_vhdl "TRUE"
+set sh_enable_line_editing true
+history keep 100
+alias h history

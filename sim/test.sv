@@ -110,7 +110,7 @@ initial begin
     // force u_cpu_wrap.u_plic.int_prior[31] = 32'h0;
     // wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
     // #1;
-    // #(`CLK_PRIOD * 5)
+    // #(`CLK_PRIOD * 20)
     // force u_cpu_wrap.u_cpu_top.msip = 1'b1;
     // #(`CLK_PRIOD * 10)
     // release u_cpu_wrap.u_cpu_top.msip;

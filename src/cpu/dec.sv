@@ -121,7 +121,7 @@ always_comb begin
                 rs2_imm_sel  = 1'b0;
                 mem_req      = 1'b1;
                 mem_wr       = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
                 mem_cal_sel  = 1'b1;
                 case (funct3)
                     FUNCT3_LB : begin
@@ -184,7 +184,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
                 case (funct3)
                     FUNCT3_ADDI : begin
                         alu_op       = ALU_ADD;
@@ -238,7 +238,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
             end
             OP_OP_IMM_32: begin
             end
@@ -278,7 +278,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
                 case (funct3)
                     FUNCT3_ADD : begin
                         case (funct7)
@@ -377,7 +377,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
             end
             OP_OP_32    : begin
             end
@@ -441,7 +441,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
                 jump_alu     = 1'b1;
             end
             OP_JAL      : begin
@@ -453,7 +453,7 @@ always_comb begin
                 mem_req      = 1'b0;
                 mem_wr       = 1'b0;
                 mem_cal_sel  = 1'b0;
-                reg_wr       = 1'b1;
+                reg_wr       = |rd_addr;
                 jump         = 1'b1;
             end
             OP_SYSTEM   : begin
@@ -505,7 +505,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b0;
                         csr_rd       = |rd_addr;
                         csr_wr       = 1'b1;
@@ -518,7 +518,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b0;
                         csr_rd       = |rd_addr;
                         csr_wr       = |rs1_addr;
@@ -531,7 +531,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b0;
                         csr_rd       = |rd_addr;
                         csr_wr       = |rs1_addr;
@@ -544,7 +544,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b1;
                         csr_rd       = |rd_addr;
                         csr_wr       = 1'b1;
@@ -557,7 +557,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b1;
                         csr_rd       = |rd_addr;
                         csr_wr       = |rs1_addr;
@@ -570,7 +570,7 @@ always_comb begin
                         rs1_zero_sel = 1'b0;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
-                        reg_wr       = 1'b1;
+                        reg_wr       = |rd_addr;
                         uimm_rs1_sel = 1'b1;
                         csr_rd       = |rd_addr;
                         csr_wr       = |rs1_addr;

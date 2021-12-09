@@ -198,16 +198,20 @@ end
 always_ff @(posedge clk or negedge rstn) begin
     integer i;
     if (~rstn) begin
-        for (i = 0; i < 15; i = i + 1) begin
+        for (i = 2; i < 16; i = i + 1) begin
             pmacfg_l[i] <= 1'b0;
             pmacfg_a[i] <= 2'b0;
             pmacfg_c[i] <= 1'b0;
             pmacfg_e[i] <= 1'b0;
         end
-        pmacfg_l[15] <= 1'b1;
-        pmacfg_a[15] <= `PMACFG_A_NAPOT;
-        pmacfg_c[15] <= 1'b1;
-        pmacfg_e[15] <= 1'b0;
+        pmacfg_l[0] <= 1'b1;
+        pmacfg_a[0] <= `PMACFG_A_TOR;
+        pmacfg_c[0] <= 1'b1;
+        pmacfg_e[0] <= 1'b0;
+        pmacfg_l[1] <= 1'b1;
+        pmacfg_a[1] <= `PMACFG_A_TOR;
+        pmacfg_c[1] <= 1'b0;
+        pmacfg_e[1] <= 1'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_PMACFG0_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
@@ -254,13 +258,14 @@ end
 always_ff @(posedge clk or negedge rstn) begin
     integer i;
     if (~rstn) begin
-        for (i = 0; i < 15; i = i + 1) begin
+        for (i = 2; i < 16; i = i + 1) begin
             pmaaddr[i] <= `XLEN'b0;
         end
-        pmaaddr[15] <= `XLEN'hffff;
+        pmaaddr[0] <= `XLEN'h0100_0000;
+        pmaaddr[1] <= `XLEN'h1000_0000;
     end
     else begin
-        for (i = 0; i < 15; i = i + 1) begin
+        for (i = 0; i < 16; i = i + 1) begin
             if (csr_wr && csr_waddr == CSR_PMAADDR_ADDR[i] &&
                 !pmacfg_l[i] && !(pmacfg_l[i+1] && pmacfg_a[i+1] == `PMACFG_A_TOR)) begin
                 pmaaddr[i] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);

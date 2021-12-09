@@ -44,9 +44,9 @@ main:
   # csrw pmpaddr1, t1
   # csrw pmpcfg0, t0
 
-  li t0, 0x1f
+  li t0, 0x1f0000
   li t1, 0x7fffffff
-  csrw pmaaddr0, t1
+  csrw pmaaddr3, t1
   csrw pmacfg0, t0
 
   /*plic test*/
@@ -80,6 +80,12 @@ main:
 
   li t0, 0x0c001100 #irq polarity
   li t1, 0
+  sw t1, 0(t0)
+
+  li t0, 0x0c200004 #irq claim/complete
+  lw t1, 0(t0)
+
+  li t0, 0x0c200004 #irq claim/complete
   sw t1, 0(t0)
 
   li t0, 0x0c001100 #irq polarity

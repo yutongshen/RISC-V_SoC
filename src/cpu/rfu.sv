@@ -25,18 +25,12 @@ logic [        4:0] rd_addr_dbg;
 logic               wen_dbg;
 logic [       31:0] rd_data_dbg;
 
-resetn_synchronizer u_sync (
-    .clk        ( clk       ),
-    .rstn_async ( rstn      ),
-    .rstn_sync  ( rstn_sync )
-);
-
 assign rd_addr_dbg = (halted && dbg_gpr_wr) ? dbg_gpr_addr : rd_addr;
 assign wen_dbg     = wen || (halted && dbg_gpr_wr);
 assign rd_data_dbg = (halted && dbg_gpr_wr) ? dbg_gpr_in : rd_data;
 
-always_ff @(posedge clk or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
         for (i = 0; i < 32; i = i + 1) begin
             gpr[i] <= {`XLEN{1'b0}};
         end

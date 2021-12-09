@@ -75,7 +75,7 @@ assign csr_rd    = csr_rd_tmp || (halted && dbg_csr_rd);
 assign csr_wr    = csr_wr_tmp || (halted && dbg_csr_wr);
 
 rfu u_rfu (
-    .clk          ( ~clk          ),
+    .clk          ( clk           ),
     .rstn         ( rstn          ),
     .rs1_addr     ( rs1_addr      ),
     .rs2_addr     ( rs2_addr      ),

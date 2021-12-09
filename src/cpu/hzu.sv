@@ -13,44 +13,47 @@ module hzu (
     output       if_stall,
     output       id_stall,
     output       exe_stall,
-    output       mem_stall,
+    output       ma_stall,
+    output       mr_stall,
     output       wb_stall,
     output       if_flush,
     output       id_flush,
     output       exe_flush,
-    output       mem_flush,
+    output       ma_flush,
+    output       mr_flush,
     output       wb_flush,
     output       if_flush_force,
     output       id_flush_force,
     output       exe_flush_force,
-    output       mem_flush_force,
+    output       ma_flush_force,
+    output       mr_flush_force,
     output       wb_flush_force
 );
 
-logic [4:0] stall_all;
-logic [4:0] flush_all;
-logic [4:0] flush_force_all;
-logic [4:0] flush_trap_all;
+logic [5:0] stall_all;
+logic [5:0] flush_all;
+logic [5:0] flush_force_all;
+logic [5:0] flush_trap_all;
 
-assign {wb_stall, mem_stall, exe_stall, id_stall, if_stall} = stall_all/* & inst_valid*/;
-assign {wb_flush, mem_flush, exe_flush, id_flush, if_flush} = flush_all | flush_trap_all | flush_force_all;
-assign {wb_flush_force, mem_flush_force, exe_flush_force, id_flush_force, if_flush_force} = flush_force_all;
+assign {wb_stall, mr_stall, ma_stall, exe_stall, id_stall, if_stall} = stall_all/* & inst_valid*/;
+assign {wb_flush, mr_flush, ma_flush, exe_flush, id_flush, if_flush} = flush_all | flush_trap_all | flush_force_all;
+assign {wb_flush_force, mr_flush_force, ma_flush_force, exe_flush_force, id_flush_force, if_flush_force} = flush_force_all;
 
-assign stall_all = dpu_hazard ? 5'b11111:
-                   exe_hazard ? 5'b00111:
-                   id_hazard  ? 5'b00011:
-                                5'b00000;
+assign stall_all = dpu_hazard ? 6'b011111:
+                   exe_hazard ? 6'b000111:
+                   id_hazard  ? 6'b000011:
+                                6'b000000;
 
-assign flush_all = dpu_fault  ? 5'b11111:
-                   dpu_hazard ? 5'b10000:
-                   exe_hazard ? 5'b00100:
-                   id_hazard  ? 5'b00010:
-                                5'b00000;
+assign flush_all = dpu_fault  ? 6'b011111:
+                   dpu_hazard ? 6'b010000:
+                   exe_hazard ? 6'b000100:
+                   id_hazard  ? 6'b000010:
+                                6'b000000;
 
-assign flush_force_all = pl_restart_en                               ? 5'b00111:
-                         (pc_alu_en || eret_en || irq_en || trap_en) ? 5'b00011:
-                                                                       5'b00000;
+assign flush_force_all = pl_restart_en                               ? 6'b000111:
+                         (pc_alu_en || eret_en || irq_en || trap_en) ? 6'b000011:
+                                                                       6'b000000;
 
-assign flush_trap_all = (irq_en || trap_en) ? 5'b00100 : 5'b00000;
+assign flush_trap_all = (irq_en || trap_en) ? 6'b000100 : 6'b000000;
 
 endmodule
