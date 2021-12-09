@@ -19,8 +19,8 @@ module idu (
     // Control
     output logic [                      1:0] prv_req,
     output logic                             ill_inst,
-    output logic                             fense,
-    output logic                             fense_i,
+    output logic                             fence,
+    output logic                             fence_i,
     output logic                             ecall,
     output logic                             ebreak,
     output logic                             wfi,
@@ -100,8 +100,8 @@ dec u_dec (
     // Control
     .prv_req             ( prv_req             ),
     .ill_inst            ( ill_inst            ),
-    .fense               ( fense               ),
-    .fense_i             ( fense_i             ),
+    .fence               ( fence               ),
+    .fence_i             ( fence_i             ),
     .ecall               ( ecall               ),
     .ebreak              ( ebreak              ),
     .wfi                 ( wfi                 ),

@@ -8,8 +8,8 @@ module dec (
     // Control
     output logic [                      1:0] prv_req,
     output logic                             ill_inst,
-    output logic                             fense,
-    output logic                             fense_i,
+    output logic                             fence,
+    output logic                             fence_i,
     output logic                             ecall,
     output logic                             ebreak,
     output logic                             wfi,
@@ -93,8 +93,8 @@ always_comb begin
     mem_sign_ext        = 1'b0;
     mem_cal_sel         = 1'b0;
     reg_wr              = 1'b0;
-    fense               = 1'b0;
-    fense_i             = 1'b0;
+    fence               = 1'b0;
+    fence_i             = 1'b0;
     ecall               = 1'b0;
     ebreak              = 1'b0;
     wfi                 = 1'b0;
@@ -159,14 +159,14 @@ always_comb begin
                         mem_req      = 1'b0;
                         mem_wr       = 1'b0;
                         reg_wr       = 1'b0;
-                        fense        = 1'b1;
+                        fence        = 1'b1;
                     end
                     {FUNCT3_FENCE_I, 5'b0, 5'b0, 4'b0}: begin
                         if (inst[27:20] == 8'b0) begin
                             mem_req      = 1'b0;
                             mem_wr       = 1'b0;
                             reg_wr       = 1'b0;
-                            fense_i      = 1'b1;
+                            fence_i      = 1'b1;
                             pc_imm_sel   = 1'b0;
                         end
                         else ill_inst     = 1'b1;

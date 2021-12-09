@@ -236,10 +236,10 @@ always_ff @(posedge clk or negedge rstn) begin
         prv <= `PRV_S;
     end
     else if (sret) begin
-        prv <= {1'b0, mstatus[`MSTATUS_SPP_BIT]};
+        prv <= {1'b0, mstatus_spp};
     end
     else if (mret) begin
-        prv <= mstatus[`MSTATUS_MPP_BIT];
+        prv <= mstatus_mpp;
     end
 end
 

@@ -128,8 +128,8 @@ logic [              `XLEN - 1:0] id_imm;
 
 logic [                      1:0] id_prv_req;
 logic                             id_ill_inst;
-logic                             id_fense;
-logic                             id_fense_i;
+logic                             id_fence;
+logic                             id_fence_i;
 logic                             id_ecall;
 logic                             id_ebreak;
 logic                             id_wfi;
@@ -228,7 +228,7 @@ logic                             id2exe_inst_xes_fault;
 logic                             id2exe_tlb_flush_req;
 logic                             id2exe_tlb_flush_all_vaddr;
 logic                             id2exe_tlb_flush_all_asid;
-logic                             id2exe_fense_i;
+logic                             id2exe_fence_i;
 logic                             id2exe_attach;
 logic                             id2exe_ext_csr_wr;
 logic [              `XLEN - 1:0] id2exe_ext_csr_wdata;
@@ -305,7 +305,7 @@ logic [       `IM_ADDR_LEN - 1:0] exe2ma_epc;
 logic                             exe2ma_tlb_flush_req;
 logic                             exe2ma_tlb_flush_all_vaddr;
 logic                             exe2ma_tlb_flush_all_asid;
-logic                             exe2ma_fense_i;
+logic                             exe2ma_fence_i;
 logic                             exe2ma_attach;
 
 // MA stage
@@ -330,7 +330,7 @@ logic                             ma_store_misaligned;
 logic                             ma_store_page_fault;
 logic                             ma_store_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] ma_dpu_pc;
-logic                             ma_pl_restart;
+logic                             ma_pipe_restart;
 
 // MA/MR pipeline
 logic [       `IM_ADDR_LEN - 1:0] ma2mr_pc;
@@ -342,6 +342,7 @@ logic [(`DM_DATA_LEN >> 3) - 1:0] ma2mr_mem_byte;
 logic                             ma2mr_mem_sign_ext;
 logic                             ma2mr_mem_cal_sel;
 logic [              `XLEN - 1:0] ma2mr_rd_data;
+logic [              `XLEN - 1:0] ma2mr_pc2rd;
 logic [       `DM_ADDR_LEN - 1:0] ma2mr_mem_addr;
 logic [       `DM_DATA_LEN - 1:0] ma2mr_mem_wdata;
 logic                             ma2mr_mem_req;
@@ -356,9 +357,17 @@ logic [              `XLEN - 1:0] ma2mr_cause;
 logic [              `XLEN - 1:0] ma2mr_tval;
 logic [       `IM_ADDR_LEN - 1:0] ma2mr_epc;
 logic                             ma2mr_attach;
+logic                             ma2mr_tlb_flush_req;
+logic                             ma2mr_tlb_flush_all_vaddr;
+logic                             ma2mr_tlb_flush_all_asid;
+logic [              `XLEN - 1:0] ma2mr_tlb_flush_vaddr;
+logic [              `XLEN - 1:0] ma2mr_tlb_flush_asid;
+logic                             ma2mr_fence_i;
+logic                             ma2mr_pipe_restart;
 
 // MR stage
 logic [              `XLEN - 1:0] mr_rd_data;
+logic                             mr_pipe_restart;
 
 // MR/WB pipeline
 logic [       `IM_ADDR_LEN - 1:0] mr2wb_pc;
@@ -368,7 +377,6 @@ logic [                      4:0] mr2wb_rd_addr;
 logic                             mr2wb_rd_wr;
 logic [(`DM_DATA_LEN >> 3) - 1:0] mr2wb_mem_byte;
 logic                             mr2wb_mem_sign_ext;
-// logic                             mr2wb_mem_cal_sel;
 logic [              `XLEN - 1:0] mr2wb_rd_data;
 logic [       `DM_ADDR_LEN - 1:0] mr2wb_mem_addr;
 logic [       `DM_DATA_LEN - 1:0] mr2wb_mem_wdata;
@@ -432,7 +440,7 @@ hzu u_hzu (
     .irq_en          ( exe_irq_en      ),
     .trap_en         ( exe_trap_en     ),
     .eret_en         ( exe_eret_en     ),
-    .pl_restart_en   ( ma_pl_restart   ),
+    .pipe_restart_en ( mr_pipe_restart ),
     .id_hazard       ( id_hazard       ),
     .exe_hazard      ( exe_hazard      ),
     .dpu_hazard      ( ma_dpu_hazard   ),
@@ -459,34 +467,34 @@ hzu u_hzu (
 
 // IF stage
 ifu u_ifu (
-    .clk           ( clk                          ),
-    .rstn          ( rstn_sync                    ),
-    .irq_en        ( exe_irq_en | exe_trap_en     ),
-    .irq_vec       ( irq_vec                      ),
-    .eret_en       ( exe_eret_en                  ),
-    .ret_epc       ( ret_epc                      ),
-    .pc_jump_en    ( if_pc_jump_en                ),
-    .pc_jump       ( if_pc_jump                   ),
-    .pc_alu_en     ( if_pc_alu_en                 ),
-    .pc_alu        ( if_pc_alu                    ),
-    .pl_restart_en ( ma_pl_restart                ),
-    .pl_restart    ( exe2ma_pc2rd                 ),
-    .imem_req      ( imem_en                      ),
-    .imem_addr     ( imem_addr                    ),
-    .imem_rdata    ( imem_rdata                   ),
-    .imem_bad      ( imem_bad                     ),
-    .imem_busy     ( imem_busy                    ),
-    .pc            ( if_pc                        ),
-    .inst          ( if_inst                      ),
-    .inst_valid    ( if_inst_valid                ),
-    .misaligned    ( if_inst_misaligned           ),
-    .page_fault    ( if_inst_page_fault           ),
-    .xes_fault     ( if_inst_xes_fault            ),
-    .flush         ( if_flush                     ),
-    .stall         ( if_stall | stall_wfi | sleep ),
-    .attach        ( attach                       ),
-    .dbg_exec      ( dbg_exec                     ),
-    .dbg_inst      ( dbg_inst                     )
+    .clk             ( clk                          ),
+    .rstn            ( rstn_sync                    ),
+    .irq_en          ( exe_irq_en | exe_trap_en     ),
+    .irq_vec         ( irq_vec                      ),
+    .eret_en         ( exe_eret_en                  ),
+    .ret_epc         ( ret_epc                      ),
+    .pc_jump_en      ( if_pc_jump_en                ),
+    .pc_jump         ( if_pc_jump                   ),
+    .pc_alu_en       ( if_pc_alu_en                 ),
+    .pc_alu          ( if_pc_alu                    ),
+    .pipe_restart_en ( mr_pipe_restart              ),
+    .pipe_restart    ( ma2mr_pc2rd                  ),
+    .imem_req        ( imem_en                      ),
+    .imem_addr       ( imem_addr                    ),
+    .imem_rdata      ( imem_rdata                   ),
+    .imem_bad        ( imem_bad                     ),
+    .imem_busy       ( imem_busy                    ),
+    .pc              ( if_pc                        ),
+    .inst            ( if_inst                      ),
+    .inst_valid      ( if_inst_valid                ),
+    .misaligned      ( if_inst_misaligned           ),
+    .page_fault      ( if_inst_page_fault           ),
+    .xes_fault       ( if_inst_xes_fault            ),
+    .flush           ( if_flush                     ),
+    .stall           ( if_stall | stall_wfi | sleep ),
+    .attach          ( attach                       ),
+    .dbg_exec        ( dbg_exec                     ),
+    .dbg_inst        ( dbg_inst                     )
 );
 
 assign exe_branch_match = id2exe_branch & (id2exe_branch_zcmp == exe_alu_zero);
@@ -541,8 +549,8 @@ idu u_idu (
     // Control
     .prv_req             ( id_prv_req             ),
     .ill_inst            ( id_ill_inst            ),
-    .fense               ( id_fense               ),
-    .fense_i             ( id_fense_i             ),
+    .fence               ( id_fence               ),
+    .fence_i             ( id_fence_i             ),
     .ecall               ( id_ecall               ),
     .ebreak              ( id_ebreak              ),
     .wfi                 ( id_wfi                 ),
@@ -679,7 +687,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         id2exe_tlb_flush_req       <= 1'b0;
         id2exe_tlb_flush_all_vaddr <= 1'b0;
         id2exe_tlb_flush_all_asid  <= 1'b0;
-        id2exe_fense_i             <= 1'b0;
+        id2exe_fence_i             <= 1'b0;
         id2exe_attach              <= 1'b0;
         id2exe_ext_csr_wr          <= 1'b0;
         id2exe_ext_csr_wdata       <= 32'b0;
@@ -734,7 +742,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             id2exe_tlb_flush_req       <= ~id_flush & id_tlb_flush_req;
             id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
             id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
-            id2exe_fense_i             <= ~id_flush & id_fense_i;
+            id2exe_fence_i             <= ~id_flush & id_fence_i;
             id2exe_attach              <= if2id_attach;
             id2exe_ext_csr_wr          <= dbg_csr_wr;
             id2exe_ext_csr_wdata       <= dbg_wdata;
@@ -769,15 +777,16 @@ assign exe_rs2_data       = fwd_ma2exe_rd_rs2 ? ma_rd_data    :
                             fwd_wb2exe_rd_rs2 ? wb_rd_data    :
                                                 id2exe_rs2_data;
 
-assign exe_hazard   = ((exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel) &
-                       (exe2ma_rd_wr & (id2exe_rs1_addr == exe2ma_rd_addr) |
-                        exe2ma_rd_wr & (id2exe_rs2_addr == exe2ma_rd_addr))) ||
-                     ((ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel) &
-                       (ma2mr_rd_wr & (id2exe_rs1_addr == ma2mr_rd_addr) |
-                        ma2mr_rd_wr & (id2exe_rs2_addr == ma2mr_rd_addr))) ||
+assign exe_hazard   = (exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel) &
+                      (exe2ma_rd_wr & (id2exe_rs1_addr == exe2ma_rd_addr) |
+                       exe2ma_rd_wr & (id2exe_rs2_addr == exe2ma_rd_addr)) ||
+                      (ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel) &
+                      (ma2mr_rd_wr & (id2exe_rs1_addr == ma2mr_rd_addr) |
+                       ma2mr_rd_wr & (id2exe_rs2_addr == ma2mr_rd_addr)) ||
                       (exe2ma_mem_req   & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_branch |
-                       id2exe_sret | id2exe_mret));
+                       id2exe_sret | id2exe_mret)) ||
+                       ma_pipe_restart;
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
 assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + `XLEN'h4;
@@ -972,7 +981,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         exe2ma_tlb_flush_req       <= 1'b0;
         exe2ma_tlb_flush_all_vaddr <= 1'b0;
         exe2ma_tlb_flush_all_asid  <= 1'b0;
-        exe2ma_fense_i             <= 1'b0;
+        exe2ma_fence_i             <= 1'b0;
         exe2ma_attach              <= 1'b0;
     end
     else begin
@@ -1014,7 +1023,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             exe2ma_tlb_flush_req       <= ~exe_flush & id2exe_tlb_flush_req;
             exe2ma_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
             exe2ma_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
-            exe2ma_fense_i             <= ~exe_flush & id2exe_fense_i;
+            exe2ma_fence_i             <= ~exe_flush & id2exe_fence_i;
             exe2ma_attach              <= id2exe_attach;
         end
         else begin
@@ -1045,14 +1054,7 @@ assign ma_dpu_wdata = fwd_mr2ma_rd_rs2 ? ma2mr_rd_data :
                       fwd_wb2ma_rd_rs2 ? wb_rd_data :
                                          exe2ma_rs2_data;
 
-assign tlb_flush_req       = exe2ma_tlb_flush_req;
-assign tlb_flush_all_vaddr = exe2ma_tlb_flush_all_vaddr;
-assign tlb_flush_all_asid  = exe2ma_tlb_flush_all_asid;
-assign tlb_flush_vaddr     = ma_rs1_data;
-assign tlb_flush_asid      = ma_dpu_wdata;
-
-assign ic_flush            = exe2ma_fense_i;
-assign ma_pl_restart       = ~ma_stall && (exe2ma_tlb_flush_req | exe2ma_fense_i);
+assign ma_pipe_restart = exe2ma_tlb_flush_req || exe2ma_fence_i;
 
 dpu u_dpu (
     .clk              ( clk_wfi              ),
@@ -1095,61 +1097,87 @@ assign ma_rd_data = exe2ma_pc_alu_sel  ? exe2ma_pc2rd :
 // MA/WR pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
     if (~rstn_sync) begin
-        ma2mr_pc           <= `IM_ADDR_LEN'b0;
-        ma2mr_inst         <= `IM_DATA_LEN'b0;
-        ma2mr_inst_valid   <= 1'b0;
-        ma2mr_rd_wr        <= 1'b0;
-        ma2mr_rd_addr      <= 5'b0;
-        ma2mr_mem_byte     <= {(`DM_DATA_LEN >> 3){1'b0}};
-        ma2mr_mem_sign_ext <= 1'b0;
-        ma2mr_mem_cal_sel  <= 1'b0;
-        ma2mr_rd_data      <= `XLEN'b0;
-        ma2mr_mem_addr     <= `DM_ADDR_LEN'b0;
-        ma2mr_mem_wdata    <= `DM_DATA_LEN'b0;
-        ma2mr_mem_req      <= 1'b0;
-        ma2mr_mem_wr       <= 1'b0;
-        ma2mr_csr_wr       <= 1'b0;
-        ma2mr_csr_waddr    <= 12'b0;
-        ma2mr_csr_wdata    <= `XLEN'b0;
-        ma2mr_wfi          <= 1'b0;
-        ma2mr_prv          <= 2'b0;
-        ma2mr_trap_en      <= 1'b0;
-        ma2mr_cause        <= `XLEN'b0;
-        ma2mr_tval         <= `XLEN'b0;
-        ma2mr_epc          <= `IM_ADDR_LEN'b0;
-        ma2mr_attach       <= 1'b0;
+        ma2mr_pc                  <= `IM_ADDR_LEN'b0;
+        ma2mr_inst                <= `IM_DATA_LEN'b0;
+        ma2mr_inst_valid          <= 1'b0;
+        ma2mr_rd_wr               <= 1'b0;
+        ma2mr_rd_addr             <= 5'b0;
+        ma2mr_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
+        ma2mr_mem_sign_ext        <= 1'b0;
+        ma2mr_mem_cal_sel         <= 1'b0;
+        ma2mr_rd_data             <= `XLEN'b0;
+        ma2mr_pc2rd               <= `XLEN'b0;
+        ma2mr_mem_addr            <= `DM_ADDR_LEN'b0;
+        ma2mr_mem_wdata           <= `DM_DATA_LEN'b0;
+        ma2mr_mem_req             <= 1'b0;
+        ma2mr_mem_wr              <= 1'b0;
+        ma2mr_csr_wr              <= 1'b0;
+        ma2mr_csr_waddr           <= 12'b0;
+        ma2mr_csr_wdata           <= `XLEN'b0;
+        ma2mr_wfi                 <= 1'b0;
+        ma2mr_prv                 <= 2'b0;
+        ma2mr_trap_en             <= 1'b0;
+        ma2mr_cause               <= `XLEN'b0;
+        ma2mr_tval                <= `XLEN'b0;
+        ma2mr_epc                 <= `IM_ADDR_LEN'b0;
+        ma2mr_attach              <= 1'b0;
+        ma2mr_tlb_flush_req       <= 1'b0;
+        ma2mr_tlb_flush_all_vaddr <= 1'b0;
+        ma2mr_tlb_flush_all_asid  <= 1'b0;
+        ma2mr_tlb_flush_vaddr     <= `XLEN'b0;
+        ma2mr_tlb_flush_asid      <= `XLEN'b0;
+        ma2mr_fence_i             <= 1'b0;
+        ma2mr_pipe_restart        <= 1'b0;
     end
     else begin
         if (~mr_stall | ma_flush_force) begin
-            ma2mr_pc           <= exe2ma_pc;
-            ma2mr_inst         <= exe2ma_inst;
-            ma2mr_inst_valid   <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_inst_valid;
-            ma2mr_rd_wr        <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_rd_wr;
-            ma2mr_rd_addr      <= exe2ma_rd_addr;
-            ma2mr_mem_byte     <= dmem_strb;
-            ma2mr_mem_sign_ext <= exe2ma_mem_sign_ext;
-            ma2mr_mem_cal_sel  <= exe2ma_mem_cal_sel;
-            ma2mr_rd_data      <= ma_rd_data;
-            ma2mr_mem_addr     <= ma_dpu_addr;
-            ma2mr_mem_wdata    <= dmem_wdata;
-            ma2mr_mem_req      <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_req;
-            ma2mr_mem_wr       <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_wr;
-            ma2mr_csr_wr       <= exe2ma_csr_wr;
-            ma2mr_csr_waddr    <= exe2ma_csr_waddr;
-            ma2mr_csr_wdata    <= exe2ma_csr_wdata;
-            ma2mr_wfi          <= ~ma_flush & ~ma2mr_wfi & ~wakeup_event & exe2ma_wfi;
-            ma2mr_prv          <= exe2ma_prv;
-            ma2mr_trap_en      <= exe2ma_trap_en;
-            ma2mr_cause        <= exe2ma_cause;
-            ma2mr_tval         <= exe2ma_tval;
-            ma2mr_epc          <= exe2ma_epc;
-            ma2mr_attach       <= exe2ma_attach;
+            ma2mr_pc                  <= exe2ma_pc;
+            ma2mr_inst                <= exe2ma_inst;
+            ma2mr_inst_valid          <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_inst_valid;
+            ma2mr_rd_wr               <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_rd_wr;
+            ma2mr_rd_addr             <= exe2ma_rd_addr;
+            ma2mr_pc2rd               <= exe2ma_pc2rd;
+            ma2mr_mem_byte            <= dmem_strb;
+            ma2mr_mem_sign_ext        <= exe2ma_mem_sign_ext;
+            ma2mr_mem_cal_sel         <= exe2ma_mem_cal_sel;
+            ma2mr_rd_data             <= ma_rd_data;
+            ma2mr_mem_addr            <= ma_dpu_addr;
+            ma2mr_mem_wdata           <= dmem_wdata;
+            ma2mr_mem_req             <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_req;
+            ma2mr_mem_wr              <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_wr;
+            ma2mr_csr_wr              <= exe2ma_csr_wr;
+            ma2mr_csr_waddr           <= exe2ma_csr_waddr;
+            ma2mr_csr_wdata           <= exe2ma_csr_wdata;
+            ma2mr_wfi                 <= ~ma_flush & ~ma2mr_wfi & ~wakeup_event & exe2ma_wfi;
+            ma2mr_prv                 <= exe2ma_prv;
+            ma2mr_trap_en             <= exe2ma_trap_en;
+            ma2mr_cause               <= exe2ma_cause;
+            ma2mr_tval                <= exe2ma_tval;
+            ma2mr_epc                 <= exe2ma_epc;
+            ma2mr_attach              <= exe2ma_attach;
+            ma2mr_tlb_flush_req       <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_tlb_flush_req;
+            ma2mr_tlb_flush_all_vaddr <= exe2ma_tlb_flush_all_vaddr;
+            ma2mr_tlb_flush_all_asid  <= exe2ma_tlb_flush_all_asid;
+            ma2mr_tlb_flush_vaddr     <= ma_rs1_data;
+            ma2mr_tlb_flush_asid      <= ma_dpu_wdata;
+            ma2mr_fence_i             <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_fence_i;
+            ma2mr_pipe_restart        <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & ma_pipe_restart;
         end
     end
 end
 
 // MEMORY RECEIVE stage
 assign mr_rd_data    = ma2mr_mem_cal_sel ?  ma_dpu_rdata : ma2mr_rd_data;
+
+assign tlb_flush_req       = ma2mr_tlb_flush_req;
+assign tlb_flush_all_vaddr = ma2mr_tlb_flush_all_vaddr;
+assign tlb_flush_all_asid  = ma2mr_tlb_flush_all_asid;
+assign tlb_flush_vaddr     = ma2mr_tlb_flush_vaddr;
+assign tlb_flush_asid      = ma2mr_tlb_flush_asid;
+
+assign ic_flush            = ma2mr_fence_i;
+assign mr_pipe_restart     = ~mr_stall && (ma2mr_tlb_flush_req | ma2mr_fence_i);
+
 
 // MR/WB pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin

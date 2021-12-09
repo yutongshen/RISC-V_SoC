@@ -9,8 +9,8 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] pc_jump,
     input                             pc_alu_en,
     input        [`IM_ADDR_LEN - 1:0] pc_alu,
-    input                             pl_restart_en,
-    input        [`IM_ADDR_LEN - 1:0] pl_restart,
+    input                             pipe_restart_en,
+    input        [`IM_ADDR_LEN - 1:0] pipe_restart,
     output                            imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
     input        [`IM_DATA_LEN - 1:0] imem_rdata,
@@ -42,12 +42,12 @@ logic                      imem_req_tmp;
 logic                      misaligned_tmp;
 
 
-assign jump      = irq_en | pc_jump_en | pc_alu_en | eret_en | pl_restart_en;
-assign jump_addr = pl_restart_en ? pl_restart:
-                   eret_en       ? ret_epc:
-                   irq_en        ? irq_vec:
-                   pc_alu_en     ? pc_alu:
-                                   pc_jump;
+assign jump      = irq_en | pc_jump_en | pc_alu_en | eret_en | pipe_restart_en;
+assign jump_addr = pipe_restart_en ? pipe_restart:
+                   eret_en         ? ret_epc:
+                   irq_en          ? irq_vec:
+                   pc_alu_en       ? pc_alu:
+                                     pc_jump;
 assign pc_nxt    = jump   ? jump_addr:
                    attach ? pc:
                             (pc_d1 + `IM_ADDR_LEN'h4);
