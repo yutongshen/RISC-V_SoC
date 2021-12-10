@@ -7,9 +7,10 @@ module tlb (
     input                             cs,
     input        [`TLB_VPN_WIDTH-1:0] vpn,
     input                             we,
-    input                             spage,
     output logic                      pte_hit,
+    input                             spage_in,
     input        [`TLB_PTE_WIDTH-1:0] pte_in,
+    output logic                      spage_out,
     output logic [`TLB_PTE_WIDTH-1:0] pte_out,
     
     input                             tlb_flush_req,
@@ -35,10 +36,11 @@ logic [        `TLB_WAY_NUM-1:0] spg_latch;
 logic [        `TLB_WAY_NUM-1:0] victim;
 logic [      `TLB_PTE_WIDTH-1:0] pte_out_arr [`TLB_WAY_NUM];
 
-assign pte_hit = |hit;
+assign pte_hit   = |hit;
+assign spage_out = |(hit & spg_latch);
 
 assign idx     = vpn[10+:`TLB_IDX_WIDTH];
-assign tag     = {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+10], vpn[9:0] & {10{~spage}}};
+assign tag     = {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+10], vpn[9:0] & {10{~spage_in}}};
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) tag_latch <= {`TLB_TAG_WIDTH{1'b0}};
@@ -72,7 +74,6 @@ end
 always_comb begin
     integer i;
 
-    // pte_out = `TLB_PTE_WIDTH'b0;
     pte_out = {{`TLB_PTE_WIDTH-10-10{1'b0}}, vpn0_latch & {10{|(hit & spg_latch)}}, 10'b0};
     for (i = 0; i < `TLB_WAY_NUM; i = i + 1) begin
         pte_out = pte_out | ({`TLB_PTE_WIDTH{hit[i]}} & pte_out_arr[i]);
@@ -105,7 +106,7 @@ generate
             else if (cs && we) begin
                 if (victim[g]) begin
                     valid[g][idx]   <= 1'b1;
-                    spg_bit[g][idx] <= spage;
+                    spg_bit[g][idx] <= spage_in;
                     order[g][idx]   <= DEFAULT_ORDER;
                 end
                 else if (order[g][idx] > victim_order) begin

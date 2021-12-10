@@ -68,6 +68,7 @@ end
 always @(posedge simend) begin
     $display("mcycle:   %0d", u_cpu_wrap.u_cpu_top.u_pmu.mcycle);
     $display("minstret: %0d", u_cpu_wrap.u_cpu_top.u_pmu.minstret);
+    $display("CPI:      %f",  u_cpu_wrap.u_cpu_top.u_pmu.mcycle * 1.0 / u_cpu_wrap.u_cpu_top.u_pmu.minstret);
     $finish;
 end
 
@@ -207,7 +208,7 @@ always @(posedge clk) begin
         case (cmd)
             32'h00000000: begin
                 $display("ENDCODE = %x", arg);
-                $finish;
+                simend = 1'b1;
             end
             32'h01010000: $write("%c", arg);
         endcase
