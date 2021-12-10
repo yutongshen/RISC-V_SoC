@@ -4,7 +4,7 @@ module tpu (
     input                           inst_valid,
     input        [`IM_DATA_LEN-1:0] inst,
     input        [`IM_ADDR_LEN-1:0] exe_pc,
-    input        [`IM_ADDR_LEN-1:0] mem_pc,
+    input        [`IM_ADDR_LEN-1:0] wb_pc,
     input        [`DM_ADDR_LEN-1:0] ldst_badaddr,
     input        [`IM_ADDR_LEN-1:0] inst_badaddr,
     input        [             1:0] prv_cur,
@@ -52,7 +52,7 @@ logic trap_store_pg_fault;
 
 logic if_trap_en;
 logic exe_trap_en;
-logic mem_trap_en;
+logic wb_trap_en;
 
 assign trap_inst_misaligned       = inst_misaligned;
 assign trap_inst_access_fault     = inst_xes_fault;
@@ -74,7 +74,7 @@ assign trap_inst_pg_fault         = inst_pg_fault;
 assign trap_load_pg_fault         = load_pg_fault;
 assign trap_store_pg_fault        = store_pg_fault;
 
-assign trap_en = (inst_valid && (if_trap_en | exe_trap_en)) || mem_trap_en;
+assign trap_en = (inst_valid && (if_trap_en | exe_trap_en)) || wb_trap_en;
 
 assign if_trap_en  = trap_inst_misaligned | trap_inst_access_fault |
                      trap_inst_pg_fault | trap_inst_addr_break_point;
@@ -84,12 +84,12 @@ assign exe_trap_en = trap_ill_inst |
                      trap_u_ecall | trap_s_ecall |
                      trap_h_ecall | trap_m_ecall;
 
-assign mem_trap_en = trap_load_misaligned   | trap_store_misaligned |
+assign wb_trap_en = trap_load_misaligned   | trap_store_misaligned |
                      trap_load_access_fault | trap_store_access_fault |
                      trap_load_pg_fault     | trap_store_pg_fault |
                      trap_ldst_addr_break_point;
 
-assign trap_cause = mem_trap_en ?
+assign trap_cause = wb_trap_en ?
                     (({`XLEN{trap_store_misaligned      }} & `XLEN'd6) |
                      ({`XLEN{trap_load_misaligned       }} & `XLEN'd4) |
                      ({`XLEN{trap_store_pg_fault        }} & `XLEN'd15) |
@@ -110,12 +110,12 @@ assign trap_cause = mem_trap_en ?
                      ({`XLEN{trap_env_break_point       }} & `XLEN'd3)):
                                                              `XLEN'd0;
 
-assign trap_val   = mem_trap_en          ? ldst_badaddr:
+assign trap_val   = wb_trap_en          ? ldst_badaddr:
                     trap_inst_misaligned ? inst_badaddr:
                     if_trap_en           ? exe_pc:
                     trap_ill_inst        ? inst:
                                            `XLEN'd0;
 
-assign trap_epc   = mem_trap_en ? mem_pc : exe_pc;
+assign trap_epc   = wb_trap_en ? wb_pc : exe_pc;
 
 endmodule

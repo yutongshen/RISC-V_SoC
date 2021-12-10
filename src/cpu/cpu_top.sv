@@ -320,16 +320,7 @@ logic [       `DM_DATA_LEN - 1:0] ma_dpu_wdata;
 
 logic [       `DM_DATA_LEN - 1:0] ma_dpu_rdata;
 logic                             ma_dpu_hazard;
-logic                             ma_dpu_fault;
 
-logic [       `DM_ADDR_LEN - 1:0] ma_bad_dxes_val;
-logic                             ma_load_misaligned;
-logic                             ma_load_page_fault;
-logic                             ma_load_xes_fault;
-logic                             ma_store_misaligned;
-logic                             ma_store_page_fault;
-logic                             ma_store_xes_fault;
-logic [       `IM_ADDR_LEN - 1:0] ma_dpu_pc;
 logic                             ma_pipe_restart;
 
 // MA/MR pipeline
@@ -366,6 +357,14 @@ logic                             ma2mr_fence_i;
 logic                             ma2mr_pipe_restart;
 
 // MR stage
+logic                             mr_dpu_fault;
+logic                             mr_load_misaligned;
+logic                             mr_load_page_fault;
+logic                             mr_load_xes_fault;
+logic                             mr_store_misaligned;
+logic                             mr_store_page_fault;
+logic                             mr_store_xes_fault;
+
 logic [              `XLEN - 1:0] mr_rd_data;
 logic                             mr_pipe_restart;
 
@@ -382,6 +381,13 @@ logic [       `DM_ADDR_LEN - 1:0] mr2wb_mem_addr;
 logic [       `DM_DATA_LEN - 1:0] mr2wb_mem_wdata;
 logic                             mr2wb_mem_req;
 logic                             mr2wb_mem_wr;
+logic                             mr2wb_dpu_fault;
+logic                             mr2wb_load_misaligned;
+logic                             mr2wb_load_page_fault;
+logic                             mr2wb_load_xes_fault;
+logic                             mr2wb_store_misaligned;
+logic                             mr2wb_store_page_fault;
+logic                             mr2wb_store_xes_fault;
 logic                             mr2wb_csr_wr;
 logic [                     11:0] mr2wb_csr_waddr;
 logic [              `XLEN - 1:0] mr2wb_csr_wdata;
@@ -444,7 +450,7 @@ hzu u_hzu (
     .id_hazard       ( id_hazard       ),
     .exe_hazard      ( exe_hazard      ),
     .dpu_hazard      ( ma_dpu_hazard   ),
-    .dpu_fault       ( ma_dpu_fault    ),
+    .dpu_fault       ( mr2wb_dpu_fault ),
     .if_stall        ( if_stall        ),
     .id_stall        ( id_stall        ),
     .exe_stall       ( exe_stall       ),
@@ -900,8 +906,8 @@ tpu u_tpu (
     .inst_valid       ( id2exe_inst_valid & ~exe_stall & ~stall_wfi),
     .inst             ( id2exe_inst                 ),
     .exe_pc           ( id2exe_pc                   ),
-    .mem_pc           ( ma_dpu_pc                   ),
-    .ldst_badaddr     ( ma_bad_dxes_val             ),
+    .wb_pc            ( mr2wb_pc                    ),
+    .ldst_badaddr     ( mr2wb_mem_addr              ),
     .inst_badaddr     ( exe_inst_misaligned_badaddr ),
     .prv_cur          ( exe_prv                     ),
     .prv_req          ( id2exe_prv_req              ),
@@ -916,12 +922,12 @@ tpu u_tpu (
     .inst_misaligned  ( exe_inst_misaligned         ),
     .inst_pg_fault    ( id2exe_inst_page_fault      ),
     .inst_xes_fault   ( id2exe_inst_xes_fault       ),
-    .load_misaligned  ( ma_load_misaligned          ),
-    .load_pg_fault    ( ma_load_page_fault          ),
-    .load_xes_fault   ( ma_load_xes_fault           ),
-    .store_misaligned ( ma_store_misaligned         ),
-    .store_pg_fault   ( ma_store_page_fault         ),
-    .store_xes_fault  ( ma_store_xes_fault          ),
+    .load_misaligned  ( mr2wb_load_misaligned       ),
+    .load_pg_fault    ( mr2wb_load_page_fault       ),
+    .load_xes_fault   ( mr2wb_load_xes_fault        ),
+    .store_misaligned ( mr2wb_store_misaligned      ),
+    .store_pg_fault   ( mr2wb_store_page_fault      ),
+    .store_xes_fault  ( mr2wb_store_xes_fault       ),
     .trap_en          ( exe_trap_en                 ),
     .trap_cause       ( exe_trap_cause              ),
     .trap_val         ( exe_trap_val                ),
@@ -1070,15 +1076,13 @@ dpu u_dpu (
     .rdata_o          ( ma_dpu_rdata         ),
     .hazard_o         ( ma_dpu_hazard        ),
 
-    .bad_dxes_val     ( ma_bad_dxes_val      ),
-    .fault            ( ma_dpu_fault         ),
-    .load_misaligned  ( ma_load_misaligned   ),
-    .load_pg_fault    ( ma_load_page_fault   ),
-    .load_xes_fault   ( ma_load_xes_fault    ),
-    .store_misaligned ( ma_store_misaligned  ),
-    .store_pg_fault   ( ma_store_page_fault  ),
-    .store_xes_fault  ( ma_store_xes_fault   ),
-    .fault_pc         ( ma_dpu_pc            ),
+    .fault            ( mr_dpu_fault         ),
+    .load_misaligned  ( mr_load_misaligned   ),
+    .load_pg_fault    ( mr_load_page_fault   ),
+    .load_xes_fault   ( mr_load_xes_fault    ),
+    .store_misaligned ( mr_store_misaligned  ),
+    .store_pg_fault   ( mr_store_page_fault  ),
+    .store_xes_fault  ( mr_store_xes_fault   ),
                               
     .dmem_req         ( dmem_en              ),
     .dmem_addr        ( dmem_addr            ),
@@ -1182,53 +1186,67 @@ assign mr_pipe_restart     = ~mr_stall && (ma2mr_tlb_flush_req | ma2mr_fence_i);
 // MR/WB pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
     if (~rstn_sync) begin
-        mr2wb_pc           <= `IM_ADDR_LEN'b0;
-        mr2wb_inst         <= `IM_DATA_LEN'b0;
-        mr2wb_inst_valid   <= 1'b0;
-        mr2wb_rd_wr        <= 1'b0;
-        mr2wb_rd_addr      <= 5'b0;
-        mr2wb_mem_byte     <= {(`DM_DATA_LEN >> 3){1'b0}};
-        mr2wb_mem_sign_ext <= 1'b0;
-        mr2wb_rd_data      <= `XLEN'b0;
-        mr2wb_mem_addr     <= `DM_ADDR_LEN'b0;
-        mr2wb_mem_wdata    <= `DM_DATA_LEN'b0;
-        mr2wb_mem_req      <= 1'b0;
-        mr2wb_mem_wr       <= 1'b0;
-        mr2wb_csr_wr       <= 1'b0;
-        mr2wb_csr_waddr    <= 12'b0;
-        mr2wb_csr_wdata    <= `XLEN'b0;
-        mr2wb_wfi          <= 1'b0;
-        mr2wb_prv          <= 2'b0;
-        mr2wb_trap_en      <= 1'b0;
-        mr2wb_cause        <= `XLEN'b0;
-        mr2wb_tval         <= `XLEN'b0;
-        mr2wb_epc          <= `IM_ADDR_LEN'b0;
-        mr2wb_attach       <= 1'b0;
+        mr2wb_pc               <= `IM_ADDR_LEN'b0;
+        mr2wb_inst             <= `IM_DATA_LEN'b0;
+        mr2wb_inst_valid       <= 1'b0;
+        mr2wb_rd_wr            <= 1'b0;
+        mr2wb_rd_addr          <= 5'b0;
+        mr2wb_mem_byte         <= {(`DM_DATA_LEN >> 3){1'b0}};
+        mr2wb_mem_sign_ext     <= 1'b0;
+        mr2wb_rd_data          <= `XLEN'b0;
+        mr2wb_mem_addr         <= `DM_ADDR_LEN'b0;
+        mr2wb_mem_wdata        <= `DM_DATA_LEN'b0;
+        mr2wb_mem_req          <= 1'b0;
+        mr2wb_mem_wr           <= 1'b0;
+        mr2wb_dpu_fault        <= 1'b0;
+        mr2wb_load_misaligned  <= 1'b0;
+        mr2wb_load_page_fault  <= 1'b0;
+        mr2wb_load_xes_fault   <= 1'b0;
+        mr2wb_store_misaligned <= 1'b0;
+        mr2wb_store_page_fault <= 1'b0;
+        mr2wb_store_xes_fault  <= 1'b0;
+        mr2wb_csr_wr           <= 1'b0;
+        mr2wb_csr_waddr        <= 12'b0;
+        mr2wb_csr_wdata        <= `XLEN'b0;
+        mr2wb_wfi              <= 1'b0;
+        mr2wb_prv              <= 2'b0;
+        mr2wb_trap_en          <= 1'b0;
+        mr2wb_cause            <= `XLEN'b0;
+        mr2wb_tval             <= `XLEN'b0;
+        mr2wb_epc              <= `IM_ADDR_LEN'b0;
+        mr2wb_attach           <= 1'b0;
     end
     else begin
         if (~wb_stall | mr_flush_force) begin
-            mr2wb_pc           <= ma2mr_pc;
-            mr2wb_inst         <= ma2mr_inst;
-            mr2wb_inst_valid   <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid;
-            mr2wb_rd_wr        <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_rd_wr;
-            mr2wb_rd_addr      <= ma2mr_rd_addr;
-            mr2wb_mem_byte     <= ma2mr_mem_byte;
-            mr2wb_mem_sign_ext <= ma2mr_mem_sign_ext;
-            mr2wb_rd_data      <= mr_rd_data;
-            mr2wb_mem_addr     <= ma2mr_mem_addr;
-            mr2wb_mem_wdata    <= ma2mr_mem_wdata;
-            mr2wb_mem_req      <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_req;
-            mr2wb_mem_wr       <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_wr;
-            mr2wb_csr_wr       <= ma2mr_csr_wr;
-            mr2wb_csr_waddr    <= ma2mr_csr_waddr;
-            mr2wb_csr_wdata    <= ma2mr_csr_wdata;
-            mr2wb_wfi          <= ~mr_flush & ~mr2wb_wfi & ~wakeup_event & ma2mr_wfi;
-            mr2wb_prv          <= ma2mr_prv;
-            mr2wb_trap_en      <= ma2mr_trap_en;
-            mr2wb_cause        <= ma2mr_cause;
-            mr2wb_tval         <= ma2mr_tval;
-            mr2wb_epc          <= ma2mr_epc;
-            mr2wb_attach       <= ma2mr_attach;
+            mr2wb_pc               <= ma2mr_pc;
+            mr2wb_inst             <= ma2mr_inst;
+            mr2wb_inst_valid       <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid;
+            mr2wb_rd_wr            <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_rd_wr;
+            mr2wb_rd_addr          <= ma2mr_rd_addr;
+            mr2wb_mem_byte         <= ma2mr_mem_byte;
+            mr2wb_mem_sign_ext     <= ma2mr_mem_sign_ext;
+            mr2wb_rd_data          <= mr_rd_data;
+            mr2wb_mem_addr         <= ma2mr_mem_addr;
+            mr2wb_mem_wdata        <= ma2mr_mem_wdata;
+            mr2wb_mem_req          <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_req;
+            mr2wb_mem_wr           <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_wr;
+            mr2wb_dpu_fault        <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_dpu_fault;
+            mr2wb_load_misaligned  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_misaligned;
+            mr2wb_load_page_fault  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_page_fault;
+            mr2wb_load_xes_fault   <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_xes_fault;
+            mr2wb_store_misaligned <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_misaligned;
+            mr2wb_store_page_fault <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_page_fault;
+            mr2wb_store_xes_fault  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_xes_fault;
+            mr2wb_csr_wr           <= ma2mr_csr_wr;
+            mr2wb_csr_waddr        <= ma2mr_csr_waddr;
+            mr2wb_csr_wdata        <= ma2mr_csr_wdata;
+            mr2wb_wfi              <= ~mr_flush & ~mr2wb_wfi & ~wakeup_event & ma2mr_wfi;
+            mr2wb_prv              <= ma2mr_prv;
+            mr2wb_trap_en          <= ma2mr_trap_en;
+            mr2wb_cause            <= ma2mr_cause;
+            mr2wb_tval             <= ma2mr_tval;
+            mr2wb_epc              <= ma2mr_epc;
+            mr2wb_attach           <= ma2mr_attach;
         end
     end
 end

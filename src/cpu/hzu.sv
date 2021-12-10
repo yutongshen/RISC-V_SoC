@@ -44,13 +44,13 @@ assign stall_all = dpu_hazard ? 6'b011111:
                    id_hazard  ? 6'b000011:
                                 6'b000000;
 
-assign flush_all = dpu_fault  ? 6'b011111:
-                   dpu_hazard ? 6'b010000:
+assign flush_all = dpu_hazard ? 6'b010000:
                    exe_hazard ? 6'b000100:
                    id_hazard  ? 6'b000010:
                                 6'b000000;
 
-assign flush_force_all = pipe_restart_en                             ? 6'b001111:
+assign flush_force_all = dpu_fault                                   ? 6'b111111:
+                         pipe_restart_en                             ? 6'b001111:
                          (pc_alu_en || eret_en || irq_en || trap_en) ? 6'b000011:
                                                                        6'b000000;
 

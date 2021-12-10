@@ -15,7 +15,6 @@ module dpu (
     output logic [       `DM_DATA_LEN - 1:0] rdata_o,
     output logic                             hazard_o,
 
-    output logic [       `DM_ADDR_LEN - 1:0] bad_dxes_val,
     output logic                             fault,
     output logic                             load_misaligned,
     output logic                             store_misaligned,
@@ -23,7 +22,6 @@ module dpu (
     output logic                             store_pg_fault,
     output logic                             load_xes_fault,
     output logic                             store_xes_fault,
-    output logic [       `IM_ADDR_LEN - 1:0] fault_pc,
 
     output logic                             dmem_req,
     output logic [       `DM_ADDR_LEN - 1:0] dmem_addr,
@@ -155,17 +153,6 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (~dmem_busy) begin
         load_latch  <= 1'b0;
         store_latch <= 1'b0;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        bad_dxes_val <= `DM_ADDR_LEN'b0;
-        fault_pc     <= `IM_ADDR_LEN'b0;
-    end
-    else if (dmem_req || misaligned) begin
-        bad_dxes_val <= addr_i;
-        fault_pc     <= pc_i;
     end
 end
 
