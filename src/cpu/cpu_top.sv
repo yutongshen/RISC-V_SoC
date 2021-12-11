@@ -102,6 +102,7 @@ logic [       `IM_ADDR_LEN - 1:0] if_pc_alu;
 logic [       `IM_ADDR_LEN - 1:0] if_pc;
 logic [       `IM_DATA_LEN - 1:0] if_inst;
 logic                             if_inst_valid;
+logic [       `IM_ADDR_LEN - 1:0] if_inst_misaligned_epc;
 logic                             if_inst_misaligned;
 logic                             if_inst_page_fault;
 logic                             if_inst_xes_fault;
@@ -109,11 +110,13 @@ logic                             if_inst_xes_fault;
 // IF/ID pipeline
 logic [       `IM_DATA_LEN - 1:0] if2id_inst;
 logic                             if2id_inst_valid;
+logic [       `IM_ADDR_LEN - 1:0] if2id_inst_misaligned_epc;
 logic                             if2id_inst_misaligned;
 logic                             if2id_inst_page_fault;
 logic                             if2id_inst_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
 logic                             if2id_attach;
+logic                             if2id_stall_flag;
 
 // ID stage
 logic [                      4:0] id_rd_addr;
@@ -137,6 +140,7 @@ logic                             id_sret;
 logic                             id_mret;
 logic                             id_jump;
 logic                             id_jump_alu;
+logic                             id_jump_fault;
 
 logic [        `ALU_OP_LEN - 1:0] id_alu_op;
 logic                             id_rs1_zero_sel;
@@ -222,6 +226,7 @@ logic                             id2exe_sret;
 logic                             id2exe_mret;
 logic                             id2exe_ill_inst;
 logic [                      1:0] id2exe_prv_req;
+logic [       `IM_ADDR_LEN - 1:0] id2exe_inst_misaligned_epc;
 logic                             id2exe_inst_misaligned;
 logic                             id2exe_inst_page_fault;
 logic                             id2exe_inst_xes_fault;
@@ -236,6 +241,7 @@ logic [              `XLEN - 1:0] id2exe_ext_csr_wdata;
 // EXE stage
 logic                             exe_alu_zero;
 logic                             exe_branch_match;
+logic                             exe_jump_fault;
 logic [              `XLEN - 1:0] exe_pc_imm;
 logic [              `XLEN - 1:0] exe_pc_add_4;
 logic [              `XLEN - 1:0] exe_rs1_data;
@@ -244,6 +250,8 @@ logic [              `XLEN - 1:0] exe_alu_src1;
 logic [              `XLEN - 1:0] exe_alu_src2;
 logic [              `XLEN - 1:0] exe_alu_out;
 logic [              `XLEN - 1:0] exe_pc2rd;
+logic                             exe_gpr_hazard;
+logic                             exe_csr_hazard;
 logic                             exe_hazard;
 logic [              `XLEN - 1:0] exe_csr_src1;
 logic [              `XLEN - 1:0] exe_csr_src2;
@@ -451,6 +459,8 @@ hzu u_hzu (
     .exe_hazard      ( exe_hazard      ),
     .dpu_hazard      ( ma_dpu_hazard   ),
     .dpu_fault       ( mr2wb_dpu_fault ),
+    .id_jump_fault   ( id_jump_fault   ),
+    .exe_jump_fault  ( exe_jump_fault  ),
     .if_stall        ( if_stall        ),
     .id_stall        ( id_stall        ),
     .exe_stall       ( exe_stall       ),
@@ -485,14 +495,19 @@ ifu u_ifu (
     .pc_alu          ( if_pc_alu                    ),
     .pipe_restart_en ( mr_pipe_restart              ),
     .pipe_restart    ( ma2mr_pc2rd                  ),
+    .id_jump_fault   ( id_jump_fault                ),
+    .exe_jump_fault  ( exe_jump_fault               ),
     .imem_req        ( imem_en                      ),
     .imem_addr       ( imem_addr                    ),
     .imem_rdata      ( imem_rdata                   ),
     .imem_bad        ( imem_bad                     ),
     .imem_busy       ( imem_busy                    ),
+    .id_pc           ( if2id_pc                     ),
+    .exe_pc          ( id2exe_pc                    ),
     .pc              ( if_pc                        ),
     .inst            ( if_inst                      ),
     .inst_valid      ( if_inst_valid                ),
+    .misaligned_epc  ( if_inst_misaligned_epc       ),
     .misaligned      ( if_inst_misaligned           ),
     .page_fault      ( if_inst_page_fault           ),
     .xes_fault       ( if_inst_xes_fault            ),
@@ -503,34 +518,42 @@ ifu u_ifu (
     .dbg_inst        ( dbg_inst                     )
 );
 
-assign exe_branch_match = id2exe_branch & (id2exe_branch_zcmp == exe_alu_zero);
+assign exe_branch_match = id2exe_branch & ~exe_hazard & (id2exe_branch_zcmp == exe_alu_zero);
 
-assign if_pc_jump_en = id_jump & if2id_inst_valid & ~id_stall & ~id_flush & ~stall_wfi;
+assign if_pc_jump_en = (id_jump && ~if2id_stall_flag) & if2id_inst_valid & ~if2id_inst_misaligned;
 assign if_pc_jump    = id_imm + if2id_pc;
-assign if_pc_alu_en  = (id2exe_jump_alu | exe_branch_match) & id2exe_inst_valid & ~exe_stall;
+assign if_pc_alu_en  = (id2exe_jump_alu | exe_branch_match) & id2exe_inst_valid  & ~id2exe_inst_misaligned;
 assign if_pc_alu     = ({`IM_ADDR_LEN{id2exe_jump_alu}}  & exe_alu_out) |
                        ({`IM_ADDR_LEN{exe_branch_match}} & exe_pc_imm[`IM_ADDR_LEN - 1:0] );
 
 // IF/ID pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
     if (~rstn_sync) begin
-        if2id_pc              <= `IM_ADDR_LEN'b0;
-        if2id_inst            <= `IM_DATA_LEN'b0;
-        if2id_inst_valid      <= 1'b0;
-        if2id_inst_misaligned <= 1'b0;
-        if2id_inst_page_fault <= 1'b0;
-        if2id_inst_xes_fault  <= 1'b0;
-        if2id_attach          <= 1'b0;
+        if2id_pc                  <= `IM_ADDR_LEN'b0;
+        if2id_inst                <= `IM_DATA_LEN'b0;
+        if2id_inst_valid          <= 1'b0;
+        if2id_inst_misaligned_epc <= `IM_ADDR_LEN'b0;
+        if2id_inst_misaligned     <= 1'b0;
+        if2id_inst_page_fault     <= 1'b0;
+        if2id_inst_xes_fault      <= 1'b0;
+        if2id_attach              <= 1'b0;
+        if2id_stall_flag          <= 1'b0;
     end
     else begin
         if ((~id_stall & ~stall_wfi) | if_flush_force) begin
-            if2id_pc              <= if_pc;
-            if2id_inst            <= if_inst;
-            if2id_inst_valid      <= ~if_flush & if_inst_valid;
-            if2id_inst_misaligned <= if_inst_misaligned;
-            if2id_inst_page_fault <= if_inst_page_fault;
-            if2id_inst_xes_fault  <= if_inst_xes_fault;
-            if2id_attach          <= attach;
+            if2id_pc                  <= if_pc;
+            if2id_inst                <= if_inst;
+            if2id_inst_valid          <= ~if_flush & if_inst_valid;
+            if2id_inst_misaligned_epc <= if_inst_misaligned_epc;
+            if2id_inst_misaligned     <= if_inst_misaligned;
+            if2id_inst_page_fault     <= if_inst_page_fault;
+            if2id_inst_xes_fault      <= if_inst_xes_fault;
+            if2id_attach              <= attach;
+            if2id_stall_flag          <= 1'b0;
+        end
+        else begin
+            if2id_inst_valid          <= ~id_jump_fault && if2id_inst_valid;
+            if2id_stall_flag          <= 1'b1;
         end
     end
 end
@@ -638,8 +661,7 @@ assign id_rs2_data = fwd_wb2id_rd_rs2 ? mr2wb_rd_data :
 assign id_hazard = (id_csr_rd &&
                     (exe_pmu_csr_wr | exe_fpu_csr_wr | exe_dbg_csr_wr |
                      exe_mmu_csr_wr | exe_mpu_csr_wr | exe_sru_csr_wr) &&
-                    (id_csr_addr == id2exe_csr_waddr)) ||
-                   (id_jump && (exe2ma_mem_req || id2exe_mem_req));
+                    (id_csr_addr == id2exe_csr_waddr));
 
 
 // ID/EXE pipeline
@@ -687,6 +709,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         id2exe_mret                <= 1'b0;
         id2exe_ill_inst            <= 1'b0;
         id2exe_prv_req             <= 2'b0;
+        id2exe_inst_misaligned_epc <= `IM_ADDR_LEN'b0;
         id2exe_inst_misaligned     <= 1'b0;
         id2exe_inst_page_fault     <= 1'b0;
         id2exe_inst_xes_fault      <= 1'b0;
@@ -702,7 +725,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if ((~exe_stall & ~stall_wfi) | id_flush_force) begin
             id2exe_pc                  <= if2id_pc;
             id2exe_inst                <= if2id_inst;
-            id2exe_inst_valid          <= ~id_flush & if2id_inst_valid;
+            id2exe_inst_valid          <= ~id_flush & ~id_jump_fault & if2id_inst_valid;
             id2exe_rd_addr             <= id_rd_addr;
             id2exe_rs1_addr            <= id_rs1_addr;
             id2exe_rs2_addr            <= id_rs2_addr;
@@ -720,42 +743,46 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             id2exe_branch_zcmp         <= id_branch_zcmp;
             id2exe_csr_op              <= id_csr_op;
             id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
-            id2exe_csr_rd              <= ~id_flush & id_csr_rd;
-            id2exe_pmu_csr_wr          <= ~id_flush & id_pmu_csr_wr;
-            id2exe_fpu_csr_wr          <= ~id_flush & id_fpu_csr_wr;
-            id2exe_dbg_csr_wr          <= ~id_flush & id_dbg_csr_wr;
-            id2exe_mmu_csr_wr          <= ~id_flush & id_mmu_csr_wr;
-            id2exe_mpu_csr_wr          <= ~id_flush & id_mpu_csr_wr;
-            id2exe_sru_csr_wr          <= ~id_flush & id_sru_csr_wr;
+            id2exe_csr_rd              <= ~id_flush & ~id_jump_fault & id_csr_rd;
+            id2exe_pmu_csr_wr          <= ~id_flush & ~id_jump_fault & id_pmu_csr_wr;
+            id2exe_fpu_csr_wr          <= ~id_flush & ~id_jump_fault & id_fpu_csr_wr;
+            id2exe_dbg_csr_wr          <= ~id_flush & ~id_jump_fault & id_dbg_csr_wr;
+            id2exe_mmu_csr_wr          <= ~id_flush & ~id_jump_fault & id_mmu_csr_wr;
+            id2exe_mpu_csr_wr          <= ~id_flush & ~id_jump_fault & id_mpu_csr_wr;
+            id2exe_sru_csr_wr          <= ~id_flush & ~id_jump_fault & id_sru_csr_wr;
             id2exe_pc_alu_sel          <= id_pc_alu_sel;
             id2exe_csr_alu_sel         <= id_csr_alu_sel;
-            id2exe_mem_req             <= ~id_flush & id_mem_req;
-            id2exe_mem_wr              <= ~id_flush & id_mem_wr;
+            id2exe_mem_req             <= ~id_flush & ~id_jump_fault & id_mem_req;
+            id2exe_mem_wr              <= ~id_flush & ~id_jump_fault & id_mem_wr;
             id2exe_mem_byte            <= id_mem_byte;
             id2exe_mem_sign_ext        <= id_mem_sign_ext;
             id2exe_mem_cal_sel         <= id_mem_cal_sel;
-            id2exe_rd_wr               <= ~id_flush & id_rd_wr;
-            id2exe_wfi                 <= ~id_flush & id_wfi;
-            id2exe_ecall               <= ~id_flush & id_ecall;
-            id2exe_ebreak              <= ~id_flush & id_ebreak;
-            id2exe_sret                <= ~id_flush & id_sret;
-            id2exe_mret                <= ~id_flush & id_mret;
-            id2exe_ill_inst            <= ~id_flush & id_ill_inst;
+            id2exe_rd_wr               <= ~id_flush & ~id_jump_fault & id_rd_wr;
+            id2exe_wfi                 <= ~id_flush & ~id_jump_fault & id_wfi;
+            id2exe_ecall               <= ~id_flush & ~id_jump_fault & id_ecall;
+            id2exe_ebreak              <= ~id_flush & ~id_jump_fault & id_ebreak;
+            id2exe_sret                <= ~id_flush & ~id_jump_fault & id_sret;
+            id2exe_mret                <= ~id_flush & ~id_jump_fault & id_mret;
+            id2exe_ill_inst            <= ~id_flush & ~id_jump_fault & id_ill_inst;
             id2exe_prv_req             <= id_prv_req;
-            id2exe_inst_misaligned     <= if_pc_jump_en & |if_pc_jump[1];
+            id2exe_inst_misaligned_epc <= if2id_inst_misaligned_epc;
+            id2exe_inst_misaligned     <= if2id_inst_misaligned;
             id2exe_inst_page_fault     <= if2id_inst_page_fault;
             id2exe_inst_xes_fault      <= if2id_inst_xes_fault;
-            id2exe_tlb_flush_req       <= ~id_flush & id_tlb_flush_req;
+            id2exe_tlb_flush_req       <= ~id_flush & ~id_jump_fault & id_tlb_flush_req;
             id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
             id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
-            id2exe_fence_i             <= ~id_flush & id_fence_i;
+            id2exe_fence_i             <= ~id_flush & ~id_jump_fault & id_fence_i;
             id2exe_attach              <= if2id_attach;
             id2exe_ext_csr_wr          <= dbg_csr_wr;
             id2exe_ext_csr_wdata       <= dbg_wdata;
         end
         else begin
+            id2exe_inst_valid          <= ~exe_jump_fault & id2exe_inst_valid;
             id2exe_rs1_data            <= exe_rs1_data;
             id2exe_rs2_data            <= exe_rs2_data;
+            id2exe_branch              <= exe_hazard & id2exe_branch;
+            id2exe_jump_alu            <= 1'b0;
         end
     end
 end
@@ -767,10 +794,10 @@ assign fwd_ma2exe_rd_rs1 = exe2ma_rd_wr    & (id2exe_rs1_addr == exe2ma_rd_addr)
 assign fwd_mr2exe_rd_rs1 = ma2mr_rd_wr     & (id2exe_rs1_addr == ma2mr_rd_addr ) &
                           ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
 assign fwd_wb2exe_rd_rs1 = mr2wb_rd_wr     & (id2exe_rs1_addr == mr2wb_rd_addr );
-assign exe_rs1_data       = fwd_ma2exe_rd_rs1 ? ma_rd_data    :
-                            fwd_mr2exe_rd_rs1 ? ma2mr_rd_data :
-                            fwd_wb2exe_rd_rs1 ? wb_rd_data    :
-                                                id2exe_rs1_data;
+assign exe_rs1_data      = fwd_ma2exe_rd_rs1 ? ma_rd_data    :
+                           fwd_mr2exe_rd_rs1 ? ma2mr_rd_data :
+                           fwd_wb2exe_rd_rs1 ? wb_rd_data    :
+                                               id2exe_rs1_data;
 
 // RS2 Forward
 assign fwd_ma2exe_rd_rs2 = exe2ma_rd_wr    & (id2exe_rs2_addr == exe2ma_rd_addr) &
@@ -778,21 +805,24 @@ assign fwd_ma2exe_rd_rs2 = exe2ma_rd_wr    & (id2exe_rs2_addr == exe2ma_rd_addr)
 assign fwd_mr2exe_rd_rs2 = ma2mr_rd_wr     & (id2exe_rs2_addr == ma2mr_rd_addr ) &
                           ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
 assign fwd_wb2exe_rd_rs2 = mr2wb_rd_wr     & (id2exe_rs2_addr == mr2wb_rd_addr);
-assign exe_rs2_data       = fwd_ma2exe_rd_rs2 ? ma_rd_data    :
-                            fwd_mr2exe_rd_rs2 ? ma2mr_rd_data :
-                            fwd_wb2exe_rd_rs2 ? wb_rd_data    :
-                                                id2exe_rs2_data;
+assign exe_rs2_data      = fwd_ma2exe_rd_rs2 ? ma_rd_data    :
+                           fwd_mr2exe_rd_rs2 ? ma2mr_rd_data :
+                           fwd_wb2exe_rd_rs2 ? wb_rd_data    :
+                                               id2exe_rs2_data;
 
-assign exe_hazard   = (exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel) &
-                      (exe2ma_rd_wr & (id2exe_rs1_addr == exe2ma_rd_addr) |
-                       exe2ma_rd_wr & (id2exe_rs2_addr == exe2ma_rd_addr)) ||
-                      (ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel) &
-                      (ma2mr_rd_wr & (id2exe_rs1_addr == ma2mr_rd_addr) |
-                       ma2mr_rd_wr & (id2exe_rs2_addr == ma2mr_rd_addr)) ||
-                      (exe2ma_mem_req   & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
-                       id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_branch |
-                       id2exe_sret | id2exe_mret)) ||
-                       ma_pipe_restart;
+assign exe_gpr_hazard = (exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel) &
+                        (exe2ma_rd_wr & (id2exe_rs1_addr == exe2ma_rd_addr) |
+                         exe2ma_rd_wr & (id2exe_rs2_addr == exe2ma_rd_addr)) ||
+                        (ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel) &
+                        (ma2mr_rd_wr & (id2exe_rs1_addr == ma2mr_rd_addr) |
+                         ma2mr_rd_wr & (id2exe_rs2_addr == ma2mr_rd_addr)) ||
+                         ma_pipe_restart;
+assign exe_csr_hazard = exe2ma_mem_req   & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
+                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr/* | id2exe_branch |
+                        id2exe_sret | id2exe_mret*/);
+
+assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
+
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
 assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + `XLEN'h4;
@@ -809,14 +839,14 @@ alu u_alu (
    .zero_flag ( exe_alu_zero  )
 );
 
-assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_sret       = id2exe_sret       & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
-assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_stall & ~exe_trap_en & ~stall_wfi;
+assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_sret       = id2exe_sret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
 
 assign exe_csr_src1 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 assign exe_csr_src2 = id2exe_csr_rdata;
@@ -896,42 +926,38 @@ mpu_csr u_mpu_csr (
 
 );
 assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) &
-                      ~exe_stall & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
-assign exe_inst_misaligned         = id2exe_inst_misaligned | (if_pc_alu_en & |if_pc_alu[1]);
-assign exe_inst_misaligned_badaddr[`XLEN-1:1] = id2exe_inst_misaligned ? (id2exe_imm[`XLEN-1:1] + id2exe_pc[`XLEN-1:1]):
-                                                                          if_pc_alu[`XLEN-1:1];
-assign exe_inst_misaligned_badaddr[0]         = 1'b0;
+                      ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
 
 tpu u_tpu (
-    .inst_valid       ( id2exe_inst_valid & ~exe_stall & ~stall_wfi),
-    .inst             ( id2exe_inst                 ),
-    .exe_pc           ( id2exe_pc                   ),
-    .wb_pc            ( mr2wb_pc                    ),
-    .ldst_badaddr     ( mr2wb_mem_addr              ),
-    .inst_badaddr     ( exe_inst_misaligned_badaddr ),
-    .prv_cur          ( exe_prv                     ),
-    .prv_req          ( id2exe_prv_req              ),
-    .satp_upd         ( exe_satp_upd                ),
-    .tsr              ( exe_mstatus_tsr             ),
-    .tvm              ( exe_mstatus_tvm             ),
-    .sret             ( id2exe_sret                 ),
-    .ecall            ( id2exe_ecall                ),
-    .ebreak           ( id2exe_ebreak               ),
-    .tlb_flush_req    ( id2exe_tlb_flush_req        ),
-    .ill_inst         ( id2exe_ill_inst             ),
-    .inst_misaligned  ( exe_inst_misaligned         ),
-    .inst_pg_fault    ( id2exe_inst_page_fault      ),
-    .inst_xes_fault   ( id2exe_inst_xes_fault       ),
-    .load_misaligned  ( mr2wb_load_misaligned       ),
-    .load_pg_fault    ( mr2wb_load_page_fault       ),
-    .load_xes_fault   ( mr2wb_load_xes_fault        ),
-    .store_misaligned ( mr2wb_store_misaligned      ),
-    .store_pg_fault   ( mr2wb_store_page_fault      ),
-    .store_xes_fault  ( mr2wb_store_xes_fault       ),
-    .trap_en          ( exe_trap_en                 ),
-    .trap_cause       ( exe_trap_cause              ),
-    .trap_val         ( exe_trap_val                ),
-    .trap_epc         ( exe_trap_epc                )
+    .inst_valid          ( id2exe_inst_valid & ~exe_hazard & ~stall_wfi),
+    .inst                ( id2exe_inst                 ),
+    .exe_pc              ( id2exe_pc                   ),
+    .wb_pc               ( mr2wb_pc                    ),
+    .ldst_badaddr        ( mr2wb_mem_addr              ),
+    .prv_cur             ( exe_prv                     ),
+    .prv_req             ( id2exe_prv_req              ),
+    .satp_upd            ( exe_satp_upd                ),
+    .tsr                 ( exe_mstatus_tsr             ),
+    .tvm                 ( exe_mstatus_tvm             ),
+    .sret                ( id2exe_sret                 ),
+    .ecall               ( id2exe_ecall                ),
+    .ebreak              ( id2exe_ebreak               ),
+    .tlb_flush_req       ( id2exe_tlb_flush_req        ),
+    .ill_inst            ( id2exe_ill_inst             ),
+    .inst_misaligned_epc ( id2exe_inst_misaligned_epc  ),
+    .inst_misaligned     ( id2exe_inst_misaligned      ),
+    .inst_pg_fault       ( id2exe_inst_page_fault      ),
+    .inst_xes_fault      ( id2exe_inst_xes_fault       ),
+    .load_misaligned     ( mr2wb_load_misaligned       ),
+    .load_pg_fault       ( mr2wb_load_page_fault       ),
+    .load_xes_fault      ( mr2wb_load_xes_fault        ),
+    .store_misaligned    ( mr2wb_store_misaligned      ),
+    .store_pg_fault      ( mr2wb_store_page_fault      ),
+    .store_xes_fault     ( mr2wb_store_xes_fault       ),
+    .trap_en             ( exe_trap_en                 ),
+    .trap_cause          ( exe_trap_cause              ),
+    .trap_val            ( exe_trap_val                ),
+    .trap_epc            ( exe_trap_epc                )
 );
 
 assign satp_ppn    = exe_satp_ppn;
@@ -994,16 +1020,16 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if (~ma_stall | exe_flush_force) begin
             exe2ma_pc                  <= id2exe_pc;
             exe2ma_inst                <= id2exe_inst;
-            exe2ma_inst_valid          <= ~exe_flush & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
-            exe2ma_mem_req             <= ~exe_flush & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
-            exe2ma_mem_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
+            exe2ma_inst_valid          <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
+            exe2ma_mem_req             <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
+            exe2ma_mem_wr              <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
             exe2ma_mem_byte            <= id2exe_mem_byte;
             exe2ma_mem_sign_ext        <= id2exe_mem_sign_ext;
             exe2ma_pc_alu_sel          <= id2exe_pc_alu_sel;
             exe2ma_csr_rdata           <= id2exe_csr_rdata;
             exe2ma_csr_alu_sel         <= id2exe_csr_alu_sel;
             exe2ma_mem_cal_sel         <= id2exe_mem_cal_sel;
-            exe2ma_rd_wr               <= ~exe_flush & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
+            exe2ma_rd_wr               <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_rd_wr;
             exe2ma_rd_addr             <= id2exe_rd_addr;
             exe2ma_rs1_addr            <= id2exe_rs1_addr;
             exe2ma_rs2_addr            <= id2exe_rs2_addr;
@@ -1011,7 +1037,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             exe2ma_pc2rd               <= exe_pc2rd;
             exe2ma_rs1_data            <= exe_rs1_data;
             exe2ma_rs2_data            <= exe_rs2_data;
-            exe2ma_csr_wr              <= ~exe_flush & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) &
+            exe2ma_csr_wr              <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) &
                                            (exe_pmu_csr_wr|
                                             exe_fpu_csr_wr|
                                             exe_dbg_csr_wr|
@@ -1020,16 +1046,16 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
                                             exe_sru_csr_wr);
             exe2ma_csr_waddr           <= id2exe_csr_waddr;
             exe2ma_csr_wdata           <= exe_csr_wdata;
-            exe2ma_wfi                 <= ~exe_flush & ~exe_irq_en & ~exe2ma_wfi & ~wakeup_event & id2exe_wfi;
+            exe2ma_wfi                 <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~exe2ma_wfi & ~wakeup_event & id2exe_wfi;
             exe2ma_prv                 <= exe_prv;
             exe2ma_trap_en             <= exe_irq_en | exe_trap_en;
             exe2ma_cause               <= exe_cause;
             exe2ma_tval                <= exe_tval;
             exe2ma_epc                 <= exe_trap_epc;
-            exe2ma_tlb_flush_req       <= ~exe_flush & id2exe_tlb_flush_req;
+            exe2ma_tlb_flush_req       <= ~exe_flush & ~exe_jump_fault  & id2exe_tlb_flush_req;
             exe2ma_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
             exe2ma_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
-            exe2ma_fence_i             <= ~exe_flush & id2exe_fence_i;
+            exe2ma_fence_i             <= ~exe_flush & ~exe_jump_fault  & id2exe_fence_i;
             exe2ma_attach              <= id2exe_attach;
         end
         else begin

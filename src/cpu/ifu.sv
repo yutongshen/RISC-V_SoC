@@ -11,14 +11,19 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] pc_alu,
     input                             pipe_restart_en,
     input        [`IM_ADDR_LEN - 1:0] pipe_restart,
+    output logic                      id_jump_fault,
+    output logic                      exe_jump_fault,
     output                            imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
     input        [`IM_DATA_LEN - 1:0] imem_rdata,
     input        [               1:0] imem_bad,
     input                             imem_busy,
+    input        [`IM_ADDR_LEN - 1:0] id_pc,
+    input        [`IM_ADDR_LEN - 1:0] exe_pc,
     output logic [`IM_ADDR_LEN - 1:0] pc,
     output logic [`IM_DATA_LEN - 1:0] inst,
     output logic                      inst_valid,
+    output logic [`IM_ADDR_LEN - 1:0] misaligned_epc,
     output logic                      misaligned,
     output logic                      page_fault,
     output logic                      xes_fault,
@@ -29,6 +34,9 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] dbg_inst
 );
 
+logic                      jump_in_id;
+logic                      jump_in_exe;
+logic                      jump_in_mr;
 logic                      jump;
 logic [`IM_ADDR_LEN - 1:0] jump_addr;
 logic [`IM_ADDR_LEN - 1:0] pc_nxt;
@@ -41,16 +49,38 @@ logic                      imem_req_latch;
 logic                      imem_req_tmp;
 logic                      misaligned_tmp;
 
+assign jump_in_id  = pc_jump_en;
+assign jump_in_exe = irq_en | pc_alu_en | eret_en;
+assign jump_in_mr  = pipe_restart_en;
+assign jump        = irq_en | pc_jump_en | pc_alu_en | eret_en | pipe_restart_en;
+assign jump_addr   = pipe_restart_en ? pipe_restart:
+                     eret_en         ? ret_epc:
+                     irq_en          ? irq_vec:
+                     pc_alu_en       ? pc_alu:
+                                       pc_jump;
+assign pc_nxt      = jump   ? jump_addr:
+                     attach ? pc:
+                              (pc_d1 + `IM_ADDR_LEN'h4);
 
-assign jump      = irq_en | pc_jump_en | pc_alu_en | eret_en | pipe_restart_en;
-assign jump_addr = pipe_restart_en ? pipe_restart:
-                   eret_en         ? ret_epc:
-                   irq_en          ? irq_vec:
-                   pc_alu_en       ? pc_alu:
-                                     pc_jump;
-assign pc_nxt    = jump   ? jump_addr:
-                   attach ? pc:
-                            (pc_d1 + `IM_ADDR_LEN'h4);
+// avoid for jar misaligned and write rd
+assign id_jump_fault  = jump_in_id  & pc_jump[1];
+assign exe_jump_fault = jump_in_exe & ~irq_en &
+                       (eret_en ? ret_epc[1]:
+                                  pc_alu[1]);
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        misaligned_epc <= {`IM_ADDR_LEN{1'b0}};
+    end
+    else begin
+        if (jump_in_exe) begin
+            misaligned_epc <= exe_pc;
+        end
+        else if (jump_in_id) begin
+            misaligned_epc <= id_pc;
+        end
+    end
+end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -127,7 +157,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-assign misaligned_tmp = |pc_d1[1];
+assign misaligned_tmp = pc_d1[1];
 
 assign imem_addr      = pc_d1;
 assign imem_req_tmp   = ~imem_busy & ~jump & (inst_valid | ~imem_req_latch);

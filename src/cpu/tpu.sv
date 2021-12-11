@@ -6,7 +6,6 @@ module tpu (
     input        [`IM_ADDR_LEN-1:0] exe_pc,
     input        [`IM_ADDR_LEN-1:0] wb_pc,
     input        [`DM_ADDR_LEN-1:0] ldst_badaddr,
-    input        [`IM_ADDR_LEN-1:0] inst_badaddr,
     input        [             1:0] prv_cur,
     input        [             1:0] prv_req,
     input                           satp_upd,
@@ -17,6 +16,7 @@ module tpu (
     input                           ebreak,
     input                           tlb_flush_req,
     input                           ill_inst,
+    input        [`IM_ADDR_LEN-1:0] inst_misaligned_epc,
     input                           inst_misaligned,
     input                           inst_pg_fault,
     input                           inst_xes_fault,
@@ -85,9 +85,9 @@ assign exe_trap_en = trap_ill_inst |
                      trap_h_ecall | trap_m_ecall;
 
 assign wb_trap_en = trap_load_misaligned   | trap_store_misaligned |
-                     trap_load_access_fault | trap_store_access_fault |
-                     trap_load_pg_fault     | trap_store_pg_fault |
-                     trap_ldst_addr_break_point;
+                    trap_load_access_fault | trap_store_access_fault |
+                    trap_load_pg_fault     | trap_store_pg_fault |
+                    trap_ldst_addr_break_point;
 
 assign trap_cause = wb_trap_en ?
                     (({`XLEN{trap_store_misaligned      }} & `XLEN'd6) |
@@ -110,12 +110,14 @@ assign trap_cause = wb_trap_en ?
                      ({`XLEN{trap_env_break_point       }} & `XLEN'd3)):
                                                              `XLEN'd0;
 
-assign trap_val   = wb_trap_en          ? ldst_badaddr:
-                    trap_inst_misaligned ? inst_badaddr:
+assign trap_val   = wb_trap_en           ? ldst_badaddr:
+                    trap_inst_misaligned ? exe_pc:
                     if_trap_en           ? exe_pc:
                     trap_ill_inst        ? inst:
                                            `XLEN'd0;
 
-assign trap_epc   = wb_trap_en ? wb_pc : exe_pc;
+assign trap_epc   = wb_trap_en           ? wb_pc :
+                    trap_inst_misaligned ? inst_misaligned_epc:
+                                           exe_pc;
 
 endmodule

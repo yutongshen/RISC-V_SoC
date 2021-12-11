@@ -28,6 +28,20 @@ main:
   sw s0, 0(sp)
   la s0, _test_start
 
+  /*jump test*/
+  li t5, 0x10000
+  li t0, 0x1800
+  csrw mstatus, t0
+  la t0, 1f
+  csrw mepc, t0
+  lw x0, 0(t4)
+  #jr 0(t0)
+  #beqz x0, 1f
+  mret
+  j add
+1:
+  add t4, t4, t5
+
   /*pmp test*/
   li t0, 0x98
   li t1, 0xcd

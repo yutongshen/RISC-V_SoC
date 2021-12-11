@@ -167,7 +167,7 @@ always_comb begin
             data_in      = {4{m_rdata}};
             tag_cs       = m_rlast && m_rvalid;
             tag_we       = m_rlast && m_rvalid;
-            valid_wr     = m_rlast && m_rvalid && ~m_rresp[1] && ~core_pa_bad[1];
+            valid_wr     = m_rlast && m_rvalid;
             rdata_tmp_wr = m_rvalid && word_cnt == core_vaddr_latch[2+:2];
         end
         STATE_WRITE : begin
@@ -270,7 +270,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         if (core_flush)    valid <= 64'b0;
-        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= 1'b1;
+        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= ~m_rresp[1] && ~core_pa_bad[1];
     end
 end
 

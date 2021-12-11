@@ -145,7 +145,7 @@ always_comb begin
     tlb_data_sel = 1'b0;
     case (cur_state)
         STATE_IDLE : begin
-            tlb_cs       = va_valid &&  va_en;
+            tlb_cs       = va_en;
             pa_valid_tmp = va_valid && (~va_en || last_hit);
             busy         = 1'b0;
         end
