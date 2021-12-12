@@ -265,7 +265,7 @@ always_ff @(posedge clk or negedge rstn) begin
         pmaaddr[1] <= `XLEN'h1000_0000;
     end
     else begin
-        for (i = 0; i < 16; i = i + 1) begin
+        for (i = 0; i < 15; i = i + 1) begin
             if (csr_wr && csr_waddr == CSR_PMAADDR_ADDR[i] &&
                 !pmacfg_l[i] && !(pmacfg_l[i+1] && pmacfg_a[i+1] == `PMACFG_A_TOR)) begin
                 pmaaddr[i] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);

@@ -216,24 +216,10 @@ generate
     end
 endgenerate
 
-// always_ff @(posedge clk or negedge rstn) begin
-//     integer i;
-//     if (~rstn) begin
-//         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-//             meip[i] <= 1'b0;
-//         end
-//     end
-//     else begin
-//         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-//             meip[i] <= int_max_pri[i] > threshold[i];
-//         end
-//     end
-// end
-
 always_comb begin
     integer i;
     for (i = 0; i < `CPU_NUM; i = i + 1) begin
-        meip[i] <= claim_id[i] != int_id[i];
+        meip[i] = claim_id[i] != int_id[i];
     end
 end
 

@@ -47,7 +47,11 @@ module cpu_wrap (
     input         [ 31: 0] dbg_pwdata,
     output logic  [ 31: 0] dbg_prdata,
     output logic           dbg_pslverr,
-    output logic           dbg_pready
+    output logic           dbg_pready,
+
+    // UART interface
+    output logic           uart_tx,
+    input                  uart_rx
 );
 
 logic                             core_rstn;
@@ -160,6 +164,7 @@ logic [ 31: 0] intc_pwdata;
 logic [ 31: 0] intc_prdata;
 logic          intc_pslverr;
 logic          intc_pready;
+logic [ 31: 0] ints;
 
 logic          cfgreg_psel;
 logic          cfgreg_penable;
@@ -180,20 +185,21 @@ logic [ 31: 0] uart_pwdata;
 logic [ 31: 0] uart_prdata;
 logic          uart_pslverr;
 logic          uart_pready;
+logic          uart_irq;
 
-logic  [ 11: 0] dbg_addr;
-logic  [ 31: 0] dbg_wdata;
-logic           dbg_gpr_rd;
-logic           dbg_gpr_wr;
-logic  [ 31: 0] dbg_gpr_rdata;
-logic           dbg_csr_rd;
-logic           dbg_csr_wr;
-logic  [ 31: 0] dbg_csr_rdata;
-logic  [ 31: 0] dbg_pc;
-logic  [ 31: 0] dbg_inst;
-logic           dbg_exec;
-logic           dbg_halted;
-logic           dbg_attach;
+logic [ 11: 0] dbg_addr;
+logic [ 31: 0] dbg_wdata;
+logic          dbg_gpr_rd;
+logic          dbg_gpr_wr;
+logic [ 31: 0] dbg_gpr_rdata;
+logic          dbg_csr_rd;
+logic          dbg_csr_wr;
+logic [ 31: 0] dbg_csr_rdata;
+logic [ 31: 0] dbg_pc;
+logic [ 31: 0] dbg_inst;
+logic          dbg_exec;
+logic          dbg_halted;
+logic          dbg_attach;
 
 
 `AXI_INTF_DEF(immu, 10)
@@ -603,6 +609,8 @@ CG u_mem_cg_1 (
     .CKEN ( mem_ck_1 )
 );
 
+assign busy_0 = 1'b0;
+
 sram u_sram_0 (
     .CK   ( mem_ck_0      ),
     .CS   ( cs_0          ),
@@ -613,7 +621,7 @@ sram u_sram_0 (
     .DO   ( do_0          )
 );
 
-assign busy_0 = 1'b0;
+assign busy_1 = 1'b0;
 
 sram u_sram_1 (
     .CK   ( mem_ck_1      ),
@@ -625,7 +633,11 @@ sram u_sram_1 (
     .DO   ( do_1          )
 );
 
-assign busy_1 = 1'b0;
+assign ints = {
+    30'b0,
+    uart_irq,
+    1'b0 // reserve
+};
 
 intc u_intc(
     .clk    ( clk          ),
@@ -643,11 +655,7 @@ intc u_intc(
     .msip   ( msip         ),
     .mtip   ( mtip         ),
     .meip   ( meip         ),
-`ifdef DC
-    .ints   ( ~32'b0       )
-`else
-    .ints   ( 32'b0        )
-`endif
+    .ints   ( ints         )
 );
 
 dbgapb u_dbgapb (
@@ -691,7 +699,8 @@ uart u_uart(
     .pslverr ( uart_pslverr ),
     .pready  ( uart_pready  ),
 
-    .uart_rx ( 1'b0 ),
-    .uart_tx (  )
+    .irq_out ( uart_irq     ),
+    .uart_rx ( uart_rx      ),
+    .uart_tx ( uart_tx      )
 );
 endmodule

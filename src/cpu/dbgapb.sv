@@ -48,7 +48,7 @@ logic [31:0] nxt_inst_out;
 logic        nxt_exec;
 logic        nxt_rdata_sel;
 logic        nxt_pc_rd;
-logic [12:0] nxt_addr_out;
+logic [11:0] nxt_addr_out;
 logic        nxt_gpr_rd;
 logic        nxt_csr_rd;
 logic        nxt_gpr_wr;

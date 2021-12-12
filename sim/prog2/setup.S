@@ -69,6 +69,19 @@ write_test_pattern:
   li a2, 0x0
   jal fill_block
 
+enable_uart:
+  li a0, 0x10000000
+  li a1, 0x3
+  sw a1, 0x8(a0)
+  sw a1, 0xc(a0)
+  # parity enable
+  li a1, 0x5
+  sll a1, a1, 3
+  sw a1, 0x20(a0)
+  # interrupt enable
+  li a1, 0x7
+  sw a1, 0x10(a0)
+
 SystemInit:
   jal main;
   la a0, _test_start;
@@ -94,3 +107,15 @@ fill_block:
   j fill_block;
 fb_end:
   ret;
+
+.section .text
+.align 2
+.globl uart_tx
+uart_tx:
+  li a1, 0x10000000
+1:
+  lw t0, 0x0(a1)
+  bltz t0, 1b
+  sw a0, 0x0(a1)
+  ret
+

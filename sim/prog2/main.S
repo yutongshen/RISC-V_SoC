@@ -29,7 +29,7 @@ main:
   la s0, _test_start
 
   /*jump test*/
-  li t5, 0x10000
+  li t5, 0x8000
   li t0, 0x1800
   csrw mstatus, t0
   la t0, 1f
@@ -45,10 +45,10 @@ main:
   add t4, t4, t5
 
   /*pmp test*/
-  li t0, 0x98
-  li t1, 0xcd
-  csrw pmpaddr0, t1
-  csrw pmpcfg0, t0
+  #li t0, 0x98
+  #li t1, 0xcd
+  #csrw pmpaddr0, t1
+  #csrw pmpcfg0, t0
 
   li t0, 0x1f00
   li t1, 0xc9
@@ -132,19 +132,38 @@ main:
 
   csrs mie, (1<<3)
   # wfi
-  li t0, 0x10000000
-  li t1, 'A'
-  sb t1, 0(t0)
-  li t1, 'B'
-  sb t1, 0(t0)
-  li t1, 0x43
-  sb t1, 0(t0)
-  li t1, 0x44
-  sb t1, 0(t0)
-  li t1, 0x45
-  sb t1, 0(t0)
-  li t1, '\n'
-  sb t1, 0(t0)
+  li a0, 'A'
+  call uart_tx
+  li a0, 7
+  li a1, 0x10000000
+  sw a0, 0x18(a1)
+
+  li a0, 'B'
+  call uart_tx
+  li a0, 7
+  li a1, 0x10000000
+  sw a0, 0x18(a1)
+
+  li a0, 0x43
+  call uart_tx
+  li a0, 7
+  li a1, 0x10000000
+  sw a0, 0x18(a1)
+
+  li a0, 0x44
+  call uart_tx
+  li a0, 7
+  li a1, 0x10000000
+  sw a0, 0x18(a1)
+
+  li a0, 0x45
+  call uart_tx
+  li a0, '\n'
+  call uart_tx
+  li a0, 7
+  li a1, 0x10000000
+  sw a0, 0x18(a1)
+
 
   la t0, vector
   li t1, 0x1000

@@ -60,8 +60,8 @@ parameter [1:0] STATE_IDLE  = 2'b00,
                 STATE_MREQ  = 2'b10,
                 STATE_PTE   = 2'b11;
 
-logic [               2:0] cur_state;
-logic [               2:0] nxt_state;
+logic [               1:0] cur_state;
+logic [               1:0] nxt_state;
 
 logic                      va_en;
 logic [              55:0] va_latch;

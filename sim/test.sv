@@ -1,6 +1,6 @@
 `timescale 1ns / 10ps
 
-`define CLK_PRIOD 100
+`define CLK_PRIOD 20
 `define TEST_END_ADDR 32'hffc
 
 `include "dbgapb_mmap.h"
@@ -29,6 +29,9 @@ logic [31: 0] dbg_prdata;
 logic         dbg_pslverr;
 logic         dbg_pready;
 
+logic         uart_tx;
+logic         uart_rx;
+
 
 
 logic       simend;
@@ -50,7 +53,7 @@ initial begin
     repeat (10) @(posedge clk);
     rstn   <= 1'b1;
     repeat (10) @(posedge clk);
-	axi_wr(32'h0400_0000, 32'h1);
+	extaxi_wr(32'h0400_0000, 32'h1);
     repeat (200000) @(posedge clk);
     simend <= 1'b1;
 end
@@ -74,8 +77,8 @@ end
 
 initial begin
     // wait (u_cpu_wrap.u_intc.u_plic.int_en[0] != 32'b0);
-    #(`CLK_PRIOD * 5);
-    force u_cpu_wrap.u_intc.ints  = -32'b1;
+    // #(`CLK_PRIOD * 5);
+    // force u_cpu_wrap.u_intc.ints  = -32'b1;
     // force u_cpu_wrap.u_plic.int_en[0] = 32'h55555555;
     // force u_cpu_wrap.u_plic.int_prior[0]  = 32'h0;
     // force u_cpu_wrap.u_plic.int_prior[1]  = 32'h1;
@@ -169,7 +172,16 @@ cpu_wrap u_cpu_wrap (
     .dbg_pwdata  ( dbg_pwdata    ),
     .dbg_prdata  ( dbg_prdata    ),
     .dbg_pslverr ( dbg_pslverr   ),
-    .dbg_pready  ( dbg_pready    )
+    .dbg_pready  ( dbg_pready    ),
+
+    // UART interface
+    .uart_tx     ( uart_tx       ),
+    .uart_rx     ( uart_rx       )
+);
+
+uart_mdl u_uart_mdl(
+    .uart_tx ( uart_rx ),
+    .uart_rx ( uart_tx )
 );
 
 // For riscv-tests used
@@ -224,215 +236,8 @@ logic [31:0] dbg_rdata;
 `include "dbgapb_test.sv"
 `endif
 
-task dbgapb_status_rd;
+`include "dbgapb_task.sv"
+`include "extaxi_task.sv"
 
-dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_STATUS_RD});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] READ STATUS_REG: %8x", dbg_rdata);
-endtask
-
-task dbgapb_pc_rd;
-
-dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_PC_RD});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] READ PC: %8x", dbg_rdata);
-endtask
-
-task dbgapb_gpr_rd;
-input [4:0] addr;
-
-dbgapb_wr(`DBGAPB_INST, {11'b0, addr, 4'b0, `INST_GPR_RD});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] READ GPR[0x%0x]: %8x", addr, dbg_rdata);
-endtask
-
-task dbgapb_gpr_wr;
-input [ 4:0] addr;
-input [31:0] wdata;
-
-dbgapb_wr(`DBGAPB_WDATA, wdata);
-dbgapb_wr(`DBGAPB_WDATA_WR, 32'b1);
-dbgapb_wr(`DBGAPB_INST, {11'b0, addr, 4'b0, `INST_GPR_WR});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] WRITE GPR[0x%0x]: %8x", addr, wdata);
-endtask
-
-task dbgapb_csr_rd;
-input [11:0] addr;
-
-dbgapb_wr(`DBGAPB_INST, {4'b0, addr, 4'b0, `INST_CSR_RD});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] READ CSR[0x%0x]: %8x", addr, dbg_rdata);
-endtask
-
-task dbgapb_csr_wr;
-input [11:0] addr;
-input [31:0] wdata;
-
-dbgapb_wr(`DBGAPB_WDATA, wdata);
-dbgapb_wr(`DBGAPB_WDATA_WR, 32'b1);
-dbgapb_wr(`DBGAPB_INST, {4'b0, addr, 4'b0, `INST_CSR_WR});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_rd(`DBGAPB_RDATA);
-$display("[DBGAPB] WRITE CSR[0x%0x]: %8x", addr, wdata);
-endtask
-
-task dbgapb_exec;
-input [31:0] inst;
-
-dbgapb_wr(`DBGAPB_WDATA, inst);
-dbgapb_wr(`DBGAPB_WDATA_WR, 32'b1);
-dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_INSTREG_WR});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_EXECUTE});
-dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
-endtask
-
-task dbgapb_wr;
-input [31:0] addr;
-input [31:0] wdata;
-
-dbg_psel    = 1'b1;
-dbg_penable = 1'b0;
-dbg_paddr   = addr;
-dbg_pwrite  = 1'b1;
-dbg_pstrb   = 4'hf;
-dbg_pwdata  = wdata;
-@(posedge clk);
-@(negedge clk);
-dbg_penable = 1'b1;
-do @(posedge (clk)); while (dbg_pready !== 1'b1);
-@(negedge clk);
-dbg_psel    = 1'b0;
-dbg_penable = 1'b0;
-dbg_pwrite  = 1'b0;
-endtask
-
-task dbgapb_rd;
-input [31:0] addr;
-
-dbg_psel    = 1'b1;
-dbg_penable = 1'b0;
-dbg_paddr   = addr;
-dbg_pwrite  = 1'b0;
-@(posedge clk);
-@(negedge clk);
-dbg_penable = 1'b1;
-do @(posedge (clk)); while (dbg_pready !== 1'b1);
-@(negedge clk);
-dbg_rdata   = dbg_prdata;
-dbg_psel    = 1'b0;
-dbg_penable = 1'b0;
-endtask
-
-task dbgapb_init;
-dbg_psel    = 1'b0;
-dbg_penable = 1'b0;
-dbg_paddr   = 32'b0;
-dbg_pwrite  = 1'b0;
-dbg_pstrb   = 4'b0;
-dbg_pprot   = 3'b0;
-dbg_pwdata  = 32'b0;
-endtask
-
-task axi_wr;
-input [31:0] addr;
-input [31:0] wdata;
-
-logic [ 1: 0] awburst;
-logic [12: 0] awid;
-logic [31: 0] awaddr;
-logic [ 2: 0] awsize;
-logic [ 7: 0] awlen;
-logic         awvalid;
-logic [ 3: 0] wstrb;
-logic [12: 0] wid;
-logic [31: 0] wdata;
-logic         wlast;
-logic         wvalid;
-
-awburst = 2'h1;
-awid    = 10'b0;
-awaddr  = addr;
-awsize  = 3'h2;
-awlen   = 8'h0;
-
-wstrb   = 4'hf;
-wid     = 10'b0;
-wdata   = wdata;
-wlast   = 1'b1;
-
-fork begin
-axi_aw_chn_send(awid, awaddr, awlen, awsize, awburst);
-end join_none
-fork begin
-axi_w_chn_send(wid, wdata, wstrb, wlast);
-end join_none
-wait fork;
-
-axi_ext_bready  = 1'b1;
-do @(posedge (clk)); while (axi_ext_bvalid !== 1'b1);
-axi_ext_bready  = 1'b0;
-
-endtask
-
-task axi_aw_chn_send;
-input [12: 0] awid;
-input [31: 0] awaddr;
-input [ 7: 0] awlen;
-input [ 2: 0] awsize;
-input [ 1: 0] awburst;
-
-axi_ext_awburst = awburst;
-axi_ext_awid    = awid;
-axi_ext_awaddr  = awaddr;
-axi_ext_awsize  = awsize;
-axi_ext_awlen   = awlen;
-axi_ext_awvalid = 1'b1;
-do @(posedge (clk)); while (axi_ext_awready !== 1'b1);
-axi_ext_awvalid = 1'b0;
-endtask
-
-task axi_w_chn_send;
-input [12: 0] wid;
-input [31: 0] wdata;
-input [ 3: 0] wstrb;
-input         wlast;
-
-axi_ext_wstrb  = wstrb;
-axi_ext_wid    = wid;
-axi_ext_wdata  = wdata;
-axi_ext_wlast  = wlast;
-axi_ext_wvalid = 1'b1;
-do @(posedge (clk)); while (axi_ext_wready !== 1'b1);
-axi_ext_wvalid = 1'b0;
-endtask
-
-task axi_init;
-axi_ext_awburst = 2'b0;
-axi_ext_awid    = 10'b0;
-axi_ext_awaddr  = 32'b0;
-axi_ext_awsize  = 3'b0;
-axi_ext_awlen   = 8'b0;
-axi_ext_awvalid = 1'b0;
-axi_ext_wstrb   = 4'b0;
-axi_ext_wid     = 10'b0;
-axi_ext_wdata   = 32'b0;
-axi_ext_wlast   = 1'b0;
-axi_ext_wvalid  = 1'b0;
-axi_ext_bready  = 1'b0;
-axi_ext_araddr  = 10'b0;
-axi_ext_arburst = 2'b0;
-axi_ext_arsize  = 3'b0;
-axi_ext_arid    = 10'b0;
-axi_ext_arlen   = 8'b0;
-axi_ext_arvalid = 1'b0;
-axi_ext_rready  = 1'b0;
-endtask
 
 endmodule
