@@ -25,7 +25,7 @@
 ../src/cpu/plic.sv
 ../src/cpu/dbgapb.sv
 ../src/cpu/util.sv
-../src/cpu/uart.sv
+../src/peri/uart.sv
 ../src/bus/iommu.sv
 ../src/bus/axi2mem_bridge.sv
 ../src/bus/axi2apb_bridge.sv

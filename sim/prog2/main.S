@@ -34,11 +34,13 @@ main:
   csrw mstatus, t0
   la t0, 1f
   csrw mepc, t0
-  lw x0, 0(t4)
+  lw t3, 0(t4)
+  sfence.vma
   #jr 0(t0)
   #beqz x0, 1f
-  mret
-  j add
+  #mret
+  j 1f
+  #j add
 1:
   add t4, t4, t5
 

@@ -3,8 +3,10 @@
 module dec (
     input        [       `IM_DATA_LEN - 1:0] inst,
     input                                    inst_valid,
+
     // Data
     output logic [              `XLEN - 1:0] imm,
+
     // Control
     output logic [                      1:0] prv_req,
     output logic                             ill_inst,
@@ -17,6 +19,7 @@ module dec (
     output logic                             mret,
     output logic                             jump,
     output logic                             jump_alu,
+
     // EXE stage
     output logic [        `ALU_OP_LEN - 1:0] alu_op,
     output logic                             rs1_zero_sel,
@@ -28,6 +31,7 @@ module dec (
     output logic                             uimm_rs1_sel,
     output logic                             csr_rd,
     output logic                             csr_wr,
+
     // MEM stage
     output logic                             pc_alu_sel,
     output logic                             csr_alu_sel,
@@ -38,6 +42,7 @@ module dec (
     output logic                             tlb_flush_req,
     output logic                             tlb_flush_all_vaddr,
     output logic                             tlb_flush_all_asid,
+
     // WB stage
     output logic                             mem_cal_sel,
     output logic                             reg_wr

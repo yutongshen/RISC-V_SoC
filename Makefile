@@ -51,11 +51,14 @@ sim: all | ${bld_dir}
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
 	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +nclinedebug;); \
+            cpi=$$(echo "$${res}" | grep "CPI:"); \
+            inst=$$(echo "$${res}" | grep "minstret:"); \
+            cycl=$$(echo "$${res}" | grep "mcycle:"); \
 	        res=$$(echo "$${res}" | grep "ENDCODE = 00000001"); \
 	        if [ "$${res}" == "" ]; then \
 	            echo "There are some error in $${i}"; \
 	        else \
-				echo "$${i} pass"; \
+				printf "%-20s pass (%-20s, %-20s, %-20s)\n" "$${i}" "$${cpi}" "$${inst}" "$${cycl}" ; \
 	        fi; \
 	    done; \
 	else \

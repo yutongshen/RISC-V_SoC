@@ -1075,7 +1075,7 @@ assign fwd_mr2ma_rd_rs2  = ma2mr_rd_wr & (exe2ma_rs2_addr == ma2mr_rd_addr) &
                           ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
 assign fwd_wb2ma_rd_rs2  = mr2wb_rd_wr & (exe2ma_rs2_addr == mr2wb_rd_addr);
 
-assign ma_dpu_req   = ~ma_flush & exe2ma_mem_req;
+assign ma_dpu_req   = ~ma_flush_force & exe2ma_mem_req;
 assign ma_dpu_wr    = exe2ma_mem_wr;
 assign ma_dpu_byte  = exe2ma_mem_byte;
 assign ma_dpu_addr  = exe2ma_alu_out;
@@ -1199,14 +1199,14 @@ end
 // MEMORY RECEIVE stage
 assign mr_rd_data    = ma2mr_mem_cal_sel ?  ma_dpu_rdata : ma2mr_rd_data;
 
-assign tlb_flush_req       = ma2mr_tlb_flush_req;
+assign tlb_flush_req       = ~mr_flush_force & (ma2mr_tlb_flush_req);
 assign tlb_flush_all_vaddr = ma2mr_tlb_flush_all_vaddr;
 assign tlb_flush_all_asid  = ma2mr_tlb_flush_all_asid;
 assign tlb_flush_vaddr     = ma2mr_tlb_flush_vaddr;
 assign tlb_flush_asid      = ma2mr_tlb_flush_asid;
 
-assign ic_flush            = ma2mr_fence_i;
-assign mr_pipe_restart     = ~mr_stall && (ma2mr_tlb_flush_req | ma2mr_fence_i);
+assign ic_flush            = ~mr_flush_force & ma2mr_fence_i;
+assign mr_pipe_restart     = ~mr_flush_force & (ma2mr_tlb_flush_req | ma2mr_fence_i);
 
 
 // MR/WB pipeline
