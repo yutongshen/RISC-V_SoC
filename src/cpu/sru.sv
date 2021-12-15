@@ -44,6 +44,7 @@ module sru (
     input                           clk_free,
     input                           rstn,
     input                           sleep,
+    input                           misaligned,
     output logic [             1:0] prv,
     output logic                    tsr,
     output logic                    tvm,
@@ -72,6 +73,11 @@ module sru (
     input                           sret,
     input                           mret,
     output logic                    eret_en,
+
+    // Extension flag
+    output logic                    misa_a_ext,
+    output logic                    misa_c_ext,
+    output logic                    misa_m_ext,
     
     // CSR interface
     input                           csr_wr,
@@ -264,7 +270,7 @@ always_ff @(posedge clk or negedge rstn) begin
         sepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_SEPC_ADDR) begin
-        sepc <= (~`XLEN'h3  & csr_wdata);
+        sepc <= (~`XLEN'h1  & csr_wdata);
     end
 end
 
@@ -410,15 +416,23 @@ end
 assign misa = misa_mxl == 2'h1 ? {{`XLEN-32{1'b0}}, misa_mxl, 4'b0, misa_ext}:
               misa_mxl == 2'h2 ? {misa_mxl, {`XLEN-28{1'b0}}, misa_ext}:
                                  `XLEN'b0;
+assign misa_ext = ({25'b0, misa_a_ext} << ("a" - "a")) |
+                  ({25'b0, misa_c_ext} << ("c" - "a")) |
+                  ({25'b0, misa_m_ext} << ("m" - "a"));
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
 `ifdef RV32
-        misa_mxl <= 2'h1;
+        misa_mxl   <= 2'h1;
 `else
-        misa_mxl <= 2'h2;
+        misa_mxl   <= 2'h2;
 `endif
-        misa_ext <= 26'b0;
+        misa_a_ext <= 1'b0;
+        misa_c_ext <= 1'b1;
+        misa_m_ext <= 1'b0;
+    end
+    else if (csr_wr && csr_waddr == `CSR_MISA_ADDR) begin
+        misa_c_ext <= misaligned ? misa_c_ext : csr_wdata["c" - "a"];
     end
 end
 
@@ -510,7 +524,7 @@ always_ff @(posedge clk or negedge rstn) begin
         mepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_MEPC_ADDR) begin
-        mepc <= (~`XLEN'h3  & csr_wdata);
+        mepc <= (~`XLEN'h1  & csr_wdata);
     end
 end
 

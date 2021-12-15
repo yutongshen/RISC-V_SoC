@@ -705,11 +705,11 @@ csrrw:
   addi s0, s0, 4   
   # mepc  
   li t0, 0x01234567
-  csrrw x0, mepc, t0 # mepc = 0x01234564
-  csrrw t2, mepc, x0 # mepc = 0x0  t2 = 0x01234564
+  csrrw x0, mepc, t0 # mepc = 0x01234566
+  csrrw t2, mepc, x0 # mepc = 0x0  t2 = 0x01234566
   csrrw t3, mepc, x0 # mepc = 0x0  t3 = 0x0
-  add t1, t2, t3  
-  sw t1, 0(s0)  # t1 = 0x01234564 (mepc)
+  add   t1, t2, t3  
+  sw t1, 0(s0)  # t1 = 0x01234566 (mepc)
   addi s0, s0, 4   
   # mip  
   li t0, 1
@@ -737,9 +737,9 @@ csrrwi:
   addi s0, s0, 4   
   
   # mepc  
-  csrrwi x0, mepc, 0xf # mepc = 0xc
-  csrrw t1, mepc, x0   # mepc = 0x0  t1 = 0xc
-  sw t1, 0(s0)  # t1 = 0xc (mepc)
+  csrrwi x0, mepc, 0xf # mepc = 0xe
+  csrrw t1, mepc, x0   # mepc = 0x0  t1 = 0xe
+  sw t1, 0(s0)  # t1 = 0xe (mepc)
   addi s0, s0, 4   
   
   # mip  

@@ -62,3 +62,40 @@ parameter [11:0] FUNCT12_ECALL  = 12'h000,
                  FUNCT12_WFI    = 12'h105,
                  FUNCT12_SRET   = 12'h102,
                  FUNCT12_MRET   = 12'h302;
+
+// RVC
+parameter [2:0] FUNCT3_C0_ADDI4SPN = 3'b000,
+                FUNCT3_C0_FLD      = 3'b001,
+                FUNCT3_C0_LW       = 3'b010,
+                FUNCT3_C0_FLW      = 3'b011,
+                FUNCT3_C0_FSD      = 3'b101,
+                FUNCT3_C0_SW       = 3'b110,
+                FUNCT3_C0_FSW      = 3'b111;
+
+parameter [2:0] FUNCT3_C1_ADDI     = 3'b000,
+                FUNCT3_C1_JAL      = 3'b001,
+                FUNCT3_C1_LI       = 3'b010,
+                FUNCT3_C1_LUI      = 3'b011,
+                FUNCT3_C1_OP       = 3'b100,
+                FUNCT3_C1_J        = 3'b101,
+                FUNCT3_C1_BEQZ     = 3'b110,
+                FUNCT3_C1_BNEZ     = 3'b111;
+
+parameter [2:0] FUNCT3_C2_SLLI     = 3'b000,
+                FUNCT3_C2_FLDSP    = 3'b001,
+                FUNCT3_C2_LWSP     = 3'b010,
+                FUNCT3_C2_FLWSP    = 3'b011,
+                FUNCT3_C2_OP       = 3'b100,
+                FUNCT3_C2_FSDSP    = 3'b101,
+                FUNCT3_C2_SWSP     = 3'b110,
+                FUNCT3_C2_FSWSP    = 3'b111;
+
+parameter [2:0] FUNCT2_OP_IMM_C_SRLI = 2'b00,
+                FUNCT2_OP_IMM_C_SRAI = 2'b01,
+                FUNCT2_OP_IMM_C_ANDI = 2'b10,
+                FUNCT2_OP_IMM_C_OP   = 2'b11;
+
+parameter [2:0] FUNCT2_OP_C_SUB = 2'b00,
+                FUNCT2_OP_C_XOR = 2'b01,
+                FUNCT2_OP_C_OR  = 2'b10,
+                FUNCT2_OP_C_AND = 2'b11;

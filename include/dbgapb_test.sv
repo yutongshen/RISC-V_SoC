@@ -1,40 +1,8 @@
-`define ZERO 5'b00000
-`define RA   5'b00001
-`define SP   5'b00010
-`define GP   5'b00011
-`define TP   5'b00100
-`define T0   5'b00101
-`define T1   5'b00110
-`define T2   5'b00111
-`define S0   5'b01000
-`define S1   5'b01001
-`define A0   5'b01010
-`define A1   5'b01011
-`define A2   5'b01100
-`define A3   5'b01101
-`define A4   5'b01110
-`define A5   5'b01111
-`define A6   5'b10000
-`define A7   5'b10001
-`define S2   5'b10010
-`define S3   5'b10011
-`define S4   5'b10100
-`define S5   5'b10101
-`define S6   5'b10110
-`define S7   5'b10111
-`define S8   5'b11000
-`define S9   5'b11001
-`define S10  5'b11010
-`define S11  5'b11011
-`define T3   5'b11100
-`define T4   5'b11101
-`define T5   5'b11110
-`define T6   5'b11111
 `define JALR(RS1) {12'b0, RS1, 3'b000, 5'b00000, 7'b1100111}
 `define ADDI(RD, RS1, IMM) {IMM, RS1, 3'b000, RD, 7'b0010011}
 
 initial begin
-    repeat (20000) @(negedge clk);
+    repeat (100) @(negedge clk);
     dbgapb_wr(`DBGAPB_DBG_EN, 32'b1);
     dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_ATTACH});
     dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
@@ -45,8 +13,8 @@ initial begin
         dbgapb_status_rd;
     end
     dbgapb_pc_rd;
-    dbgapb_exec(`ADDI(`T0, `ZERO, 12'hcc));
-    dbgapb_exec(`JALR(`T0));
+    dbgapb_exec(`ADDI(`GPR_T0_ADDR, `GPR_ZERO_ADDR, 12'hcc));
+    dbgapb_exec(`JALR(`GPR_T0_ADDR));
     dbgapb_pc_rd;
     dbgapb_pc_rd;
     dbgapb_pc_rd;
@@ -149,7 +117,7 @@ initial begin
     dbgapb_csr_rd(12'h300);
     dbgapb_csr_wr(12'h300, 32'hffffffff);
     dbgapb_csr_rd(12'h300);
-    dbgapb_exec(`ADDI(`ZERO, `ZERO, 12'h000));
+    dbgapb_exec(`ADDI(`GPR_ZERO_ADDR, `GPR_ZERO_ADDR, 12'h000));
     dbgapb_wr(`DBGAPB_INST, {20'b0, `INST_RESUME});
     dbgapb_wr(`DBGAPB_INST_WR, 32'b1);
 end

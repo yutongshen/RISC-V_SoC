@@ -53,8 +53,12 @@ always_ff @(posedge clk) begin
               prv === `PRV_S ? "S":
               prv === `PRV_U ? "U":
                                "X";
-        $fdisplay(cpu_tracer_file, "(%0d ns) %0s[%s] %08x:%08x %s", $time, halted ? "[DBG]" : "",
-                  str, pc, inst, inst_dec(pc, inst));
+        if (inst[1:0] == 2'b11)
+            $fdisplay(cpu_tracer_file, "(%0d ns) %0s[%s] %08x:%08x %s", $time, halted ? "[DBG]" : "",
+                      str, pc, inst, inst_dec(pc, inst));
+        else
+            $fdisplay(cpu_tracer_file, "(%0d ns) %0s[%s] %08x:----%04x %s", $time, halted ? "[DBG]" : "",
+                      str, pc, inst[15:0], inst_dec(pc, inst));
     end
     if (valid & mem_req & ~mem_wr) begin
         str = "";

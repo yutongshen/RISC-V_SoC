@@ -26,3 +26,7 @@ parameter [4:0] OP_LOAD      = 5'b00_000,
                 OP_SYSTEM    = 5'b11_100,
                 OP_RSV_2     = 5'b11_101,
                 OP_CUST_3    = 5'b11_110;
+
+parameter [1:0] OP16_C0      = 2'b00,
+                OP16_C1      = 2'b01,
+                OP16_C2      = 2'b10;

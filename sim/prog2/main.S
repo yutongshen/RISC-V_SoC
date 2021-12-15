@@ -131,7 +131,7 @@ main:
   # sw t0, -0xe0*4(t1)
 
   csrs mie, (1<<3)
-  # wfi
+  wfi
   li a0, 'A'
   call uart_tx
   li a0, 7

@@ -1,6 +1,13 @@
 module ifu (
     input                             clk,
     input                             rstn,
+
+    input                             ic_flush,
+
+    // Extension flag
+    input                             misa_c_ext,
+
+    // Branch
     input                             irq_en,
     input        [`IM_ADDR_LEN - 1:0] irq_vec,
     input                             eret_en,
@@ -13,11 +20,14 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] pipe_restart,
     output logic                      id_jump_fault,
     output logic                      exe_jump_fault,
-    output                            imem_req,
+
+    // Inst Memory
+    output logic                      imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
     input        [`IM_DATA_LEN - 1:0] imem_rdata,
     input        [               1:0] imem_bad,
     input                             imem_busy,
+
     input        [`IM_ADDR_LEN - 1:0] id_pc,
     input        [`IM_ADDR_LEN - 1:0] exe_pc,
     output logic [`IM_ADDR_LEN - 1:0] pc,
@@ -39,34 +49,46 @@ logic                      jump_in_exe;
 logic                      jump_in_mr;
 logic                      jump;
 logic [`IM_ADDR_LEN - 1:0] jump_addr;
+logic [`IM_ADDR_LEN - 1:0] jump_addr_latch;
 logic [`IM_ADDR_LEN - 1:0] pc_nxt;
-logic [`IM_ADDR_LEN - 1:0] pc_d1;
-logic [`IM_ADDR_LEN - 1:0] pc_d2;
+logic [`IM_ADDR_LEN - 1:0] inst_len;
 logic                      inst_latch_valid;
 logic [`IM_DATA_LEN - 1:0] inst_latch;
 logic [               1:0] bad_latch;
 logic                      imem_req_latch;
-logic                      imem_req_tmp;
+logic                      ifu_req_tmp;
 logic                      misaligned_tmp;
+
+logic                      pfu_pop;
+logic [  `IM_ADDR_LEN-1:0] pfu_pc;
+logic [  `IM_DATA_LEN-1:0] pfu_inst;
+logic [               1:0] pfu_bad;
+logic                      pfu_empty;
 
 assign jump_in_id  = pc_jump_en;
 assign jump_in_exe = irq_en | pc_alu_en | eret_en;
 assign jump_in_mr  = pipe_restart_en;
-assign jump        = irq_en | pc_jump_en | pc_alu_en | eret_en | pipe_restart_en;
+assign jump        = jump_in_id | jump_in_exe | jump_in_mr;
 assign jump_addr   = pipe_restart_en ? pipe_restart:
-                     eret_en         ? ret_epc:
-                     irq_en          ? irq_vec:
-                     pc_alu_en       ? pc_alu:
-                                       pc_jump;
-assign pc_nxt      = jump   ? jump_addr:
-                     attach ? pc:
-                              (pc_d1 + `IM_ADDR_LEN'h4);
+                     eret_en         ? {ret_epc[`IM_ADDR_LEN-1:2], ret_epc[1] & misa_c_ext, 1'b0}:
+                     irq_en          ? {irq_vec[`IM_ADDR_LEN-1:1], 1'b0}:
+                     pc_alu_en       ? {pc_alu [`IM_ADDR_LEN-1:1], 1'b0}:
+                                       {pc_jump[`IM_ADDR_LEN-1:1], 1'b0};
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        jump_addr_latch <= {`IM_ADDR_LEN{1'b0}};
+    end
+    else begin
+        if (jump) begin
+            jump_addr_latch <= {jump_addr[`IM_ADDR_LEN-1:1], 1'b0};
+        end
+    end
+end
 
 // avoid for jar misaligned and write rd
-assign id_jump_fault  = jump_in_id  & pc_jump[1];
-assign exe_jump_fault = jump_in_exe & ~irq_en &
-                       (eret_en ? ret_epc[1]:
-                                  pc_alu[1]);
+assign id_jump_fault  = jump_in_id  & pc_jump[1] & ~misa_c_ext;
+assign exe_jump_fault = pc_alu_en   & pc_alu[1]  & ~misa_c_ext;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -84,96 +106,44 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        pc_d1 <= {`IM_ADDR_LEN{1'b0}};
-    end
-    else if (imem_req | jump) begin
-        pc_d1 <= {pc_nxt[`IM_ADDR_LEN - 1:1], 1'b0};
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        pc_d2 <= {`IM_ADDR_LEN{1'b0}};
-    end
-    else if (jump) begin
-        pc_d2 <= {jump_addr[`IM_ADDR_LEN - 1:1], 1'b0};
-    end
-    else if (inst_valid) begin
-        pc_d2 <= pc_d1;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        inst_latch_valid <= 1'b0;
-    end
-    else if (inst_valid | jump) begin
-        inst_latch_valid <= 1'b0;
-    end
-    else if (imem_req_latch & stall & ~imem_busy) begin
-        inst_latch_valid <= 1'b1;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        inst_latch <= `IM_DATA_LEN'b0;
-    end
-    else if (~imem_busy & ~inst_latch_valid ) begin
-        inst_latch <= imem_rdata;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        bad_latch <= 2'b0;
-    end
-    else if (~imem_busy & ~inst_latch_valid ) begin
-        bad_latch <= imem_bad;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        imem_req_latch <= 1'b0;
-    end
-    else if (imem_req) begin
-        imem_req_latch <= 1'b1;
-    end
-    else if (inst_valid | jump) begin
-        imem_req_latch <= 1'b0;
-    end
-end
-
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
         misaligned <= 1'b0;
     end
-    else if (imem_req_tmp) begin
-        misaligned <= misaligned_tmp;
-    end
-    else if (inst_valid | jump) begin
-        misaligned <= 1'b0;
+    else begin
+        misaligned <= misaligned_tmp && jump;
     end
 end
 
-assign misaligned_tmp = pc_d1[1];
+assign misaligned_tmp = jump_addr[1] && ~misa_c_ext;
 
-assign imem_addr      = pc_d1;
-assign imem_req_tmp   = ~imem_busy & ~jump & (inst_valid | ~imem_req_latch);
-assign imem_req       = imem_req_tmp & ~misaligned_tmp;
+assign pfu_pop        = ~stall & ~attach;
 
-assign inst_valid = attach ? dbg_exec :
-                            ((imem_req_latch & ~imem_busy) | inst_latch_valid | misaligned) &
-                            ~stall & ~jump;
+assign inst_valid     = attach ? dbg_exec :
+                                 (pfu_pop && ~pfu_empty) || misaligned;
 
-assign inst       = attach           ? dbg_inst:
-                    inst_latch_valid ? inst_latch: 
-                    ~imem_busy       ? imem_rdata:
-                                       `IM_DATA_LEN'b0;
-assign {xes_fault, page_fault} = inst_latch_valid ? bad_latch: 
-                                 ~imem_busy       ? imem_bad:
-                                                    2'b0;
-assign pc         = pc_d2;
+assign inst           = attach ? dbg_inst:
+                                 pfu_inst;
+
+assign pc             = pfu_pc;
+
+assign {xes_fault, page_fault} = pfu_bad;
+
+pfu u_pfu (
+    .clk        ( clk        ),
+    .rstn       ( rstn       ),
+    .jump       ( jump       ),
+    .jump_addr  ( jump_addr  ),
+    .pop        ( pfu_pop    ),
+    .pc         ( pfu_pc     ),
+    .inst       ( pfu_inst   ),
+    .bad        ( pfu_bad    ),
+    .empty      ( pfu_empty  ),
+
+    // Inst Memory
+    .imem_req   ( imem_req   ),
+    .imem_addr  ( imem_addr  ),
+    .imem_rdata ( imem_rdata ),
+    .imem_bad   ( imem_bad   ),
+    .imem_busy  ( imem_busy  )
+);
 
 endmodule

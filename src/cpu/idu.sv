@@ -16,6 +16,10 @@ module idu (
     output logic [              `XLEN - 1:0] rs1_data,
     output logic [              `XLEN - 1:0] rs2_data,
     output logic [              `XLEN - 1:0] imm,
+
+    // Extension flag
+    input                                    misa_c_ext,
+
     // Control
     output logic [                      1:0] prv_req,
     output logic                             ill_inst,
@@ -28,6 +32,7 @@ module idu (
     output logic                             mret,
     output logic                             jump,
     output logic                             jump_alu,
+
     // EXE stage
     output logic [        `ALU_OP_LEN - 1:0] alu_op,
     output logic                             rs1_zero_sel,
@@ -39,6 +44,7 @@ module idu (
     output logic                             uimm_rs1_sel,
     output logic                             csr_rd,
     output logic                             csr_wr,
+
     // MEM stage
     output logic                             pc_alu_sel,
     output logic                             csr_alu_sel,
@@ -49,6 +55,7 @@ module idu (
     output logic                             tlb_flush_req,
     output logic                             tlb_flush_all_vaddr,
     output logic                             tlb_flush_all_asid,
+
     // WB stage
     output logic                             mem_cal_sel,
     output logic                             rd_wr_o,
@@ -66,9 +73,6 @@ module idu (
 logic csr_rd_tmp;
 logic csr_wr_tmp;
 
-assign rd_addr_o = inst[11: 7];
-assign rs1_addr  = inst[19:15];
-assign rs2_addr  = inst[24:20];
 assign csr_addr  = (halted && (dbg_csr_rd || dbg_csr_wr)) ? dbg_addr : inst[31:20];
 
 assign csr_rd    = csr_rd_tmp || (halted && dbg_csr_rd);
@@ -95,8 +99,16 @@ rfu u_rfu (
 dec u_dec (
     .inst                ( inst                ),
     .inst_valid          ( inst_valid          ),
+
+    // Extension
+    .misa_c_ext          ( misa_c_ext          ),
+
     // Date
+    .rs1_addr            ( rs1_addr            ),
+    .rs2_addr            ( rs2_addr            ),
+    .rd_addr             ( rd_addr_o           ),
     .imm                 ( imm                 ),
+
     // Control
     .prv_req             ( prv_req             ),
     .ill_inst            ( ill_inst            ),
@@ -109,6 +121,7 @@ dec u_dec (
     .mret                ( mret                ),
     .jump                ( jump                ),
     .jump_alu            ( jump_alu            ),
+
     // EXE stage
     .alu_op              ( alu_op              ),
     .rs1_zero_sel        ( rs1_zero_sel        ),
@@ -120,6 +133,7 @@ dec u_dec (
     .uimm_rs1_sel        ( uimm_rs1_sel        ),
     .csr_rd              ( csr_rd_tmp          ),
     .csr_wr              ( csr_wr_tmp          ),
+
     // MEM stage
     .pc_alu_sel          ( pc_alu_sel          ),
     .csr_alu_sel         ( csr_alu_sel         ),
@@ -130,6 +144,7 @@ dec u_dec (
     .tlb_flush_req       ( tlb_flush_req       ),
     .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
     .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
+
     // WB stage
     .mem_cal_sel         ( mem_cal_sel         ),
     .reg_wr              ( rd_wr_o             )

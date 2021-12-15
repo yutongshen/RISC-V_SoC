@@ -264,6 +264,10 @@ logic                             exe_mpu_csr_wr;
 logic                             exe_sru_csr_wr;
 logic                             exe_sret;
 logic                             exe_mret;
+logic                             exe_eret_en;
+logic                             exe_misa_a_ext;
+logic                             exe_misa_c_ext;
+logic                             exe_misa_m_ext;
 logic                             exe_satp_upd;
 logic                             exe_inst_misaligned;
 logic [              `XLEN - 1:0] exe_inst_misaligned_badaddr;
@@ -485,6 +489,8 @@ hzu u_hzu (
 ifu u_ifu (
     .clk             ( clk                          ),
     .rstn            ( rstn_sync                    ),
+    .ic_flush        ( ic_flush                     ),
+    .misa_c_ext      ( exe_misa_c_ext               ),
     .irq_en          ( exe_irq_en | exe_trap_en     ),
     .irq_vec         ( irq_vec                      ),
     .eret_en         ( exe_eret_en                  ),
@@ -542,7 +548,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
     else begin
         if ((~id_stall & ~stall_wfi) | if_flush_force) begin
             if2id_pc                  <= if_pc;
-            if2id_inst                <= if_inst;
+            if2id_inst                <= {`IM_DATA_LEN{if_inst_valid}} & if_inst;
             if2id_inst_valid          <= ~if_flush & if_inst_valid;
             if2id_inst_misaligned_epc <= if_inst_misaligned_epc;
             if2id_inst_misaligned     <= if_inst_misaligned;
@@ -564,6 +570,7 @@ idu u_idu (
     .rstn                ( rstn_sync              ),
     .inst                ( if2id_inst             ),
     .inst_valid          ( if2id_inst_valid       ),
+    .misa_c_ext          ( exe_misa_c_ext         ),
     .pc                  ( if2id_pc               ),
     .rd_wr_i             ( wb_rd_wr               ),
     .rd_addr_i           ( mr2wb_rd_addr          ),
@@ -825,7 +832,7 @@ assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
 
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
-assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + `XLEN'h4;
+assign exe_pc_add_4 = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + (id2exe_inst[1:0] == 2'b11 ? `XLEN'h4 : `XLEN'h2);
 assign exe_pc2rd    = id2exe_pc_imm_sel   ? exe_pc_imm : exe_pc_add_4;
 
 assign exe_alu_src1 = id2exe_rs1_zero_sel ? exe_rs1_data : `XLEN'b0;
@@ -856,6 +863,7 @@ sru u_sru (
     .clk_free    ( clk               ),
     .rstn        ( rstn_sync         ),
     .sleep       ( sleep             ),
+    .misaligned  ( id2exe_pc[1]      ),
     .prv         ( exe_prv           ),
     .tvm         ( exe_mstatus_tvm   ),
     .tsr         ( exe_mstatus_tsr   ),
@@ -884,6 +892,11 @@ sru u_sru (
     .sret        ( exe_sret          ),
     .mret        ( exe_mret          ),
     .eret_en     ( exe_eret_en       ),
+
+    // Extension flag
+    .misa_a_ext  ( exe_misa_a_ext    ),
+    .misa_c_ext  ( exe_misa_c_ext    ),
+    .misa_m_ext  ( exe_misa_m_ext    ),
     
     // CSR interface
     .csr_wr      ( exe_sru_csr_wr    ),
