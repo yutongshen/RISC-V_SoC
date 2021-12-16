@@ -136,10 +136,10 @@ initial begin
     $readmemh({prog_path, "/sram_0_1.hex"}, prog_byte1);
     $readmemh({prog_path, "/sram_0_2.hex"}, prog_byte2);
     $readmemh({prog_path, "/sram_0_3.hex"}, prog_byte3);
-    $readmemh({prog_path, "/sram_1_0.hex"}, prog_byte0);
-    $readmemh({prog_path, "/sram_1_1.hex"}, prog_byte1);
-    $readmemh({prog_path, "/sram_1_2.hex"}, prog_byte2);
-    $readmemh({prog_path, "/sram_1_3.hex"}, prog_byte3);
+    // $readmemh({prog_path, "/sram_1_0.hex"}, prog_byte0);
+    // $readmemh({prog_path, "/sram_1_1.hex"}, prog_byte1);
+    // $readmemh({prog_path, "/sram_1_2.hex"}, prog_byte2);
+    // $readmemh({prog_path, "/sram_1_3.hex"}, prog_byte3);
     #(`CLK_PRIOD)
     for (i = 0; i < 16384; i = i + 1) begin
         u_cpu_wrap.u_sram_0.memory[i] <= {prog_byte3[i], prog_byte2[i], prog_byte1[i], prog_byte0[i]};
@@ -190,16 +190,31 @@ logic [31:0] arg;
 logic [31:0] cmd;
 logic [ 1:0] _flag;
 
+logic [13:0] tohost;
+string       isa;
+
+initial begin
+    isa = "";
+    $value$plusargs("isa=%s", isa);
+    $display("isa: %s", isa);
+    if (isa == "rv32uc-p-rvc") begin
+        tohost = 14'hc00;
+    end
+    else begin
+        tohost = 14'h400;
+    end
+end
+
 always @(posedge clk) begin
     if (~rstn) begin
         arg <= 32'b0;
         cmd <= 32'b0;
     end
     else if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
-        if (u_cpu_wrap.u_sram_0.A == 14'h400) begin
+        if (u_cpu_wrap.u_sram_0.A == tohost) begin
             arg <= u_cpu_wrap.u_sram_0.DI;
         end
-        else if (u_cpu_wrap.u_sram_0.A == 14'h401) begin
+        else if (u_cpu_wrap.u_sram_0.A == tohost + 14'h1) begin
             cmd <= u_cpu_wrap.u_sram_0.DI;
         end
     end
@@ -213,7 +228,7 @@ always @(posedge clk) begin
         if (_flag) begin
             _flag <= {_flag[0], 1'b0};
         end
-        else if (u_cpu_wrap.u_sram_0.A == 14'h400) begin
+        else if (u_cpu_wrap.u_sram_0.A == tohost) begin
             _flag <= 2'b1;
         end
     end
@@ -226,8 +241,8 @@ always @(posedge clk) begin
             32'h01010000: $write("%c", arg);
         endcase
         _flag <= 2'b0;
-        u_cpu_wrap.u_sram_0.memory[14'h400] = 32'b0;
-        u_cpu_wrap.u_sram_0.memory[14'h401] = 32'b0;
+        u_cpu_wrap.u_sram_0.memory[tohost] = 32'b0;
+        u_cpu_wrap.u_sram_0.memory[tohost+14'h1] = 32'b0;
     end
 end
 

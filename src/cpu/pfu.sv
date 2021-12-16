@@ -88,8 +88,8 @@ end
 assign empty    = ~((_ndata <= 4'h6) ||
                     (_ndata <= 4'h7 && inst[1:0] != 3'b11) ||
                     (_ndata <= 4'h8 && fifo_wr) ||
-                    (_ndata <= 4'h9 && fifo_wr && imem_rdata[1:0] != 3'b11));
-assign imem_req = _ndata >= 4'h4 && ~imem_busy;
+                    (_ndata <= 4'h9 && fifo_wr && imem_rdata[17:16] != 3'b11));
+assign imem_req = ((_ndata >= 4'h4) || (_ndata >= 4'h2 && ~imem_req_latch)) && ~imem_busy;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin

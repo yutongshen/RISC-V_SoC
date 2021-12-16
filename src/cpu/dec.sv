@@ -157,7 +157,58 @@ always_comb begin
                 rs1_addr            = {2'b1, inst[ 9: 7]};
                 rs2_addr            = {2'b1, inst[ 4: 2]};
                 rd_addr             = {2'b1, inst[ 4: 2]};
-                ill_inst     = 1'b1;
+                case (funct3_16)
+                    FUNCT3_C0_ADDI4SPN: begin
+                        rs1_addr     = `GPR_SP_ADDR;
+                        imm          = imm_ciw;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        pc_alu_sel   = 1'b0;
+                        mem_req      = 1'b0;
+                        mem_wr       = 1'b0;
+                        mem_cal_sel  = 1'b0;
+                        reg_wr       = |rd_addr;
+                        alu_op       = ALU_ADD;
+                        ill_inst     = ~|imm;
+                    end
+                    FUNCT3_C0_FLD     : begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C0_LW      : begin
+                        imm          = imm_cl;
+                        alu_op       = ALU_ADD;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        mem_req      = 1'b1;
+                        mem_wr       = 1'b0;
+                        reg_wr       = |rd_addr;
+                        mem_cal_sel  = 1'b1;
+                        mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
+                        mem_sign_ext = 1'b1;
+                    end
+                    FUNCT3_C0_FLW     : begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C0_FSD     : begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C0_SW      : begin
+                        imm          = imm_cs;
+                        alu_op       = ALU_ADD;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        mem_req      = 1'b1;
+                        mem_wr       = 1'b1;
+                        reg_wr       = 1'b0;
+                        mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
+                    end
+                    FUNCT3_C0_FSW     : begin
+                        ill_inst     = 1'b1;
+                    end
+                    default           : begin
+                        ill_inst     = 1'b1;
+                    end
+                endcase
             end
             OP16_C1: begin
                 rs1_addr            = {2'b1, inst[ 9: 7]};
@@ -316,9 +367,127 @@ always_comb begin
                 endcase
             end
             OP16_C2: begin
-                rs1_addr            = {2'b1, inst[11: 7]};
-                rs2_addr            = {2'b1, inst[ 6: 2]};
-                rd_addr             = {2'b1, inst[11: 7]};
+                rs1_addr            = inst[11: 7];
+                rs2_addr            = inst[ 6: 2];
+                rd_addr             = inst[11: 7];
+                case (funct3_16)
+                    FUNCT3_C2_SLLI : begin
+                        imm          = imm_ci_li;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        pc_alu_sel   = 1'b0;
+                        mem_req      = 1'b0;
+                        mem_wr       = 1'b0;
+                        mem_cal_sel  = 1'b0;
+                        reg_wr       = |rd_addr;
+                        alu_op       = ALU_SLL;
+                        ill_inst     = inst[12];
+                    end
+                    FUNCT3_C2_FLDSP: begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C2_LWSP : begin
+                        rs1_addr     = `GPR_SP_ADDR;
+                        imm          = imm_ci_lsp;
+                        alu_op       = ALU_ADD;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        mem_req      = 1'b1;
+                        mem_wr       = 1'b0;
+                        reg_wr       = |rd_addr;
+                        mem_cal_sel  = 1'b1;
+                        mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
+                        mem_sign_ext = 1'b1;
+                        ill_inst     = ~|rd_addr;
+                    end
+                    FUNCT3_C2_FLWSP: begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C2_OP   : begin
+                        if (~inst[12]) begin
+                            if (rs2_addr == `GPR_ZERO_ADDR) begin
+                                rd_addr      = `GPR_ZERO_ADDR;
+                                imm          = `XLEN'b0;
+                                alu_op       = ALU_ADD;
+                                rs1_zero_sel = 1'b1;
+                                rs2_imm_sel  = 1'b0;
+                                pc_imm_sel   = 1'b0;
+                                pc_alu_sel   = 1'b1;
+                                mem_req      = 1'b0;
+                                mem_wr       = 1'b0;
+                                mem_cal_sel  = 1'b0;
+                                reg_wr       = |rd_addr;
+                                jump_alu     = 1'b1;
+                                ill_inst     = ~|rs1_addr;
+                            end
+                            else begin
+                                rs1_addr     = `GPR_ZERO_ADDR;
+                                rs1_zero_sel = 1'b1;
+                                rs2_imm_sel  = 1'b1;
+                                pc_alu_sel   = 1'b0;
+                                mem_req      = 1'b0;
+                                mem_wr       = 1'b0;
+                                mem_cal_sel  = 1'b0;
+                                reg_wr       = |rd_addr;
+                                alu_op       = ALU_ADD;
+                            end
+                        end
+                        else begin
+                            if (rs2_addr == `GPR_ZERO_ADDR) begin
+                                if (rs1_addr == `GPR_ZERO_ADDR) begin
+                                    mem_req      = 1'b0;
+                                    mem_wr       = 1'b0;
+                                    reg_wr       = 1'b0;
+                                    ebreak       = 1'b1;
+                                end
+                                else begin
+                                    rd_addr      = `GPR_RA_ADDR;
+                                    imm          = `XLEN'b0;
+                                    alu_op       = ALU_ADD;
+                                    rs1_zero_sel = 1'b1;
+                                    rs2_imm_sel  = 1'b0;
+                                    pc_imm_sel   = 1'b0;
+                                    pc_alu_sel   = 1'b1;
+                                    mem_req      = 1'b0;
+                                    mem_wr       = 1'b0;
+                                    mem_cal_sel  = 1'b0;
+                                    reg_wr       = 1'b1;
+                                    jump_alu     = 1'b1;
+                                end
+                            end
+                            else begin
+                                rs1_zero_sel = 1'b1;
+                                rs2_imm_sel  = 1'b1;
+                                pc_alu_sel   = 1'b0;
+                                mem_req      = 1'b0;
+                                mem_wr       = 1'b0;
+                                mem_cal_sel  = 1'b0;
+                                reg_wr       = |rd_addr;
+                                alu_op       = ALU_ADD;
+                            end
+                        end
+                    end
+                    FUNCT3_C2_FSDSP: begin
+                        ill_inst     = 1'b1;
+                    end
+                    FUNCT3_C2_SWSP : begin
+                        rs1_addr     = `GPR_SP_ADDR;
+                        imm          = imm_css;
+                        alu_op       = ALU_ADD;
+                        rs1_zero_sel = 1'b1;
+                        rs2_imm_sel  = 1'b0;
+                        mem_req      = 1'b1;
+                        mem_wr       = 1'b1;
+                        reg_wr       = 1'b0;
+                        mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
+                    end
+                    FUNCT3_C2_FSWSP: begin
+                        ill_inst     = 1'b1;
+                    end
+                    default        : begin
+                        ill_inst     = 1'b1;
+                    end
+                endcase
             end
             default: begin
                 rs1_addr            = inst[19:15];
