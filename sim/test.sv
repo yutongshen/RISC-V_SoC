@@ -196,7 +196,7 @@ string       isa;
 initial begin
     isa = "";
     $value$plusargs("isa=%s", isa);
-    $display("isa: %s", isa);
+    if (isa != "") $display("isa: %s", isa);
     if (isa == "rv32uc-p-rvc") begin
         tohost = 14'hc00;
     end

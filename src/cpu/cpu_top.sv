@@ -577,6 +577,7 @@ idu u_idu (
     .inst                ( if2id_inst             ),
     .inst_valid          ( if2id_inst_valid       ),
     .misa_c_ext          ( exe_misa_c_ext         ),
+    .misa_m_ext          ( exe_misa_m_ext         ),
     .pc                  ( if2id_pc               ),
     .rd_wr_i             ( wb_rd_wr               ),
     .rd_addr_i           ( mr2wb_rd_addr          ),

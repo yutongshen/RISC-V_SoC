@@ -19,6 +19,7 @@ module idu (
 
     // Extension flag
     input                                    misa_c_ext,
+    input                                    misa_m_ext,
 
     // Control
     output logic [                      1:0] prv_req,
@@ -102,6 +103,7 @@ dec u_dec (
 
     // Extension
     .misa_c_ext          ( misa_c_ext          ),
+    .misa_m_ext          ( misa_m_ext          ),
 
     // Date
     .rs1_addr            ( rs1_addr            ),

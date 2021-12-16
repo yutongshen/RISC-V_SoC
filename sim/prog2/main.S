@@ -28,6 +28,20 @@ main:
   sw s0, 0(sp)
   la s0, _test_start
 
+  /* rvc test */
+  li t0, 1 << ('c' - 'a')
+  csrc misa, t0
+  nop
+  nop
+  nop
+  nop
+  nop
+  csrs misa, t0
+  c.nop
+  c.nop
+  c.nop
+  c.nop
+
   /*jump test*/
   li t5, 0x8000
   li t0, 0x1800

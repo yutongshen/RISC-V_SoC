@@ -35,10 +35,10 @@ module hzu (
 logic [5:0] stall_all;
 logic [5:0] flush_all;
 logic [5:0] flush_force_all;
-logic [5:0] flush_trap_all;
+logic [5:0] flush_jump_all;
 
-assign {wb_stall, mr_stall, ma_stall, exe_stall, id_stall, if_stall} = stall_all/* & inst_valid*/;
-assign {wb_flush, mr_flush, ma_flush, exe_flush, id_flush, if_flush} = flush_all | flush_trap_all | flush_force_all;
+assign {wb_stall, mr_stall, ma_stall, exe_stall, id_stall, if_stall} = stall_all;
+assign {wb_flush, mr_flush, ma_flush, exe_flush, id_flush, if_flush} = flush_all | flush_jump_all | flush_force_all;
 assign {wb_flush_force, mr_flush_force, ma_flush_force, exe_flush_force, id_flush_force, if_flush_force} = flush_force_all;
 
 assign stall_all = dpu_hazard ? 6'b011111:
@@ -53,12 +53,16 @@ assign flush_all = dpu_hazard ? 6'b010000:
                    pc_jump_en ? 6'b000001:
                                 6'b000000;
 
-assign flush_force_all = dpu_fault                      ? 6'b111111:
-                         pipe_restart_en                ? 6'b001111:
-                         (eret_en || irq_en || trap_en) ? 6'b000011:
-                                                          6'b000000;
+assign flush_jump_all = ({6{irq_en    }} & 6'b000111) |
+                        ({6{trap_en   }} & 6'b000111) |
+                        ({6{pc_alu_en }} & 6'b000011) |
+                        ({6{pc_jump_en}} & 6'b000001);
 
-assign flush_trap_all = (irq_en || trap_en) ? 6'b000100:
-                                              6'b000000;
+assign flush_force_all = ({6{dpu_fault      }} & 6'b111111) |
+                         ({6{pipe_restart_en}} & 6'b001111) |
+                         ({6{eret_en        }} & 6'b000011) |
+                         ({6{irq_en         }} & 6'b000011) |
+                         ({6{trap_en        }} & 6'b000011) |
+                         ({6{pc_alu_en      }} & 6'b000001);
 
 endmodule

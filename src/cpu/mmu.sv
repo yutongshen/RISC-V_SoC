@@ -107,6 +107,7 @@ logic                      tlb_hit;
 logic [`TLB_VPN_WIDTH-1:0] tlb_vpn;
 logic [`TLB_PTE_WIDTH-1:0] tlb_pte_in;
 logic [`TLB_PTE_WIDTH-1:0] tlb_pte_out;
+logic                      tlb_spage_in;
 logic                      tlb_spage_out;
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -203,8 +204,9 @@ assign pmp_err      = (!pmp_v && prv_latch != `PRV_M) ||
                        (!pmp_w && access_w_latch) ||
                        (!pmp_r && access_r_latch)));
                     
-assign tlb_vpn    = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
-assign tlb_pte_in = pte_latch;
+assign tlb_spage_in = level[0];
+assign tlb_vpn      = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
+assign tlb_pte_in   = pte_latch;
 assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} = pte_latch[31:0];
 assign {tlb_pte_ppn, tlb_pte_rsw, tlb_pte_d, tlb_pte_a, tlb_pte_g,
         tlb_pte_u,   tlb_pte_x,   tlb_pte_w, tlb_pte_r, tlb_pte_v} = tlb_pte_out[31:0];
@@ -413,8 +415,8 @@ always_ff @(posedge clk or negedge rstn) begin
             last_pte_v   <= tlb_pte_v;
         end
         else if (cur_state ==STATE_PTE   && leaf && ~pg_fault_pte) begin
-            last_vpn     <= {va_latch[22+:10], va_latch[12+:10] & {10{level[0]}}};
-            last_spage   <= level[0];
+            last_vpn     <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in}}};
+            last_spage   <= tlb_spage_in;
             last_pte_ppn <= pte_ppn;
             last_pte_rsw <= pte_rsw;
             last_pte_d   <= pte_d;
@@ -437,7 +439,7 @@ tlb u_tlb(
     .vpn                 ( tlb_vpn             ),
     .we                  ( tlb_we              ),
     .pte_hit             ( tlb_hit             ),
-    .spage_in            ( level[0]            ),
+    .spage_in            ( tlb_spage_in        ),
     .pte_in              ( tlb_pte_in          ),
     .spage_out           ( tlb_spage_out       ),
     .pte_out             ( tlb_pte_out         ),

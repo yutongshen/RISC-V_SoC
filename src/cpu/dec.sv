@@ -6,6 +6,7 @@ module dec (
 
     // Extension flag
     input                                    misa_c_ext,
+    input                                    misa_m_ext,
 
     // Data
     output logic [                      4:0] rs1_addr,
@@ -659,90 +660,46 @@ always_comb begin
                         mem_wr       = 1'b0;
                         mem_cal_sel  = 1'b0;
                         reg_wr       = |rd_addr;
-                        case (funct3)
-                            FUNCT3_ADD : begin
-                                case (funct7)
-                                    FUNCT7_ADD: begin
-                                        alu_op       = ALU_ADD;
-                                    end
-                                    FUNCT7_SUB: begin
-                                        alu_op       = ALU_SUB;
-                                    end
-                                    default   : begin
-                                        ill_inst     = 1'b1;
-                                    end
+                        case (funct7)
+                            FUNCT7_OP0   : begin
+                                case (funct3)
+                                    FUNCT3_ADD : alu_op       = ALU_ADD;
+                                    FUNCT3_SLL : alu_op       = ALU_SLL;
+                                    FUNCT3_SLT : alu_op       = ALU_SLT;
+                                    FUNCT3_SLTU: alu_op       = ALU_SLTU;
+                                    FUNCT3_XOR : alu_op       = ALU_XOR;
+                                    FUNCT3_SRL : alu_op       = ALU_SRL;
+                                    FUNCT3_OR  : alu_op       = ALU_OR;
+                                    FUNCT3_AND : alu_op       = ALU_AND;
+                                    default    : ill_inst     = 1'b1;
                                 endcase
                             end
-                            FUNCT3_SLL : begin
-                                case (funct7)
-                                    FUNCT7_SLL: begin
-                                        alu_op       = ALU_SLL;
-                                    end
-                                    default   : begin
-                                        ill_inst     = 1'b1;
-                                    end
+                            FUNCT7_OP1   : begin
+                                case (funct3)
+                                    FUNCT3_ADD : alu_op       = ALU_SUB;
+                                    FUNCT3_SRL : alu_op       = ALU_SRA;
+                                    default    : ill_inst     = 1'b1;
                                 endcase
                             end
-                            FUNCT3_SLT : begin
-                                case (funct7)
-                                    FUNCT7_SLT: begin
-                                        alu_op       = ALU_SLT;
+                            FUNCT7_MULDIV: begin
+                                ill_inst = misa_m_ext;
+                                case (funct3)
+                                    FUNCT3_MUL   : begin
+                                        // mul_op = MUL_MLU
                                     end
-                                    default   : begin
-                                        ill_inst     = 1'b1;
+                                    FUNCT3_MULH  : begin
                                     end
-                                endcase
-                            end
-                            FUNCT3_SLTU: begin
-                                case (funct7)
-                                    FUNCT7_SLTU: begin
-                                        alu_op       = ALU_SLTU;
+                                    FUNCT3_MULHSU: begin
                                     end
-                                    default    : begin
-                                        ill_inst     = 1'b1;
+                                    FUNCT3_MULHU : begin
                                     end
-                                endcase
-                            end
-                            FUNCT3_XOR : begin
-                                case (funct7)
-                                    FUNCT7_XOR: begin
-                                        alu_op       = ALU_XOR;
+                                    FUNCT3_DIV   : begin
                                     end
-                                    default   : begin
-                                        ill_inst     = 1'b1;
+                                    FUNCT3_DIVU  : begin
                                     end
-                                endcase
-                            end
-                            FUNCT3_SRL : begin
-                                case (funct7)
-                                    FUNCT7_SRL: begin
-                                        alu_op       = ALU_SRL;
+                                    FUNCT3_REM   : begin
                                     end
-                                    FUNCT7_SRA: begin
-                                        alu_op       = ALU_SRA;
-                                    end
-                                    default   : begin
-                                        ill_inst     = 1'b1;
-                                    end
-                                endcase
-                            end
-                            FUNCT3_OR  : begin
-                                case (funct7)
-                                    FUNCT7_OR: begin
-                                        alu_op       = ALU_OR;
-                                    end
-                                    default  : begin
-                                        ill_inst     = 1'b1;
-                                    end
-                                endcase
-                            end
-                            FUNCT3_AND : begin
-                                case (funct7)
-                                    FUNCT7_AND: begin
-                                        alu_op       = ALU_AND;
-                                    end
-                                    default    : begin
-                                        ill_inst     = 1'b1;
+                                    FUNCT3_REMU  : begin
                                     end
                                 endcase
                             end

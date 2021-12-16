@@ -44,10 +44,10 @@ build_hex: $(ELF_NAME)
 	$(RISCV_OBJCOPY) $< -i 4 -b 1 sram_0_1.hex
 	$(RISCV_OBJCOPY) $< -i 4 -b 2 sram_0_2.hex
 	$(RISCV_OBJCOPY) $< -i 4 -b 3 sram_0_3.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses 0x00010000 sram_1_0.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses 0x00010000 sram_1_1.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses 0x00010000 sram_1_2.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses 0x00010000 sram_1_3.hex
+	# $(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses 0x00010000 sram_1_0.hex
+	# $(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses 0x00010000 sram_1_1.hex
+	# $(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses 0x00010000 sram_1_2.hex
+	# $(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses 0x00010000 sram_1_3.hex
 
 %.o: %.bmp
 	$(RISCV_OBJCOPY) -I binary -O elf32-littleriscv -B riscv:rv32 $^ $@
