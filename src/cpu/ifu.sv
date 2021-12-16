@@ -37,6 +37,7 @@ module ifu (
     output logic                      misaligned,
     output logic                      page_fault,
     output logic                      xes_fault,
+    output logic [`IM_ADDR_LEN - 1:0] badaddr,
     input                             flush,
     input                             stall,
     input                             attach,
@@ -63,6 +64,7 @@ logic                      pfu_pop;
 logic [  `IM_ADDR_LEN-1:0] pfu_pc;
 logic [  `IM_DATA_LEN-1:0] pfu_inst;
 logic [               1:0] pfu_bad;
+logic [  `IM_ADDR_LEN-1:0] pfu_badaddr;
 logic                      pfu_empty;
 
 assign jump_in_id  = pc_jump_en;
@@ -126,24 +128,26 @@ assign inst           = attach ? dbg_inst:
 assign pc             = pfu_pc;
 
 assign {xes_fault, page_fault} = pfu_bad;
+assign badaddr                 = misaligned ? pfu_pc : pfu_badaddr;
 
 pfu u_pfu (
-    .clk        ( clk        ),
-    .rstn       ( rstn       ),
-    .jump       ( jump       ),
-    .jump_addr  ( jump_addr  ),
-    .pop        ( pfu_pop    ),
-    .pc         ( pfu_pc     ),
-    .inst       ( pfu_inst   ),
-    .bad        ( pfu_bad    ),
-    .empty      ( pfu_empty  ),
+    .clk        ( clk         ),
+    .rstn       ( rstn        ),
+    .jump       ( jump        ),
+    .jump_addr  ( jump_addr   ),
+    .pop        ( pfu_pop     ),
+    .pc         ( pfu_pc      ),
+    .inst       ( pfu_inst    ),
+    .bad        ( pfu_bad     ),
+    .badaddr    ( pfu_badaddr ),
+    .empty      ( pfu_empty   ),
 
     // Inst Memory
-    .imem_req   ( imem_req   ),
-    .imem_addr  ( imem_addr  ),
-    .imem_rdata ( imem_rdata ),
-    .imem_bad   ( imem_bad   ),
-    .imem_busy  ( imem_busy  )
+    .imem_req   ( imem_req    ),
+    .imem_addr  ( imem_addr   ),
+    .imem_rdata ( imem_rdata  ),
+    .imem_bad   ( imem_bad    ),
+    .imem_busy  ( imem_busy   )
 );
 
 endmodule

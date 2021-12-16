@@ -16,6 +16,7 @@ TMDL_PARSE_C  := ./script/tmdl_parse -c
 TMDL_PARSE_S  := ./script/tmdl_parse -s
 
 ISA           := $(wildcard ../riscv-tests/isa/rv32*i-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv32*c-*)
 ISA           := $(patsubst ../riscv-tests/isa/%,%,$(ISA))
 ISA           := $(patsubst %.dump,,$(ISA))
 
@@ -47,7 +48,7 @@ merge:
 
 sim: all | ${bld_dir}
 	@make verdi.f;
-	if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
+	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
 	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +isa=$${i} +nclinedebug;); \

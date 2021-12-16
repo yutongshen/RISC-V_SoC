@@ -6,6 +6,7 @@ module tpu (
     input        [`IM_ADDR_LEN-1:0] exe_pc,
     input        [`IM_ADDR_LEN-1:0] wb_pc,
     input        [`DM_ADDR_LEN-1:0] ldst_badaddr,
+    input        [`IM_ADDR_LEN-1:0] inst_badaddr,
     input        [             1:0] prv_cur,
     input        [             1:0] prv_req,
     input                           satp_upd,
@@ -112,7 +113,7 @@ assign trap_cause = wb_trap_en ?
 
 assign trap_val   = wb_trap_en           ? ldst_badaddr:
                     trap_inst_misaligned ? exe_pc:
-                    if_trap_en           ? exe_pc:
+                    if_trap_en           ? inst_badaddr:
                     trap_ill_inst        ? inst:
                                            `XLEN'd0;
 

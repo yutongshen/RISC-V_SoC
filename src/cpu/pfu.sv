@@ -7,6 +7,7 @@ module pfu (
     input        [`IM_ADDR_LEN-1:0] jump_addr,
     input                           pop,
     output logic [`IM_ADDR_LEN-1:0] pc,
+    output logic [`IM_ADDR_LEN-1:0] badaddr,
     output logic [`IM_DATA_LEN-1:0] inst,
     output logic [             1:0] bad,
     output logic                    empty,
@@ -41,11 +42,19 @@ always_comb begin
 end
 
 always_comb begin
-    bad = flag_fifo[{rptr, 1'b0}+:2];
+    bad = |flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : flag_fifo[{(rptr + 3'b1), 1'b0}+:2];
     case (_ndata)
         4'h9: bad = imem_bad;
         4'h8: bad = imem_bad;
         4'h7: bad = |flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : imem_bad;
+    endcase
+end
+
+always_comb begin
+    badaddr = |flag_fifo[{rptr, 1'b0}+:2] ? pc : pc + `IM_ADDR_LEN'h2;
+    case (_ndata)
+        4'h9: badaddr = pc;
+        4'h8: badaddr = pc;
     endcase
 end
 

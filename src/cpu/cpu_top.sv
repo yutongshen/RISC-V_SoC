@@ -106,6 +106,7 @@ logic [       `IM_ADDR_LEN - 1:0] if_inst_misaligned_epc;
 logic                             if_inst_misaligned;
 logic                             if_inst_page_fault;
 logic                             if_inst_xes_fault;
+logic [       `IM_ADDR_LEN - 1:0] if_inst_badaddr;
 
 // IF/ID pipeline
 logic [       `IM_DATA_LEN - 1:0] if2id_inst;
@@ -114,6 +115,7 @@ logic [       `IM_ADDR_LEN - 1:0] if2id_inst_misaligned_epc;
 logic                             if2id_inst_misaligned;
 logic                             if2id_inst_page_fault;
 logic                             if2id_inst_xes_fault;
+logic [       `IM_ADDR_LEN - 1:0] if2id_inst_badaddr;
 logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
 logic                             if2id_attach;
 logic                             if2id_stall_flag;
@@ -230,6 +232,7 @@ logic [       `IM_ADDR_LEN - 1:0] id2exe_inst_misaligned_epc;
 logic                             id2exe_inst_misaligned;
 logic                             id2exe_inst_page_fault;
 logic                             id2exe_inst_xes_fault;
+logic [       `IM_ADDR_LEN - 1:0] id2exe_inst_badaddr;
 logic                             id2exe_tlb_flush_req;
 logic                             id2exe_tlb_flush_all_vaddr;
 logic                             id2exe_tlb_flush_all_asid;
@@ -517,6 +520,7 @@ ifu u_ifu (
     .misaligned      ( if_inst_misaligned           ),
     .page_fault      ( if_inst_page_fault           ),
     .xes_fault       ( if_inst_xes_fault            ),
+    .badaddr         ( if_inst_badaddr              ),
     .flush           ( if_flush                     ),
     .stall           ( if_stall | stall_wfi | sleep ),
     .attach          ( attach                       ),
@@ -542,6 +546,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if2id_inst_misaligned     <= 1'b0;
         if2id_inst_page_fault     <= 1'b0;
         if2id_inst_xes_fault      <= 1'b0;
+        if2id_inst_badaddr        <= `IM_ADDR_LEN'b0;
         if2id_attach              <= 1'b0;
         if2id_stall_flag          <= 1'b0;
     end
@@ -554,6 +559,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             if2id_inst_misaligned     <= if_inst_misaligned;
             if2id_inst_page_fault     <= if_inst_page_fault;
             if2id_inst_xes_fault      <= if_inst_xes_fault;
+            if2id_inst_badaddr        <= if_inst_badaddr;
             if2id_attach              <= attach;
             if2id_stall_flag          <= 1'b0;
         end
@@ -720,6 +726,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         id2exe_inst_misaligned     <= 1'b0;
         id2exe_inst_page_fault     <= 1'b0;
         id2exe_inst_xes_fault      <= 1'b0;
+        id2exe_inst_badaddr        <= `IM_ADDR_LEN'b0;
         id2exe_tlb_flush_req       <= 1'b0;
         id2exe_tlb_flush_all_vaddr <= 1'b0;
         id2exe_tlb_flush_all_asid  <= 1'b0;
@@ -776,6 +783,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             id2exe_inst_misaligned     <= if2id_inst_misaligned;
             id2exe_inst_page_fault     <= if2id_inst_page_fault;
             id2exe_inst_xes_fault      <= if2id_inst_xes_fault;
+            id2exe_inst_badaddr        <= if2id_inst_badaddr;
             id2exe_tlb_flush_req       <= ~id_flush & ~id_jump_fault & id_tlb_flush_req;
             id2exe_tlb_flush_all_vaddr <= id_tlb_flush_all_vaddr;
             id2exe_tlb_flush_all_asid  <= id_tlb_flush_all_asid;
@@ -947,6 +955,7 @@ tpu u_tpu (
     .exe_pc              ( id2exe_pc                   ),
     .wb_pc               ( mr2wb_pc                    ),
     .ldst_badaddr        ( mr2wb_mem_addr              ),
+    .inst_badaddr        ( id2exe_inst_badaddr         ),
     .prv_cur             ( exe_prv                     ),
     .prv_req             ( id2exe_prv_req              ),
     .satp_upd            ( exe_satp_upd                ),

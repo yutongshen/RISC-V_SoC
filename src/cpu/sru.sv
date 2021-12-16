@@ -428,7 +428,7 @@ always_ff @(posedge clk or negedge rstn) begin
         misa_mxl   <= 2'h2;
 `endif
         misa_a_ext <= 1'b0;
-        misa_c_ext <= 1'b1;
+        misa_c_ext <= 1'b0;
         misa_m_ext <= 1'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_MISA_ADDR) begin
