@@ -11,6 +11,9 @@
 ../src/cpu/csr.sv
 ../src/cpu/sru.sv
 ../src/cpu/alu.sv
+../src/cpu/mdu.sv
+../src/cpu/mul.sv
+../src/cpu/div.sv
 ../src/cpu/tpu.sv
 ../src/cpu/dpu.sv
 ../src/cpu/pmu.sv

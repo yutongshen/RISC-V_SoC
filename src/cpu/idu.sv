@@ -35,6 +35,8 @@ module idu (
     output logic                             jump_alu,
 
     // EXE stage
+    output logic                             mdu_sel,
+    output logic [        `MDU_OP_LEN - 1:0] mdu_op,
     output logic [        `ALU_OP_LEN - 1:0] alu_op,
     output logic                             rs1_zero_sel,
     output logic                             rs2_imm_sel,
@@ -125,6 +127,8 @@ dec u_dec (
     .jump_alu            ( jump_alu            ),
 
     // EXE stage
+    .mdu_sel             ( mdu_sel             ),
+    .mdu_op              ( mdu_op              ),
     .alu_op              ( alu_op              ),
     .rs1_zero_sel        ( rs1_zero_sel        ),
     .rs2_imm_sel         ( rs2_imm_sel         ),

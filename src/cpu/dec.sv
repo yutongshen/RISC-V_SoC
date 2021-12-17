@@ -29,6 +29,8 @@ module dec (
     output logic                             jump_alu,
 
     // EXE stage
+    output logic                             mdu_sel,
+    output logic [        `MDU_OP_LEN - 1:0] mdu_op,
     output logic [        `ALU_OP_LEN - 1:0] alu_op,
     output logic                             rs1_zero_sel,
     output logic                             rs2_imm_sel,
@@ -57,6 +59,7 @@ module dec (
 );
 
 `include "alu_op.sv"
+`include "mdu_op.sv"
 `include "csr_op.sv"
 `include "opcode.sv"
 `include "funct.sv"
@@ -120,6 +123,8 @@ always_comb begin
     rs2_addr            = inst[24:20];
     rd_addr             = inst[11: 7];
     imm                 = `XLEN'b0;
+    mdu_sel             = 1'b0;
+    mdu_op              = `MDU_OP_LEN'b0;
     alu_op              = `ALU_OP_LEN'b0;
     rs1_zero_sel        = 1'b0;
     rs2_imm_sel         = 1'b0;
@@ -682,27 +687,21 @@ always_comb begin
                                 endcase
                             end
                             FUNCT7_MULDIV: begin
-                                ill_inst = misa_m_ext;
+                                mdu_sel             = 1'b1;
+                                ill_inst            = ~misa_m_ext;
                                 case (funct3)
-                                    FUNCT3_MUL   : begin
-                                        // mul_op = MUL_MLU
-                                    end
-                                    FUNCT3_MULH  : begin
-                                    end
-                                    FUNCT3_MULHSU: begin
-                                    end
-                                    FUNCT3_MULHU : begin
-                                    end
-                                    FUNCT3_DIV   : begin
-                                    end
-                                    FUNCT3_DIVU  : begin
-                                    end
-                                    FUNCT3_REM   : begin
-                                    end
-                                    FUNCT3_REMU  : begin
-                                    end
+                                    FUNCT3_MUL   : mdu_op   = MDU_MUL;
+                                    FUNCT3_MULH  : mdu_op   = MDU_MULH;
+                                    FUNCT3_MULHSU: mdu_op   = MDU_MULHSU;
+                                    FUNCT3_MULHU : mdu_op   = MDU_MULHU;
+                                    FUNCT3_DIV   : mdu_op   = MDU_DIV;
+                                    FUNCT3_DIVU  : mdu_op   = MDU_DIVU;
+                                    FUNCT3_REM   : mdu_op   = MDU_REM;
+                                    FUNCT3_REMU  : mdu_op   = MDU_REMU;
+                                    default      : ill_inst = 1'b1;
                                 endcase
                             end
+                            default      : ill_inst     = 1'b1;
                         endcase
                     end
                     OP_LUI      : begin

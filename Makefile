@@ -17,6 +17,7 @@ TMDL_PARSE_S  := ./script/tmdl_parse -s
 
 ISA           := $(wildcard ../riscv-tests/isa/rv32*i-*)
 ISA           += $(wildcard ../riscv-tests/isa/rv32*c-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv32*m-*)
 ISA           := $(patsubst ../riscv-tests/isa/%,%,$(ISA))
 ISA           := $(patsubst %.dump,,$(ISA))
 

@@ -22,7 +22,7 @@
 
 `endif
 
-
+`define MDU_OP_LEN 4
 `define ALU_OP_LEN 4
 `define CSR_OP_LEN 2
 

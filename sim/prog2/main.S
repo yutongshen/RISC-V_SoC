@@ -37,10 +37,12 @@ main:
   nop
   nop
   csrs misa, t0
+  .option rvc
   c.nop
   c.nop
   c.nop
   c.nop
+  .option norvc
 
   /*jump test*/
   li t5, 0x8000
@@ -145,7 +147,7 @@ main:
   # sw t0, -0xe0*4(t1)
 
   csrs mie, (1<<3)
-  wfi
+  #wfi
   li a0, 'A'
   call uart_tx
   li a0, 7

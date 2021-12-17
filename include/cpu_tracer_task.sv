@@ -668,6 +668,19 @@ case (opcode_16)
                             default    : return "illigal inst";
                         endcase
                     end
+                    FUNCT7_MULDIV: begin
+                        case (funct3)
+                            FUNCT3_MUL   : $sformat(result, "mul %s,%s,%s",    regs_name(rd), regs_name(rs1), regs_name(rs2)); 
+                            FUNCT3_MULH  : $sformat(result, "mulh %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_MULHSU: $sformat(result, "mulhsu %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_MULHU : $sformat(result, "mulhu %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_DIV   : $sformat(result, "div %s,%s,%s",    regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_DIVU  : $sformat(result, "divu %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_REM   : $sformat(result, "rem %s,%s,%s",    regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            FUNCT3_REMU  : $sformat(result, "remu %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
+                            default      : return "illigal inst";
+                        endcase
+                    end
                     default    : return "illigal inst";
                 endcase
             end
