@@ -1,5 +1,5 @@
 module hzu (
-    input  [4:0] inst_valid,
+    input  [5:0] inst_valid,
     input        pc_jump_en,
     input        pc_alu_en,
     input        irq_en,

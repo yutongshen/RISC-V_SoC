@@ -563,6 +563,7 @@ marb u_marb (
 // assign meip = 1'b0;
 // 
 // assign core_rstn = rstn;
+// assign core_bootvec = 32'b0;
 // 
 // assign imem_bad  = 2'b0;
 // assign imem_busy = 1'b0;
@@ -572,7 +573,7 @@ marb u_marb (
 //         imem_rdata <= 32'b0;
 //     end
 //     else begin
-//         imem_rdata <= u_sram_0.memory[imem_addr[15:2]];
+//         imem_rdata <= imem_addr[16] ? u_sram_1.memory[imem_addr[15:2]] : u_sram_0.memory[imem_addr[15:2]];
 //     end
 // end
 // 
@@ -589,11 +590,19 @@ marb u_marb (
 // end
 // 
 // always_ff @(posedge clk or negedge rstn) begin
-//     if (dmem_write & dmem_en & dmem_addr[16]) begin
-//         if (dmem_strb[0]) u_sram_1.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
-//         if (dmem_strb[1]) u_sram_1.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
-//         if (dmem_strb[2]) u_sram_1.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
-//         if (dmem_strb[3]) u_sram_1.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
+//     if (dmem_write & dmem_en) begin
+//         if (~dmem_addr[16]) begin
+//             if (dmem_strb[0]) u_sram_0.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
+//             if (dmem_strb[1]) u_sram_0.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
+//             if (dmem_strb[2]) u_sram_0.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
+//             if (dmem_strb[3]) u_sram_0.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
+//         end
+//         else begin
+//             if (dmem_strb[0]) u_sram_1.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
+//             if (dmem_strb[1]) u_sram_1.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
+//             if (dmem_strb[2]) u_sram_1.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
+//             if (dmem_strb[3]) u_sram_1.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
+//         end
 //     end
 // end
 // 

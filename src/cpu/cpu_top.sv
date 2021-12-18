@@ -71,7 +71,7 @@ logic                             rstn_sync;
 logic                             wakeup_event;
 logic                             sleep;
 logic                             stall_wfi;
-logic [                      4:0] inst_valid;
+logic [                      5:0] inst_valid;
 logic [       `IM_ADDR_LEN - 1:0] irq_vec;
 logic [       `IM_ADDR_LEN - 1:0] ret_epc;
 
@@ -298,6 +298,8 @@ logic [              `XLEN - 1:0] exe_tval;
 logic [    `SATP_PPN_WIDTH - 1:0] exe_satp_ppn;
 logic [   `SATP_ASID_WIDTH - 1:0] exe_satp_asid;
 logic [   `SATP_MODE_WIDTH - 1:0] exe_satp_mode;
+logic [                     31:0] exe_fwd_table;
+logic [                     31:0] exe_hz_table;
 
 // EXE/MEM pipeline
 logic [       `IM_ADDR_LEN - 1:0] exe2ma_pc;
@@ -334,6 +336,8 @@ logic                             exe2ma_tlb_flush_all_asid;
 logic                             exe2ma_fence_i;
 logic                             exe2ma_attach;
 logic                             exe2ma_pipe_restart;
+logic [                     31:0] exe2ma_fwd_table;
+logic [                     31:0] exe2ma_hz_table;
 
 // MA stage
 logic [              `XLEN - 1:0] ma_rd_data;
@@ -349,6 +353,8 @@ logic [       `DM_DATA_LEN - 1:0] ma_dpu_rdata;
 logic                             ma_dpu_hazard;
 
 logic                             ma_pipe_restart;
+logic [                     31:0] ma_fwd_table;
+logic [                     31:0] ma_hz_table;
 
 // MA/MR pipeline
 logic [       `IM_ADDR_LEN - 1:0] ma2mr_pc;
@@ -382,6 +388,8 @@ logic [              `XLEN - 1:0] ma2mr_tlb_flush_vaddr;
 logic [              `XLEN - 1:0] ma2mr_tlb_flush_asid;
 logic                             ma2mr_fence_i;
 logic                             ma2mr_pipe_restart;
+logic [                     31:0] ma2mr_fwd_table;
+logic [                     31:0] ma2mr_hz_table;
 
 // MR stage
 logic                             mr_dpu_fault;
@@ -394,6 +402,8 @@ logic                             mr_store_xes_fault;
 
 logic [              `XLEN - 1:0] mr_rd_data;
 logic                             mr_pipe_restart;
+logic [                     31:0] mr_fwd_table;
+logic [                     31:0] all_fwd_table;
 
 // MR/WB pipeline
 logic [       `IM_ADDR_LEN - 1:0] mr2wb_pc;
@@ -424,6 +434,8 @@ logic                             mr2wb_trap_en;
 logic [              `XLEN - 1:0] mr2wb_cause;
 logic [              `XLEN - 1:0] mr2wb_tval;
 logic [       `IM_ADDR_LEN - 1:0] mr2wb_epc;
+logic [                     31:0] mr2wb_fwd_table;
+logic [                     31:0] mr2wb_all_fwd_table;
 logic                             mr2wb_attach;
 
 // WB stage
@@ -435,16 +447,6 @@ logic                             wb_wfi;
 // Forward
 logic                             fwd_wb2id_rd_rs1;
 logic                             fwd_wb2id_rd_rs2;
-logic                             fwd_ma2exe_rd_rs1;
-logic                             fwd_ma2exe_rd_rs2;
-logic                             fwd_mr2exe_rd_rs1;
-logic                             fwd_mr2exe_rd_rs2;
-logic                             fwd_wb2exe_rd_rs1;
-logic                             fwd_wb2exe_rd_rs2;
-logic                             fwd_mr2ma_rd_rs1;
-logic                             fwd_mr2ma_rd_rs2;
-logic                             fwd_wb2ma_rd_rs1;
-logic                             fwd_wb2ma_rd_rs2;
 
 `include "csr_op.sv"
 
@@ -455,7 +457,7 @@ resetn_synchronizer u_sync (
 );
 
 assign stall_wfi  = (exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event;
-assign inst_valid = {mr2wb_inst_valid, exe2ma_inst_valid, id2exe_inst_valid, if2id_inst_valid, 1'b1};
+assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid, exe2ma_inst_valid, ma2mr_inst_valid, mr2wb_inst_valid};
 
 clkmnt u_clkmnt (
     .clk_free ( clk          ),
@@ -826,36 +828,25 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
 end
 
 // EXE stage
+assign exe_fwd_table = {31'b0, (id2exe_rd_wr & ~id2exe_mem_req)} << id2exe_rd_addr;
+assign exe_hz_table  = {31'b0, (id2exe_rd_wr &  id2exe_mem_req)} << id2exe_rd_addr;
 // RS1 Forward
-assign fwd_ma2exe_rd_rs1 = exe2ma_rd_wr    & (id2exe_rs1_addr == exe2ma_rd_addr) &
-                          ~(exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel);
-assign fwd_mr2exe_rd_rs1 = ma2mr_rd_wr     & (id2exe_rs1_addr == ma2mr_rd_addr ) &
-                          ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
-assign fwd_wb2exe_rd_rs1 = mr2wb_rd_wr     & (id2exe_rs1_addr == mr2wb_rd_addr );
-assign exe_rs1_data      = fwd_ma2exe_rd_rs1 ? ma_rd_data    :
-                           fwd_mr2exe_rd_rs1 ? ma2mr_rd_data :
-                           fwd_wb2exe_rd_rs1 ? wb_rd_data    :
-                                               id2exe_rs1_data;
+assign exe_rs1_data  = ({`XLEN{ exe2ma_fwd_table   [id2exe_rs1_addr]}} & ma_rd_data     ) |
+                       ({`XLEN{ ma2mr_fwd_table    [id2exe_rs1_addr]}} & ma2mr_rd_data  ) |
+                       ({`XLEN{ mr2wb_fwd_table    [id2exe_rs1_addr]}} & wb_rd_data     ) |
+                       ({`XLEN{~mr2wb_all_fwd_table[id2exe_rs1_addr]}} & id2exe_rs1_data);
 
 // RS2 Forward
-assign fwd_ma2exe_rd_rs2 = exe2ma_rd_wr    & (id2exe_rs2_addr == exe2ma_rd_addr) & ~exe2ma_mem_req;
-assign fwd_mr2exe_rd_rs2 = ma2mr_rd_wr     & (id2exe_rs2_addr == ma2mr_rd_addr ) & ~ma2mr_mem_req;
-assign fwd_wb2exe_rd_rs2 = mr2wb_rd_wr     & (id2exe_rs2_addr == mr2wb_rd_addr);
-assign exe_rs2_data      = fwd_ma2exe_rd_rs2 ? ma_rd_data    :
-                           fwd_mr2exe_rd_rs2 ? ma2mr_rd_data :
-                           fwd_wb2exe_rd_rs2 ? wb_rd_data    :
-                                               id2exe_rs2_data;
+assign exe_rs2_data  = ({`XLEN{ exe2ma_fwd_table   [id2exe_rs2_addr]}} & ma_rd_data     ) |
+                       ({`XLEN{ ma2mr_fwd_table    [id2exe_rs2_addr]}} & ma2mr_rd_data  ) |
+                       ({`XLEN{ mr2wb_fwd_table    [id2exe_rs2_addr]}} & wb_rd_data     ) |
+                       ({`XLEN{~mr2wb_all_fwd_table[id2exe_rs2_addr]}} & id2exe_rs2_data);
 
-assign exe_gpr_hazard = (exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel) &
-                        (exe2ma_rd_wr & (id2exe_rs1_addr == exe2ma_rd_addr) |
-                         exe2ma_rd_wr & (id2exe_rs2_addr == exe2ma_rd_addr)) ||
-                        (ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel) &
-                        (ma2mr_rd_wr & (id2exe_rs1_addr == ma2mr_rd_addr) |
-                         ma2mr_rd_wr & (id2exe_rs2_addr == ma2mr_rd_addr)) ||
-                         ma_pipe_restart || (id2exe_mdu_sel && ~exe_mdu_okay);
+assign exe_gpr_hazard = exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr] ||
+                        exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr] ||
+                        ma_pipe_restart || (id2exe_mdu_sel && ~exe_mdu_okay);
 assign exe_csr_hazard = exe2ma_mem_req   & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
-                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr/* | id2exe_branch |
-                        id2exe_sret | id2exe_mret*/);
+                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_sret | id2exe_mret);
 
 assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
 
@@ -1074,6 +1065,8 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         exe2ma_tlb_flush_all_vaddr <= 1'b0;
         exe2ma_tlb_flush_all_asid  <= 1'b0;
         exe2ma_fence_i             <= 1'b0;
+        exe2ma_fwd_table           <= 32'b0;
+        exe2ma_hz_table            <= 32'b0;
         exe2ma_attach              <= 1'b0;
         exe2ma_pipe_restart        <= 1'b0;
     end
@@ -1113,10 +1106,12 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             exe2ma_cause               <= exe_cause;
             exe2ma_tval                <= exe_tval;
             exe2ma_epc                 <= exe_trap_epc;
-            exe2ma_tlb_flush_req       <= ~exe_flush & ~exe_jump_fault  & id2exe_tlb_flush_req;
+            exe2ma_tlb_flush_req       <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_tlb_flush_req;
             exe2ma_tlb_flush_all_vaddr <= id2exe_tlb_flush_all_vaddr;
             exe2ma_tlb_flush_all_asid  <= id2exe_tlb_flush_all_asid;
-            exe2ma_fence_i             <= ~exe_flush & ~exe_jump_fault  & id2exe_fence_i;
+            exe2ma_fence_i             <= ~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_fence_i;
+            exe2ma_fwd_table           <= {32{~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_fwd_table;
+            exe2ma_hz_table            <= {32{~exe_flush & ~exe_jump_fault  & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_hz_table;
             exe2ma_attach              <= id2exe_attach;
             exe2ma_pipe_restart        <= exe_misa_upd;
         end
@@ -1129,24 +1124,18 @@ end
 
 // MEMORY ACCESS stage
 // MEM_ADDR Forward
-assign fwd_mr2ma_rd_rs1  = ma2mr_rd_wr & (exe2ma_rs1_addr == ma2mr_rd_addr) &
-                          ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
-assign fwd_wb2ma_rd_rs1  = mr2wb_rd_wr & (exe2ma_rs1_addr == mr2wb_rd_addr);
-
-assign fwd_mr2ma_rd_rs2  = ma2mr_rd_wr & (exe2ma_rs2_addr == ma2mr_rd_addr) &
-                          ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
-assign fwd_wb2ma_rd_rs2  = mr2wb_rd_wr & (exe2ma_rs2_addr == mr2wb_rd_addr);
+assign ma_fwd_table = exe2ma_fwd_table & ~exe_fwd_table & ~exe_hz_table;
+assign ma_hz_table  = exe2ma_hz_table;
 
 assign ma_dpu_req   = ~ma_flush_force & exe2ma_mem_req;
 assign ma_dpu_wr    = exe2ma_mem_wr;
 assign ma_dpu_byte  = exe2ma_mem_byte;
 assign ma_dpu_addr  = exe2ma_rd_data;
-assign ma_rs1_data  = fwd_mr2ma_rd_rs1 ? ma2mr_rd_data :
-                      fwd_wb2ma_rd_rs1 ? wb_rd_data :
-                                         exe2ma_rs1_data;
-assign ma_dpu_wdata = fwd_mr2ma_rd_rs2 ? ma2mr_rd_data :
-                      fwd_wb2ma_rd_rs2 ? wb_rd_data :
-                                         exe2ma_rs2_data;
+
+assign ma_rs1_data  = ({`XLEN{ mr2wb_fwd_table [exe2ma_rs1_addr]}} & wb_rd_data     ) |
+                      ({`XLEN{~mr2wb_fwd_table [exe2ma_rs1_addr]}} & exe2ma_rs1_data);
+assign ma_dpu_wdata = ({`XLEN{ mr2wb_fwd_table [exe2ma_rs2_addr]}} & wb_rd_data     ) |
+                      ({`XLEN{~mr2wb_fwd_table [exe2ma_rs2_addr]}} & exe2ma_rs2_data);
 
 assign ma_pipe_restart = exe2ma_tlb_flush_req || exe2ma_fence_i || exe2ma_pipe_restart;
 
@@ -1220,13 +1209,15 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         ma2mr_tlb_flush_asid      <= `XLEN'b0;
         ma2mr_fence_i             <= 1'b0;
         ma2mr_pipe_restart        <= 1'b0;
+        ma2mr_fwd_table           <= 32'b0;
+        ma2mr_hz_table            <= 32'b0;
     end
     else begin
         if (~mr_stall | ma_flush_force) begin
             ma2mr_pc                  <= exe2ma_pc;
             ma2mr_inst                <= exe2ma_inst;
-            ma2mr_inst_valid          <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_inst_valid;
-            ma2mr_rd_wr               <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_rd_wr;
+            ma2mr_inst_valid          <= ~ma_flush & exe2ma_inst_valid;
+            ma2mr_rd_wr               <= ~ma_flush & exe2ma_rd_wr;
             ma2mr_rd_addr             <= exe2ma_rd_addr;
             ma2mr_pc2rd               <= exe2ma_pc2rd;
             ma2mr_mem_byte            <= dmem_strb;
@@ -1235,8 +1226,8 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             ma2mr_rd_data             <= ma_rd_data;
             ma2mr_mem_addr            <= ma_dpu_addr;
             ma2mr_mem_wdata           <= dmem_wdata;
-            ma2mr_mem_req             <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_req;
-            ma2mr_mem_wr              <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_mem_wr;
+            ma2mr_mem_req             <= ~ma_flush & exe2ma_mem_req;
+            ma2mr_mem_wr              <= ~ma_flush & exe2ma_mem_wr;
             ma2mr_csr_wr              <= exe2ma_csr_wr;
             ma2mr_csr_waddr           <= exe2ma_csr_waddr;
             ma2mr_csr_wdata           <= exe2ma_csr_wdata;
@@ -1247,18 +1238,22 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             ma2mr_tval                <= exe2ma_tval;
             ma2mr_epc                 <= exe2ma_epc;
             ma2mr_attach              <= exe2ma_attach;
-            ma2mr_tlb_flush_req       <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_tlb_flush_req;
+            ma2mr_tlb_flush_req       <= ~ma_flush & exe2ma_tlb_flush_req;
             ma2mr_tlb_flush_all_vaddr <= exe2ma_tlb_flush_all_vaddr;
             ma2mr_tlb_flush_all_asid  <= exe2ma_tlb_flush_all_asid;
             ma2mr_tlb_flush_vaddr     <= ma_rs1_data;
             ma2mr_tlb_flush_asid      <= ma_dpu_wdata;
-            ma2mr_fence_i             <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & exe2ma_fence_i;
-            ma2mr_pipe_restart        <= ~ma_flush & ~(ma2mr_wfi & ~wakeup_event) & ma_pipe_restart;
+            ma2mr_fence_i             <= ~ma_flush & exe2ma_fence_i;
+            ma2mr_pipe_restart        <= ~ma_flush & ma_pipe_restart;
+            ma2mr_fwd_table           <= {32{~ma_flush}} & ma_fwd_table;
+            ma2mr_hz_table            <= {32{~ma_flush}} & ma_hz_table;
         end
     end
 end
 
 // MEMORY RECEIVE stage
+assign mr_fwd_table  = (ma2mr_fwd_table | ma2mr_hz_table) & ~exe2ma_fwd_table & ~(exe_fwd_table & ~{32{exe_hazard}});
+assign all_fwd_table = (mr_fwd_table & {32{~mr_stall}}) | (ma_fwd_table & {32{~ma_stall}}) | (exe_fwd_table & {32{~exe_stall}});
 assign mr_rd_data    = ma2mr_mem_cal_sel ?  ma_dpu_rdata : ma2mr_rd_data;
 
 assign tlb_flush_req       = ~mr_flush_force & (ma2mr_tlb_flush_req);
@@ -1302,29 +1297,31 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         mr2wb_cause            <= `XLEN'b0;
         mr2wb_tval             <= `XLEN'b0;
         mr2wb_epc              <= `IM_ADDR_LEN'b0;
+        mr2wb_fwd_table        <= 32'b0;
+        mr2wb_all_fwd_table    <= 32'b0;
         mr2wb_attach           <= 1'b0;
     end
     else begin
         if (~wb_stall | mr_flush_force) begin
             mr2wb_pc               <= ma2mr_pc;
             mr2wb_inst             <= ma2mr_inst;
-            mr2wb_inst_valid       <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid;
-            mr2wb_rd_wr            <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_rd_wr;
+            mr2wb_inst_valid       <= ~mr_flush & ma2mr_inst_valid;
+            mr2wb_rd_wr            <= ~mr_flush & ma2mr_rd_wr;
             mr2wb_rd_addr          <= ma2mr_rd_addr;
             mr2wb_mem_byte         <= ma2mr_mem_byte;
             mr2wb_mem_sign_ext     <= ma2mr_mem_sign_ext;
             mr2wb_rd_data          <= mr_rd_data;
             mr2wb_mem_addr         <= ma2mr_mem_addr;
             mr2wb_mem_wdata        <= ma2mr_mem_wdata;
-            mr2wb_mem_req          <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_req;
-            mr2wb_mem_wr           <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_mem_wr;
-            mr2wb_dpu_fault        <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_dpu_fault;
-            mr2wb_load_misaligned  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_misaligned;
-            mr2wb_load_page_fault  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_page_fault;
-            mr2wb_load_xes_fault   <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_load_xes_fault;
-            mr2wb_store_misaligned <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_misaligned;
-            mr2wb_store_page_fault <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_page_fault;
-            mr2wb_store_xes_fault  <= ~mr_flush & ~(mr2wb_wfi & ~wakeup_event) & ma2mr_inst_valid & mr_store_xes_fault;
+            mr2wb_mem_req          <= ~mr_flush & ma2mr_mem_req;
+            mr2wb_mem_wr           <= ~mr_flush & ma2mr_mem_wr;
+            mr2wb_dpu_fault        <= ~mr_flush & ma2mr_inst_valid & mr_dpu_fault;
+            mr2wb_load_misaligned  <= ~mr_flush & ma2mr_inst_valid & mr_load_misaligned;
+            mr2wb_load_page_fault  <= ~mr_flush & ma2mr_inst_valid & mr_load_page_fault;
+            mr2wb_load_xes_fault   <= ~mr_flush & ma2mr_inst_valid & mr_load_xes_fault;
+            mr2wb_store_misaligned <= ~mr_flush & ma2mr_inst_valid & mr_store_misaligned;
+            mr2wb_store_page_fault <= ~mr_flush & ma2mr_inst_valid & mr_store_page_fault;
+            mr2wb_store_xes_fault  <= ~mr_flush & ma2mr_inst_valid & mr_store_xes_fault;
             mr2wb_csr_wr           <= ma2mr_csr_wr;
             mr2wb_csr_waddr        <= ma2mr_csr_waddr;
             mr2wb_csr_wdata        <= ma2mr_csr_wdata;
@@ -1334,6 +1331,8 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             mr2wb_cause            <= ma2mr_cause;
             mr2wb_tval             <= ma2mr_tval;
             mr2wb_epc              <= ma2mr_epc;
+            mr2wb_fwd_table        <= {32{~mr_flush}} & mr_fwd_table;
+            mr2wb_all_fwd_table    <= {32{~mr_flush}} & all_fwd_table;
             mr2wb_attach           <= ma2mr_attach;
         end
     end
