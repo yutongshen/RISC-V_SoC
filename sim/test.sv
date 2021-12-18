@@ -54,6 +54,7 @@ initial begin
     repeat (10) @(posedge clk);
     rstn   <= 1'b1;
     repeat (10) @(posedge clk);
+	// extaxi_wr(32'h0400_0004, 32'h48);
 	extaxi_wr(32'h0400_0000, 32'h1);
     repeat (200000) @(posedge clk);
     simend <= 1'b1;

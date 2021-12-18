@@ -4,6 +4,7 @@ module cpu_top (
     input                                    clk,
     input                                    rstn,
     input        [              `XLEN - 1:0] cpu_id,
+    input        [              `XLEN - 1:0] bootvec,
 
     // mpu csr
     output logic [                  8 - 1:0] pmpcfg  [16],
@@ -99,6 +100,7 @@ logic                             if_pc_jump_en;
 logic [       `IM_ADDR_LEN - 1:0] if_pc_jump;
 logic                             if_pc_alu_en;
 logic [       `IM_ADDR_LEN - 1:0] if_pc_alu;
+logic                             if_jump_token;
 logic [       `IM_ADDR_LEN - 1:0] if_pc;
 logic [       `IM_DATA_LEN - 1:0] if_inst;
 logic                             if_inst_valid;
@@ -117,6 +119,7 @@ logic                             if2id_inst_page_fault;
 logic                             if2id_inst_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] if2id_inst_badaddr;
 logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
+logic                             if2id_jump_token;
 logic                             if2id_attach;
 logic                             if2id_stall_flag;
 
@@ -501,6 +504,7 @@ hzu u_hzu (
 ifu u_ifu (
     .clk             ( clk                          ),
     .rstn            ( rstn_sync                    ),
+    .bootvec         ( bootvec                      ),
     .ic_flush        ( ic_flush                     ),
     .misa_c_ext      ( exe_misa_c_ext               ),
     .irq_en          ( exe_irq_en | exe_trap_en     ),
@@ -515,6 +519,7 @@ ifu u_ifu (
     .pipe_restart    ( ma2mr_pc2rd                  ),
     .id_jump_fault   ( id_jump_fault                ),
     .exe_jump_fault  ( exe_jump_fault               ),
+    .jump_token      ( if_jump_token                ),
     .imem_req        ( imem_en                      ),
     .imem_addr       ( imem_addr                    ),
     .imem_rdata      ( imem_rdata                   ),
@@ -539,7 +544,7 @@ ifu u_ifu (
 
 assign exe_branch_match = id2exe_branch & ~exe_hazard & (id2exe_branch_zcmp == exe_alu_zero);
 
-assign if_pc_jump_en = (id_jump && ~if2id_stall_flag) & if2id_inst_valid & ~if2id_inst_misaligned;
+assign if_pc_jump_en = id_jump & ~if2id_stall_flag & ~if2id_jump_token & if2id_inst_valid & ~if2id_inst_misaligned;
 assign if_pc_jump    = id_imm + if2id_pc;
 assign if_pc_alu_en  = (id2exe_jump_alu | exe_branch_match) & id2exe_inst_valid  & ~id2exe_inst_misaligned;
 assign if_pc_alu     = ({`IM_ADDR_LEN{id2exe_jump_alu}}  & exe_alu_out) |
@@ -556,6 +561,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if2id_inst_page_fault     <= 1'b0;
         if2id_inst_xes_fault      <= 1'b0;
         if2id_inst_badaddr        <= `IM_ADDR_LEN'b0;
+        if2id_jump_token          <= 1'b0;
         if2id_attach              <= 1'b0;
         if2id_stall_flag          <= 1'b0;
     end
@@ -569,6 +575,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             if2id_inst_page_fault     <= if_inst_page_fault;
             if2id_inst_xes_fault      <= if_inst_xes_fault;
             if2id_inst_badaddr        <= if_inst_badaddr;
+            if2id_jump_token          <= if_jump_token;
             if2id_attach              <= attach;
             if2id_stall_flag          <= 1'b0;
         end
@@ -831,10 +838,8 @@ assign exe_rs1_data      = fwd_ma2exe_rd_rs1 ? ma_rd_data    :
                                                id2exe_rs1_data;
 
 // RS2 Forward
-assign fwd_ma2exe_rd_rs2 = exe2ma_rd_wr    & (id2exe_rs2_addr == exe2ma_rd_addr) &
-                          ~(exe2ma_mem_req & ~exe2ma_mem_wr & exe2ma_mem_cal_sel);
-assign fwd_mr2exe_rd_rs2 = ma2mr_rd_wr     & (id2exe_rs2_addr == ma2mr_rd_addr ) &
-                          ~(ma2mr_mem_req & ~ma2mr_mem_wr & ma2mr_mem_cal_sel);
+assign fwd_ma2exe_rd_rs2 = exe2ma_rd_wr    & (id2exe_rs2_addr == exe2ma_rd_addr) & ~exe2ma_mem_req;
+assign fwd_mr2exe_rd_rs2 = ma2mr_rd_wr     & (id2exe_rs2_addr == ma2mr_rd_addr ) & ~ma2mr_mem_req;
 assign fwd_wb2exe_rd_rs2 = mr2wb_rd_wr     & (id2exe_rs2_addr == mr2wb_rd_addr);
 assign exe_rs2_data      = fwd_ma2exe_rd_rs2 ? ma_rd_data    :
                            fwd_mr2exe_rd_rs2 ? ma2mr_rd_data :

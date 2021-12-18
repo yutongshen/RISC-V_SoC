@@ -1,19 +1,20 @@
 `include "cfgreg_mmap.h"
 
 module cfgreg (
-    input                 pclk,
-    input                 presetn,
-    input                 psel,
-    input                 penable,
-    input        [ 31: 0] paddr,
-    input                 pwrite,
-    input        [  3: 0] pstrb,
-    input        [ 31: 0] pwdata,
-    output logic [ 31: 0] prdata,
-    output logic          pslverr,
-    output logic          pready,
+    input                     pclk,
+    input                     presetn,
+    input                     psel,
+    input                     penable,
+    input        [     31: 0] paddr,
+    input                     pwrite,
+    input        [      3: 0] pstrb,
+    input        [     31: 0] pwdata,
+    output logic [     31: 0] prdata,
+    output logic              pslverr,
+    output logic              pready,
 
-    output logic          core_rstn
+    output logic [`XLEN-1: 0] core_bootvec,
+    output logic              core_rstn
 );
 
 
@@ -31,6 +32,15 @@ always_ff @(posedge pclk or negedge presetn) begin
     end
     else if (apb_wr && paddr[11:0] == `CFGREG_RSTN) begin
         core_rstn <= pwdata[0];
+    end
+end
+
+always_ff @(posedge pclk or negedge presetn) begin
+    if (~presetn) begin
+        core_bootvec <= 32'b0;
+    end
+    else if (apb_wr && paddr[11:0] == `CFGREG_BOOTVEC) begin
+        core_bootvec <= pwdata;
     end
 end
 
@@ -56,6 +66,7 @@ always_comb begin
     prdata_t = 32'b0;
     case (paddr[11:0])
         `CFGREG_RSTN:    prdata_t = {31'b0, core_rstn};
+        `CFGREG_BOOTVEC: prdata_t = core_bootvec;
         `CFGREG_RSVREG0: prdata_t = reserve_reg0;
         `CFGREG_RSVREG1: prdata_t = reserve_reg1;
     endcase

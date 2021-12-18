@@ -5,6 +5,7 @@
 ../src/cpu/hzu.sv
 ../src/cpu/ifu.sv
 ../src/cpu/pfu.sv
+../src/cpu/btb.sv
 ../src/cpu/idu.sv
 ../src/cpu/dec.sv
 ../src/cpu/rfu.sv

@@ -55,6 +55,7 @@ module cpu_wrap (
 );
 
 logic                             core_rstn;
+logic [              `XLEN - 1:0] core_bootvec;
 
 logic                             msip;
 logic                             mtip;
@@ -212,6 +213,7 @@ cpu_top u_cpu_top (
     .clk                 ( clk                 ),
     .rstn                ( core_rstn           ),
     .cpu_id              ( `XLEN'd0            ),
+    .bootvec             ( core_bootvec        ),
 
     // mpu csr
     .pmpcfg              ( pmpcfg              ),
@@ -485,19 +487,20 @@ assign core_pslverr   = core_paddr[27] ? intc_pslverr : cfgreg_pslverr;
 assign core_pready    = core_paddr[27] ? intc_pready  : cfgreg_pready;
 
 cfgreg u_cfgreg (
-    .pclk      ( clk            ),
-    .presetn   ( rstn           ),
-    .psel      ( cfgreg_psel    ),
-    .penable   ( cfgreg_penable ),
-    .paddr     ( cfgreg_paddr   ),
-    .pwrite    ( cfgreg_pwrite  ),
-    .pstrb     ( cfgreg_pstrb   ),
-    .pwdata    ( cfgreg_pwdata  ),
-    .prdata    ( cfgreg_prdata  ),
-    .pslverr   ( cfgreg_pslverr ),
-    .pready    ( cfgreg_pready  ),
+    .pclk         ( clk            ),
+    .presetn      ( rstn           ),
+    .psel         ( cfgreg_psel    ),
+    .penable      ( cfgreg_penable ),
+    .paddr        ( cfgreg_paddr   ),
+    .pwrite       ( cfgreg_pwrite  ),
+    .pstrb        ( cfgreg_pstrb   ),
+    .pwdata       ( cfgreg_pwdata  ),
+    .prdata       ( cfgreg_prdata  ),
+    .pslverr      ( cfgreg_pslverr ),
+    .pready       ( cfgreg_pready  ),
 
-    .core_rstn ( core_rstn      )
+    .core_bootvec ( core_bootvec   ),
+    .core_rstn    ( core_rstn      )
 );
 
 iommu u_iommu (

@@ -1,6 +1,7 @@
 module ifu (
     input                             clk,
     input                             rstn,
+    input        [       `XLEN - 1:0] bootvec,
 
     input                             ic_flush,
 
@@ -20,6 +21,7 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] pipe_restart,
     output logic                      id_jump_fault,
     output logic                      exe_jump_fault,
+    output logic                      jump_token,
 
     // Inst Memory
     output logic                      imem_req,
@@ -131,23 +133,31 @@ assign {xes_fault, page_fault} = pfu_bad;
 assign badaddr                 = misaligned ? pfu_pc : pfu_badaddr;
 
 pfu u_pfu (
-    .clk        ( clk         ),
-    .rstn       ( rstn        ),
-    .jump       ( jump        ),
-    .jump_addr  ( jump_addr   ),
-    .pop        ( pfu_pop     ),
-    .pc         ( pfu_pc      ),
-    .inst       ( pfu_inst    ),
-    .bad        ( pfu_bad     ),
-    .badaddr    ( pfu_badaddr ),
-    .empty      ( pfu_empty   ),
+    .clk           ( clk         ),
+    .rstn          ( rstn        ),
+    .bootvec       ( bootvec     ),
+    .flush         ( ic_flush    ),
+    .jump          ( jump        ),
+    .jump_addr     ( jump_addr   ),
+    .pop           ( pfu_pop     ),
+    .jump_token    ( jump_token  ),
+    .pc            ( pfu_pc      ),
+    .inst          ( pfu_inst    ),
+    .bad           ( pfu_bad     ),
+    .badaddr       ( pfu_badaddr ),
+    .empty         ( pfu_empty   ),
 
     // Inst Memory
-    .imem_req   ( imem_req    ),
-    .imem_addr  ( imem_addr   ),
-    .imem_rdata ( imem_rdata  ),
-    .imem_bad   ( imem_bad    ),
-    .imem_busy  ( imem_busy   )
+    .imem_req      ( imem_req    ),
+    .imem_addr     ( imem_addr   ),
+    .imem_rdata    ( imem_rdata  ),
+    .imem_bad      ( imem_bad    ),
+    .imem_busy     ( imem_busy   ),
+    
+    // for btb
+    .btb_wr        ( pc_jump_en  ),
+    .btb_addr_in   ( id_pc       ),
+    .btb_target_in ( pc_jump     )
 );
 
 endmodule
