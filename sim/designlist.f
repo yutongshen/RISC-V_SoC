@@ -17,12 +17,14 @@
 ../src/cpu/div.sv
 ../src/cpu/tpu.sv
 ../src/cpu/dpu.sv
+../src/cpu/amo.sv
 ../src/cpu/pmu.sv
 ../src/cpu/mpu_csr.sv
 ../src/cpu/mpu.sv
 ../src/cpu/mmu_csr.sv
 ../src/cpu/mmu.sv
 ../src/cpu/tlb.sv
+../src/cpu/xmon.sv
 ../src/cpu/l1c.sv
 ../src/cpu/cfgreg.sv
 ../src/cpu/intc.sv

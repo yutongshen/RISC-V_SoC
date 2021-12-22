@@ -25,6 +25,7 @@
 `define MDU_OP_LEN 4
 `define ALU_OP_LEN 4
 `define CSR_OP_LEN 2
+`define AMO_OP_LEN 4
 
 `define PRV_U 2'h0
 `define PRV_S 2'h1

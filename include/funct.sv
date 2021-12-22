@@ -50,6 +50,18 @@ parameter [2:0] FUNCT3_JALR    = 3'b000,
                 FUNCT3_REM     = 3'b110,
                 FUNCT3_REMU    = 3'b111;
 
+parameter [4:0] FUNCT5_LR      = 5'b00010,
+                FUNCT5_SC      = 5'b00011,
+                FUNCT5_AMOSWAP = 5'b00001,
+                FUNCT5_AMOADD  = 5'b00000,
+                FUNCT5_AMOXOR  = 5'b00100,
+                FUNCT5_AMOAND  = 5'b01100,
+                FUNCT5_AMOOR   = 5'b01000,
+                FUNCT5_AMOMIN  = 5'b10000,
+                FUNCT5_AMOMAX  = 5'b10100,
+                FUNCT5_AMOMINU = 5'b11000,
+                FUNCT5_AMOMAXU = 5'b11100;
+
 parameter [6:0] FUNCT7_SLLI       = 7'b0000000,
                 FUNCT7_SRLI       = 7'b0000000,
                 FUNCT7_SRAI       = 7'b0100000,

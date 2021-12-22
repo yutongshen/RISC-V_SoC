@@ -75,6 +75,7 @@ module sru (
     output logic                    eret_en,
 
     // Extension flag
+    output logic [             1:0] misa_mxl,
     output logic                    misa_a_ext,
     output logic                    misa_c_ext,
     output logic                    misa_m_ext,
@@ -161,7 +162,6 @@ logic                    mip_mtip;
 logic                    mip_seip;
 logic                    mip_meip;
 
-logic [             1:0] misa_mxl;
 logic [            25:0] misa_ext;
 
 
@@ -422,12 +422,8 @@ assign misa_ext = ({25'b0, misa_a_ext} << ("a" - "a")) |
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-`ifdef RV32
         misa_mxl   <= 2'h1;
-`else
-        misa_mxl   <= 2'h2;
-`endif
-        misa_a_ext <= 1'b0;
+        misa_a_ext <= 1'b1;
         misa_c_ext <= 1'b1;
         misa_m_ext <= 1'b1;
     end

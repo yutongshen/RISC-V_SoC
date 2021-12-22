@@ -12,12 +12,15 @@ module l1c (
     input                                    core_bypass,
     input                                    core_flush,
     input                                    core_wr,
+    input                                    core_ex,
+    output logic                             core_xstate,
     input        [  `CACHE_ADDR_WIDTH - 1:0] core_vaddr,
     input        [  `CACHE_DATA_WIDTH - 1:0] core_wdata,
     input        [`CACHE_DATA_WIDTH/8 - 1:0] core_byte,
     output logic [  `CACHE_DATA_WIDTH - 1:0] core_rdata,
     output logic [                      1:0] core_bad,    // [0]: pg_fault, [1]: bus_err
     output logic                             core_busy,
+    input                                    xmon_xstate,
 
     // external
     output logic [                      1:0] m_awburst,
@@ -69,6 +72,7 @@ logic [                    63:0] valid;
 logic [  `CACHE_IDX_WIDTH - 1:0] idx;
 
 logic [ `CACHE_ADDR_WIDTH - 1:0] core_vaddr_latch;
+logic                            core_ex_latch;
 logic [ `CACHE_ADDR_WIDTH - 1:0] core_paddr_latch;
 logic [                     1:0] word_cnt;
 logic [ `CACHE_DATA_WIDTH - 1:0] core_rdata_tmp;
@@ -123,7 +127,9 @@ always_comb begin
             nxt_state = (m_rlast && m_rvalid) ? STATE_IDLE : STATE_REFILL;
         end
         STATE_WRITE : begin
-            nxt_state = m_bvalid || (core_pa_vld && |core_pa_bad) ? STATE_IDLE : STATE_WRITE;
+            nxt_state = m_bvalid ||
+                        (core_pa_vld &&
+                        (|core_pa_bad | (core_ex_latch && ~xmon_xstate))) ? STATE_IDLE : STATE_WRITE;
         end
         STATE_READ  : begin
             nxt_state = (m_rlast && m_rvalid) || (core_pa_vld && |core_pa_bad) ? STATE_IDLE : STATE_READ;
@@ -175,7 +181,7 @@ always_comb begin
             m_awvalid    = awvalid_tmp;
             m_wvalid     = wvalid_tmp;
             tag_cs       = 1'b1;
-            data_cs      = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch;
+            data_cs      = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch && (~core_ex_latch | xmon_xstate);
             data_we      = 1'b1;
             data_byte    = {12'b0, {m_wstrb}} << {core_vaddr_latch[3:2], 2'b0};
             data_in      = {4{m_wdata}};
@@ -233,6 +239,11 @@ end
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn)           core_vaddr_latch <= `CACHE_ADDR_WIDTH'b0;
     else if (~core_busy) core_vaddr_latch <= core_vaddr;
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn)           core_ex_latch <= 1'b0;
+    else if (~core_busy) core_ex_latch <= core_ex;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -294,14 +305,26 @@ always_ff @(posedge clk or negedge rstn) begin
     else begin
         if (core_pa_vld) begin
             arvalid_tmp <= 1'b1;
-            awvalid_tmp <= cur_state == STATE_WRITE;
-            wvalid_tmp  <= cur_state == STATE_WRITE;
+            awvalid_tmp <= cur_state == STATE_WRITE & (~core_ex_latch | xmon_xstate);
+            wvalid_tmp  <= cur_state == STATE_WRITE & (~core_ex_latch | xmon_xstate);
         end
         else begin
             if (m_arready || cur_state == STATE_IDLE) arvalid_tmp <= 1'b0;
             if (m_awready || cur_state == STATE_IDLE) awvalid_tmp <= 1'b0;
             if (m_wready  || cur_state == STATE_IDLE) wvalid_tmp  <= 1'b0;
         end
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        core_xstate <= 1'b0;
+    end
+    else if (core_pa_vld) begin
+        core_xstate <= xmon_xstate & core_ex_latch;
+    end
+    else if (~core_busy) begin
+        core_xstate <= 1'b0;
     end
 end
 

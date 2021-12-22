@@ -1,0 +1,9 @@
+parameter [`AMO_OP_LEN - 1:0] AMO_SWAP = `AMO_OP_LEN'b0001,
+                              AMO_ADD  = `AMO_OP_LEN'b0000,
+                              AMO_XOR  = `AMO_OP_LEN'b0010,
+                              AMO_AND  = `AMO_OP_LEN'b0110,
+                              AMO_OR   = `AMO_OP_LEN'b0100,
+                              AMO_MIN  = `AMO_OP_LEN'b1000,
+                              AMO_MAX  = `AMO_OP_LEN'b1010,
+                              AMO_MINU = `AMO_OP_LEN'b1100,
+                              AMO_MAXU = `AMO_OP_LEN'b1110;

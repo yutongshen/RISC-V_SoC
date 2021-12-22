@@ -67,9 +67,12 @@ logic [       `IM_DATA_LEN - 1:0] imem_rdata;
 logic [                      1:0] imem_bad;
 logic                             imem_busy;
 
+logic                             xmon_xstate;
 logic                             dmem_en;
 logic [       `IM_ADDR_LEN - 1:0] dmem_addr;
 logic                             dmem_write;
+logic                             dmem_ex;
+logic                             dmem_xstate;
 logic [(`IM_DATA_LEN >> 3) - 1:0] dmem_strb;
 logic [       `IM_DATA_LEN - 1:0] dmem_wdata;
 logic [       `IM_DATA_LEN - 1:0] dmem_rdata;
@@ -138,12 +141,16 @@ logic          icache_bypass;
 logic          immu_pa_vld;
 logic [  1: 0] immu_pa_bad;
 logic [ 55: 0] immu_pa;
+logic          immu_pa_pre_vld;
 logic [ 55: 0] immu_pa_pre;
 
 logic          dcache_bypass;
 logic          dmmu_pa_vld;
 logic [  1: 0] dmmu_pa_bad;
 logic [ 55: 0] dmmu_pa;
+logic          dmmu_pa_pre_vld;
+logic          dmmu_pa_pre_wr;
+logic          dmmu_pa_pre_rd;
 logic [ 55: 0] dmmu_pa_pre;
 
 logic          core_psel;
@@ -254,10 +261,12 @@ cpu_top u_cpu_top (
     .dmem_en             ( dmem_en             ),
     .dmem_addr           ( dmem_addr           ),
     .dmem_write          ( dmem_write          ),
+    .dmem_ex             ( dmem_ex             ),
     .dmem_strb           ( dmem_strb           ),
     .dmem_wdata          ( dmem_wdata          ),
     .dmem_rdata          ( dmem_rdata          ),
     .dmem_bad            ( dmem_bad            ),
+    .dmem_xstate         ( dmem_xstate         ),
     .dmem_busy           ( dmem_busy           ),
 
     // debug intface
@@ -323,6 +332,7 @@ mmu u_immu(
     .pa_valid            ( immu_pa_vld         ),
     .pa_bad              ( immu_pa_bad         ),
     .pa                  ( immu_pa             ),
+    .pa_pre_vld          ( immu_pa_pre_vld     ),
     .pa_pre              ( immu_pa_pre         ),
     
     // AXI interface
@@ -376,6 +386,9 @@ mmu u_dmmu(
     .pa_valid            ( dmmu_pa_vld         ),
     .pa_bad              ( dmmu_pa_bad         ),
     .pa                  ( dmmu_pa             ),
+    .pa_pre_vld          ( dmmu_pa_pre_vld     ),
+    .pa_pre_wr           ( dmmu_pa_pre_wr      ),
+    .pa_pre_rd           ( dmmu_pa_pre_rd      ),
     .pa_pre              ( dmmu_pa_pre         ),
     
     // AXI interface
@@ -426,6 +439,16 @@ mpu u_dmpu (
 
 );
 
+xmon u_xmon(
+    .clk    ( clk         ),
+    .rstn   ( rstn        ),
+
+    .ac     ( dmmu_pa_pre_vld & dmem_ex & dmmu_pa_pre_rd),
+    .rl     ( dmmu_pa_pre_vld & dmmu_pa_pre_wr),
+    .addr   ( dmmu_pa_pre[31:0] ),
+    .xstate ( xmon_xstate )
+);
+
 l1c u_l1ic (
     .clk         ( clk           ),
     .rstn        ( core_rstn     ),
@@ -437,12 +460,14 @@ l1c u_l1ic (
     .core_paddr  ( immu_pa[31:0] ),
     .core_req    ( imem_en       ),
     .core_wr     ( 1'b0          ),
+    .core_ex     ( 1'b0          ),
     .core_vaddr  ( imem_addr     ),
     .core_byte   ( 4'hf          ),
     .core_wdata  ( 32'b0         ),
     .core_rdata  ( imem_rdata    ),
     .core_bad    ( imem_bad      ),
     .core_busy   ( imem_busy     ),
+    .xmon_xstate ( 1'b0          ),
 
     `AXI_INTF_CONNECT(m, l1ic)
 );
@@ -458,12 +483,15 @@ l1c u_l1dc (
     .core_pa_bad ( dmmu_pa_bad   ),
     .core_req    ( dmem_en       ),
     .core_wr     ( dmem_write    ),
+    .core_ex     ( dmem_ex       ),
+    .core_xstate ( dmem_xstate   ),
     .core_vaddr  ( dmem_addr     ),
     .core_byte   ( dmem_strb     ),
     .core_wdata  ( dmem_wdata    ),
     .core_rdata  ( dmem_rdata    ),
     .core_bad    ( dmem_bad      ),
     .core_busy   ( dmem_busy     ),
+    .xmon_xstate ( xmon_xstate   ),
 
     `AXI_INTF_CONNECT(m, l1dc)
 );

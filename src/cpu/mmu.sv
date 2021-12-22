@@ -49,6 +49,9 @@ module mmu (
     output logic                             pa_valid,
     output logic [                      1:0] pa_bad,
     output logic [                     55:0] pa,
+    output logic                             pa_pre_vld,
+    output logic                             pa_pre_wr,
+    output logic                             pa_pre_rd,
     output logic [                     55:0] pa_pre,
     
     // AXI interface
@@ -91,7 +94,6 @@ logic                      pte_r,   tlb_pte_r  , last_pte_r  ;
 logic                      pte_v,   tlb_pte_v  , last_pte_v  ;
 logic                      tlb_data_sel;
 logic [               1:0] level;
-logic                      pa_valid_tmp;
 logic                      pmp_err;
 logic                      pg_fault;
 logic                      pg_fault_tlb;
@@ -140,28 +142,32 @@ end
 always_comb begin
     tlb_cs       = 1'b0;
     tlb_we       = 1'b0;
-    pa_valid_tmp = 1'b0;
+    pa_pre_vld   = 1'b0;
+    pa_pre_wr    = access_w_latch;
+    pa_pre_rd    = access_r_latch;
     busy         = 1'b0;
     m_arvalid    = 1'b0;
     tlb_data_sel = 1'b0;
     case (cur_state)
         STATE_IDLE : begin
             tlb_cs       = va_en;
-            pa_valid_tmp = va_valid && (~va_en || last_hit);
+            pa_pre_vld   = va_valid && (~va_en || last_hit);
+            pa_pre_wr    = ~access_x &  access_w;
+            pa_pre_rd    = ~access_x & ~access_w;
             busy         = 1'b0;
         end
         STATE_CHECK: begin
-            pa_valid_tmp = tlb_hit;
+            pa_pre_vld   = tlb_hit;
             busy         = 1'b1;
             tlb_data_sel = 1'b1;
         end
         STATE_MREQ : begin
-            pa_valid_tmp = m_rvalid && m_rresp[1];
+            pa_pre_vld   = m_rvalid && m_rresp[1];
             busy         = 1'b1;
             m_arvalid    = ~ar_done;
         end
         STATE_PTE  : begin
-            pa_valid_tmp = leaf ||  pg_fault_pte;
+            pa_pre_vld   = leaf ||  pg_fault_pte;
             tlb_cs       = leaf && ~pg_fault_pte;
             tlb_we       = 1'b1;
             busy         = 1'b1;
@@ -297,8 +303,8 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)             pa <= 56'b0;
-    else if (pa_valid_tmp) pa <= pa_pre;
+    if (~rstn)           pa <= 56'b0;
+    else if (pa_pre_vld) pa <= pa_pre;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -323,7 +329,7 @@ always_ff @(posedge clk or negedge rstn) begin
         pa_valid <= 1'b0;
     end
     else begin
-        pa_valid <= pa_valid_tmp;
+        pa_valid <= pa_pre_vld;
     end
 end
 
