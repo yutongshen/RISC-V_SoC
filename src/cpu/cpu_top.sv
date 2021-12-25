@@ -282,6 +282,8 @@ logic                             exe_csr_hazard;
 logic                             exe_hazard;
 logic [              `XLEN - 1:0] exe_csr_src1;
 logic [              `XLEN - 1:0] exe_csr_src2;
+logic [              `XLEN - 1:0] exe_csr_alu_out;
+logic [              `XLEN - 1:0] exe_csr_wdata_pre;
 logic [              `XLEN - 1:0] exe_csr_wdata;
 logic                             exe_pmu_csr_wr;
 logic                             exe_fpu_csr_wr;
@@ -470,8 +472,6 @@ logic                             wb_wfi;
 // Forward
 logic                             fwd_wb2id_rd_rs1;
 logic                             fwd_wb2id_rd_rs2;
-
-`include "csr_op.sv"
 
 resetn_synchronizer u_sync (
     .clk        ( clk       ),
@@ -698,6 +698,7 @@ assign id_dbg_csr_rdata = `XLEN'b0;
 csr u_csr (
     .clk           ( clk_wfi          ),
     .rstn          ( rstn_sync        ),
+    .misa_mxl      ( exe_misa_mxl     ),
     .rd            ( id_csr_rd        ),
     .wr            ( id_csr_wr        ),
     .raddr         ( id_csr_addr      ),
@@ -922,6 +923,7 @@ alu u_alu (
 mdu u_mdu(
     .clk    ( clk_wfi         ),
     .rstn   ( rstn_sync       ),
+    .len_64 ( id2exe_len_64   ),
     .trig   ( id2exe_mdu_sel  ),
     .mdu_op ( id2exe_mdu_op   ),
     .flush  ( exe_flush_force ),
@@ -943,8 +945,8 @@ assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_flush_force & ~exe_hazard & ~ex
 assign exe_sret       = id2exe_sret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
 assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
 
-assign exe_csr_src1 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
-assign exe_csr_src2 = id2exe_csr_rdata;
+assign exe_csr_src1 = id2exe_csr_rdata;
+assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
 sru u_sru (
     .clk         ( clk_wfi           ),
@@ -999,6 +1001,8 @@ mmu_csr u_mmu_csr (
     .clk       ( clk_wfi          ),
     .rstn      ( rstn_sync        ),
 
+    .misa_mxl  ( exe_misa_mxl     ),
+
     .satp_ppn  ( exe_satp_ppn     ),
     .satp_asid ( exe_satp_asid    ),
     .satp_mode ( exe_satp_mode    ),
@@ -1014,6 +1018,7 @@ mmu_csr u_mmu_csr (
 mpu_csr u_mpu_csr (
     .clk       ( clk_wfi          ),
     .rstn      ( rstn_sync        ),
+    .misa_mxl  ( exe_misa_mxl     ),
     .pmpcfg    ( pmpcfg           ),
     .pmpaddr   ( pmpaddr          ),
     .pmacfg    ( pmacfg           ),
@@ -1070,19 +1075,16 @@ assign satp_asid   = exe_satp_asid;
 assign satp_mode   = exe_satp_mode;
 assign prv         = exe_prv;
 
-always_comb begin
-    if (id2exe_ext_csr_wr) begin
-        exe_csr_wdata = id2exe_ext_csr_wdata;
-    end
-    else begin
-        exe_csr_wdata = `XLEN'b0;
-        case (id2exe_csr_op)
-            CSR_OP_NONE: exe_csr_wdata = exe_csr_src1;
-            CSR_OP_SET : exe_csr_wdata = exe_csr_src2 |  exe_csr_src1;
-            CSR_OP_CLR : exe_csr_wdata = exe_csr_src2 & ~exe_csr_src1;
-        endcase
-    end
-end
+csr_alu u_csr_alu(
+    .csr_op ( id2exe_csr_op   ),
+    .src1   ( exe_csr_src1    ),
+    .src2   ( exe_csr_src2    ),
+    .out    ( exe_csr_alu_out )
+);
+
+assign exe_csr_wdata_pre = id2exe_ext_csr_wr ? id2exe_ext_csr_wdata : exe_csr_alu_out;
+assign exe_csr_wdata     = exe_misa_mxl == 1'h1 ? {32'b0, exe_csr_wdata_pre[31:0]}:
+                                                  exe_csr_wdata_pre;
 
 // EXE/MA pipeline
 always_ff @(posedge clk_wfi or negedge rstn_sync) begin
@@ -1205,6 +1207,8 @@ assign ma_pipe_restart = exe2ma_tlb_flush_req || exe2ma_fence_i || exe2ma_pipe_r
 dpu u_dpu (
     .clk              ( clk_wfi              ),
     .rstn             ( rstn                 ),
+
+    .len_64           ( exe2ma_len_64        ),
 
     .amo_i            ( exe2ma_amo           ),
     .amo_op_i         ( exe2ma_amo_op        ),

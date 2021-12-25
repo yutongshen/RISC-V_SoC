@@ -25,6 +25,7 @@
 module mpu_csr (
     input                    clk,
     input                    rstn,
+    input        [      1:0] misa_mxl,
     output logic [    8-1:0] pmpcfg  [16],
     output logic [`XLEN-1:0] pmpaddr [16],
     output logic [    8-1:0] pmacfg  [16],
@@ -100,8 +101,19 @@ always_ff @(posedge clk or negedge rstn) begin
                 pmpcfg_r[i] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
             end
         end
+`ifndef RV32
+        for (i = 4; i < 8; i = i + 1) begin
+            if (~pmpcfg_l[i] && misa_mxl == 2'h2) begin
+                pmpcfg_l[i] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
+                pmpcfg_a[i] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
+                pmpcfg_x[i] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
+                pmpcfg_w[i] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
+                pmpcfg_r[i] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+            end
+        end
+`endif
     end
-    else if (csr_wr && csr_waddr == `CSR_PMPCFG1_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMPCFG1_ADDR && misa_mxl == 2'h1) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+4]) begin
                 pmpcfg_l[i+4] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
@@ -112,7 +124,7 @@ always_ff @(posedge clk or negedge rstn) begin
             end
         end
     end
-    else if (csr_wr && csr_waddr == `CSR_PMPCFG0_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMPCFG2_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+8]) begin
                 pmpcfg_l[i+8] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
@@ -122,8 +134,19 @@ always_ff @(posedge clk or negedge rstn) begin
                 pmpcfg_r[i+8] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
             end
         end
+`ifndef RV32
+        for (i = 4; i < 8; i = i + 1) begin
+            if (~pmpcfg_l[i+8] && misa_mxl == 2'h2) begin
+                pmpcfg_l[i+8] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
+                pmpcfg_a[i+8] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
+                pmpcfg_x[i+8] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
+                pmpcfg_w[i+8] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
+                pmpcfg_r[i+8] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+            end
+        end
+`endif
     end
-    else if (csr_wr && csr_waddr == `CSR_PMPCFG0_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMPCFG3_ADDR && misa_mxl == 2'h1) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+12]) begin
                 pmpcfg_l[i+12] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
@@ -222,8 +245,18 @@ always_ff @(posedge clk or negedge rstn) begin
                 pmacfg_e[i] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
             end
         end
+`ifndef RV32
+        for (i = 4; i < 8; i = i + 1) begin
+            if (~pmacfg_l[i] && misa_mxl == 2'h2) begin
+                pmacfg_l[i] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
+                pmacfg_a[i] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
+                pmacfg_c[i] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
+                pmacfg_e[i] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+            end
+        end
+`endif
     end
-    else if (csr_wr && csr_waddr == `CSR_PMACFG1_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMACFG1_ADDR && misa_mxl == 2'h1) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+4]) begin
                 pmacfg_l[i+4] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
@@ -233,7 +266,7 @@ always_ff @(posedge clk or negedge rstn) begin
             end
         end
     end
-    else if (csr_wr && csr_waddr == `CSR_PMACFG0_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMACFG2_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+8]) begin
                 pmacfg_l[i+8] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
@@ -242,8 +275,18 @@ always_ff @(posedge clk or negedge rstn) begin
                 pmacfg_e[i+8] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
             end
         end
+`ifndef RV32
+        for (i = 4; i < 8; i = i + 1) begin
+            if (~pmacfg_l[i+8] && misa_mxl == 2'h2) begin
+                pmacfg_l[i+8] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
+                pmacfg_a[i+8] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
+                pmacfg_c[i+8] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
+                pmacfg_e[i+8] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+            end
+        end
+`endif
     end
-    else if (csr_wr && csr_waddr == `CSR_PMACFG0_ADDR) begin
+    else if (csr_wr && csr_waddr == `CSR_PMACFG3_ADDR && misa_mxl == 2'h1) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+12]) begin
                 pmacfg_l[i+12] <= csr_wdata[(i*8)+`PMACFG_L_BIT];

@@ -10,6 +10,7 @@
 ../src/cpu/dec.sv
 ../src/cpu/rfu.sv
 ../src/cpu/csr.sv
+../src/cpu/csr_alu.sv
 ../src/cpu/sru.sv
 ../src/cpu/alu.sv
 ../src/cpu/mdu.sv

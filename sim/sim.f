@@ -7,4 +7,3 @@
 
 +nc64bit
 +access+r
-+define+FSDB

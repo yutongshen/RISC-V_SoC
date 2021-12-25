@@ -3,6 +3,8 @@
 module dpu (
     input                                    clk,
     input                                    rstn,
+
+    input                                    len_64,
     
     input                                    amo_i,
     input        [        `AMO_OP_LEN - 1:0] amo_op_i,
@@ -219,11 +221,19 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (dmem_req & ~dmem_busy) begin
         amo_wr  <= ~amo_wr & amo_i;
         amo_op  <= amo_op_i;
+`ifdef RV32
         amo_src <= wdata_i;
+`else
+        amo_src <= len_64 ? wdata_i : {{32{wdata_i[31]}}, wdata_i[31:0]};
+`endif
     end
 end
 
+`ifdef RV32
 assign amo_mem_rdata  = dmem_rdata;
+`else
+assign amo_mem_rdata  = len_64 ? dmem_rdata : {{32{dmem_rdata[31]}}, dmem_rdata[31:0]};
+`endif
 
 amo u_amo (
     .clk            ( clk            ),

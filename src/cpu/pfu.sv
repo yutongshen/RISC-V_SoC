@@ -40,6 +40,7 @@ logic [                   3:0] _ndata;
 logic [      `IM_ADDR_LEN-1:0] inst_len;
 logic                          imem_req_latch;
 logic [      `IM_ADDR_LEN-1:0] imem_addr_pre;
+logic                          jump_latch;
 logic [      `IM_ADDR_LEN-1:0] btb_pred;
 logic                          btb_token;
 
@@ -115,7 +116,7 @@ assign empty    = ~((_ndata <= 4'h6) ||
                     (_ndata <= 4'h8 && fifo_wr) ||
                     (_ndata <= 4'h9 && fifo_wr && imem_rdata[17:16] != 3'b11));
 assign imem_req = ((_ndata >= 4'h4) || (_ndata >= 4'h2 && ~imem_req_latch)) && ~imem_busy;
-assign imem_addr = btb_token ? {btb_pred[`IM_ADDR_LEN-1:2], 2'b0} : imem_addr_pre;
+assign imem_addr = ~jump_latch & btb_token ? {btb_pred[`IM_ADDR_LEN-1:2], 2'b0} : imem_addr_pre;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -145,6 +146,11 @@ always_ff @(posedge clk) begin
     else if (imem_req && ~imem_busy) begin
         imem_addr_pre <= imem_addr + `IM_ADDR_LEN'h4;
     end
+end
+
+always_ff @(posedge clk) begin
+    if (~rstn) jump_latch <= 1'b0;
+    else       jump_latch <= jump;
 end
 
 always_ff @(posedge clk) begin

@@ -88,92 +88,92 @@ module sru (
     output logic [       `XLEN-1:0] csr_rdata
 );
 
-logic                    trap_m_mode;
-logic                    trap_s_mode;
-logic                    ints_m_mode;
-logic                    ints_s_mode;
-logic [`IM_ADDR_LEN-1:0] vec_offset;
-logic                    msip_d1;
-logic                    mtip_d1;
-logic                    meip_d1;
+logic                          trap_m_mode;
+logic                          trap_s_mode;
+logic                          ints_m_mode;
+logic                          ints_s_mode;
+logic [      `IM_ADDR_LEN-1:0] vec_offset;
+logic                          msip_d1;
+logic                          mtip_d1;
+logic                          meip_d1;
 
-logic [       `XLEN-1:0] sstatus;
+logic [             `XLEN-1:0] sstatus;
 // logic [       `XLEN-1:0] sedeleg;
 // logic [       `XLEN-1:0] sideleg;
-logic [       `XLEN-1:0] sie;
-logic [       `XLEN-1:0] sip;
-logic [       `XLEN-1:0] stvec;
-logic [       `XLEN-1:0] sscratch;
-logic [       `XLEN-1:0] sepc;
-logic [       `XLEN-1:0] scause;
-logic [       `XLEN-1:0] stval;
-logic [       `XLEN-1:0] mstatus;
-logic [       `XLEN-1:0] misa;
-logic [       `XLEN-1:0] medeleg;
-logic [       `XLEN-1:0] mideleg;
-logic [       `XLEN-1:0] mie;
-logic [       `XLEN-1:0] mtvec;
-logic [       `XLEN-1:0] mscratch;
-logic [       `XLEN-1:0] mepc;
-logic [       `XLEN-1:0] mcause;
-logic [       `XLEN-1:0] mtval;
-logic [       `XLEN-1:0] mip;
+logic [             `XLEN-1:0] sie;
+logic [             `XLEN-1:0] sip;
+logic [             `XLEN-1:0] stvec;
+logic [             `XLEN-1:0] sscratch;
+logic [             `XLEN-1:0] sepc;
+logic [             `XLEN-1:0] scause;
+logic [             `XLEN-1:0] stval;
+logic [             `XLEN-1:0] mstatus;
+logic [             `XLEN-1:0] misa;
+logic [             `XLEN-1:0] medeleg;
+logic [             `XLEN-1:0] mideleg;
+logic [             `XLEN-1:0] mie;
+logic [             `XLEN-1:0] mtvec;
+logic [             `XLEN-1:0] mscratch;
+logic [             `XLEN-1:0] mepc;
+logic [             `XLEN-1:0] mcause;
+logic [             `XLEN-1:0] mtval;
+logic [             `XLEN-1:0] mip;
 
-logic                    mstatus_sie;
-logic                    mstatus_mie;
-logic                    mstatus_spie;
-logic                    mstatus_mpie;
-logic                    mstatus_spp;
-logic [             1:0] mstatus_mpp;
-logic [             1:0] mstatus_fs;
-logic [             1:0] mstatus_xs;
-logic                    mstatus_mprv;
-logic                    mstatus_sum;
-logic                    mstatus_mxr;
-logic                    mstatus_tvm;
-logic                    mstatus_tw;
-logic                    mstatus_tsr;
-logic [             1:0] mstatus_uxl;
-logic [             1:0] mstatus_sxl;
-logic                    mstatus_sd;
+logic                          mstatus_sie;
+logic                          mstatus_mie;
+logic                          mstatus_spie;
+logic                          mstatus_mpie;
+logic                          mstatus_spp;
+logic [                   1:0] mstatus_mpp;
+logic [                   1:0] mstatus_fs;
+logic [                   1:0] mstatus_xs;
+logic                          mstatus_mprv;
+logic                          mstatus_sum;
+logic                          mstatus_mxr;
+logic                          mstatus_tvm;
+logic                          mstatus_tw;
+logic                          mstatus_tsr;
+logic [                   1:0] mstatus_uxl;
+logic [                   1:0] mstatus_sxl;
+logic                          mstatus_sd;
 
-logic                    medeleg_imisalign;
-logic                    medeleg_bp;
-logic                    medeleg_uecall;
-logic                    medeleg_instpgfault;
-logic                    medeleg_ldpgfault;
-logic                    medeleg_stpgfault;
+logic                          medeleg_imisalign;
+logic                          medeleg_bp;
+logic                          medeleg_uecall;
+logic                          medeleg_instpgfault;
+logic                          medeleg_ldpgfault;
+logic                          medeleg_stpgfault;
 
-logic                    mideleg_ssip;
-logic                    mideleg_stip;
-logic                    mideleg_seip;
+logic                          mideleg_ssip;
+logic                          mideleg_stip;
+logic                          mideleg_seip;
 
-logic                    mie_ssie;
-logic                    mie_msie;
-logic                    mie_stie;
-logic                    mie_mtie;
-logic                    mie_seie;
-logic                    mie_meie;
+logic                          mie_ssie;
+logic                          mie_msie;
+logic                          mie_stie;
+logic                          mie_mtie;
+logic                          mie_seie;
+logic                          mie_meie;
 
-logic                    mip_ssip;
-logic                    mip_msip;
-logic                    mip_stip;
-logic                    mip_mtip;
-logic                    mip_seip;
-logic                    mip_meip;
+logic                          mip_ssip;
+logic                          mip_msip;
+logic                          mip_stip;
+logic                          mip_mtip;
+logic                          mip_seip;
+logic                          mip_meip;
 
-logic [            25:0] misa_ext;
+logic [                  25:0] misa_ext;
 
 
-logic [       `XLEN-2:0] mcause_code;
-logic                    mcause_int;
+logic [`MCAUSE_CODE_WIDTH-1:0] mcause_code;
+logic                          mcause_int;
 
-logic [       `XLEN-2:0] scause_code;
-logic                    scause_int;
+logic [`MCAUSE_CODE_WIDTH-1:0] scause_code;
+logic                          scause_int;
 
-logic [       `XLEN-1:0] ints_en;
-logic [       `XLEN-1:0] ints_m_en;
-logic [       `XLEN-1:0] ints_s_en;
+logic [             `XLEN-1:0] ints_en;
+logic [             `XLEN-1:0] ints_m_en;
+logic [             `XLEN-1:0] ints_s_en;
 
 assign ints_en     = mie & mip;
 assign ints_m_en   = mie & mip & ~mideleg;
@@ -274,16 +274,22 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-assign scause = {scause_int, scause_code};
+`ifdef RV32
+assign scause = {scause_int, {`XLEN-`MCAUSE_CODE_WIDTH-1{1'b0}}, scause_code};
+`else
+assign scause = misa_mxl == 2'h1 ? {32'b0, scause_int, {   32-`MCAUSE_CODE_WIDTH-1{1'b0}}, scause_code}:
+                misa_mxl == 2'h2 ? {       scause_int, {`XLEN-`MCAUSE_CODE_WIDTH-1{1'b0}}, scause_code}:
+                                   `XLEN'b0;
+`endif
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         scause_int  <= 1'b0;
-        scause_code <= {`XLEN-1{1'b0}};
+        scause_code <= `MCAUSE_CODE_WIDTH'b0;
     end
     else if (trap_en && trap_s_mode) begin
-        scause_code <= trap_cause[0+:`XLEN-1];
         scause_int  <= trap_cause[`XLEN-1];
+        scause_code <= trap_cause[0+:`MCAUSE_CODE_WIDTH];
     end
     else if (ints_s_mode) begin
         scause_int  <= 1'b1;
@@ -293,11 +299,11 @@ always_ff @(posedge clk or negedge rstn) begin
                        ints_s_en[`MIP_SEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SEIP_BIT:
                        ints_s_en[`MIP_SSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SSIP_BIT:
                        ints_s_en[`MIP_STIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_STIP_BIT:
-                                                  {(`XLEN-1){1'b1}};
+                                                  `MCAUSE_CODE_WIDTH'b1;
     end
     else if (csr_wr && csr_waddr == `CSR_SCAUSE_ADDR) begin
-        scause_code <= csr_wdata[0+:`XLEN-1];
-        scause_int  <= csr_wdata[`XLEN-1];
+        scause_int  <= misa_mxl == 2'h1 ? csr_wdata[31] : csr_wdata[`XLEN-1];
+        scause_code <= csr_wdata[0+:`MCAUSE_CODE_WIDTH];
     end
 end
 
@@ -525,16 +531,22 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-assign mcause = {mcause_int, mcause_code};
+`ifdef RV32
+assign mcause = {mcause_int, {`XLEN-`MCAUSE_CODE_WIDTH-1{1'b0}}, mcause_code};
+`else
+assign mcause = misa_mxl == 2'h1 ? {32'b0, mcause_int, {   32-`MCAUSE_CODE_WIDTH-1{1'b0}}, mcause_code}:
+                misa_mxl == 2'h2 ? {       mcause_int, {`XLEN-`MCAUSE_CODE_WIDTH-1{1'b0}}, mcause_code}:
+                                   `XLEN'b0;
+`endif
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        mcause_code <= {`XLEN-1{1'b0}};
         mcause_int  <= 1'b0;
+        mcause_code <= `MCAUSE_CODE_WIDTH'b0;
     end
     else if (trap_en && ~trap_s_mode) begin
-        mcause_code <= trap_cause[0+:`XLEN-1];
         mcause_int  <= trap_cause[`XLEN-1];
+        mcause_code <= trap_cause[0+:`MCAUSE_CODE_WIDTH];
     end
     else if (ints_m_mode) begin
         mcause_int  <= 1'b1;
@@ -544,11 +556,11 @@ always_ff @(posedge clk or negedge rstn) begin
                        ints_m_en[`MIP_SEIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SEIP_BIT:
                        ints_m_en[`MIP_SSIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_SSIP_BIT:
                        ints_m_en[`MIP_STIP_BIT] ? `MCAUSE_CODE_WIDTH'd`MIP_STIP_BIT:
-                                                  {(`XLEN-1){1'b1}};
+                                                  `MCAUSE_CODE_WIDTH'd1;
     end
     else if (csr_wr && csr_waddr == `CSR_MCAUSE_ADDR) begin
-        mcause_code <= csr_wdata[0+:`XLEN-1];
-        mcause_int  <= csr_wdata[`XLEN-1];
+        mcause_int  <= misa_mxl == 2'h1 ? csr_wdata[31] : csr_wdata[`XLEN-1];
+        mcause_code <= csr_wdata[0+:`MCAUSE_CODE_WIDTH];
     end
 end
 

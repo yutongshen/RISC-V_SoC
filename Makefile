@@ -53,7 +53,7 @@ sim: all | ${bld_dir}
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
-	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +isa=$${i} +nclinedebug;); \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +isa=$${i};); \
             cpi=$$(echo "$${res}" | grep "CPI:"); \
             inst=$$(echo "$${res}" | grep "minstret:"); \
             cycl=$$(echo "$${res}" | grep "mcycle:"); \
@@ -67,7 +67,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +isa=${isa} +nclinedebug; \
+	    ncverilog -sv -f verdi.f +prog=$(root_dir)/$(sim_dir)/prog$(prog) +isa=${isa} +nclinedebug +define+FSDB; \
 	fi;
 
 axi: | ${bld_dir}

@@ -98,8 +98,10 @@ assign rs1_data     = rs1_data_pre;
 assign rs2_data     = rs2_data_pre;
 assign rd_data_post = rd_data;
 `else
-assign rs1_data     = len_64_o ? rs1_data_pre : {{32{rs1_data_pre[31]}}, rs1_data_pre[31:0]};
-assign rs2_data     = len_64_o ? rs2_data_pre : {{32{rs2_data_pre[31]}}, rs2_data_pre[31:0]};
+// assign rs1_data     = len_64_o ? rs1_data_pre : {{32{rs1_data_pre[31]}}, rs1_data_pre[31:0]};
+// assign rs2_data     = len_64_o ? rs2_data_pre : {{32{rs2_data_pre[31]}}, rs2_data_pre[31:0]};
+assign rs1_data     = rs1_data_pre;
+assign rs2_data     = rs2_data_pre;
 assign rd_data_post = len_64_i ? rd_data      : {{32{rd_data     [31]}}, rd_data     [31:0]};
 `endif
 
