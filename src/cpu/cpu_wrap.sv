@@ -1,5 +1,6 @@
 `include "cpu_define.h"
 `include "intf_define.h"
+`include "cache_define.h"
 
 module cpu_wrap (
     input                  clk,
@@ -55,7 +56,11 @@ module cpu_wrap (
 );
 
 logic                             core_rstn;
+logic                             srstn;
+logic                             xrstn;
 logic [              `XLEN - 1:0] core_bootvec;
+
+logic [                     63:0] systime;
 
 logic                             msip;
 logic                             mtip;
@@ -63,7 +68,7 @@ logic                             meip;
 
 logic                             imem_en;
 logic [       `IM_ADDR_LEN - 1:0] imem_addr;
-logic [       `IM_DATA_LEN - 1:0] imem_rdata;
+logic [  `CACHE_DATA_WIDTH - 1:0] imem_rdata;
 logic [                      1:0] imem_bad;
 logic                             imem_busy;
 
@@ -73,9 +78,9 @@ logic [       `IM_ADDR_LEN - 1:0] dmem_addr;
 logic                             dmem_write;
 logic                             dmem_ex;
 logic                             dmem_xstate;
-logic [(`IM_DATA_LEN >> 3) - 1:0] dmem_strb;
-logic [       `IM_DATA_LEN - 1:0] dmem_wdata;
-logic [       `IM_DATA_LEN - 1:0] dmem_rdata;
+logic [`CACHE_DATA_WIDTH/8 - 1:0] dmem_strb;
+logic [  `CACHE_DATA_WIDTH - 1:0] dmem_wdata;
+logic [  `CACHE_DATA_WIDTH - 1:0] dmem_rdata;
 logic [                      1:0] dmem_bad;
 logic                             dmem_busy;
 
@@ -195,19 +200,19 @@ logic          uart_pslverr;
 logic          uart_pready;
 logic          uart_irq;
 
-logic [ 11: 0] dbg_addr;
-logic [ 31: 0] dbg_wdata;
-logic          dbg_gpr_rd;
-logic          dbg_gpr_wr;
-logic [ 31: 0] dbg_gpr_rdata;
-logic          dbg_csr_rd;
-logic          dbg_csr_wr;
-logic [ 31: 0] dbg_csr_rdata;
-logic [ 31: 0] dbg_pc;
-logic [ 31: 0] dbg_inst;
-logic          dbg_exec;
-logic          dbg_halted;
-logic          dbg_attach;
+logic [       11: 0] dbg_addr;
+logic [`XLEN - 1: 0] dbg_wdata;
+logic                dbg_gpr_rd;
+logic                dbg_gpr_wr;
+logic [`XLEN - 1: 0] dbg_gpr_rdata;
+logic                dbg_csr_rd;
+logic                dbg_csr_wr;
+logic [`XLEN - 1: 0] dbg_csr_rdata;
+logic [`XLEN - 1: 0] dbg_pc;
+logic [       31: 0] dbg_inst;
+logic                dbg_exec;
+logic                dbg_halted;
+logic                dbg_attach;
 
 
 `AXI_INTF_DEF(immu, 10)
@@ -217,77 +222,80 @@ logic          dbg_attach;
 `AXI_INTF_DEF(axi_ext_remap, 10)
 
 cpu_top u_cpu_top (
-    .clk                 ( clk                 ),
-    .rstn                ( core_rstn           ),
-    .cpu_id              ( `XLEN'd0            ),
-    .bootvec             ( core_bootvec        ),
+    .clk                 ( clk                    ),
+    .srstn               ( srstn                  ),
+    .xrstn               ( xrstn                  ),
+    .cpu_id              ( `XLEN'd0               ),
+    .bootvec             ( core_bootvec           ),
+    .warm_rst_trigger    ( warm_rst_trigger       ),
+    .systime             ( systime                ),
 
     // mpu csr
-    .pmpcfg              ( pmpcfg              ),
-    .pmpaddr             ( pmpaddr             ),
-    .pmacfg              ( pmacfg              ),
-    .pmaaddr             ( pmaaddr             ),
+    .pmpcfg              ( pmpcfg                 ),
+    .pmpaddr             ( pmpaddr                ),
+    .pmacfg              ( pmacfg                 ),
+    .pmaaddr             ( pmaaddr                ),
 
     // mmu csr
-    .satp_ppn            ( satp_ppn            ),
-    .satp_asid           ( satp_asid           ),
-    .satp_mode           ( satp_mode           ),
-    .prv                 ( prv                 ),
-    .sum                 ( sum                 ),
-    .mprv                ( mprv                ),
-    .mpp                 ( mpp                 ),
+    .satp_ppn            ( satp_ppn               ),
+    .satp_asid           ( satp_asid              ),
+    .satp_mode           ( satp_mode              ),
+    .prv                 ( prv                    ),
+    .sum                 ( sum                    ),
+    .mprv                ( mprv                   ),
+    .mpp                 ( mpp                    ),
 
     // TLB control
-    .tlb_flush_req       ( tlb_flush_req       ),
-    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
-    .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
-    .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
-    .tlb_flush_asid      ( tlb_flush_asid      ),
+    .tlb_flush_req       ( tlb_flush_req          ),
+    .tlb_flush_all_vaddr ( tlb_flush_all_vaddr    ),
+    .tlb_flush_all_asid  ( tlb_flush_all_asid     ),
+    .tlb_flush_vaddr     ( tlb_flush_vaddr        ),
+    .tlb_flush_asid      ( tlb_flush_asid         ),
    
     // interrupt interface
-    .msip                ( msip                ),
-    .mtip                ( mtip                ),
-    .meip                ( meip                ),
+    .msip                ( msip                   ),
+    .mtip                ( mtip                   ),
+    .meip                ( meip                   ),
 
     // inst interface
-    .imem_en             ( imem_en             ),
-    .imem_addr           ( imem_addr           ),
-    .imem_rdata          ( imem_rdata          ),
-    .imem_bad            ( imem_bad            ),
-    .imem_busy           ( imem_busy           ),
-    .ic_flush            ( ic_flush            ),
+    .imem_en             ( imem_en                ),
+    .imem_addr           ( imem_addr              ),
+    .imem_rdata          ( imem_rdata             ),
+    .imem_bad            ( imem_bad               ),
+    .imem_busy           ( imem_busy              ),
+    .ic_flush            ( ic_flush               ),
 
     // data interface
-    .dmem_en             ( dmem_en             ),
-    .dmem_addr           ( dmem_addr           ),
-    .dmem_write          ( dmem_write          ),
-    .dmem_ex             ( dmem_ex             ),
-    .dmem_strb           ( dmem_strb           ),
-    .dmem_wdata          ( dmem_wdata          ),
-    .dmem_rdata          ( dmem_rdata          ),
-    .dmem_bad            ( dmem_bad            ),
-    .dmem_xstate         ( dmem_xstate         ),
-    .dmem_busy           ( dmem_busy           ),
+    .dmem_en             ( dmem_en                ),
+    .dmem_addr           ( dmem_addr              ),
+    .dmem_write          ( dmem_write             ),
+    .dmem_ex             ( dmem_ex                ),
+    .dmem_strb           ( dmem_strb              ),
+    .dmem_wdata          ( dmem_wdata             ),
+    .dmem_rdata          ( dmem_rdata             ),
+    .dmem_bad            ( dmem_bad               ),
+    .dmem_xstate         ( dmem_xstate            ),
+    .dmem_busy           ( dmem_busy              ),
 
     // debug intface
-    .dbg_addr            ( dbg_addr            ),
-    .dbg_wdata           ( dbg_wdata           ),
-    .dbg_gpr_rd          ( dbg_gpr_rd          ),
-    .dbg_gpr_wr          ( dbg_gpr_wr          ),
-    .dbg_gpr_out         ( dbg_gpr_rdata       ),
-    .dbg_csr_rd          ( dbg_csr_rd          ),
-    .dbg_csr_wr          ( dbg_csr_wr          ),
-    .dbg_csr_out         ( dbg_csr_rdata       ),
-    .dbg_pc_out          ( dbg_pc              ),
-    .dbg_exec            ( dbg_exec            ),
-    .dbg_inst            ( dbg_inst            ),
-    .attach              ( dbg_attach          ),
-    .halted              ( dbg_halted          )
+    .dbg_addr            ( dbg_addr               ),
+    .dbg_wdata           ( dbg_wdata              ),
+    .dbg_gpr_rd          ( dbg_gpr_rd             ),
+    .dbg_gpr_wr          ( dbg_gpr_wr             ),
+    .dbg_gpr_out         ( dbg_gpr_rdata          ),
+    .dbg_csr_rd          ( dbg_csr_rd             ),
+    .dbg_csr_wr          ( dbg_csr_wr             ),
+    .dbg_csr_out         ( dbg_csr_rdata          ),
+    .dbg_pc_out          ( dbg_pc                 ),
+    .dbg_exec            ( dbg_exec               ),
+    .dbg_inst            ( dbg_inst               ),
+    .attach              ( dbg_attach             ),
+    .halted              ( dbg_halted             )
 );
 
 mmu u_immu(
     .clk                 ( clk                 ),
-    .rstn                ( core_rstn           ),
+    .rstn                ( srstn               ),
     
     // access type
     .access_w            ( 1'b0                ),
@@ -341,7 +349,7 @@ mmu u_immu(
 
 mmu u_dmmu(
     .clk                 ( clk                 ),
-    .rstn                ( core_rstn           ),
+    .rstn                ( srstn               ),
     
     // access type
     .access_w            ( dmem_write          ),
@@ -397,7 +405,7 @@ mmu u_dmmu(
 
 mpu u_impu (
     .clk      ( clk         ),
-    .rstn     ( core_rstn   ),
+    .rstn     ( srstn       ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
@@ -419,7 +427,7 @@ mpu u_impu (
 
 mpu u_dmpu (
     .clk      ( clk         ),
-    .rstn     ( core_rstn   ),
+    .rstn     ( srstn       ),
     .pmpcfg   ( pmpcfg      ),
     .pmpaddr  ( pmpaddr     ),
     .pmacfg   ( pmacfg      ),
@@ -450,31 +458,31 @@ xmon u_xmon(
 );
 
 l1c u_l1ic (
-    .clk         ( clk           ),
-    .rstn        ( core_rstn     ),
+    .clk         ( clk             ),
+    .rstn        ( srstn           ),
 
-    .core_bypass ( icache_bypass ),
-    .core_flush  ( ic_flush      ),
-    .core_pa_vld ( immu_pa_vld   ),
-    .core_pa_bad ( immu_pa_bad   ),
-    .core_paddr  ( immu_pa[31:0] ),
-    .core_req    ( imem_en       ),
-    .core_wr     ( 1'b0          ),
-    .core_ex     ( 1'b0          ),
-    .core_vaddr  ( imem_addr     ),
-    .core_byte   ( 4'hf          ),
-    .core_wdata  ( 32'b0         ),
-    .core_rdata  ( imem_rdata    ),
-    .core_bad    ( imem_bad      ),
-    .core_busy   ( imem_busy     ),
-    .xmon_xstate ( 1'b0          ),
+    .core_bypass ( icache_bypass   ),
+    .core_flush  ( ic_flush        ),
+    .core_pa_vld ( immu_pa_vld     ),
+    .core_pa_bad ( immu_pa_bad     ),
+    .core_paddr  ( immu_pa[31:0]   ),
+    .core_req    ( imem_en         ),
+    .core_wr     ( 1'b0            ),
+    .core_ex     ( 1'b0            ),
+    .core_vaddr  ( imem_addr       ),
+    .core_byte   ( {`XLEN/8{1'b0}} ),
+    .core_wdata  ( `XLEN'b0        ),
+    .core_rdata  ( imem_rdata      ),
+    .core_bad    ( imem_bad        ),
+    .core_busy   ( imem_busy       ),
+    .xmon_xstate ( 1'b0            ),
 
     `AXI_INTF_CONNECT(m, l1ic)
 );
 
 l1c u_l1dc (
     .clk         ( clk           ),
-    .rstn        ( core_rstn     ),
+    .rstn        ( srstn         ),
 
     .core_bypass ( dcache_bypass ),
     .core_flush  ( 1'b0          ),
@@ -529,6 +537,14 @@ cfgreg u_cfgreg (
 
     .core_bootvec ( core_bootvec   ),
     .core_rstn    ( core_rstn      )
+);
+
+rgu u_rgu (
+    .clk              ( clk              ),
+    .pwr_rstn         ( core_rstn        ),
+    .warm_rst_trigger ( warm_rst_trigger ),
+    .xrstn            ( xrstn            ),
+    .srstn            ( srstn            )
 );
 
 iommu u_iommu (
@@ -680,27 +696,35 @@ assign ints = {
 };
 
 intc u_intc(
-    .clk    ( clk          ),
-    .rstn   ( core_rstn    ),
-    .psel   ( intc_psel    ),
-    .penable( intc_penable ),
-    .paddr  ( intc_paddr   ),
-    .pwrite ( intc_pwrite  ),
-    .pstrb  ( intc_pstrb   ),
-    .pwdata ( intc_pwdata  ),
-    .prdata ( intc_prdata  ),
-    .pslverr( intc_pslverr ),
-    .pready ( intc_pready  ),
+    .clk     ( clk          ),
+    .rstn    ( srstn        ),
+    .psel    ( intc_psel    ),
+    .penable ( intc_penable ),
+    .paddr   ( intc_paddr   ),
+    .pwrite  ( intc_pwrite  ),
+    .pstrb   ( intc_pstrb   ),
+    .pwdata  ( intc_pwdata  ),
+    .prdata  ( intc_prdata  ),
+    .pslverr ( intc_pslverr ),
+    .pready  ( intc_pready  ),
                             
-    .msip   ( msip         ),
-    .mtip   ( mtip         ),
-    .meip   ( meip         ),
-    .ints   ( ints         )
+    .systime ( systime      ),
+    .msip    ( msip         ),
+    .mtip    ( mtip         ),
+    .meip    ( meip         ),
+    .ints    ( ints         )
 );
+
+systimer u_systimer (
+    .clk     ( clk     ),
+    .rstn    ( rstn    ),
+    .systime ( systime )
+);
+
 
 dbgapb u_dbgapb (
     .pclk      ( clk           ),
-    .presetn   ( core_rstn     ),
+    .presetn   ( srstn         ),
     .psel      ( dbg_psel      ),
     .penable   ( dbg_penable   ),
     .paddr     ( dbg_paddr     ),

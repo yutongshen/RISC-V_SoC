@@ -8,7 +8,7 @@
 `include "dbgapb_define.h"
 `include "intf_define.h"
 
-// `define DBG_TEST
+//`define DBG_TEST
 
 module test;
 
@@ -19,16 +19,17 @@ logic         rstn;
 
 `AXI_INTF_DEF(axi_ext, 10)
 
-logic         dbg_psel;
-logic         dbg_penable;
-logic [31: 0] dbg_paddr;
-logic         dbg_pwrite;
-logic [ 3: 0] dbg_pstrb;
-logic [ 2: 0] dbg_pprot;
-logic [31: 0] dbg_pwdata;
-logic [31: 0] dbg_prdata;
-logic         dbg_pslverr;
-logic         dbg_pready;
+logic              dbg_psel;
+logic              dbg_penable;
+logic [     31: 0] dbg_paddr;
+logic              dbg_pwrite;
+logic [      3: 0] dbg_pstrb;
+logic [      2: 0] dbg_pprot;
+logic [     31: 0] dbg_pwdata;
+logic [     31: 0] dbg_prdata;
+logic              dbg_pslverr;
+logic              dbg_pready;
+logic [`XLEN-1: 0] dbg_rdata;
 
 logic         uart_tx;
 logic         uart_rx;
@@ -49,13 +50,13 @@ initial begin
     simend <= 1'b0;
     clk    <= 1'b0;
     rstn   <= 1'b0;
-	dbgapb_init;
-	axi_init;
+    dbgapb_init;
+    axi_init;
     repeat (10) @(posedge clk);
     rstn   <= 1'b1;
     repeat (10) @(posedge clk);
-	// extaxi_wr(32'h0400_0004, 32'h48);
-	extaxi_wr(32'h0400_0000, 32'h1);
+    // extaxi_wr(32'h0400_0004, 32'h48);
+    extaxi_wr(32'h0400_0000, 32'h1);
     repeat (200000) @(posedge clk);
     simend <= 1'b1;
 end
@@ -74,6 +75,18 @@ always @(posedge simend) begin
     $display("mcycle:   %0d", u_cpu_wrap.u_cpu_top.u_pmu.mcycle);
     $display("minstret: %0d", u_cpu_wrap.u_cpu_top.u_pmu.minstret);
     $display("CPI:      %f",  u_cpu_wrap.u_cpu_top.u_pmu.mcycle * 1.0 / u_cpu_wrap.u_cpu_top.u_pmu.minstret);
+`ifdef RV32
+    $display("\nSATP_MODE: %0s", u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 1'b1 ? "SV32" : "NONE");
+`else
+    $display("\nSATP_MODE: %0s", u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h0 ? "NONE" :
+                                 u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h1 ? "SV32" :
+                                 u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h8 ? "SV39" :
+                                 u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h8 ? "SV48" :
+                                 u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h8 ? "SV57" :
+                                 u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode == 4'h8 ? "SV64" :
+                                                                                    "Reserved");
+`endif
+    show_pt({u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_ppn, 12'b0}, {u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode});
     $finish;
 end
 
@@ -198,7 +211,7 @@ initial begin
     isa = "";
     $value$plusargs("isa=%s", isa);
     if (isa != "") $display("isa: %s", isa);
-    if (isa == "rv32uc-p-rvc") begin
+    if (isa == "rv32uc-p-rvc" || isa == "rv64uc-p-rvc") begin
         tohost = 14'hc00;
     end
     else begin
@@ -247,8 +260,6 @@ always @(posedge clk) begin
     end
 end
 
-logic [31:0] dbg_rdata;
-
 `ifdef DBG_TEST
 `include "dbgapb_test.sv"
 `endif
@@ -256,5 +267,44 @@ logic [31:0] dbg_rdata;
 `include "dbgapb_task.sv"
 `include "extaxi_task.sv"
 
+task show_pt;
+input [`XLEN-1:0] base;
+input [      3:0] mode;
+
+integer i;
+logic [`XLEN-1:0] pte;
+logic [`XLEN-1:0] fifo [1024];
+integer           ptr;
+
+if (mode) begin
+    ptr = 0;
+    $write("\nPAGE TABLE %08x\n", base);
+    $write("%3s %8s %s %s %s %s %s %s %s\n", "ID", "ADDR", "V", "R", "W", "X", "U", "A", "D");
+    for (i = 0; i < (mode != 1 ? 512 : 1024); i = i + 1) begin
+        pte = {mode != 1 ? read(base + i * 8 + 4) : 32'b0, read(base + i * (mode != 1 ? 8 : 4))};
+        if (pte[`PTE_V_BIT]) begin
+            $write("%03x %08x %d %d %d %d %d %d %d\n", i,
+                   {pte[`XLEN-1:`PTE_PPN_SHIFT], 12'b0},  pte[`PTE_V_BIT],
+                   pte[`PTE_R_BIT], pte[`PTE_W_BIT], pte[`PTE_X_BIT],
+                   pte[`PTE_U_BIT], pte[`PTE_A_BIT], pte[`PTE_D_BIT]);
+            if (~pte[`PTE_X_BIT] & ~pte[`PTE_W_BIT] & ~pte[`PTE_R_BIT]) begin
+                fifo[ptr] = {pte[31:`PTE_PPN_SHIFT], 12'b0};
+                ptr = ptr + 1;
+            end
+        end
+    end
+    for (i = 0; i < ptr; i = i + 1) begin
+        show_pt(fifo[i], mode);
+    end
+end
+
+endtask
+
+function logic [31:0] read;
+input [31:0] addr;
+
+if (~addr[16]) return u_cpu_wrap.u_sram_0.memory[addr[15:2]];
+else           return u_cpu_wrap.u_sram_1.memory[addr[15:2]];
+endfunction
 
 endmodule

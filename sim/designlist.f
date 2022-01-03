@@ -1,4 +1,5 @@
 ../src/cpu/cpu_wrap.sv
+../src/cpu/rgu.sv
 ../src/cpu/marb.sv
 ../src/cpu/cpu_top.sv
 ../src/cpu/clkmnt.sv
@@ -33,6 +34,7 @@
 ../src/cpu/plic.sv
 ../src/cpu/dbgapb.sv
 ../src/cpu/util.sv
+../src/peri/systimer.sv
 ../src/peri/uart.sv
 ../src/bus/iommu.sv
 ../src/bus/axi2mem_bridge.sv

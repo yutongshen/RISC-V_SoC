@@ -2,66 +2,66 @@
 `include "dbgapb_mmap.h"
 
 module dbgapb (
-    input                 pclk,
-    input                 presetn,
-    input                 psel,
-    input                 penable,
-    input        [ 31: 0] paddr,
-    input                 pwrite,
-    input        [  3: 0] pstrb,
-    input        [ 31: 0] pwdata,
-    output logic [ 31: 0] prdata,
-    output logic          pslverr,
-    output logic          pready,
+    input                       pclk,
+    input                       presetn,
+    input                       psel,
+    input                       penable,
+    input        [       31: 0] paddr,
+    input                       pwrite,
+    input        [        3: 0] pstrb,
+    input        [       31: 0] pwdata,
+    output logic [       31: 0] prdata,
+    output logic                pslverr,
+    output logic                pready,
 
-    output logic [ 11: 0] addr_out,
-    output logic [ 31: 0] wdata_out,
-    output logic          gpr_rd,
-    output logic          gpr_wr,
-    input        [ 31: 0] gpr_in,
-    output logic          csr_rd,
-    output logic          csr_wr,
-    input        [ 31: 0] csr_in,
-    input        [ 31: 0] pc,
-    output logic [ 31: 0] inst_out,
-    output logic          exec,
-    input                 halted,
-    output logic          attach
+    output logic [       11: 0] addr_out,
+    output logic [`XLEN - 1: 0] wdata_out,
+    output logic                gpr_rd,
+    output logic                gpr_wr,
+    input        [`XLEN - 1: 0] gpr_in,
+    output logic                csr_rd,
+    output logic                csr_wr,
+    input        [`XLEN - 1: 0] csr_in,
+    input        [`XLEN - 1: 0] pc,
+    output logic [       31: 0] inst_out,
+    output logic                exec,
+    input                       halted,
+    output logic                attach
 );
 
-logic        dbg_en;
-logic [31:0] dbg_inst;
-logic        dbg_inst_wr;
-logic [31:0] dbg_wdata;
-logic        dbg_wdata_wr;
-logic [31:0] dbg_rdata;
+logic               dbg_en;
+logic [       31:0] dbg_inst;
+logic               dbg_inst_wr;
+logic [`XLEN - 1:0] dbg_wdata;
+logic               dbg_wdata_wr;
+logic [`XLEN - 1:0] dbg_rdata;
 
-logic [31:0] wdata_reg;
-logic [31:0] rdata_reg;
-logic [31:0] status_reg;
+logic [`XLEN - 1:0] wdata_reg;
+logic [`XLEN - 1:0] rdata_reg;
+logic [`XLEN - 1:0] status_reg;
 
-logic        rdata_sel;
-logic        pc_rd;
+logic               rdata_sel;
+logic               pc_rd;
 
-logic        nxt_attach;
-logic [31:0] nxt_inst_out;
-logic        nxt_exec;
-logic        nxt_rdata_sel;
-logic        nxt_pc_rd;
-logic [11:0] nxt_addr_out;
-logic        nxt_gpr_rd;
-logic        nxt_csr_rd;
-logic        nxt_gpr_wr;
-logic        nxt_csr_wr;
+logic               nxt_attach;
+logic [       31:0] nxt_inst_out;
+logic               nxt_exec;
+logic               nxt_rdata_sel;
+logic               nxt_pc_rd;
+logic [       11:0] nxt_addr_out;
+logic               nxt_gpr_rd;
+logic               nxt_csr_rd;
+logic               nxt_gpr_wr;
+logic               nxt_csr_wr;
 
-logic [ 9:0] nxt_ready_cnt;
-logic [ 9:0] ready_cnt;
+logic [        9:0] nxt_ready_cnt;
+logic [        9:0] ready_cnt;
 
-assign status_reg = {30'b0, halted, attach};
+assign status_reg = {{`XLEN-2{1'b0}}, halted, attach};
 
 always_ff @(posedge pclk or negedge presetn) begin
     if (~presetn) begin
-        rdata_reg <= 32'b0;
+        rdata_reg <= `XLEN'b0;
     end
     else if (pc_rd) begin
         rdata_reg <= pc;
@@ -141,7 +141,7 @@ always_comb begin
             nxt_attach    = 1'b0;
         end
         `INST_INSTREG_WR: begin
-            nxt_inst_out  = wdata_reg;
+            nxt_inst_out  = wdata_reg[31:0];
         end
         `INST_EXECUTE: begin
             nxt_exec      = 1'b1;
@@ -212,11 +212,16 @@ end
 
 always_ff @(posedge pclk or negedge presetn) begin
     if (~presetn) begin
-        dbg_wdata <= 32'b0;
+        dbg_wdata <= `XLEN'b0;
     end
-    else if (dbgapb_wr && paddr[11:0] == `DBGAPB_WDATA) begin
-        dbg_wdata <= pwdata;
+    else if (dbgapb_wr && paddr[11:0] == `DBGAPB_WDATA_L) begin
+        dbg_wdata[ 0+:32] <= pwdata;
     end
+`ifndef RV32
+    else if (dbgapb_wr && paddr[11:0] == `DBGAPB_WDATA_H) begin
+        dbg_wdata[32+:32] <= pwdata;
+    end
+`endif
 end
 
 always_ff @(posedge pclk or negedge presetn) begin
@@ -239,9 +244,15 @@ always_comb begin
         `DBGAPB_DBG_EN  : prdata_t = {31'b0, dbg_en};
         `DBGAPB_INST    : prdata_t = dbg_inst;
         `DBGAPB_INST_WR : prdata_t = {31'b0, dbg_inst_wr};
-        `DBGAPB_WDATA   : prdata_t = dbg_wdata;
+        `DBGAPB_WDATA_L : prdata_t = dbg_wdata[ 0+:32];
+`ifndef RV32
+        `DBGAPB_WDATA_H : prdata_t = dbg_wdata[32+:32];
+`endif
         `DBGAPB_WDATA_WR: prdata_t = {31'b0, dbg_wdata_wr};
-        `DBGAPB_RDATA   : prdata_t = dbg_rdata;
+        `DBGAPB_RDATA_L : prdata_t = dbg_rdata[ 0+:32];
+`ifndef RV32
+        `DBGAPB_RDATA_H : prdata_t = dbg_rdata[32+:32];
+`endif
     endcase
 end
 

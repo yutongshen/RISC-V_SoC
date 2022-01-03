@@ -14,6 +14,7 @@ module clint (
     output logic                 pslverr,
     output logic                 pready,
 
+    input        [        63: 0] systime,
     output logic [`CPU_NUM-1: 0] msip,
     output logic [`CPU_NUM-1: 0] mtip
 );
@@ -24,6 +25,8 @@ logic [31:0] prdata_time;
 logic [31:0] prdata_t;
 logic [63:0] mtimecmp [`CPU_NUM];
 logic [63:0] mtime;
+
+assign mtime = systime;
 
 genvar g;
 generate
@@ -58,6 +61,7 @@ generate
     end
 endgenerate
 
+/*
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         mtime <= 64'b0;
@@ -72,6 +76,7 @@ always_ff @(posedge clk or negedge rstn) begin
         mtime <= mtime + 64'b1;
     end
 end
+*/
 
 always_comb begin
     integer i;

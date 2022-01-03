@@ -1,6 +1,7 @@
 `ifndef __TLB_DEFINE__
 `define __TLB_DEFINE__
 
+`define BUS_WIDTH     34
 `define TLB_WAY_NUM   4
 `define TLB_IDX_WIDTH 5
 `define TLB_DEPTH     (2 ** `TLB_IDX_WIDTH)

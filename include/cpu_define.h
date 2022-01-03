@@ -402,6 +402,10 @@
 
 `define MCAUSE_CODE_WIDTH 6
 
+`define MISA_MXL_XLEN_32  2'b01
+`define MISA_MXL_XLEN_64  2'b10
+`define MISA_MXL_XLEN_128 2'b11
+
 `define SATP32_PPN_WIDTH  22
 `define SATP32_ASID_WIDTH  9
 `define SATP32_MODE_WIDTH  1
@@ -423,12 +427,30 @@
 `define SATP_ASID_WIDTH `SATP32_ASID_WIDTH
 `define SATP_MODE_WIDTH `SATP32_MODE_WIDTH
 `define PADDR_LEN       (`SATP32_PPN_WIDTH + 12)
+`define SATP_MODE_NONE  `SATP_MODE_WIDTH'h0
+`define SATP_MODE_SV32  `SATP_MODE_WIDTH'h1
 `else
 `define SATP_PPN_WIDTH  `SATP64_PPN_WIDTH 
 `define SATP_ASID_WIDTH `SATP64_ASID_WIDTH
 `define SATP_MODE_WIDTH `SATP64_MODE_WIDTH
 `define PADDR_LEN       (`SATP64_PPN_WIDTH + 12)
+`define SATP_MODE_NONE  `SATP_MODE_WIDTH'h0
+`define SATP_MODE_SV32  `SATP_MODE_WIDTH'h1
+`define SATP_MODE_SV39  `SATP_MODE_WIDTH'h8
+`define SATP_MODE_SV48  `SATP_MODE_WIDTH'h9
+`define SATP_MODE_SV57  `SATP_MODE_WIDTH'ha
+`define SATP_MODE_SV64  `SATP_MODE_WIDTH'hb
 `endif
 
+`define PTE_V_BIT     0
+`define PTE_R_BIT     1
+`define PTE_W_BIT     2
+`define PTE_X_BIT     3
+`define PTE_U_BIT     4
+`define PTE_G_BIT     5
+`define PTE_A_BIT     6
+`define PTE_D_BIT     7
+`define PTE_RSW_BIT   8:9
+`define PTE_PPN_SHIFT 10
 
 `endif

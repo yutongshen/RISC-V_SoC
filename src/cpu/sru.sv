@@ -15,7 +15,6 @@
 // 0x103 SRW sideleg Supervisor interrupt delegation register.
 // 0x104 SRW sie Supervisor interrupt-enable register.
 // 0x105 SRW stvec Supervisor trap handler base address.
-// 0x106 SRW scounteren Supervisor counter enable.
 // Supervisor Trap Handling
 // 0x140 SRW sscratch Scratch register for supervisor trap handlers.
 // 0x141 SRW sepc Supervisor exception program counter.
@@ -29,7 +28,6 @@
 // 0x303 MRW mideleg Machine interrupt delegation register.
 // 0x304 MRW mie Machine interrupt-enable register.
 // 0x305 MRW mtvec Machine trap-handler base address.
-// 0x306 MRW mcounteren Machine counter enable.
 // Machine Trap Handling
 // 0x340 MRW mscratch Scratch register for machine trap handlers.
 // 0x341 MRW mepc Machine exception program counter.
@@ -42,7 +40,8 @@
 module sru (
     input                           clk,
     input                           clk_free,
-    input                           rstn,
+    input                           srstn,
+    input                           xrstn,
     input                           sleep,
     input                           misaligned,
     output logic [             1:0] prv,
@@ -51,6 +50,7 @@ module sru (
     output logic                    sum,
     output logic                    mprv,
     output logic [             1:0] mpp,
+    output logic                    warm_rst_trigger,
 
     // IRQ signal
     input                           ext_msip,
@@ -98,6 +98,7 @@ logic                          mtip_d1;
 logic                          meip_d1;
 
 logic [             `XLEN-1:0] sstatus;
+logic [                  30:0] sstatus_low;
 // logic [       `XLEN-1:0] sedeleg;
 // logic [       `XLEN-1:0] sideleg;
 logic [             `XLEN-1:0] sie;
@@ -108,6 +109,7 @@ logic [             `XLEN-1:0] sepc;
 logic [             `XLEN-1:0] scause;
 logic [             `XLEN-1:0] stval;
 logic [             `XLEN-1:0] mstatus;
+logic [                  30:0] mstatus_low;
 logic [             `XLEN-1:0] misa;
 logic [             `XLEN-1:0] medeleg;
 logic [             `XLEN-1:0] mideleg;
@@ -163,6 +165,7 @@ logic                          mip_seip;
 logic                          mip_meip;
 
 logic [                  25:0] misa_ext;
+logic [                   1:0] nxt_misa_mxl;
 
 
 logic [`MCAUSE_CODE_WIDTH-1:0] mcause_code;
@@ -225,8 +228,8 @@ assign cause       = trap_en     ? trap_cause :
 
 assign tval         = trap_en ? trap_val : `XLEN'd0;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) prv <= `PRV_M;
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) prv <= `PRV_M;
     else if (trap_en) begin
         if (trap_s_mode) begin
             prv <= `PRV_S;
@@ -249,18 +252,18 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)                                       stvec <= `XLEN'b0;
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn)                                       stvec <= `XLEN'b0;
     else if (csr_wr && csr_waddr == `CSR_STVEC_ADDR) stvec <= (~`XLEN'h2  & csr_wdata);
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)                                          sscratch <= `XLEN'b0;
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn)                                          sscratch <= `XLEN'b0;
     else if (csr_wr && csr_waddr == `CSR_SSCRATCH_ADDR) sscratch <= csr_wdata;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         sepc <= `XLEN'b0;
     end
     else if (trap_en && trap_s_mode) begin
@@ -282,8 +285,8 @@ assign scause = misa_mxl == 2'h1 ? {32'b0, scause_int, {   32-`MCAUSE_CODE_WIDTH
                                    `XLEN'b0;
 `endif
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         scause_int  <= 1'b0;
         scause_code <= `MCAUSE_CODE_WIDTH'b0;
     end
@@ -307,8 +310,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         stval <= `XLEN'b0;
     end
     else if (trap_en && trap_s_mode) begin
@@ -320,18 +323,29 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_STVAL_ADDR) stval <= csr_wdata;
 end
 
-assign mstatus = {mstatus_sd, 8'b0, mstatus_tsr, /*mstatus_tw*/1'b0, mstatus_tvm,
-                  mstatus_mxr, mstatus_sum, mstatus_mprv, mstatus_xs,
-                  mstatus_fs, mstatus_mpp, 2'b0, mstatus_spp,
-                  mstatus_mpie, 1'b0, mstatus_spie, 1'b0,
-                  mstatus_mie, 1'b0, mstatus_sie, 1'b0};
+assign mstatus_low = {mstatus_sd, 8'b0, mstatus_tsr, /*mstatus_tw*/1'b0, mstatus_tvm,
+                      mstatus_mxr, mstatus_sum, mstatus_mprv, mstatus_xs,
+                      mstatus_fs, mstatus_mpp, 2'b0, mstatus_spp,
+                      mstatus_mpie, 1'b0, mstatus_spie, 1'b0,
+                      mstatus_mie, 1'b0, mstatus_sie, 1'b0};
 
+assign sstatus_low = {1'b0, 8'b0, 1'b0, 1'b0, 1'b0,
+                      mstatus_mxr, mstatus_sum, 1'b0, mstatus_xs,
+                      mstatus_fs, 2'b0, 2'b0, mstatus_spp,
+                      1'b0, 1'b0, mstatus_spie, 1'b0,
+                      1'b0, 1'b0, mstatus_sie, 1'b0};
 
-assign sstatus = {1'b0, 8'b0, 1'b0, 1'b0, 1'b0,
-                  mstatus_mxr, mstatus_sum, 1'b0, mstatus_xs,
-                  mstatus_fs, 2'b0, 2'b0, mstatus_spp,
-                  1'b0, 1'b0, mstatus_spie, 1'b0,
-                  1'b0, 1'b0, mstatus_sie, 1'b0};
+`ifdef RV32
+assign mstatus     = {mstatus_sd, mstatus_low};
+assign sstatus     = {mstatus_sd, sstatus_low};
+`else
+assign mstatus     = misa_mxl == 2'h1 ? {{`XLEN-32{1'b0}}, mstatus_sd, mstatus_low}:
+                     misa_mxl == 2'h2 ? {mstatus_sd, {`XLEN-37{1'b0}}, mstatus_sxl, mstatus_uxl, 1'b0, mstatus_low}:
+                                        `XLEN'b0;
+assign sstatus     = misa_mxl == 2'h1 ? {{`XLEN-32{1'b0}}, mstatus_sd, sstatus_low}:
+                     misa_mxl == 2'h2 ? {mstatus_sd, {`XLEN-37{1'b0}},        2'b0, mstatus_uxl, 1'b0, sstatus_low}:
+                                        `XLEN'b0;
+`endif
 
 assign tvm     = mstatus_tvm;
 assign tsr     = mstatus_tsr;
@@ -339,8 +353,8 @@ assign sum     = mstatus_sum;
 assign mprv    = mstatus_mprv;
 assign mpp     = mstatus_mpp;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mstatus_sie  <= 1'b0;
         mstatus_mie  <= 1'b0;
         mstatus_spie <= 1'b0;
@@ -355,8 +369,8 @@ always_ff @(posedge clk or negedge rstn) begin
         mstatus_tvm  <= 1'b0;
         mstatus_tw   <= 1'b0;
         mstatus_tsr  <= 1'b0;
-        mstatus_uxl  <= 2'b0;
-        mstatus_sxl  <= 2'b0;
+        mstatus_uxl  <= 2'h2;
+        mstatus_sxl  <= 2'h2;
         mstatus_sd   <= 1'b0;
     end
     else if (trap_en) begin
@@ -422,18 +436,41 @@ end
 assign misa = misa_mxl == 2'h1 ? {{`XLEN-32{1'b0}}, misa_mxl, 4'b0, misa_ext}:
               misa_mxl == 2'h2 ? {misa_mxl, {`XLEN-28{1'b0}}, misa_ext}:
                                  `XLEN'b0;
-assign misa_ext = ({25'b0, misa_a_ext} << ("a" - "a")) |
-                  ({25'b0, misa_c_ext} << ("c" - "a")) |
+assign misa_ext = ({25'b0,       1'b1} << ("i" - "a"))|
+                  ({25'b0,       1'b1} << ("e" - "a"))|
+                  ({25'b0,       1'b1} << ("s" - "a"))|
+                  ({25'b0,       1'b1} << ("u" - "a"))|
+                  ({25'b0, misa_a_ext} << ("a" - "a"))|
+                  ({25'b0, misa_c_ext} << ("c" - "a"))|
                   ({25'b0, misa_m_ext} << ("m" - "a"));
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+assign warm_rst_trigger = 
+`ifdef RV32
+                          1'b0;
+`else
+                          csr_wr && csr_waddr == `CSR_MISA_ADDR && 
+                          ((misa_mxl == 2'h1 && csr_wdata[31:30] != 2'h1) || (misa_mxl == 2'h2 && csr_wdata[63:62] != 2'h2));
+`endif
+
+assign nxt_misa_mxl = ({2{misa_mxl == 2'h1}} & csr_wdata[31:30]) | ({2{misa_mxl == 2'h2}} & csr_wdata[63:62]);
+
+always_ff @(posedge clk or negedge xrstn) begin
+    if (~xrstn) begin
+`ifdef RV32
         misa_mxl   <= 2'h1;
+`else
+        misa_mxl   <= 2'h2;
+`endif
         misa_a_ext <= 1'b1;
         misa_c_ext <= 1'b1;
         misa_m_ext <= 1'b1;
     end
     else if (csr_wr && csr_waddr == `CSR_MISA_ADDR) begin
+`ifndef RV32
+        misa_mxl   <= nxt_misa_mxl == 2'h1 ? 2'h1:
+                      nxt_misa_mxl == 2'h2 ? 2'h2:
+                                             misa_mxl;
+`endif
         misa_c_ext <= misaligned ? misa_c_ext : csr_wdata["c" - "a"];
         misa_m_ext <= csr_wdata["m" - "a"];
     end
@@ -443,8 +480,8 @@ assign medeleg = {{(`XLEN-16){1'b0}}, medeleg_stpgfault, 1'b0, medeleg_ldpgfault
                   medeleg_instpgfault, 1'b0, 1'b0, 1'b0, medeleg_uecall, 1'b0, 1'b0,
                   1'b0, 1'b0, medeleg_bp, 1'b0, 1'b0, medeleg_imisalign};
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         medeleg_imisalign   <= 1'b0;
         medeleg_bp          <= 1'b0;
         medeleg_uecall      <= 1'b0;
@@ -464,8 +501,8 @@ end
 
 assign mideleg = {{(`XLEN-10){1'b0}}, mideleg_seip, 3'b0, mideleg_stip, 3'b0, mideleg_ssip, 1'b0};
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mideleg_ssip <= 1'b0;
         mideleg_stip <= 1'b0;
         mideleg_seip <= 1'b0;
@@ -482,8 +519,8 @@ assign mie = {{(`XLEN-12){1'b0}}, mie_meie, 1'b0, mie_seie, 1'b0, mie_mtie, 1'b0
 
 assign sie = {{(`XLEN-10){1'b0}}, mie_seie, 3'b0, mie_stie, 3'b0, mie_ssie, 1'b0};
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mie_ssie <= 1'b0;
         mie_msie <= 1'b0;
         mie_stie <= 1'b0;
@@ -506,18 +543,18 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)                                       mtvec <= `XLEN'b0;
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn)                                       mtvec <= `XLEN'b0;
     else if (csr_wr && csr_waddr == `CSR_MTVEC_ADDR) mtvec <= (~`XLEN'h2  & csr_wdata);
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)                                          mscratch <= `XLEN'b0;
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn)                                          mscratch <= `XLEN'b0;
     else if (csr_wr && csr_waddr == `CSR_MSCRATCH_ADDR) mscratch <= csr_wdata;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mepc <= `XLEN'b0;
     end
     else if (trap_en && ~trap_s_mode) begin
@@ -539,8 +576,8 @@ assign mcause = misa_mxl == 2'h1 ? {32'b0, mcause_int, {   32-`MCAUSE_CODE_WIDTH
                                    `XLEN'b0;
 `endif
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mcause_int  <= 1'b0;
         mcause_code <= `MCAUSE_CODE_WIDTH'b0;
     end
@@ -564,8 +601,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mtval <= `XLEN'b0;
     end
     else if (trap_en && ~trap_s_mode) begin
@@ -584,8 +621,8 @@ assign mip = {{(`XLEN-12){1'b0}}, mip_meip, 1'b0, mip_seip, 1'b0, mip_mtip, 1'b0
 
 assign sip = {{(`XLEN-2){1'b0}}, mip_ssip, 1'b0};
 
-always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk_free or negedge srstn) begin
+    if (~srstn) begin
         msip_d1  <= 1'b0;
         mtip_d1  <= 1'b0;
         meip_d1  <= 1'b0;
@@ -603,8 +640,8 @@ always_ff @(posedge clk_free or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge srstn) begin
+    if (~srstn) begin
         mip_ssip <= 1'b0;
         mip_stip <= 1'b0;
         mip_seip <= 1'b0;
@@ -629,7 +666,6 @@ always_comb begin
         `CSR_SIDELEG_ADDR   : csr_rdata = `XLEN'b0;
         `CSR_SIE_ADDR       : csr_rdata = sie & mideleg;
         `CSR_STVEC_ADDR     : csr_rdata = stvec;
-        `CSR_SCOUNTEREN_ADDR: csr_rdata = `XLEN'b0;
         `CSR_SSCRATCH_ADDR  : csr_rdata = sscratch;
         `CSR_SEPC_ADDR      : csr_rdata = sepc;
         `CSR_SCAUSE_ADDR    : csr_rdata = scause;
@@ -641,7 +677,6 @@ always_comb begin
         `CSR_MIDELEG_ADDR   : csr_rdata = mideleg;
         `CSR_MIE_ADDR       : csr_rdata = mie;
         `CSR_MTVEC_ADDR     : csr_rdata = mtvec;
-        `CSR_MCOUNTEREN_ADDR: csr_rdata = `XLEN'b0;
         `CSR_MSCRATCH_ADDR  : csr_rdata = mscratch;
         `CSR_MEPC_ADDR      : csr_rdata = mepc;
         `CSR_MCAUSE_ADDR    : csr_rdata = mcause;

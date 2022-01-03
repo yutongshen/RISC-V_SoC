@@ -11,10 +11,10 @@ module rfu (
 
     input                      halted,
     input        [        4:0] dbg_gpr_addr,
-    input        [       31:0] dbg_gpr_in,
+    input        [`XLEN - 1:0] dbg_gpr_in,
     input                      dbg_gpr_rd,
     input                      dbg_gpr_wr,
-    output logic [       31:0] dbg_gpr_out
+    output logic [`XLEN - 1:0] dbg_gpr_out
 );
 
 logic               rstn_sync;
@@ -23,7 +23,7 @@ integer             i;
 
 logic [        4:0] rd_addr_dbg;
 logic               wen_dbg;
-logic [       31:0] rd_data_dbg;
+logic [`XLEN - 1:0] rd_data_dbg;
 
 assign rd_addr_dbg = (halted && dbg_gpr_wr) ? dbg_gpr_addr : rd_addr;
 assign wen_dbg     = wen || (halted && dbg_gpr_wr);

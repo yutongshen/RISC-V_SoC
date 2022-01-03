@@ -17,6 +17,7 @@ module tpu (
     input                           ebreak,
     input                           tlb_flush_req,
     input                           ill_inst,
+    input                           csr_ill,
     input        [`IM_ADDR_LEN-1:0] inst_misaligned_epc,
     input                           inst_misaligned,
     input                           inst_pg_fault,
@@ -57,7 +58,7 @@ logic wb_trap_en;
 
 assign trap_inst_misaligned       = inst_misaligned;
 assign trap_inst_access_fault     = inst_xes_fault;
-assign trap_ill_inst              = ill_inst || prv_cur < prv_req ||
+assign trap_ill_inst              = ill_inst || csr_ill || prv_cur < prv_req ||
                                     ((satp_upd || tlb_flush_req) && tvm && prv_cur < `PRV_M) ||
                                     (sret && tsr && prv_cur < `PRV_M);
 assign trap_inst_addr_break_point = 1'b0;

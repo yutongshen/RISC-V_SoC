@@ -2,7 +2,7 @@ module mmu_csr (
     input                               clk,
     input                               rstn,
 
-    input                               misa_mxl,
+    input        [                 1:0] misa_mxl,
 
     output logic [ `SATP_PPN_WIDTH-1:0] satp_ppn,
     output logic [`SATP_ASID_WIDTH-1:0] satp_asid,

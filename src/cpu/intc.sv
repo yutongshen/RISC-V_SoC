@@ -13,6 +13,7 @@ module intc (
     output logic                 pslverr,
     output logic                 pready,
 
+    input        [        63: 0] systime,
     output logic [`CPU_NUM-1: 0] msip,
     output logic [`CPU_NUM-1: 0] mtip,
     output logic [`CPU_NUM-1: 0] meip,
@@ -70,6 +71,7 @@ clint u_clint (
     .pslverr ( clint_pslverr ),
     .pready  ( clint_pready  ),
 
+    .systime ( systime       ),
     .msip    ( msip          ),
     .mtip    ( mtip          )
 );

@@ -15,10 +15,14 @@ XTEND_MMAP    := ./script/build_mmap -x
 TMDL_PARSE_C  := ./script/tmdl_parse -c
 TMDL_PARSE_S  := ./script/tmdl_parse -s
 
-ISA           := $(wildcard ../riscv-tests/isa/rv32*i-*)
-ISA           += $(wildcard ../riscv-tests/isa/rv32*c-*)
-ISA           += $(wildcard ../riscv-tests/isa/rv32*m-*)
-ISA           += $(wildcard ../riscv-tests/isa/rv32*a-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv*i-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv*c-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv*m-*)
+ISA           += $(wildcard ../riscv-tests/isa/rv*a-*)
+#ISA           += $(wildcard ../riscv-tests/isa/rv32*i-*)
+#ISA           += $(wildcard ../riscv-tests/isa/rv32*c-*)
+#ISA           += $(wildcard ../riscv-tests/isa/rv32*m-*)
+#ISA           += $(wildcard ../riscv-tests/isa/rv32*a-*)
 ISA           := $(patsubst ../riscv-tests/isa/%,%,$(ISA))
 ISA           := $(patsubst %.dump,,$(ISA))
 
@@ -101,5 +105,5 @@ synthesize: | $(bld_dir) $(syn_dir)
 
 clean:
 	@rm -rf ./build .*.swo .*.swp;
-	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp
+	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp
 	@make -C $(sim_dir) clean;

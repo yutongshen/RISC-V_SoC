@@ -2,9 +2,12 @@
 
 module cpu_top (
     input                                    clk,
-    input                                    rstn,
+    input                                    srstn,
+    input                                    xrstn,
     input        [              `XLEN - 1:0] cpu_id,
     input        [              `XLEN - 1:0] bootvec,
+    output logic                             warm_rst_trigger,
+    input        [                     63:0] systime,
 
     // mpu csr
     output logic [                  8 - 1:0] pmpcfg  [16],
@@ -36,7 +39,7 @@ module cpu_top (
     // inst interface
     output logic                             imem_en,
     output logic [       `IM_ADDR_LEN - 1:0] imem_addr,
-    input        [       `IM_DATA_LEN - 1:0] imem_rdata,
+    input        [              `XLEN - 1:0] imem_rdata,
     input        [                      1:0] imem_bad,
     input                                    imem_busy,
     output logic                             ic_flush,
@@ -46,22 +49,22 @@ module cpu_top (
     output logic [       `IM_ADDR_LEN - 1:0] dmem_addr,
     output logic                             dmem_write,
     output logic                             dmem_ex,
-    output logic [(`IM_DATA_LEN >> 3) - 1:0] dmem_strb,
-    output logic [       `IM_DATA_LEN - 1:0] dmem_wdata,
-    input        [       `IM_DATA_LEN - 1:0] dmem_rdata,
+    output logic [     `DM_DATA_LEN/8 - 1:0] dmem_strb,
+    output logic [       `DM_DATA_LEN - 1:0] dmem_wdata,
+    input        [       `DM_DATA_LEN - 1:0] dmem_rdata,
     input        [                      1:0] dmem_bad,
     input                                    dmem_xstate,
     input                                    dmem_busy,
 
     // debug intface
     input        [                     11:0] dbg_addr,
-    input        [                     31:0] dbg_wdata,
+    input        [              `XLEN - 1:0] dbg_wdata,
     input                                    dbg_gpr_rd,
     input                                    dbg_gpr_wr,
-    output logic [                     31:0] dbg_gpr_out,
+    output logic [              `XLEN - 1:0] dbg_gpr_out,
     input                                    dbg_csr_rd,
     input                                    dbg_csr_wr,
-    output logic [                     31:0] dbg_csr_out,
+    output logic [              `XLEN - 1:0] dbg_csr_out,
     output logic [       `IM_ADDR_LEN - 1:0] dbg_pc_out,
     input                                    dbg_exec,
     input        [       `IM_ADDR_LEN - 1:0] dbg_inst,
@@ -69,7 +72,8 @@ module cpu_top (
     output logic                             halted
 );
 
-logic                             rstn_sync;
+logic                             srstn_sync;
+logic                             xrstn_sync;
 logic                             wakeup_event;
 logic                             sleep;
 logic                             stall_wfi;
@@ -304,6 +308,7 @@ logic                             exe_inst_misaligned;
 logic [              `XLEN - 1:0] exe_inst_misaligned_badaddr;
 logic                             exe_mstatus_tsr;
 logic                             exe_mstatus_tvm;
+logic                             exe_pmu_csr_ill;
 logic                             exe_irq_en;
 logic [                      1:0] exe_prv;
 logic                             exe_trap_en;
@@ -473,10 +478,16 @@ logic                             wb_wfi;
 logic                             fwd_wb2id_rd_rs1;
 logic                             fwd_wb2id_rd_rs2;
 
-resetn_synchronizer u_sync (
-    .clk        ( clk       ),
-    .rstn_async ( rstn      ),
-    .rstn_sync  ( rstn_sync )
+resetn_synchronizer u_sync_srstn (
+    .clk        ( clk        ),
+    .rstn_async ( srstn      ),
+    .rstn_sync  ( srstn_sync )
+);
+
+resetn_synchronizer u_sync_xrstn (
+    .clk        ( clk        ),
+    .rstn_async ( xrstn      ),
+    .rstn_sync  ( xrstn_sync )
 );
 
 assign stall_wfi  = (exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event;
@@ -484,7 +495,7 @@ assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid, exe2ma_inst_vali
 
 clkmnt u_clkmnt (
     .clk_free ( clk          ),
-    .rstn     ( rstn_sync    ),
+    .rstn     ( srstn_sync   ),
     .wfi      ( wb_wfi       ),
     .wakeup   ( wakeup_event ),
     .clk_ret  ( clk_wfi      ),
@@ -528,7 +539,7 @@ hzu u_hzu (
 // IF stage
 ifu u_ifu (
     .clk             ( clk                          ),
-    .rstn            ( rstn_sync                    ),
+    .rstn            ( srstn_sync                   ),
     .bootvec         ( bootvec                      ),
     .ic_flush        ( ic_flush                     ),
     .misa_c_ext      ( exe_misa_c_ext               ),
@@ -576,8 +587,8 @@ assign if_pc_alu     = ({`IM_ADDR_LEN{id2exe_jump_alu}}  & exe_alu_out) |
                        ({`IM_ADDR_LEN{exe_branch_match}} & exe_pc_imm[`IM_ADDR_LEN - 1:0] );
 
 // IF/ID pipeline
-always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk_wfi or negedge srstn_sync) begin
+    if (~srstn_sync) begin
         if2id_pc                  <= `IM_ADDR_LEN'b0;
         if2id_inst                <= `IM_DATA_LEN'b0;
         if2id_inst_valid          <= 1'b0;
@@ -614,7 +625,7 @@ end
 // ID stage
 idu u_idu (
     .clk                 ( clk_wfi                ),
-    .rstn                ( rstn_sync              ),
+    .rstn                ( srstn_sync             ),
     .inst                ( if2id_inst             ),
     .inst_valid          ( if2id_inst_valid       ),
     .misa_mxl            ( exe_misa_mxl           ),
@@ -697,7 +708,7 @@ assign id_dbg_csr_rdata = `XLEN'b0;
 
 csr u_csr (
     .clk           ( clk_wfi          ),
-    .rstn          ( rstn_sync        ),
+    .rstn          ( srstn_sync       ),
     .misa_mxl      ( exe_misa_mxl     ),
     .rd            ( id_csr_rd        ),
     .wr            ( id_csr_wr        ),
@@ -736,8 +747,8 @@ assign id_hazard = (id_csr_rd &&
 
 
 // ID/EXE pipeline
-always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk_wfi or negedge srstn_sync) begin
+    if (~srstn_sync) begin
         id2exe_pc                  <= `IM_ADDR_LEN'b0;
         id2exe_inst                <= `IM_DATA_LEN'b0;
         id2exe_inst_valid          <= 1'b0;
@@ -898,8 +909,8 @@ assign exe_rs2_data  = ({`XLEN{ exe2ma_fwd_table   [id2exe_rs2_addr]}} & ma_rd_d
 assign exe_gpr_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr])) ||
                         (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
                         ma_pipe_restart || exe2ma_amo || (id2exe_mdu_sel && ~exe_mdu_okay);
-assign exe_csr_hazard = exe2ma_mem_req   & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
-                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_sret | id2exe_mret);
+assign exe_csr_hazard = (exe2ma_mem_req | ma2mr_mem_req) & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
+                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_sret | id2exe_mret | id2exe_ill_inst);
 
 assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
 
@@ -922,7 +933,7 @@ alu u_alu (
 
 mdu u_mdu(
     .clk    ( clk_wfi         ),
-    .rstn   ( rstn_sync       ),
+    .rstn   ( srstn_sync      ),
     .len_64 ( id2exe_len_64   ),
     .trig   ( id2exe_mdu_sel  ),
     .mdu_op ( id2exe_mdu_op   ),
@@ -949,57 +960,59 @@ assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
 sru u_sru (
-    .clk         ( clk_wfi           ),
-    .clk_free    ( clk               ),
-    .rstn        ( rstn_sync         ),
-    .sleep       ( sleep             ),
-    .misaligned  ( id2exe_pc[1]      ),
-    .prv         ( exe_prv           ),
-    .tvm         ( exe_mstatus_tvm   ),
-    .tsr         ( exe_mstatus_tsr   ),
-    .sum         ( sum               ),
-    .mprv        ( mprv              ),
-    .mpp         ( mpp               ),
+    .clk              ( clk_wfi           ),
+    .clk_free         ( clk               ),
+    .srstn            ( srstn_sync        ),
+    .xrstn            ( xrstn_sync        ),
+    .sleep            ( sleep             ),
+    .misaligned       ( id2exe_pc[1]      ),
+    .prv              ( exe_prv           ),
+    .tvm              ( exe_mstatus_tvm   ),
+    .tsr              ( exe_mstatus_tsr   ),
+    .sum              ( sum               ),
+    .mprv             ( mprv              ),
+    .mpp              ( mpp               ),
+    .warm_rst_trigger ( warm_rst_trigger  ),
 
     // IRQ signal
-    .ext_msip    ( msip              ),
-    .ext_mtip    ( mtip              ),
-    .ext_meip    ( meip              ),
-    .wakeup      ( wakeup_event      ),
-    .irq_trigger ( exe_irq_en        ),
-    .cause       ( exe_cause         ),
-    .tval        ( exe_tval          ),
+    .ext_msip         ( msip              ),
+    .ext_mtip         ( mtip              ),
+    .ext_meip         ( meip              ),
+    .wakeup           ( wakeup_event      ),
+    .irq_trigger      ( exe_irq_en        ),
+    .cause            ( exe_cause         ),
+    .tval             ( exe_tval          ),
 
     // PC control
-    .trap_vec    ( irq_vec           ),
-    .ret_epc     ( ret_epc           ),
+    .trap_vec         ( irq_vec           ),
+    .ret_epc          ( ret_epc           ),
 
     // Trap signal
-    .trap_epc    ( exe_trap_epc      ),
-    .trap_en     ( exe_trap_en       ),
-    .trap_cause  ( exe_trap_cause    ),
-    .trap_val    ( exe_trap_val      ),
-    .sret        ( exe_sret          ),
-    .mret        ( exe_mret          ),
-    .eret_en     ( exe_eret_en       ),
+    .trap_epc         ( exe_trap_epc      ),
+    .trap_en          ( exe_trap_en       ),
+    .trap_cause       ( exe_trap_cause    ),
+    .trap_val         ( exe_trap_val      ),
+    .sret             ( exe_sret          ),
+    .mret             ( exe_mret          ),
+    .eret_en          ( exe_eret_en       ),
 
     // Extension flag
-    .misa_mxl    ( exe_misa_mxl      ),
-    .misa_a_ext  ( exe_misa_a_ext    ),
-    .misa_c_ext  ( exe_misa_c_ext    ),
-    .misa_m_ext  ( exe_misa_m_ext    ),
+    .misa_mxl         ( exe_misa_mxl      ),
+    .misa_a_ext       ( exe_misa_a_ext    ),
+    .misa_c_ext       ( exe_misa_c_ext    ),
+    .misa_m_ext       ( exe_misa_m_ext    ),
     
     // CSR interface
-    .csr_wr      ( exe_sru_csr_wr    ),
-    .csr_waddr   ( id2exe_csr_waddr  ),
-    .csr_raddr   ( id_csr_addr       ),
-    .csr_wdata   ( exe_csr_wdata     ),
-    .csr_rdata   ( id_sru_csr_rdata  )
+    .csr_wr           ( exe_sru_csr_wr    ),
+    .csr_waddr        ( id2exe_csr_waddr  ),
+    .csr_raddr        ( id_csr_addr       ),
+    .csr_wdata        ( exe_csr_wdata     ),
+    .csr_rdata        ( id_sru_csr_rdata  )
 );
 
 mmu_csr u_mmu_csr (
     .clk       ( clk_wfi          ),
-    .rstn      ( rstn_sync        ),
+    .rstn      ( srstn_sync       ),
 
     .misa_mxl  ( exe_misa_mxl     ),
 
@@ -1017,7 +1030,7 @@ mmu_csr u_mmu_csr (
 
 mpu_csr u_mpu_csr (
     .clk       ( clk_wfi          ),
-    .rstn      ( rstn_sync        ),
+    .rstn      ( srstn_sync       ),
     .misa_mxl  ( exe_misa_mxl     ),
     .pmpcfg    ( pmpcfg           ),
     .pmpaddr   ( pmpaddr          ),
@@ -1054,6 +1067,7 @@ tpu u_tpu (
     .ebreak              ( id2exe_ebreak               ),
     .tlb_flush_req       ( id2exe_tlb_flush_req        ),
     .ill_inst            ( id2exe_ill_inst             ),
+    .csr_ill             ( exe_pmu_csr_ill             ),
     .inst_misaligned_epc ( id2exe_inst_misaligned_epc  ),
     .inst_misaligned     ( id2exe_inst_misaligned      ),
     .inst_pg_fault       ( id2exe_inst_page_fault      ),
@@ -1087,8 +1101,8 @@ assign exe_csr_wdata     = exe_misa_mxl == 1'h1 ? {32'b0, exe_csr_wdata_pre[31:0
                                                   exe_csr_wdata_pre;
 
 // EXE/MA pipeline
-always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk_wfi or negedge srstn_sync) begin
+    if (~srstn_sync) begin
         exe2ma_pc                  <= `IM_ADDR_LEN'b0;
         exe2ma_inst                <= `IM_DATA_LEN'b0;
         exe2ma_inst_valid          <= 1'b0;
@@ -1134,7 +1148,7 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
         if (~ma_stall | exe_flush_force) begin
             exe2ma_pc                  <= id2exe_pc;
             exe2ma_inst                <= id2exe_inst;
-            exe2ma_inst_valid          <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
+            exe2ma_inst_valid          <= ((~exe_flush & ~exe_jump_fault & ~exe_irq_en) | (id2exe_ecall & exe_trap_en)) & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
             exe2ma_amo                 <= id2exe_amo;
             exe2ma_amo_op              <= id2exe_amo_op;
             exe2ma_mem_req             <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
@@ -1151,7 +1165,11 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             exe2ma_rd_addr             <= id2exe_rd_addr;
             exe2ma_rs1_addr            <= id2exe_rs1_addr;
             exe2ma_rs2_addr            <= id2exe_rs2_addr;
+`ifdef RV32
             exe2ma_rd_data             <= exe_rd_data;
+`else
+            exe2ma_rd_data             <= id2exe_len_64 ? exe_rd_data : {{32{exe_rd_data[31]}}, exe_rd_data[31:0]};
+`endif
             exe2ma_pc2rd               <= exe_pc2rd;
             exe2ma_rs1_data            <= exe_rs1_data;
             exe2ma_rs2_data            <= exe_rs2_data;
@@ -1206,7 +1224,7 @@ assign ma_pipe_restart = exe2ma_tlb_flush_req || exe2ma_fence_i || exe2ma_pipe_r
 
 dpu u_dpu (
     .clk              ( clk_wfi              ),
-    .rstn             ( rstn                 ),
+    .rstn             ( srstn_sync           ),
 
     .len_64           ( exe2ma_len_64        ),
 
@@ -1250,8 +1268,8 @@ assign ma_rd_data = exe2ma_pc_alu_sel  ? exe2ma_pc2rd :
                                          exe2ma_rd_data;
 
 // MA/WR pipeline
-always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk_wfi or negedge srstn_sync) begin
+    if (~srstn_sync) begin
         ma2mr_pc                  <= `IM_ADDR_LEN'b0;
         ma2mr_inst                <= `IM_DATA_LEN'b0;
         ma2mr_inst_valid          <= 1'b0;
@@ -1299,7 +1317,11 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             ma2mr_mem_sign_ext        <= exe2ma_mem_sign_ext;
             ma2mr_mem_cal_sel         <= exe2ma_mem_cal_sel;
             ma2mr_len_64              <= exe2ma_len_64;
+`ifdef RV32
             ma2mr_rd_data             <= ma_rd_data;
+`else
+            ma2mr_rd_data             <= exe2ma_len_64 ? ma_rd_data : {{32{ma_rd_data[31]}}, ma_rd_data[31:0]};
+`endif
             ma2mr_mem_addr            <= ma_dpu_addr;
             ma2mr_mem_wdata           <= dmem_wdata;
             ma2mr_mem_req             <= ~ma_flush & exe2ma_mem_req;
@@ -1343,8 +1365,8 @@ assign mr_pipe_restart     = ~mr_flush_force & ma2mr_pipe_restart;
 
 
 // MR/WB pipeline
-always_ff @(posedge clk_wfi or negedge rstn_sync) begin
-    if (~rstn_sync) begin
+always_ff @(posedge clk_wfi or negedge srstn_sync) begin
+    if (~srstn_sync) begin
         mr2wb_pc               <= `IM_ADDR_LEN'b0;
         mr2wb_inst             <= `IM_DATA_LEN'b0;
         mr2wb_inst_valid       <= 1'b0;
@@ -1387,7 +1409,11 @@ always_ff @(posedge clk_wfi or negedge rstn_sync) begin
             mr2wb_mem_byte         <= ma2mr_mem_byte;
             mr2wb_mem_sign_ext     <= ma2mr_mem_sign_ext;
             mr2wb_len_64           <= ma2mr_len_64;
+`ifdef RV32
             mr2wb_rd_data          <= mr_rd_data;
+`else
+            mr2wb_rd_data          <= ma2mr_len_64 ? mr_rd_data : {{32{mr_rd_data[31]}}, mr_rd_data[31:0]};
+`endif
             mr2wb_mem_addr         <= ma2mr_mem_addr;
             mr2wb_mem_wdata        <= ma2mr_mem_wdata;
             mr2wb_mem_req          <= ~mr_flush & ~mr_amo_wr & ma2mr_mem_req;
@@ -1426,22 +1452,32 @@ assign halted        = mr2wb_attach;
 // PMU
 pmu u_pmu (
     .clk_free   ( clk               ),
-    .rstn       ( rstn_sync         ),
+    .rstn       ( srstn_sync        ),
     .cpu_id     ( cpu_id            ),
     .inst_valid ( wb_inst_valid     ),
-
+    .misa_mxl   ( exe_misa_mxl      ),
+    .prv        ( exe_prv           ),
+    .mtime      ( systime           ),
+    
+    .csr_rd_chk ( id2exe_csr_rd     ),
+    .csr_wr_chk ( id2exe_pmu_csr_wr ),
     .csr_wr     ( exe_pmu_csr_wr    ),
     .csr_raddr  ( id_csr_addr       ),
     .csr_waddr  ( id2exe_csr_waddr  ),
     .csr_wdata  ( exe_csr_wdata     ),
-    .csr_rdata  ( id_pmu_csr_rdata  )
+    .csr_rdata  ( id_pmu_csr_rdata  ),
+    .csr_ill    ( exe_pmu_csr_ill   )
 );
 
 `ifdef CPULOG
 // Tracer
 cpu_tracer u_cpu_tracer (
     .clk       ( clk_wfi         ),
+    .srstn     ( srstn_sync      ),
+    .xrstn     ( xrstn_sync      ),
     .valid     ( wb_inst_valid   ),
+    .misa_mxl  ( exe_misa_mxl    ),
+    .len_64    ( mr2wb_len_64    ),
     .pc        ( mr2wb_pc        ),
     .epc       ( mr2wb_epc       ),
     .inst      ( mr2wb_inst      ),

@@ -74,47 +74,49 @@ module idu (
     
     input                                    halted,
     input        [                     11:0] dbg_addr,
-    input        [                     31:0] dbg_wdata,
+    input        [              `XLEN - 1:0] dbg_wdata,
     input                                    dbg_gpr_rd,
     input                                    dbg_gpr_wr,
-    output logic [                     31:0] dbg_gpr_out,
+    output logic [              `XLEN - 1:0] dbg_gpr_out,
     input                                    dbg_csr_rd,
     input                                    dbg_csr_wr
 );
 
 logic             csr_rd_tmp;
 logic             csr_wr_tmp;
+/*
 logic [`XLEN-1:0] rs1_data_pre;
 logic [`XLEN-1:0] rs2_data_pre;
 logic [`XLEN-1:0] rd_data_post;
+*/
 
 assign csr_addr  = (halted && (dbg_csr_rd || dbg_csr_wr)) ? dbg_addr : inst[31:20];
 
 assign csr_rd    = csr_rd_tmp || (halted && dbg_csr_rd);
 assign csr_wr    = csr_wr_tmp || (halted && dbg_csr_wr);
 
+/*
 `ifdef RV32
 assign rs1_data     = rs1_data_pre;
 assign rs2_data     = rs2_data_pre;
 assign rd_data_post = rd_data;
 `else
-// assign rs1_data     = len_64_o ? rs1_data_pre : {{32{rs1_data_pre[31]}}, rs1_data_pre[31:0]};
-// assign rs2_data     = len_64_o ? rs2_data_pre : {{32{rs2_data_pre[31]}}, rs2_data_pre[31:0]};
 assign rs1_data     = rs1_data_pre;
 assign rs2_data     = rs2_data_pre;
 assign rd_data_post = len_64_i ? rd_data      : {{32{rd_data     [31]}}, rd_data     [31:0]};
 `endif
+*/
 
 rfu u_rfu (
     .clk          ( clk           ),
     .rstn         ( rstn          ),
     .rs1_addr     ( rs1_addr      ),
     .rs2_addr     ( rs2_addr      ),
-    .rs1_data     ( rs1_data_pre  ),
-    .rs2_data     ( rs2_data_pre  ),
+    .rs1_data     ( rs1_data      ),
+    .rs2_data     ( rs2_data      ),
     .wen          ( rd_wr_i       ),
     .rd_addr      ( rd_addr_i     ),
-    .rd_data      ( rd_data_post  ),
+    .rd_data      ( rd_data       ),
     .halted       ( halted        ),
     .dbg_gpr_addr ( dbg_addr[4:0] ),
     .dbg_gpr_in   ( dbg_wdata     ),

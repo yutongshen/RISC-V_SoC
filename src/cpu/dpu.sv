@@ -13,7 +13,7 @@ module dpu (
     input                                    req_i,
     input                                    wr_i,
     input                                    ex_i,
-    input        [(`DM_DATA_LEN >> 3) - 1:0] byte_i,
+    input        [     `DM_DATA_LEN/8 - 1:0] byte_i,
     input        [       `DM_ADDR_LEN - 1:0] addr_i,
     input        [       `DM_DATA_LEN - 1:0] wdata_i,
 
@@ -33,7 +33,7 @@ module dpu (
     output logic [       `DM_ADDR_LEN - 1:0] dmem_addr,
     output logic                             dmem_wr,
     output logic                             dmem_ex,
-    output logic [(`DM_DATA_LEN >> 3) - 1:0] dmem_byte,
+    output logic [     `DM_DATA_LEN/8 - 1:0] dmem_byte,
     output logic [       `DM_DATA_LEN - 1:0] dmem_wdata,
     input        [       `DM_DATA_LEN - 1:0] dmem_rdata,
     input        [                      1:0] dmem_bad,
@@ -50,9 +50,10 @@ logic  [       `DM_DATA_LEN - 1:0] dmem_rdata_shft;
 logic  [       `DM_DATA_LEN - 1:0] dmem_rdata_ext;
 logic  [       `DM_ADDR_LEN - 1:0] addr_latch;
 logic                              sign_ext_latch;
-logic  [(`DM_DATA_LEN >> 3) - 1:0] byte_latch;
+logic  [     `DM_DATA_LEN/8 - 1:0] byte_latch;
 logic                              load_latch;
 logic                              store_latch;
+logic                              len_64_latch;
 logic                              sc_latch;
 
 
@@ -75,12 +76,14 @@ assign amo_wr_o      = amo_wr;
 assign rdata_o       = sc_latch & store_latch ? {{`XLEN-1{1'b0}}, ~dmem_xstate}:
                        data_latch_valid       ? data_latch : dmem_rdata_ext;
 assign hazard_o      = (dmem_req_latch & ~dmem_req_done) |
-                       (req_i & ~misaligned & dmem_busy)/* |
-                       (req_i & amo_i & ~dmem_wr & ~misaligned)*/;
+                       (req_i & ~misaligned & dmem_busy);
 
-assign misaligned      = ((addr_i[1:0] == 2'd1) && byte_i[1]) ||
-                         ((addr_i[1:0] == 2'd2) && byte_i[2]) ||
-                         ((addr_i[1:0] == 2'd3) && byte_i[1]);
+assign misaligned      = (addr_i[0] && byte_i[1]) ||
+                         (addr_i[1] && byte_i[3])
+`ifndef RV32
+                         || (addr_i[2] && byte_i[7])
+`endif
+                         ;
 assign load_pg_fault   = ~dmem_busy & dmem_bad[0] & load_latch;
 assign store_pg_fault  = ~dmem_busy & dmem_bad[0] & store_latch;
 assign load_xes_fault  = ~dmem_busy & dmem_bad[1] & load_latch;
@@ -98,51 +101,27 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_comb begin
-    if (amo_wr) begin
-        dmem_byte  = byte_latch;
-        dmem_wdata = amo_mem_wdata;
-    end
-    else begin
-        case (dmem_addr[0+:2])
-            2'h0: begin
-                dmem_byte  = byte_i;
-                dmem_wdata = wdata_i;
-            end
-            2'h1: begin
-                dmem_byte  = {byte_i [ 2:0], byte_i [3]};
-                dmem_wdata = {wdata_i[23:0], wdata_i[31:24]};
-            end
-            2'h2: begin
-                dmem_byte  = {byte_i [ 1:0], byte_i [3:2]};
-                dmem_wdata = {wdata_i[15:0], wdata_i[31:16]};
-            end
-            2'h3: begin
-                dmem_byte  = {byte_i [0],   byte_i [3:1]};
-                dmem_wdata = {wdata_i[7:0], wdata_i[31:8]};
-            end
-        endcase
-    end
-end
+`ifdef RV32
+assign dmem_byte  = amo_wr ? byte_latch    : (byte_i  <<  addr_i[0+:$clog2(`XLEN/8)]);
+assign dmem_wdata = amo_wr ? amo_mem_wdata : (wdata_i << {addr_i[0+:$clog2(`XLEN/8)], 3'b0});
+`else
+assign dmem_byte  = amo_wr ? (( byte_latch             & {`DM_DATA_LEN/8{~addr_latch[2]}})|
+                              ({byte_latch[3:0], 4'b0} & {`DM_DATA_LEN/8{ addr_latch[2]}})):
+                             (byte_i  <<  addr_i[0+:$clog2(`XLEN/8)]);
+assign dmem_wdata = amo_wr ? (( amo_mem_wdata               & {`DM_DATA_LEN{~addr_latch[2]}})|
+                              ({amo_mem_wdata[31:0], 32'b0} & {`DM_DATA_LEN{ addr_latch[2]}})):
+                             (wdata_i << {addr_i[0+:$clog2(`XLEN/8)], 3'b0});
+`endif
+
+assign dmem_rdata_shft = dmem_rdata >> {addr_latch[0+:$clog2(`XLEN/8)], 3'b0};
 
 always_comb begin
-    case (addr_latch[0+:2])
-        2'h0: begin
-            dmem_rdata_shft = dmem_rdata;
-        end
-        2'h1: begin
-            dmem_rdata_shft = {dmem_rdata[ 7:0], dmem_rdata[31: 8]};
-        end
-        2'h2: begin
-            dmem_rdata_shft = {dmem_rdata[15:0], dmem_rdata[31:16]};
-        end
-        2'h3: begin
-            dmem_rdata_shft = {dmem_rdata[23:0], dmem_rdata[31:24]};
-        end
-    endcase
-end
-always_comb begin
+`ifdef RV32
     if (byte_latch[3])      dmem_rdata_ext = {{`XLEN-32{sign_ext_latch & dmem_rdata_shft[31]}}, dmem_rdata_shft[31:0]};
+`else
+    if (byte_latch[7])      dmem_rdata_ext = dmem_rdata_shft[63:0];
+    else if (byte_latch[3]) dmem_rdata_ext = {{`XLEN-32{sign_ext_latch & dmem_rdata_shft[31]}}, dmem_rdata_shft[31:0]};
+`endif
     else if (byte_latch[1]) dmem_rdata_ext = {{`XLEN-16{sign_ext_latch & dmem_rdata_shft[15]}}, dmem_rdata_shft[15:0]};
     else if (byte_latch[0]) dmem_rdata_ext = {{`XLEN- 8{sign_ext_latch & dmem_rdata_shft[ 7]}}, dmem_rdata_shft[ 7:0]};
     else                    dmem_rdata_ext = `XLEN'b0;
@@ -204,11 +183,13 @@ always_ff @(posedge clk or negedge rstn) begin
         addr_latch     <= `DM_ADDR_LEN'b0;
         sign_ext_latch <= 1'b0;
         byte_latch     <= 4'b0;
+        len_64_latch   <= 1'b0;
     end
     else if (dmem_req & ~dmem_busy) begin
         addr_latch     <= addr_i;
         sign_ext_latch <= sign_ext_i;
         byte_latch     <= byte_i;
+        len_64_latch   <= len_64;
     end
 end
 
@@ -232,7 +213,9 @@ end
 `ifdef RV32
 assign amo_mem_rdata  = dmem_rdata;
 `else
-assign amo_mem_rdata  = len_64 ? dmem_rdata : {{32{dmem_rdata[31]}}, dmem_rdata[31:0]};
+assign amo_mem_rdata  = len_64_latch ? dmem_rdata :
+                                      (({`XLEN{~addr_latch[2]}} & {{32{dmem_rdata[31]}}, dmem_rdata[31: 0]})|
+                                       ({`XLEN{ addr_latch[2]}} & {{32{dmem_rdata[63]}}, dmem_rdata[63:32]}));
 `endif
 
 amo u_amo (

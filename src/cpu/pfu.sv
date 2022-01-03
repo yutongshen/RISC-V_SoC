@@ -18,7 +18,7 @@ module pfu (
     // Inst Memory
     output logic                    imem_req,
     output logic [`IM_ADDR_LEN-1:0] imem_addr,
-    input        [`IM_DATA_LEN-1:0] imem_rdata,
+    input        [       `XLEN-1:0] imem_rdata,
     input        [             1:0] imem_bad,
     input                           imem_busy,
 
@@ -28,10 +28,16 @@ module pfu (
     input        [`IM_ADDR_LEN-1:0] btb_target_in
 );
 
-`define PFU_FIFO_DEPTH 4
+`define PFU_FIFO_DEPTH 8
 
-logic [32*`PFU_FIFO_DEPTH-1:0] data_fifo;
-logic [ 4*`PFU_FIFO_DEPTH-1:0] flag_fifo;
+`ifdef RV32
+`define XLEN_DIV_16 2
+`else
+`define XLEN_DIV_16 4
+`endif
+
+logic [16*`PFU_FIFO_DEPTH-1:0] data_fifo;
+logic [ 2*`PFU_FIFO_DEPTH-1:0] flag_fifo;
 logic [                   2:0] wptr;
 logic [                   2:0] rptr;
 logic                          fifo_wr;
@@ -44,79 +50,86 @@ logic                          jump_latch;
 logic [      `IM_ADDR_LEN-1:0] btb_pred;
 logic                          btb_token;
 
-always_comb begin
-    inst = {data_fifo[{(rptr + 3'b1), 4'b0}+:16] & {16{data_fifo[{rptr, 4'b0}+:2] == 2'b11}}, data_fifo[{rptr, 4'b0}+:16]};
-    case (_ndata)
-        4'h9: inst = {16'b0, imem_rdata[31:16]};
-        4'h8: inst = {imem_rdata[31:16] & {16{imem_rdata[1:0] == 2'b11}}, imem_rdata[15:0]};
-        4'h7: inst = {imem_rdata[15: 0] & {16{data_fifo[{rptr, 4'b0}+:2] == 2'b11}}, data_fifo[{rptr, 4'b0}+:16]};
-    endcase
-end
+assign inst    = ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd0}} & {imem_rdata[31:16] & {16{imem_rdata[1:0] == 2'b11}}, imem_rdata[15:0]}) |
+                 ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd1}} & {16'b0, imem_rdata[(`XLEN-16)+:16]}) |
+`ifndef RV32
+                 ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd2}} & {imem_rdata[(`XLEN-16)+:16] & {16{imem_rdata[(`XLEN-32)+:2] == 2'b11}}, imem_rdata[(`XLEN-32)+:16]}) |
+                 ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd3}} & {imem_rdata[(`XLEN-32)+:16] & {16{imem_rdata[(`XLEN-48)+:2] == 2'b11}}, imem_rdata[(`XLEN-48)+:16]}) |
+`endif
+                 ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH - 4'd1}} & {imem_rdata[15: 0] & {16{data_fifo[{rptr, 4'b0}+:2] == 2'b11}}, data_fifo[{rptr, 4'b0}+:16]}) |
+                 ({`IM_DATA_LEN{_ndata <  4'd`PFU_FIFO_DEPTH - 4'd1}} & ({data_fifo[{(rptr + 3'b1), 4'b0}+:16] & {16{data_fifo[{rptr, 4'b0}+:2] == 2'b11}}, data_fifo[{rptr, 4'b0}+:16]}));
 
-always_comb begin
-    bad = |flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : flag_fifo[{(rptr + 3'b1), 1'b0}+:2];
-    case (_ndata)
-        4'h9: bad = imem_bad;
-        4'h8: bad = imem_bad;
-        4'h7: bad = |flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : imem_bad;
-    endcase
-end
+assign bad     = ({2{_ndata >= 4'd`PFU_FIFO_DEPTH}}        & imem_bad) |
+                 ({2{_ndata == 4'd`PFU_FIFO_DEPTH - 4'd1}} & (|flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : imem_bad)) |
+                 ({2{_ndata <  4'd`PFU_FIFO_DEPTH - 4'd1}} & (|flag_fifo[{rptr, 1'b0}+:2] ? flag_fifo[{rptr, 1'b0}+:2] : flag_fifo[{(rptr + 3'b1), 1'b0}+:2]));
 
-always_comb begin
-    badaddr = |flag_fifo[{rptr, 1'b0}+:2] ? pc : pc + `IM_ADDR_LEN'h2;
-    case (_ndata)
-        4'h9: badaddr = pc;
-        4'h8: badaddr = pc;
-    endcase
-end
+assign badaddr = ({`IM_ADDR_LEN{_ndata >= 4'd`PFU_FIFO_DEPTH}} & pc) |
+                 ({`IM_ADDR_LEN{_ndata <  4'd`PFU_FIFO_DEPTH}} & (|flag_fifo[{rptr, 1'b0}+:2] ? pc : pc + `IM_ADDR_LEN'h2));
 
 assign inst_len = inst[1:0] == 3'b11 ? `IM_ADDR_LEN'h4 : `IM_ADDR_LEN'h2;
 
 assign fifo_wr = imem_req_latch && ~imem_busy;
 assign fifo_rd = pop && ~empty;
-
 always_ff @(posedge clk) begin
+`ifdef RV32
     if (~rstn) begin
         wptr   <= 3'b0;
         rptr   <= {2'b0, bootvec[1]};
-        _ndata <= 4'h8 + {3'b0, bootvec[1]};
+        _ndata <= 4'd`PFU_FIFO_DEPTH + {3'b0, bootvec[1]};
     end
     else begin
         if (jump) begin
             wptr   <= 3'b0;
             rptr   <= {2'b0, jump_addr[1]};
-            _ndata <= 4'h8 + {3'b0, jump_addr[1]};
+            _ndata <= 4'd`PFU_FIFO_DEPTH + {3'b0, jump_addr[1]};
         end
         else if (btb_token & fifo_rd) begin
             wptr   <= 3'b0;
             rptr   <= {2'b0, btb_pred[1]};
-            _ndata <= 4'h8 + {3'b0, btb_pred[1]};
+            _ndata <= 4'd`PFU_FIFO_DEPTH + {3'b0, btb_pred[1]};
         end
+`else
+    if (~rstn) begin
+        wptr   <= 3'b0;
+        rptr   <= {1'b0, bootvec[2:1]};
+        _ndata <= 4'd`PFU_FIFO_DEPTH + {2'b0, bootvec[2:1]};
+    end
+    else begin
+        if (jump) begin
+            wptr   <= 3'b0;
+            rptr   <= {1'b0, jump_addr[2:1]};
+            _ndata <= 4'd`PFU_FIFO_DEPTH + {2'b0, jump_addr[2:1]};
+        end
+        else if (btb_token & fifo_rd) begin
+            wptr   <= 3'b0;
+            rptr   <= {1'b0, btb_pred[2:1]};
+            _ndata <= 4'd`PFU_FIFO_DEPTH + {2'b0, btb_pred[2:1]};
+        end
+`endif
         else begin
-            wptr   <= wptr   + ({3{fifo_wr}} & 3'h2);
+            wptr   <= wptr   + ({3{fifo_wr}} & 3'd`XLEN_DIV_16);
             rptr   <= rptr   + ({3{fifo_rd}} & inst_len[3:1]);
-            _ndata <= _ndata + ({3{fifo_rd}} & inst_len[3:1]) - ({3{fifo_wr}} & 3'h2);
+            _ndata <= _ndata + ({3{fifo_rd}} & inst_len[3:1]) - ({3{fifo_wr}} & 3'd`XLEN_DIV_16);
         end
     end
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        data_fifo <= {32*`PFU_FIFO_DEPTH{1'b0}};
-        flag_fifo <= { 4*`PFU_FIFO_DEPTH{1'b0}};
+        data_fifo <= {16*`PFU_FIFO_DEPTH{1'b0}};
+        flag_fifo <= { 2*`PFU_FIFO_DEPTH{1'b0}};
     end
     else if (fifo_wr) begin
-        data_fifo[{wptr, 4'b0}+:32] <= imem_rdata;
-        flag_fifo[{wptr, 1'b0}+: 4] <= {2{imem_bad}};
+        data_fifo[{wptr, 4'b0}+:  `XLEN] <= imem_rdata;
+        flag_fifo[{wptr, 1'b0}+:`XLEN/8] <= {`XLEN/16{imem_bad}};
     end
 end
 
-assign empty    = ~((_ndata <= 4'h6) ||
-                    (_ndata <= 4'h7 && inst[1:0] != 3'b11) ||
-                    (_ndata <= 4'h8 && fifo_wr) ||
-                    (_ndata <= 4'h9 && fifo_wr && imem_rdata[17:16] != 3'b11));
-assign imem_req = ((_ndata >= 4'h4) || (_ndata >= 4'h2 && ~imem_req_latch)) && ~imem_busy;
-assign imem_addr = ~jump_latch & btb_token ? {btb_pred[`IM_ADDR_LEN-1:2], 2'b0} : imem_addr_pre;
+assign empty    = ~((_ndata <= (4'd`PFU_FIFO_DEPTH - 4'd2)) ||
+                    (_ndata <= (4'd`PFU_FIFO_DEPTH - 4'd1) && inst[1:0] != 3'b11) ||
+                    (_ndata <= (4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd2) && fifo_wr) ||
+                    (_ndata <= (4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd1) && fifo_wr && imem_rdata[(`XLEN-16)+:2] != 3'b11));
+assign imem_req =  ((_ndata >= (4'd`XLEN_DIV_16 * 2)) || (_ndata >= 4'd`XLEN_DIV_16 && ~imem_req_latch)) && ~imem_busy;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -132,6 +145,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
+`ifdef RV32
+assign imem_addr = ~jump_latch & btb_token & ~empty ? {btb_pred[`IM_ADDR_LEN-1:2], 2'b0} : imem_addr_pre;
 always_ff @(posedge clk) begin
     if (~rstn) begin
         imem_addr_pre <= {bootvec[`IM_ADDR_LEN-1:2], 2'b0};
@@ -147,6 +162,24 @@ always_ff @(posedge clk) begin
         imem_addr_pre <= imem_addr + `IM_ADDR_LEN'h4;
     end
 end
+`else
+assign imem_addr = ~jump_latch & btb_token & ~empty ? {btb_pred[`IM_ADDR_LEN-1:3], 3'b0} : imem_addr_pre;
+always_ff @(posedge clk) begin
+    if (~rstn) begin
+        imem_addr_pre <= {bootvec[`IM_ADDR_LEN-1:3], 3'b0};
+    end
+    else if (jump) begin
+        imem_addr_pre <= {jump_addr[`IM_ADDR_LEN-1:3], 3'b0};
+    end
+    else if (btb_token & fifo_rd) begin
+        imem_addr_pre <= imem_busy | ~imem_req ? {btb_pred[`IM_ADDR_LEN-1:3], 3'b0} :
+                                                 {btb_pred[`IM_ADDR_LEN-1:3], 3'b0} + `IM_ADDR_LEN'h8;
+    end
+    else if (imem_req && ~imem_busy) begin
+        imem_addr_pre <= imem_addr + `IM_ADDR_LEN'h8;
+    end
+end
+`endif
 
 always_ff @(posedge clk) begin
     if (~rstn) jump_latch <= 1'b0;

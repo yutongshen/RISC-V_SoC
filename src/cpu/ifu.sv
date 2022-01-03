@@ -26,7 +26,7 @@ module ifu (
     // Inst Memory
     output logic                      imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
-    input        [`IM_DATA_LEN - 1:0] imem_rdata,
+    input        [       `XLEN - 1:0] imem_rdata,
     input        [               1:0] imem_bad,
     input                             imem_busy,
 
@@ -136,7 +136,7 @@ pfu u_pfu (
     .clk           ( clk         ),
     .rstn          ( rstn        ),
     .bootvec       ( bootvec     ),
-    .flush         ( ic_flush    ),
+    .flush         ( ic_flush | eret_en | irq_en ),
     .jump          ( jump        ),
     .jump_addr     ( jump_addr   ),
     .pop           ( pfu_pop     ),

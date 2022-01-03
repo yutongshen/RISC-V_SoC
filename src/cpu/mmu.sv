@@ -40,7 +40,7 @@ module mmu (
 
     // virtual address
     input                                    va_valid,
-    input        [                     47:0] va,
+    input        [                     63:0] va,
 
     // Cache ctrl
     output logic                             cache_bypass,
@@ -52,7 +52,7 @@ module mmu (
     output logic                             pa_pre_vld,
     output logic                             pa_pre_wr,
     output logic                             pa_pre_rd,
-    output logic [                     55:0] pa_pre,
+    output logic [                     63:0] pa_pre,
     
     // AXI interface
     `AXI_INTF_MST_DEF(m, 10)
@@ -63,54 +63,56 @@ parameter [1:0] STATE_IDLE  = 2'b00,
                 STATE_MREQ  = 2'b10,
                 STATE_PTE   = 2'b11;
 
-logic [               1:0] cur_state;
-logic [               1:0] nxt_state;
+logic [                 1:0] cur_state;
+logic [                 1:0] nxt_state;
 
-logic                      va_en;
-logic [              55:0] va_latch;
-logic                      last_hit;
-logic                      last_va_en;
-logic [              19:0] last_vpn;
-logic                      last_spage;
-logic [              19:0] vpn;
-logic [              19:0] vpn_latch;
-logic [              21:0] ppn_latch;
-logic                      busy;
-logic                      leaf;
-logic                      sum_latch;
-logic                      access_r_latch;
-logic                      access_w_latch;
-logic                      access_x_latch;
-logic [              63:0] pte_latch;
-logic [              21:0] pte_ppn, tlb_pte_ppn, last_pte_ppn;
-logic [               1:0] pte_rsw, tlb_pte_rsw, last_pte_rsw;
-logic                      pte_d,   tlb_pte_d  , last_pte_d  ;
-logic                      pte_a,   tlb_pte_a  , last_pte_a  ;
-logic                      pte_g,   tlb_pte_g  , last_pte_g  ;
-logic                      pte_u,   tlb_pte_u  , last_pte_u  ;
-logic                      pte_x,   tlb_pte_x  , last_pte_x  ;
-logic                      pte_w,   tlb_pte_w  , last_pte_w  ;
-logic                      pte_r,   tlb_pte_r  , last_pte_r  ;
-logic                      pte_v,   tlb_pte_v  , last_pte_v  ;
-logic                      tlb_data_sel;
-logic [               1:0] level;
-logic                      pmp_err;
-logic                      pg_fault;
-logic                      pg_fault_tlb;
-logic                      pg_fault_pte;
-logic                      bus_err;
-logic                      ar_done;
-logic [               1:0] prv_post;
-logic [               1:0] prv_latch;
+logic                        va_en;
+logic [                55:0] va_latch;
+logic                        last_hit;
+logic                        last_va_en;
+logic [                35:0] last_vpn;
+logic [                 2:0] last_spage;
+logic [                19:0] vpn;
+logic [                36:0] vpn_latch;
+logic [                21:0] ppn_latch;
+logic [`SATP_MODE_WIDTH-1:0] satp_mode_latch;
+logic                        busy;
+logic                        leaf;
+logic                        sum_latch;
+logic                        access_r_latch;
+logic                        access_w_latch;
+logic                        access_x_latch;
+logic [                63:0] pte_latch;
+logic [                43:0] pte_ppn, tlb_pte_ppn, last_pte_ppn;
+logic [                 1:0] pte_rsw, tlb_pte_rsw, last_pte_rsw;
+logic                        pte_d,   tlb_pte_d  , last_pte_d  ;
+logic                        pte_a,   tlb_pte_a  , last_pte_a  ;
+logic                        pte_g,   tlb_pte_g  , last_pte_g  ;
+logic                        pte_u,   tlb_pte_u  , last_pte_u  ;
+logic                        pte_x,   tlb_pte_x  , last_pte_x  ;
+logic                        pte_w,   tlb_pte_w  , last_pte_w  ;
+logic                        pte_r,   tlb_pte_r  , last_pte_r  ;
+logic                        pte_v,   tlb_pte_v  , last_pte_v  ;
+logic                        tlb_data_sel;
+logic [                 5:0] spage;
+logic                        bus_boundary;
+logic                        pmp_err;
+logic                        pg_fault;
+logic                        pg_fault_tlb;
+logic                        pg_fault_pte;
+logic                        bus_err;
+logic                        ar_done;
+logic [                 1:0] prv_post;
+logic [                 1:0] prv_latch;
 
-logic                      tlb_cs;
-logic                      tlb_we;
-logic                      tlb_hit;
-logic [`TLB_VPN_WIDTH-1:0] tlb_vpn;
-logic [`TLB_PTE_WIDTH-1:0] tlb_pte_in;
-logic [`TLB_PTE_WIDTH-1:0] tlb_pte_out;
-logic                      tlb_spage_in;
-logic                      tlb_spage_out;
+logic                        tlb_cs;
+logic                        tlb_we;
+logic                        tlb_hit;
+logic [  `TLB_VPN_WIDTH-1:0] tlb_vpn;
+logic [  `TLB_PTE_WIDTH-1:0] tlb_pte_in;
+logic [  `TLB_PTE_WIDTH-1:0] tlb_pte_out;
+logic [                 2:0] tlb_spage_in;
+logic [                 2:0] tlb_spage_out;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) cur_state <= STATE_IDLE;
@@ -178,8 +180,15 @@ end
 assign prv_post     = ~access_x && mprv ? mpp : prv;
 assign leaf         = pte_v && (pte_r || pte_x);
 assign pg_fault_pte = !pte_v || (!pte_r && pte_w) ||
-                      (~leaf && ~|level) ||
-                      ( leaf && |level && |pte_ppn[9:0]) ||
+                      (~leaf && ~spage[0]) ||
+`ifdef RV32
+                      ( leaf && spage[0] && |pte_ppn[9:0]) ||
+`else
+                      ( leaf && spage[0] && ~satp_mode_latch[3] && |pte_ppn[ 0+:10]) ||
+                      ( leaf && spage[0] &&  satp_mode_latch[3] && |pte_ppn[ 0+: 9]) ||
+                      ( leaf && spage[1] &&  satp_mode_latch[3] && |pte_ppn[ 9+: 9]) ||
+                      ( leaf && spage[2] &&  satp_mode_latch[3] && |pte_ppn[18+: 9]) ||
+`endif
                       ( leaf && access_x_latch      && ~pte_x) ||
                       ( leaf && access_r_latch      && ~pte_r) ||
                       ( leaf && access_w_latch      && ~pte_w) ||
@@ -204,18 +213,36 @@ assign pg_fault_last = ( access_x              && ~last_pte_x) ||
                        ( access_w && ~access_x && ~last_pte_d) ||
                        (                          ~last_pte_a);
 
+assign bus_boundary = |pa_pre[63:`BUS_WIDTH-1] & ~&pa_pre[63:`BUS_WIDTH-1];
+/*
+                      ( pa_pre[`BUS_WIDTH-1] && ~&pa_pre[63:`BUS_WIDTH]) ||
+                      (~pa_pre[`BUS_WIDTH-1] &&  |pa_pre[63:`BUS_WIDTH]);
+*/
+
 assign pmp_err      = (!pmp_v && prv_latch != `PRV_M) ||
                       (( pmp_l || prv_latch != `PRV_M) &&
                       ((!pmp_x && access_x_latch) ||
                        (!pmp_w && access_w_latch) ||
                        (!pmp_r && access_r_latch)));
                     
-assign tlb_spage_in = level[0];
+assign tlb_spage_in = spage[2:0];
 assign tlb_vpn      = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
 assign tlb_pte_in   = pte_latch;
-assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} = pte_latch[31:0];
+assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} =
+`ifdef RV32
+       {22'b0, pte_latch[31:0]};
+`else
+       ({54{~satp_mode_latch[3]}} & {22'b0, pte_latch[31:0]}) |
+       ({54{ satp_mode_latch[3]}} & {       pte_latch[53:0]});
+`endif
 assign {tlb_pte_ppn, tlb_pte_rsw, tlb_pte_d, tlb_pte_a, tlb_pte_g,
-        tlb_pte_u,   tlb_pte_x,   tlb_pte_w, tlb_pte_r, tlb_pte_v} = tlb_pte_out[31:0];
+        tlb_pte_u,   tlb_pte_x,   tlb_pte_w, tlb_pte_r, tlb_pte_v} =
+`ifdef RV32
+       {22'b0, tlb_pte_out[31:0]};
+`else
+       ({54{~satp_mode_latch[3]}} & {22'b0, tlb_pte_out[31:0]}) |
+       ({54{ satp_mode_latch[3]}} & {       tlb_pte_out[53:0]});
+`endif
 
 assign m_awid     = 10'b0;
 assign m_awaddr   = 32'b0;
@@ -231,21 +258,37 @@ assign m_wvalid   = 1'b0;
 assign m_bready   = 1'b1;
 
 assign m_arid     = 10'b0;
-assign m_araddr   = {ppn_latch[19:0], vpn_latch[10+:10], 2'b0};
+`ifdef RV32
+assign m_araddr   = {ppn_latch[19:0], vpn_latch[9:0], 2'b0};
+`else
+assign m_araddr   = {ppn_latch[19:0], vpn_latch[9:1], vpn_latch[0] & ~satp_mode_latch[3], 2'b0};
+`endif
 assign m_arburst  = `AXI_BURST_INCR;
 assign m_arsize   = 3'h2;
+`ifdef RV32
 assign m_arlen    = 8'h0;
+`else
+assign m_arlen    = {7'h0, satp_mode_latch[3]};
+`endif
 assign m_rready   = 1'b1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        level <= 2'b0;
+        spage <= 6'b0;
     end
     else if (va_valid) begin
-        level <= 2'd2;
+`ifdef RV32
+        spage <= 6'b11;
+`else
+        spage <= ({3{satp_mode == `SATP_MODE_SV32}} & 6'b000011)|
+                 ({3{satp_mode == `SATP_MODE_SV39}} & 6'b000111)|
+                 ({3{satp_mode == `SATP_MODE_SV48}} & 6'b001111)|
+                 ({3{satp_mode == `SATP_MODE_SV57}} & 6'b011111)|
+                 ({3{satp_mode == `SATP_MODE_SV64}} & 6'b111111);
+`endif
     end
     else if (m_rvalid && m_rlast) begin
-        level <= level - 2'd1;
+        spage <= {1'b0, spage[5:1]};
     end
 end
 
@@ -263,13 +306,24 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        vpn_latch <= 20'b0;
+        vpn_latch <= 37'b0;
     end
     else if (cur_state == STATE_CHECK) begin
-        vpn_latch <= va_latch[12+:20];
+`ifdef RV32
+        vpn_latch[19:0] <= {va_latch[12+:10], va_latch[22+:10]};
+`else
+        vpn_latch <= ({37{satp_mode_latch == `SATP_MODE_SV32}} & {17'b0, va_latch[12+:10], va_latch[22+:10]}) |
+                     ({37{satp_mode_latch == `SATP_MODE_SV39}} & {9'b0, va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], 1'b0}) |
+                     ({37{satp_mode_latch == `SATP_MODE_SV48}} & {va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], va_latch[39+:9], 1'b0});
+`endif
     end
     else if (m_rvalid && m_rlast) begin
-        vpn_latch <= {vpn_latch[9:0], 10'b0};
+`ifdef RV32
+        vpn_latch[19:0] <= {10'b0, vpn_latch[10+:10]};
+`else
+        vpn_latch <= ({37{~satp_mode_latch[3]}} & {10'b0, vpn_latch[36:10]}) |
+                     ({37{ satp_mode_latch[3]}} & { 9'b0, vpn_latch[36:10], 1'b0});
+`endif
     end
 end
 
@@ -293,7 +347,16 @@ always_ff @(posedge clk or negedge rstn) begin
         pte_latch <= 64'b0;
     end
     else if (m_rvalid) begin
-        pte_latch <= {pte_latch[31:0], m_rdata};
+`ifdef RV32
+        pte_latch[31:0] <= m_rdata;
+`else
+        if (satp_mode_latch[3] && m_rlast) begin
+            pte_latch[63:32] <= m_rdata;
+        end
+        else begin
+            pte_latch[31: 0] <= m_rdata;
+        end
+`endif
     end
 end
 
@@ -304,23 +367,25 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn)           pa <= 56'b0;
-    else if (pa_pre_vld) pa <= pa_pre;
+    else if (pa_pre_vld) pa <= pa_pre[55:0];
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        prv_latch      <= 2'b0;
-        sum_latch      <= 1'b0;
-        access_r_latch <= 1'b0;
-        access_w_latch <= 1'b0;
-        access_x_latch <= 1'b0;
+        prv_latch       <= 2'b0;
+        sum_latch       <= 1'b0;
+        access_r_latch  <= 1'b0;
+        access_w_latch  <= 1'b0;
+        access_x_latch  <= 1'b0;
+        satp_mode_latch <= `SATP_MODE_WIDTH'b0;
     end
     else if (va_valid) begin
-        prv_latch      <= prv_post;
-        sum_latch      <= sum;
-        access_r_latch <= ~access_x & ~access_w;
-        access_w_latch <= ~access_x &  access_w;
-        access_x_latch <=  access_x;
+        prv_latch       <= prv_post;
+        sum_latch       <= sum;
+        access_r_latch  <= ~access_x & ~access_w;
+        access_w_latch  <= ~access_x &  access_w;
+        access_x_latch  <=  access_x;
+        satp_mode_latch <= satp_mode;
     end
 end
 
@@ -353,22 +418,35 @@ always_ff @(posedge clk or negedge rstn) begin
         bus_err <= 1'b0;
     end
     else begin
-        bus_err <= m_rvalid && m_rresp[1];
+        bus_err <= (m_rvalid && m_rresp[1]) || bus_boundary;
     end
 end
 
 assign cache_bypass = ~pma_c;
 assign pa_bad       = {(bus_err | pmp_err) & ~pg_fault, pg_fault};
 
-assign pa_pre       = ~va_en                  ? {8'b0, va}:
-                      tlb_data_sel            ? {{22{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]}:
-                      cur_state == STATE_IDLE ? {{22{last_pte_ppn[21]}}, last_pte_ppn[21:10], |last_spage ? va[21:12] : last_pte_ppn[9:0], va[11:0]}:
-                                                {{22{pte_ppn[21]}}, pte_ppn[21:10], |level ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]};
+assign pa_pre       = ~va_en                  ? va:
+                      tlb_data_sel            ? {{32{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]}:
+`ifdef RV32
+                      cur_state == STATE_IDLE ? {{32{last_pte_ppn[21]}}, last_pte_ppn[21:10], last_spage[0] ? va[21:12] : last_pte_ppn[9:0], va[11:0]}:
+                                                {{32{pte_ppn[21]}}, pte_ppn[21:10], spage[0] ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]};
+`else
+                      cur_state == STATE_IDLE ? (({64{~satp_mode[3]}} & {{32{last_pte_ppn[21]}}, last_pte_ppn[21:10], last_spage[0] ? va[12+:10] : last_pte_ppn[0+:10], va[11:0]})|
+                                                 ({64{ satp_mode[3]}} & {{ 8{last_pte_ppn[43]}}, last_pte_ppn[43:27],
+                                                                         last_spage[2] ? va[30+: 9] : last_pte_ppn[18+: 9],
+                                                                         last_spage[1] ? va[21+: 9] : last_pte_ppn[ 9+: 9],
+                                                                         last_spage[0] ? va[12+: 9] : last_pte_ppn[ 0+: 9], va[11:0]})):
+                                                (({64{~satp_mode[3]}} & {{32{pte_ppn[21]}}, pte_ppn[21:10], spage[0] ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]})|
+                                                 ({64{ satp_mode[3]}} & {{ 8{pte_ppn[43]}}, pte_ppn[43:27],
+                                                                         spage[2] ? va_latch[30+: 9] : pte_ppn[18+: 9],
+                                                                         spage[1] ? va_latch[21+: 9] : pte_ppn[ 9+: 9],
+                                                                         spage[0] ? va_latch[12+: 9] : pte_ppn[ 0+: 9], va_latch[11:0]}));
+`endif
 
-assign va_en        = prv_post < `PRV_M && satp_mode != `SATP_MODE_WIDTH'b0;
+assign va_en        = prv_post < `PRV_M && satp_mode != `SATP_MODE_NONE;
 assign vpn          = va[12+:20];
 
-assign last_hit     = (last_va_en && va_en && last_vpn == {vpn[19:10], vpn[9:0] & {10{~last_spage}}});
+assign last_hit     = (last_va_en && va_en && last_vpn[19:0] == {vpn[19:10], vpn[9:0] & {10{~last_spage[0]}}});
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -392,47 +470,63 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        last_vpn     <= 20'b0;
-        last_spage   <= 1'b0;
-        last_pte_ppn <= 22'b0;
-        last_pte_rsw <= 2'b0;
-        last_pte_d   <= 1'b0;
-        last_pte_a   <= 1'b0;
-        last_pte_g   <= 1'b0;
-        last_pte_u   <= 1'b0;
-        last_pte_x   <= 1'b0;
-        last_pte_w   <= 1'b0;
-        last_pte_r   <= 1'b0;
-        last_pte_v   <= 1'b0;
+        last_vpn       <= 36'b0;
+        last_spage     <= 3'b0;
+        last_pte_ppn   <= 44'b0;
+        last_pte_rsw   <= 2'b0;
+        last_pte_d     <= 1'b0;
+        last_pte_a     <= 1'b0;
+        last_pte_g     <= 1'b0;
+        last_pte_u     <= 1'b0;
+        last_pte_x     <= 1'b0;
+        last_pte_w     <= 1'b0;
+        last_pte_r     <= 1'b0;
+        last_pte_v     <= 1'b0;
     end
     else begin
         if (cur_state ==STATE_CHECK && tlb_hit) begin
-            last_vpn     <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out}}};
-            last_spage   <= tlb_spage_out;
-            last_pte_ppn <= tlb_pte_ppn;
-            last_pte_rsw <= tlb_pte_rsw;
-            last_pte_d   <= tlb_pte_d;
-            last_pte_a   <= tlb_pte_a;
-            last_pte_g   <= tlb_pte_g;
-            last_pte_u   <= tlb_pte_u;
-            last_pte_x   <= tlb_pte_x;
-            last_pte_w   <= tlb_pte_w;
-            last_pte_r   <= tlb_pte_r;
-            last_pte_v   <= tlb_pte_v;
+`ifdef RV32
+            last_vpn[19:0] <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out[0]}}};
+`else
+            last_vpn       <= ({36{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out[0]}}}) |
+                              ({36{ satp_mode_latch[3]}} & {va_latch[39+:9],
+                                                            va_latch[30+:9] & {9{~tlb_spage_out[2]}},
+                                                            va_latch[21+:9] & {9{~tlb_spage_out[1]}},
+                                                            va_latch[12+:9] & {9{~tlb_spage_out[0]}}});
+`endif
+            last_spage     <= tlb_spage_out;
+            last_pte_ppn   <= tlb_pte_ppn;
+            last_pte_rsw   <= tlb_pte_rsw;
+            last_pte_d     <= tlb_pte_d;
+            last_pte_a     <= tlb_pte_a;
+            last_pte_g     <= tlb_pte_g;
+            last_pte_u     <= tlb_pte_u;
+            last_pte_x     <= tlb_pte_x;
+            last_pte_w     <= tlb_pte_w;
+            last_pte_r     <= tlb_pte_r;
+            last_pte_v     <= tlb_pte_v;
         end
         else if (cur_state ==STATE_PTE   && leaf && ~pg_fault_pte) begin
-            last_vpn     <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in}}};
-            last_spage   <= tlb_spage_in;
-            last_pte_ppn <= pte_ppn;
-            last_pte_rsw <= pte_rsw;
-            last_pte_d   <= pte_d;
-            last_pte_a   <= pte_a;
-            last_pte_g   <= pte_g;
-            last_pte_u   <= pte_u;
-            last_pte_x   <= pte_x;
-            last_pte_w   <= pte_w;
-            last_pte_r   <= pte_r;
-            last_pte_v   <= pte_v;
+`ifdef RV32
+            last_vpn[19:0] <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}};
+`else
+            last_vpn       <= ({36{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}}) |
+                              ({36{ satp_mode_latch[3]}} & {va_latch[39+:9],
+                                                            va_latch[30+:9] & {9{~tlb_spage_in[2]}},
+                                                            va_latch[21+:9] & {9{~tlb_spage_in[1]}},
+                                                            va_latch[12+:9] & {9{~tlb_spage_in[0]}}});
+`endif
+            last_spage     <= tlb_spage_in;
+            last_pte_ppn   <= pte_ppn;
+            last_pte_rsw   <= pte_rsw;
+            last_pte_d     <= pte_d;
+            last_pte_a     <= pte_a;
+            last_pte_g     <= pte_g;
+            last_pte_u     <= pte_u;
+            last_pte_x     <= pte_x;
+            last_pte_w     <= pte_w;
+            last_pte_r     <= pte_r;
+            last_pte_v     <= pte_v;
         end
     end
 end
@@ -441,6 +535,9 @@ tlb u_tlb(
     .clk                 ( clk                 ),
     .rstn                ( rstn                ),
 
+`ifndef RV32
+    .satp_mode           ( satp_mode           ),
+`endif
     .cs                  ( tlb_cs              ),
     .vpn                 ( tlb_vpn             ),
     .we                  ( tlb_we              ),

@@ -32,12 +32,12 @@ logic                mpu_csr_sel;
 logic                sru_csr_sel;
 logic                fpu_csr_sel;
 
-assign pmu_csr_sel = raddr[11] || {raddr[11:10], raddr[7:5]} == 5'b00_001;
+assign pmu_csr_sel = raddr[11] || {raddr[11:10], raddr[7:5]} == 5'b00_001 || raddr == 12'h106 || raddr == 12'h306;
 assign dbg_csr_sel = raddr[11:10] == 2'b01;
 assign mmu_csr_sel = raddr == 12'h180;
 assign mpu_csr_sel = {raddr[11:10], raddr[7]} == 3'b00_1 && ~mmu_csr_sel;
-assign sru_csr_sel = ({raddr[11:10], raddr[7:6]} == 4'b00_00 && ~fpu_csr_sel) ||
-                      {raddr[11:10], raddr[7:6]} == 4'b00_01;
+assign sru_csr_sel = (({raddr[11:10], raddr[7:6]} == 4'b00_00 && ~fpu_csr_sel) ||
+                       {raddr[11:10], raddr[7:6]} == 4'b00_01) && (raddr != 12'h106 || raddr != 12'h306);
 assign fpu_csr_sel = raddr[11:2] == 10'b0000_0000_00 && raddr[1:0] != 2'b00;
 
 assign pmu_csr_wr = pmu_csr_sel & wr;
