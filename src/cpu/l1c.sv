@@ -23,36 +23,7 @@ module l1c (
     input                                    xmon_xstate,
 
     // external
-    output logic [                      1:0] m_awburst,
-    output logic [                      9:0] m_awid,
-    output logic [                     31:0] m_awaddr,
-    output logic [                      2:0] m_awsize,
-    output logic [                      7:0] m_awlen,
-    output logic                             m_awvalid,
-    input                                    m_awready,
-    output logic [                      3:0] m_wstrb,
-    output logic [                      9:0] m_wid,
-    output logic [                     31:0] m_wdata,
-    output logic                             m_wlast,
-    output logic                             m_wvalid,
-    input                                    m_wready,
-    input        [                      9:0] m_bid,
-    input        [                      1:0] m_bresp,
-    input                                    m_bvalid,
-    output logic                             m_bready,
-    output logic [                     31:0] m_araddr,
-    output logic [                      1:0] m_arburst,
-    output logic [                      2:0] m_arsize,
-    output logic [                      9:0] m_arid,
-    output logic [                      7:0] m_arlen,
-    output logic                             m_arvalid,
-    input                                    m_arready,
-    input        [                     31:0] m_rdata,
-    input        [                      1:0] m_rresp,
-    input        [                      9:0] m_rid,
-    input                                    m_rlast,
-    input                                    m_rvalid,
-    output logic                             m_rready
+    axi_intf.master                          m_axi_intf
 );
 
 parameter [2:0] STATE_IDLE   = 3'b000,
@@ -127,87 +98,87 @@ always_comb begin
                                        STATE_MREQ;
         end
         STATE_MREQ  : begin
-            nxt_state = m_arready ? STATE_REFILL : STATE_MREQ;
+            nxt_state = m_axi_intf.arready ? STATE_REFILL : STATE_MREQ;
         end
         STATE_REFILL: begin
-            nxt_state = (m_rlast && m_rvalid) ? STATE_IDLE : STATE_REFILL;
+            nxt_state = (m_axi_intf.rlast && m_axi_intf.rvalid) ? STATE_IDLE : STATE_REFILL;
         end
         STATE_WRITE : begin
-            nxt_state = m_bvalid ||
+            nxt_state = m_axi_intf.bvalid ||
                         (core_pa_vld &&
                         (|core_pa_bad | (core_ex_latch && ~xmon_xstate))) ? STATE_IDLE : STATE_WRITE;
         end
         STATE_READ  : begin
-            nxt_state = (m_rlast && m_rvalid) || (core_pa_vld && |core_pa_bad) ? STATE_IDLE : STATE_READ;
+            nxt_state = (m_axi_intf.rlast && m_axi_intf.rvalid) || (core_pa_vld && |core_pa_bad) ? STATE_IDLE : STATE_READ;
         end
     endcase
 end
 
 always_comb begin
-    rdata_low_tmp_wr  = 1'b0;
+    m_axi_intf.awvalid = 1'b0;
+    m_axi_intf.wvalid  = 1'b0;
+    m_axi_intf.arvalid = 1'b0;
+    rdata_low_tmp_wr   = 1'b0;
 `ifndef RV32
-    rdata_high_tmp_wr = 1'b0;
+    rdata_high_tmp_wr  = 1'b0;
 `endif
-    valid_wr          = 1'b0;
-    core_busy         = 1'b0;
-    m_awvalid         = 1'b0;
-    m_wvalid          = 1'b0;
-    m_arvalid         = 1'b0;
-    tag_cs            = 1'b0;
-    tag_we            = 1'b0;
-    data_cs           = 1'b0;
-    data_we           = 1'b0;
-    data_byte         = 16'b0;
-    data_in           = 128'b0;
+    valid_wr           = 1'b0;
+    core_busy          = 1'b0;
+    tag_cs             = 1'b0;
+    tag_we             = 1'b0;
+    data_cs            = 1'b0;
+    data_we            = 1'b0;
+    data_byte          = 16'b0;
+    data_in            = 128'b0;
     case (cur_state)
         STATE_IDLE  : begin
-            core_busy         = 1'b0;
-            tag_cs            = core_req;
-            data_cs           = core_req;
+            core_busy          = 1'b0;
+            tag_cs             = core_req;
+            data_cs            = core_req;
         end
         STATE_CMP   : begin
-            core_busy         = ~hit || |core_pa_bad;
-            tag_cs            = ~core_pa_vld || (hit && core_req);
-            data_cs           = ~core_pa_vld || (hit && core_req);
+            core_busy          = ~hit || |core_pa_bad;
+            tag_cs             = ~core_pa_vld || (hit && core_req);
+            data_cs            = ~core_pa_vld || (hit && core_req);
         end
         STATE_MREQ  : begin
-            core_busy         = 1'b1;
-            m_arvalid         = 1'b1;
+            core_busy          = 1'b1;
+            m_axi_intf.arvalid = 1'b1;
         end
         STATE_REFILL: begin
-            core_busy         = 1'b1;
-            data_cs           = m_rvalid;
-            data_we           = m_rvalid;
-            data_byte         = refill_mask;
-            data_in           = {4{m_rdata}};
-            tag_cs            = m_rlast && m_rvalid;
-            tag_we            = m_rlast && m_rvalid;
-            valid_wr          = m_rlast && m_rvalid;
+            core_busy          = 1'b1;
+            data_cs            = m_axi_intf.rvalid;
+            data_we            = m_axi_intf.rvalid;
+            data_byte          = refill_mask;
+            data_in            = {4{m_axi_intf.rdata}};
+            tag_cs             = m_axi_intf.rlast && m_axi_intf.rvalid;
+            tag_we             = m_axi_intf.rlast && m_axi_intf.rvalid;
+            valid_wr           = m_axi_intf.rlast && m_axi_intf.rvalid;
 `ifdef RV32
-            rdata_low_tmp_wr  = m_rvalid && word_cnt == core_vaddr_latch[2+:2];
+            rdata_low_tmp_wr   = m_axi_intf.rvalid && word_cnt == core_vaddr_latch[2+:2];
 `else
-            rdata_low_tmp_wr  = m_rvalid && word_cnt == {core_vaddr_latch[`CACHE_BLK_WIDTH-1:3], 1'b0};
-            rdata_high_tmp_wr = m_rvalid && word_cnt == {core_vaddr_latch[`CACHE_BLK_WIDTH-1:3], 1'b1};
+            rdata_low_tmp_wr   = m_axi_intf.rvalid && word_cnt == {core_vaddr_latch[`CACHE_BLK_WIDTH-1:3], 1'b0};
+            rdata_high_tmp_wr  = m_axi_intf.rvalid && word_cnt == {core_vaddr_latch[`CACHE_BLK_WIDTH-1:3], 1'b1};
 `endif
         end
         STATE_WRITE : begin
-            core_busy         = 1'b1;
-            m_awvalid         = awvalid_tmp;
-            m_wvalid          = wvalid_tmp;
-            tag_cs            = 1'b1;
-            data_cs           = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch && (~core_ex_latch | xmon_xstate);
-            data_we           = 1'b1;
-            data_byte         = {{`CACHE_BLK_SIZE/8-`CACHE_DATA_WIDTH/8{1'b0}}, core_byte_latch}
-                                << {core_vaddr_latch[`CACHE_BLK_WIDTH-1:$clog2(`CACHE_DATA_WIDTH/8)], {$clog2(`CACHE_DATA_WIDTH/8){1'b0}}};
-            data_in           = {`CACHE_BLK_SIZE/`CACHE_DATA_WIDTH{core_wdata_latch}};
+            m_axi_intf.awvalid = awvalid_tmp;
+            m_axi_intf.wvalid  = wvalid_tmp;
+            core_busy          = 1'b1;
+            tag_cs             = 1'b1;
+            data_cs            = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch && (~core_ex_latch | xmon_xstate);
+            data_we            = 1'b1;
+            data_byte          = {{`CACHE_BLK_SIZE/8-`CACHE_DATA_WIDTH/8{1'b0}}, core_byte_latch}
+                                 << {core_vaddr_latch[`CACHE_BLK_WIDTH-1:$clog2(`CACHE_DATA_WIDTH/8)], {$clog2(`CACHE_DATA_WIDTH/8){1'b0}}};
+            data_in            = {`CACHE_BLK_SIZE/`CACHE_DATA_WIDTH{core_wdata_latch}};
         end
         STATE_READ  : begin
-            core_busy         = 1'b1;
-            rdata_low_tmp_wr  =  burst_1st & m_rvalid;
+            m_axi_intf.arvalid = arvalid_tmp;
+            core_busy          = 1'b1;
+            rdata_low_tmp_wr   =  burst_1st & m_axi_intf.rvalid;
 `ifndef RV32
-            rdata_high_tmp_wr = (~burst_1st || core_vaddr_latch[2]) & m_rvalid;
+            rdata_high_tmp_wr  = (~burst_1st || core_vaddr_latch[2]) & m_axi_intf.rvalid;
 `endif
-            m_arvalid         = arvalid_tmp;
         end
     endcase
 end
@@ -221,37 +192,43 @@ assign tag_in     = core_paddr_latch[`CACHE_TAG_REGION];
 assign hit        = valid_latch && core_pa_vld && (tag_out == core_paddr[`CACHE_TAG_REGION]);
 assign core_rdata = cur_state == STATE_IDLE ? core_rdata_tmp:
                     data_out[{core_vaddr_latch[`CACHE_BLK_WIDTH-1:$clog2(`CACHE_DATA_WIDTH/8)], {3+$clog2(`CACHE_DATA_WIDTH/8){1'b0}}}+:`XLEN];
-assign m_awid     = 10'b0;
-assign m_awaddr   = core_paddr_latch;
-assign m_awburst  = `AXI_BURST_INCR;
-assign m_awsize   = 3'h2;
-assign m_awlen    = 8'b0
+assign m_axi_intf.awid     = 10'b0;
+assign m_axi_intf.awaddr   = core_paddr_latch;
+assign m_axi_intf.awburst  = `AXI_BURST_INCR;
+assign m_axi_intf.awsize   = 3'h2;
+assign m_axi_intf.awlen    = 8'b0
 `ifndef RV32
-                    || {7'b0, ~core_vaddr_latch[2] && |core_byte_latch[7:4]}
+                             || {7'b0, ~core_vaddr_latch[2] && |core_byte_latch[7:4]}
 `endif
-                    ;
-assign m_wid      = 10'b0;
+                             ;
+assign m_axi_intf.awlock   = 2'h0;
+assign m_axi_intf.awcache  = 4'h0;
+assign m_axi_intf.awprot   = 3'h0;
+assign m_axi_intf.wid      = 10'b0;
 `ifdef RV32
-assign m_wdata    = core_wdata_latch;
-assign m_wstrb    = core_byte_latch;
-assign m_wlast    = 1'b1;
+assign m_axi_intf.wdata    = core_wdata_latch;
+assign m_axi_intf.wstrb    = core_byte_latch;
+assign m_axi_intf.wlast    = 1'b1;
 `else
-assign m_wdata    = ~core_vaddr_latch[2] && burst_1st ? core_wdata_latch[31: 0] : core_wdata_latch[63:32];
-assign m_wstrb    = ~core_vaddr_latch[2] && burst_1st ? core_byte_latch [ 3: 0] : core_byte_latch [ 7: 4];
-assign m_wlast    = ~(~core_vaddr_latch[2] && |core_byte_latch[7:4]) || ~burst_1st;
+assign m_axi_intf.wdata    = ~core_vaddr_latch[2] && burst_1st ? core_wdata_latch[31: 0] : core_wdata_latch[63:32];
+assign m_axi_intf.wstrb    = ~core_vaddr_latch[2] && burst_1st ? core_byte_latch [ 3: 0] : core_byte_latch [ 7: 4];
+assign m_axi_intf.wlast    = ~(~core_vaddr_latch[2] && |core_byte_latch[7:4]) || ~burst_1st;
 `endif
-assign m_bready   = 1'b1;
-assign m_arid     = 10'b0;
-assign m_araddr   = cur_state == STATE_READ ? core_paddr_latch :
-                        {core_paddr_latch[`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH], {`CACHE_BLK_WIDTH{1'b0}}};
-assign m_arburst  = `AXI_BURST_INCR;
-assign m_arsize   = 3'h2;
-assign m_arlen    = cur_state == STATE_MREQ                       ? 8'h3:
+assign m_axi_intf.bready   = 1'b1;
+assign m_axi_intf.arid     = 10'b0;
+assign m_axi_intf.araddr   = cur_state == STATE_READ ? core_paddr_latch :
+                             {core_paddr_latch[`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH], {`CACHE_BLK_WIDTH{1'b0}}};
+assign m_axi_intf.arburst  = `AXI_BURST_INCR;
+assign m_axi_intf.arsize   = 3'h2;
+assign m_axi_intf.arlen    = cur_state == STATE_MREQ                       ? 8'h3:
 `ifndef RV32
-                    ~core_vaddr_latch[2] && |core_byte_latch[7:4] ? 8'h1:
+                             ~core_vaddr_latch[2] && |core_byte_latch[7:4] ? 8'h1:
 `endif
-                                                                    8'h0;
-assign m_rready   = 1'b1;
+                                                                             8'h0;
+assign m_axi_intf.arlock   = 2'h0;
+assign m_axi_intf.arcache  = 4'h0;
+assign m_axi_intf.arprot   = 3'h0;
+assign m_axi_intf.rready   = 1'b1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) state_latch <= STATE_IDLE;
@@ -259,11 +236,11 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)                        core_bad <= 2'b00;
-    else if (cur_state == STATE_IDLE) core_bad <= 2'b00;
-    else if (m_bresp[1] && m_bvalid)  core_bad <= 2'b10;
-    else if (m_rresp[1] && m_rvalid)  core_bad <= 2'b10;
-    else if (core_pa_vld)             core_bad <= core_pa_bad;
+    if (~rstn)                                          core_bad <= 2'b00;
+    else if (cur_state == STATE_IDLE)                   core_bad <= 2'b00;
+    else if (m_axi_intf.bresp[1] && m_axi_intf.bvalid)  core_bad <= 2'b10;
+    else if (m_axi_intf.rresp[1] && m_axi_intf.rvalid)  core_bad <= 2'b10;
+    else if (core_pa_vld)                               core_bad <= core_pa_bad;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -292,13 +269,13 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)         refill_mask <= {12'b0, 4'hf};
-    else if (m_rvalid) refill_mask <= {refill_mask[11:0], refill_mask[15:12]};
+    if (~rstn)                  refill_mask <= {12'b0, 4'hf};
+    else if (m_axi_intf.rvalid) refill_mask <= {refill_mask[11:0], refill_mask[15:12]};
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)         word_cnt <= 2'b0;
-    else if (m_rvalid) word_cnt <= word_cnt + 2'b1;
+    if (~rstn)                  word_cnt <= 2'b0;
+    else if (m_axi_intf.rvalid) word_cnt <= word_cnt + 2'b1;
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -309,7 +286,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (cur_state == STATE_IDLE) begin
         burst_1st <= 1'b1;
     end
-    else if ((m_rvalid && m_rready) || (m_wvalid && m_wready)) begin
+    else if ((m_axi_intf.rvalid && m_axi_intf.rready) || (m_axi_intf.wvalid && m_axi_intf.wready)) begin
         burst_1st <= 1'b0;
     end
 `endif
@@ -321,11 +298,11 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         if (rdata_low_tmp_wr) begin
-            core_rdata_tmp[0+:32]  <= m_rdata;
+            core_rdata_tmp[0+:32]  <= m_axi_intf.rdata;
         end
 `ifndef RV32
         if (rdata_high_tmp_wr) begin
-            core_rdata_tmp[32+:32] <= m_rdata;
+            core_rdata_tmp[32+:32] <= m_axi_intf.rdata;
         end
 `endif
     end
@@ -337,7 +314,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         if (core_flush)    valid <= 64'b0;
-        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= ~m_rresp[1] && ~core_pa_bad[1];
+        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= ~m_axi_intf.rresp[1] && ~core_pa_bad[1];
     end
 end
 
@@ -365,9 +342,9 @@ always_ff @(posedge clk or negedge rstn) begin
             wvalid_tmp  <= cur_state == STATE_WRITE & (~core_ex_latch | xmon_xstate);
         end
         else begin
-            if ( m_arready             || cur_state == STATE_IDLE) arvalid_tmp <= 1'b0;
-            if ( m_awready             || cur_state == STATE_IDLE) awvalid_tmp <= 1'b0;
-            if ((m_wready  && m_wlast) || cur_state == STATE_IDLE) wvalid_tmp  <= 1'b0;
+            if ( m_axi_intf.arready                      || cur_state == STATE_IDLE) arvalid_tmp <= 1'b0;
+            if ( m_axi_intf.awready                      || cur_state == STATE_IDLE) awvalid_tmp <= 1'b0;
+            if ((m_axi_intf.wready  && m_axi_intf.wlast) || cur_state == STATE_IDLE) wvalid_tmp  <= 1'b0;
         end
     end
 end

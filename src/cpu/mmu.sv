@@ -55,7 +55,7 @@ module mmu (
     output logic [                     63:0] pa_pre,
     
     // AXI interface
-    `AXI_INTF_MST_DEF(m, 10)
+    axi_intf.master                          m_axi_intf
 );
 
 parameter [1:0] STATE_IDLE  = 2'b00,
@@ -130,9 +130,9 @@ always_comb begin
                                    STATE_IDLE;
         end
         STATE_MREQ : begin
-            nxt_state = m_rvalid && m_rresp[1] ? STATE_IDLE:
-                        m_rvalid && m_rlast    ? STATE_PTE :
-                                                 STATE_MREQ;
+            nxt_state = m_axi_intf.rvalid && m_axi_intf.rresp[1] ? STATE_IDLE:
+                        m_axi_intf.rvalid && m_axi_intf.rlast    ? STATE_PTE :
+                                                                   STATE_MREQ;
         end
         STATE_PTE  : begin
             nxt_state = leaf || pg_fault_pte ? STATE_IDLE:
@@ -142,37 +142,37 @@ always_comb begin
 end
 
 always_comb begin
-    tlb_cs       = 1'b0;
-    tlb_we       = 1'b0;
-    pa_pre_vld   = 1'b0;
-    pa_pre_wr    = access_w_latch;
-    pa_pre_rd    = access_r_latch;
-    busy         = 1'b0;
-    m_arvalid    = 1'b0;
-    tlb_data_sel = 1'b0;
+    m_axi_intf.arvalid = 1'b0;
+    tlb_cs             = 1'b0;
+    tlb_we             = 1'b0;
+    pa_pre_vld         = 1'b0;
+    pa_pre_wr          = access_w_latch;
+    pa_pre_rd          = access_r_latch;
+    busy               = 1'b0;
+    tlb_data_sel       = 1'b0;
     case (cur_state)
         STATE_IDLE : begin
-            tlb_cs       = va_en;
-            pa_pre_vld   = va_valid && (~va_en || last_hit);
-            pa_pre_wr    = ~access_x &  access_w;
-            pa_pre_rd    = ~access_x & ~access_w;
-            busy         = 1'b0;
+            tlb_cs             = va_en;
+            pa_pre_vld         = va_valid && (~va_en || last_hit);
+            pa_pre_wr          = ~access_x &  access_w;
+            pa_pre_rd          = ~access_x & ~access_w;
+            busy               = 1'b0;
         end
         STATE_CHECK: begin
-            pa_pre_vld   = tlb_hit;
-            busy         = 1'b1;
-            tlb_data_sel = 1'b1;
+            pa_pre_vld         = tlb_hit;
+            busy               = 1'b1;
+            tlb_data_sel       = 1'b1;
         end
         STATE_MREQ : begin
-            pa_pre_vld   = m_rvalid && m_rresp[1];
-            busy         = 1'b1;
-            m_arvalid    = ~ar_done;
+            m_axi_intf.arvalid = ~ar_done;
+            pa_pre_vld         = m_axi_intf.rvalid && m_axi_intf.rresp[1];
+            busy               = 1'b1;
         end
         STATE_PTE  : begin
-            pa_pre_vld   = leaf ||  pg_fault_pte;
-            tlb_cs       = leaf && ~pg_fault_pte;
-            tlb_we       = 1'b1;
-            busy         = 1'b1;
+            pa_pre_vld         = leaf ||  pg_fault_pte;
+            tlb_cs             = leaf && ~pg_fault_pte;
+            tlb_we             = 1'b1;
+            busy               = 1'b1;
         end
     endcase
 end
@@ -244,33 +244,39 @@ assign {tlb_pte_ppn, tlb_pte_rsw, tlb_pte_d, tlb_pte_a, tlb_pte_g,
        ({54{ satp_mode_latch[3]}} & {       tlb_pte_out[53:0]});
 `endif
 
-assign m_awid     = 10'b0;
-assign m_awaddr   = 32'b0;
-assign m_awburst  = `AXI_BURST_FIXED;
-assign m_awsize   = 3'h0;
-assign m_awlen    = 8'b0;
-assign m_awvalid  = 1'b0;
-assign m_wid      = 10'b0;
-assign m_wstrb    = 4'b0;
-assign m_wlast    = 1'b0;
-assign m_wdata    = 32'b0;
-assign m_wvalid   = 1'b0;
-assign m_bready   = 1'b1;
+assign m_axi_intf.awid     = 10'b0;
+assign m_axi_intf.awaddr   = 32'b0;
+assign m_axi_intf.awburst  = `AXI_BURST_FIXED;
+assign m_axi_intf.awsize   = 3'h0;
+assign m_axi_intf.awlen    = 8'b0;
+assign m_axi_intf.awlock   = 2'h0;
+assign m_axi_intf.awcache  = 4'h0;
+assign m_axi_intf.awprot   = 3'h0;
+assign m_axi_intf.awvalid  = 1'b0;
+assign m_axi_intf.wid      = 10'b0;
+assign m_axi_intf.wstrb    = 4'b0;
+assign m_axi_intf.wlast    = 1'b0;
+assign m_axi_intf.wdata    = 32'b0;
+assign m_axi_intf.wvalid   = 1'b0;
+assign m_axi_intf.bready   = 1'b1;
 
-assign m_arid     = 10'b0;
+assign m_axi_intf.arid     = 10'b0;
 `ifdef RV32
-assign m_araddr   = {ppn_latch[19:0], vpn_latch[9:0], 2'b0};
+assign m_axi_intf.araddr   = {ppn_latch[19:0], vpn_latch[9:0], 2'b0};
 `else
-assign m_araddr   = {ppn_latch[19:0], vpn_latch[9:1], vpn_latch[0] & ~satp_mode_latch[3], 2'b0};
+assign m_axi_intf.araddr   = {ppn_latch[19:0], vpn_latch[9:1], vpn_latch[0] & ~satp_mode_latch[3], 2'b0};
 `endif
-assign m_arburst  = `AXI_BURST_INCR;
-assign m_arsize   = 3'h2;
+assign m_axi_intf.arburst  = `AXI_BURST_INCR;
+assign m_axi_intf.arsize   = 3'h2;
 `ifdef RV32
-assign m_arlen    = 8'h0;
+assign m_axi_intf.arlen    = 8'h0;
 `else
-assign m_arlen    = {7'h0, satp_mode_latch[3]};
+assign m_axi_intf.arlen    = {7'h0, satp_mode_latch[3]};
 `endif
-assign m_rready   = 1'b1;
+assign m_axi_intf.arlock   = 2'h0;
+assign m_axi_intf.arcache  = 4'h0;
+assign m_axi_intf.arprot   = 3'h0;
+assign m_axi_intf.rready   = 1'b1;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
@@ -287,7 +293,7 @@ always_ff @(posedge clk or negedge rstn) begin
                  ({3{satp_mode == `SATP_MODE_SV64}} & 6'b111111);
 `endif
     end
-    else if (m_rvalid && m_rlast) begin
+    else if (m_axi_intf.rvalid && m_axi_intf.rlast) begin
         spage <= {1'b0, spage[5:1]};
     end
 end
@@ -299,7 +305,7 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (cur_state == STATE_CHECK || cur_state == STATE_PTE) begin
         ar_done <= 1'b0;
     end
-    else if (m_arready) begin
+    else if (m_axi_intf.arready) begin
         ar_done <= 1'b1;
     end
 end
@@ -317,7 +323,7 @@ always_ff @(posedge clk or negedge rstn) begin
                      ({37{satp_mode_latch == `SATP_MODE_SV48}} & {va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], va_latch[39+:9], 1'b0});
 `endif
     end
-    else if (m_rvalid && m_rlast) begin
+    else if (m_axi_intf.rvalid && m_axi_intf.rlast) begin
 `ifdef RV32
         vpn_latch[19:0] <= {10'b0, vpn_latch[10+:10]};
 `else
@@ -346,15 +352,15 @@ always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         pte_latch <= 64'b0;
     end
-    else if (m_rvalid) begin
+    else if (m_axi_intf.rvalid) begin
 `ifdef RV32
-        pte_latch[31:0] <= m_rdata;
+        pte_latch[31:0] <= m_axi_intf.rdata;
 `else
-        if (satp_mode_latch[3] && m_rlast) begin
-            pte_latch[63:32] <= m_rdata;
+        if (satp_mode_latch[3] && m_axi_intf.rlast) begin
+            pte_latch[63:32] <= m_axi_intf.rdata;
         end
         else begin
-            pte_latch[31: 0] <= m_rdata;
+            pte_latch[31: 0] <= m_axi_intf.rdata;
         end
 `endif
     end
@@ -418,7 +424,7 @@ always_ff @(posedge clk or negedge rstn) begin
         bus_err <= 1'b0;
     end
     else begin
-        bus_err <= (m_rvalid && m_rresp[1]) || bus_boundary;
+        bus_err <= (m_axi_intf.rvalid && m_axi_intf.rresp[1]) || bus_boundary;
     end
 end
 

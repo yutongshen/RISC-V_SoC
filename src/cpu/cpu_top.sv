@@ -67,7 +67,7 @@ module cpu_top (
     output logic [              `XLEN - 1:0] dbg_csr_out,
     output logic [       `IM_ADDR_LEN - 1:0] dbg_pc_out,
     input                                    dbg_exec,
-    input        [       `IM_ADDR_LEN - 1:0] dbg_inst,
+    input        [       `IM_DATA_LEN - 1:0] dbg_inst,
     input                                    attach,
     output logic                             halted
 );
@@ -882,7 +882,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_rs1_data            <= exe_rs1_data;
             id2exe_rs2_data            <= exe_rs2_data;
             id2exe_branch              <= exe_hazard & id2exe_branch;
-            id2exe_jump_alu            <= 1'b0;
+            id2exe_jump_alu            <= id2exe_jump_alu & exe_gpr_hazard;
         end
     end
 end

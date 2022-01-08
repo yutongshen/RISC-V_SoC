@@ -4,15 +4,7 @@
 module plic (
     input                        clk,
     input                        rstn,
-    input                        psel,
-    input                        penable,
-    input        [        31: 0] paddr,
-    input                        pwrite,
-    input        [         3: 0] pstrb,
-    input        [        31: 0] pwdata,
-    output logic [        31: 0] prdata,
-    output logic                 pslverr,
-    output logic                 pready,
+    apb_intf.slave               apb_intf,
 
     output logic [`CPU_NUM-1: 0] meip,
     input        [`INT_NUM-1: 0] ints
@@ -89,8 +81,8 @@ generate
         end
 
         gateway u_gateway(
-            .clk      ( clk              ),
-            .rstn     ( rstn             ),
+            .clk      ( clk    ),
+            .rstn     ( rstn ),
             .src      ( ints    [gvar_i] ),
             .src_type ( int_type[gvar_i] ), // 0: edge, 1: level
             .src_pol  ( int_pol [gvar_i] ), // 0: high, 1: low
@@ -216,16 +208,18 @@ generate
     end
 endgenerate
 
-always_comb begin
+always_comb begin: comb_meip
     integer i;
     for (i = 0; i < `CPU_NUM; i = i + 1) begin
         meip[i] = claim_id[i] != int_id[i];
     end
 end
 
-assign apb_wr = ~penable & psel & pwrite;
+always_comb begin: comb_apb_wr
+    apb_wr = ~apb_intf.penable & apb_intf.psel & apb_intf.pwrite;
+end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_int_prior
     integer i;
     if (~rstn) begin
         for (i = 0; i < `INT_NUM; i = i + 1) begin
@@ -234,42 +228,42 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else if (apb_wr) begin
         for (i = 1; i < `INT_NUM; i = i + 1) begin
-            if (paddr[25:0] == `PLIC_INT_PRIOR + 26'h4 * i[25:0]) begin
-                int_prior[i] <= pwdata;
+            if (apb_intf.paddr[25:0] == `PLIC_INT_PRIOR + 26'h4 * i[25:0]) begin
+                int_prior[i] <= apb_intf.pwdata;
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_int_type
     integer i;
     if (~rstn) begin
         int_type <= `INT_NUM'b0;
     end
     else if (apb_wr) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
-            if (paddr[25:0] == `PLIC_INT_TYPE + i[28:3]) begin
-                int_type[i+:32] <= pwdata;
+            if (apb_intf.paddr[25:0] == `PLIC_INT_TYPE + i[28:3]) begin
+                int_type[i+:32] <= apb_intf.pwdata;
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_int_pol
     integer i;
     if (~rstn) begin
         int_pol <= `INT_NUM'b0;
     end
     else if (apb_wr) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
-            if (paddr[25:0] == `PLIC_INT_POL + i[28:3]) begin
-                int_pol[i+:32] <= pwdata;
+            if (apb_intf.paddr[25:0] == `PLIC_INT_POL + i[28:3]) begin
+                int_pol[i+:32] <= apb_intf.pwdata;
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_int_en
     integer i, j;
     if (~rstn) begin
         for (j = 0; j < `CPU_NUM; j = j + 1) begin
@@ -279,15 +273,15 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (apb_wr) begin
         for (j = 0; j < `CPU_NUM; j = j + 1) begin
             for (i = 0; i < `INT_NUM; i = i + 32) begin
-                if (paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]) begin
-                    int_en[j][i+:32] <= pwdata;
+                if (apb_intf.paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]) begin
+                    int_en[j][i+:32] <= apb_intf.pwdata;
                 end
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_threshold
     integer i;
     if (~rstn) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
@@ -296,14 +290,14 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else if (apb_wr) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]) begin
-                threshold[i] <= pwdata;
+            if (apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]) begin
+                threshold[i] <= apb_intf.pwdata;
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_int_id
     integer i;
     if (~rstn) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
@@ -312,7 +306,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (!(~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4)) begin
+            if (!(~apb_intf.penable && apb_intf.psel &&
+                apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4)) begin
                 if (~|claim_id[i]) begin // non-preemptive
                     int_id   [i] <= int_max_pri[i] > threshold[i] ? int_id_tmp[i] : 32'b0;
                 end
@@ -321,7 +316,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_claim_id
     integer i;
     if (~rstn) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
@@ -330,14 +325,15 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (~penable && psel && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
-                claim_id [i] <= pwrite ? 32'b0 : int_id[i];
+            if (~apb_intf.penable && apb_intf.psel &&
+                apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
+                claim_id [i] <= apb_intf.pwrite ? 32'b0 : int_id[i];
             end
         end
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_cmplet_id
     integer i;
     if (~rstn) begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
@@ -346,7 +342,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         for (i = 0; i < `CPU_NUM; i = i + 1) begin
-            if (apb_wr && paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
+            if (apb_wr && apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
                 cmplet_id[i] <= claim_id[i];
             end
             else begin
@@ -356,77 +352,85 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_pri
     integer i;
     prdata_pri = 32'b0;
     for (i = 0; i < `INT_NUM; i = i + 1) begin
-        prdata_pri = prdata_pri | (int_prior[i] & {32{paddr[25:0] == `PLIC_INT_PRIOR + 26'h4 * i[25:0]}});
+        prdata_pri = prdata_pri |
+                    (int_prior[i] & {32{apb_intf.paddr[25:0] == `PLIC_INT_PRIOR + 26'h4 * i[25:0]}});
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_ip
     integer i;
     prdata_ip = 32'b0;
     for (i = 0; i < `INT_NUM; i = i + 32) begin
-        prdata_ip = prdata_ip | (int_pend[i+:32] & {32{paddr[25:0] == `PLIC_INT_PEND + i[28:3]}});
+        prdata_ip = prdata_ip |
+                    (int_pend[i+:32] & {32{apb_intf.paddr[25:0] == `PLIC_INT_PEND + i[28:3]}});
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_ityp
     integer i;
     prdata_ityp = 32'b0;
     for (i = 0; i < `INT_NUM; i = i + 32) begin
-        prdata_ityp = prdata_ityp | (int_type[i+:32] & {32{paddr[25:0] == `PLIC_INT_TYPE + i[28:3]}});
+        prdata_ityp = prdata_ityp |
+                      (int_type[i+:32] & {32{apb_intf.paddr[25:0] == `PLIC_INT_TYPE + i[28:3]}});
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_ipol
     integer i;
     prdata_ipol = 32'b0;
     for (i = 0; i < `INT_NUM; i = i + 32) begin
-        prdata_ipol = prdata_ipol | (int_pol[i+:32] & {32{paddr[25:0] == `PLIC_INT_POL + i[28:3]}});
+        prdata_ipol = prdata_ipol |
+                      (int_pol[i+:32] & {32{apb_intf.paddr[25:0] == `PLIC_INT_POL + i[28:3]}});
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_ie
     integer i, j;
     prdata_ie = 32'b0;
     for (j = 0; j < `CPU_NUM; j = j + 1) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
-            prdata_ie = prdata_ie | (int_en[j][i+:32] & {32{paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]}});
+            prdata_ie = prdata_ie |
+                        (int_en[j][i+:32] &
+                         {32{apb_intf.paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]}});
         end
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_th
     integer i;
     prdata_th = 32'b0;
     for (i = 0; i < `CPU_NUM; i = i + 1) begin
-        prdata_th = prdata_th | (threshold[i] & {32{paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]}});
+        prdata_th = prdata_th |
+                    (threshold[i] & {32{apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]}});
     end
 end
 
-always_comb begin
+always_comb begin: comb_prdata_id
     integer i;
     prdata_id = 32'b0;
     for (i = 0; i < `CPU_NUM; i = i + 1) begin
-        prdata_id = prdata_id | (int_id[i] & {32{paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4}});
+        prdata_id = prdata_id |
+                    (int_id[i] & {32{apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4}});
     end
 end
 
 assign prdata_t = prdata_pri | prdata_ip | prdata_ityp | prdata_ipol | prdata_ie | prdata_id | prdata_th;
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_rdata
     if (~rstn) begin
-        prdata <= 32'b0;
+        apb_intf.prdata <= 32'b0;
     end
     else begin
-        prdata <= prdata_t;
+        apb_intf.prdata <= prdata_t;
     end
 end
 
-assign pslverr = 1'b0;
-assign pready  = 1'b1;
+assign apb_intf.pslverr = 1'b0;
+assign apb_intf.pready  = 1'b1;
 
 endmodule
 
@@ -457,7 +461,7 @@ logic       is_claim;
 logic       is_cancel;
 logic       is_cmplet;
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: fsm
     if (~rstn) begin
         cur_state <= STATE_IDLE;
     end
@@ -466,7 +470,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_comb begin
+always_comb begin: next_state
     nxt_state = cur_state;
     case (cur_state)
         STATE_IDLE : nxt_state = is_pend   ? STATE_PEND  : STATE_IDLE;
@@ -478,7 +482,7 @@ end
 
 assign src_tmp = src ^ src_pol;
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_src_pol_dly
     if (~rstn) begin
         src_pol_dly  <= 1'b0;
     end
@@ -487,7 +491,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_src_lvl
     if (~rstn) begin
         src_lvl <= 1'b0;
     end
@@ -496,7 +500,7 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
+always_ff @(posedge clk or negedge rstn) begin: reg_src_edge
     if (~rstn) begin
         src_edge <= 1'b0;
     end

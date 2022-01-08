@@ -1,6 +1,7 @@
 ../sim/test.sv
 ../mdl/cpu_tracer.sv
 ../mdl/uart_mdl.sv
+../mdl/axi_vip_slave.sv
 
 +incdir+../include
 +define+CPULOG

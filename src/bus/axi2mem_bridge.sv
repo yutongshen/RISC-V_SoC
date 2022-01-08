@@ -4,36 +4,7 @@ module axi2mem_bridge (
     input                  aclk,
     input                  aresetn,
     // AXI slave port
-    input         [  1: 0] s_awburst,
-    input         [ 12: 0] s_awid,
-    input         [ 31: 0] s_awaddr,
-    input         [  2: 0] s_awsize,
-    input         [  7: 0] s_awlen,
-    input                  s_awvalid,
-    output logic           s_awready,
-    input         [  3: 0] s_wstrb,
-    input         [ 12: 0] s_wid,
-    input         [ 31: 0] s_wdata,
-    input                  s_wlast,
-    input                  s_wvalid,
-    output logic           s_wready,
-    output logic  [ 12: 0] s_bid,
-    output logic  [  1: 0] s_bresp,
-    output logic           s_bvalid,
-    input                  s_bready,
-    input         [ 31: 0] s_araddr,
-    input         [  1: 0] s_arburst,
-    input         [  2: 0] s_arsize,
-    input         [ 12: 0] s_arid,
-    input         [  7: 0] s_arlen,
-    input                  s_arvalid,
-    output logic           s_arready,
-    output logic  [ 31: 0] s_rdata,
-    output logic  [  1: 0] s_rresp,
-    output logic  [ 12: 0] s_rid,
-    output logic           s_rlast,
-    output logic           s_rvalid,
-    input                  s_rready,
+    axi_intf.slave         s_axi_intf,
 
     // Memory intface master port
     output logic           m_cs, 
@@ -84,38 +55,38 @@ always_comb begin
     nxt_state = cur_state;
     case (cur_state)
         STATE_IDLE: begin
-            nxt_state = s_arvalid ? STATE_RD:
-                        s_awvalid ? STATE_WR:
+            nxt_state = s_axi_intf.arvalid ? STATE_RD:
+                        s_axi_intf.awvalid ? STATE_WR:
                                     STATE_IDLE;
         end
         STATE_WR  : begin
-            nxt_state = ~|cnt & s_wvalid & s_wready ? SIATE_RESP : STATE_WR;
+            nxt_state = ~|cnt & s_axi_intf.wvalid & s_axi_intf.wready ? SIATE_RESP : STATE_WR;
         end
         SIATE_RESP: begin
-            nxt_state = s_bready ? STATE_IDLE : SIATE_RESP;
+            nxt_state = s_axi_intf.bready ? STATE_IDLE : SIATE_RESP;
         end
         STATE_RD  : begin
-            nxt_state = ~|cnt & s_rready & s_rvalid ? STATE_IDLE : STATE_RD;
+            nxt_state = ~|cnt & s_axi_intf.rready & s_axi_intf.rvalid ? STATE_IDLE : STATE_RD;
         end
     endcase
 end
 
-assign s_bid   = id_latch;
-assign s_bresp = `AXI_RESP_OKAY;
-assign s_rid   = id_latch;
-assign s_rdata = rdata_latch_en ? rdata_latch : m_do;
-assign s_rresp = `AXI_RESP_OKAY;
-assign s_rlast = ~|cnt;
+assign s_axi_intf.bid   = id_latch;
+assign s_axi_intf.bresp = `AXI_RESP_OKAY;
+assign s_axi_intf.rid   = id_latch;
+assign s_axi_intf.rdata = rdata_latch_en ? rdata_latch : m_do;
+assign s_axi_intf.rresp = `AXI_RESP_OKAY;
+assign s_axi_intf.rlast = ~|cnt;
 assign m_addr  = addr_latch;
-assign m_byte  = s_wstrb;
-assign m_di    = s_wdata;
+assign m_byte  = s_axi_intf.wstrb;
+assign m_di    = s_axi_intf.wdata;
 
 always_comb begin
-    s_awready = 1'b0;
-    s_wready  = 1'b0;
-    s_bvalid  = 1'b0;
-    s_arready = 1'b0;
-    s_rvalid  = 1'b0;
+    s_axi_intf.awready = 1'b0;
+    s_axi_intf.wready  = 1'b0;
+    s_axi_intf.bvalid  = 1'b0;
+    s_axi_intf.arready = 1'b0;
+    s_axi_intf.rvalid  = 1'b0;
     m_cs      = 1'b0;
     m_we      = 1'b0;
     id_upd    = 1'b0;
@@ -126,28 +97,28 @@ always_comb begin
     addr_nxt  = 1'b0;
     case (cur_state)
         STATE_IDLE: begin
-            s_awready = ~s_arvalid;
-            s_arready = 1'b1;
-            id_upd    = s_arvalid | s_awvalid;
-            cnt_upd   = s_arvalid | s_awvalid;
-            addr_upd  = s_arvalid | s_awvalid;
-            size_upd  = s_arvalid | s_awvalid;
+            s_axi_intf.awready = ~s_axi_intf.arvalid;
+            s_axi_intf.arready = 1'b1;
+            id_upd    = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            cnt_upd   = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            addr_upd  = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            size_upd  = s_axi_intf.arvalid | s_axi_intf.awvalid;
         end
         STATE_WR  : begin
-            s_wready = ~m_busy;
-            m_cs     = ~m_busy & s_wvalid;
+            s_axi_intf.wready = ~m_busy;
+            m_cs     = ~m_busy & s_axi_intf.wvalid;
             m_we     = 1'b1;
-            cnt_nxt  = ~m_busy & s_wvalid;
-            addr_nxt = ~m_busy & s_wvalid;
+            cnt_nxt  = ~m_busy & s_axi_intf.wvalid;
+            addr_nxt = ~m_busy & s_axi_intf.wvalid;
         end
         SIATE_RESP: begin
-            s_bvalid = 1'b1;
+            s_axi_intf.bvalid = 1'b1;
         end
         STATE_RD  : begin
-            s_rvalid = (~m_busy & req_latch) | rdata_latch_en;
-            m_cs     = ~m_busy & ~(s_rlast & req_latch) & rsend_latch & ~rdata_latch_en;
-            cnt_nxt  = ((~m_busy & req_latch) | rdata_latch_en) & s_rready;
-            addr_nxt = ~m_busy/* & req_latch*/ & s_rready;
+            s_axi_intf.rvalid = (~m_busy & req_latch) | rdata_latch_en;
+            m_cs     = ~m_busy & ~(s_axi_intf.rlast & req_latch) & rsend_latch & ~rdata_latch_en;
+            cnt_nxt  = ((~m_busy & req_latch) | rdata_latch_en) & s_axi_intf.rready;
+            addr_nxt = ~m_busy/* & req_latch*/ & s_axi_intf.rready;
         end
     endcase
 end
@@ -180,7 +151,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (cur_state == STATE_RD) begin
-            if (s_rvalid & s_rready) begin
+            if (s_axi_intf.rvalid & s_axi_intf.rready) begin
                 rdata_latch_en <= 1'b0;
             end
             else if (req_latch & ~m_busy) begin
@@ -209,7 +180,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (id_upd) begin
-            id_latch <= s_arvalid ? s_arid : s_awid;
+            id_latch <= s_axi_intf.arvalid ? s_axi_intf.arid : s_axi_intf.awid;
         end
     end
 end
@@ -220,7 +191,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (cnt_upd) begin
-            cnt <= s_arvalid ? s_arlen : s_awlen;
+            cnt <= s_axi_intf.arvalid ? s_axi_intf.arlen : s_axi_intf.awlen;
         end
         else if (cnt_nxt) begin
             cnt <= cnt - 8'b1;
@@ -234,8 +205,8 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (addr_upd) begin
-            if (s_arvalid) begin
-                case (s_arburst)
+            if (s_axi_intf.arvalid) begin
+                case (s_axi_intf.arburst)
                     `AXI_BURST_FIXED: begin
                         addr_mask_latch <= ~32'b0;
                     end
@@ -243,7 +214,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
                         addr_mask_latch <= 32'b0;
                     end
                     `AXI_BURST_WRAP : begin
-                        addr_mask_latch <= ~((({{(32-8){1'b0}}, s_arlen} + 32'b1) << s_arsize) - 32'b1);
+                        addr_mask_latch <= ~((({{(32-8){1'b0}}, s_axi_intf.arlen} + 32'b1) << s_axi_intf.arsize) - 32'b1);
                     end
                 endcase
             end
@@ -259,7 +230,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (addr_upd) begin
-            addr_latch <= s_arvalid ? s_araddr : s_awaddr;
+            addr_latch <= s_axi_intf.arvalid ? s_axi_intf.araddr : s_axi_intf.awaddr;
         end
         else if (addr_nxt) begin
             addr_latch <= (addr_latch & addr_mask_latch) | ((addr_latch + (32'b1 << size_latch)) & ~addr_mask_latch);
@@ -273,7 +244,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (id_upd) begin
-            size_latch <= s_arvalid ? s_arsize : s_awsize;
+            size_latch <= s_axi_intf.arvalid ? s_axi_intf.arsize : s_axi_intf.awsize;
         end
     end
 end

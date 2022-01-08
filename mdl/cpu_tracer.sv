@@ -22,8 +22,8 @@ module cpu_tracer (
     input [  `XLEN-1:0] mem_rdata,
     input [  `XLEN-1:0] mem_wdata,
     input               trap_en,
-    input [       31:0] mcause,
-    input [       31:0] mtval,
+    input [  `XLEN-1:0] mcause,
+    input [  `XLEN-1:0] mtval,
     input               halted
 );
 

@@ -4,48 +4,10 @@ module axi2apb_bridge (
     input                  aclk,
     input                  aresetn,
     // AXI slave port
-    input         [  1: 0] s_awburst,
-    input         [ 12: 0] s_awid,
-    input         [ 31: 0] s_awaddr,
-    input         [  2: 0] s_awsize,
-    input         [  7: 0] s_awlen,
-    input                  s_awvalid,
-    output logic           s_awready,
-    input         [  3: 0] s_wstrb,
-    input         [ 12: 0] s_wid,
-    input         [ 31: 0] s_wdata,
-    input                  s_wlast,
-    input                  s_wvalid,
-    output logic           s_wready,
-    output logic  [ 12: 0] s_bid,
-    output logic  [  1: 0] s_bresp,
-    output logic           s_bvalid,
-    input                  s_bready,
-    input         [ 31: 0] s_araddr,
-    input         [  1: 0] s_arburst,
-    input         [  2: 0] s_arsize,
-    input         [ 12: 0] s_arid,
-    input         [  7: 0] s_arlen,
-    input                  s_arvalid,
-    output logic           s_arready,
-    output logic  [ 31: 0] s_rdata,
-    output logic  [  1: 0] s_rresp,
-    output logic  [ 12: 0] s_rid,
-    output logic           s_rlast,
-    output logic           s_rvalid,
-    input                  s_rready,
+    axi_intf.slave         s_axi_intf,
 
     // APB master port
-    output logic           psel,
-    output logic           penable,
-    output logic  [ 31: 0] paddr,
-    output logic           pwrite,
-    output logic  [  3: 0] pstrb,
-    output logic  [ 31: 0] pwdata,
-    input         [ 31: 0] prdata,
-    input                  pslverr,
-    input                  pready
-
+    apb_intf.master        m_apb_intf
 );
 
 parameter [2:0] STATE_IDLE  = 3'b000,
@@ -85,79 +47,79 @@ always_comb begin
     nxt_state = cur_state;
     case (cur_state)
         STATE_IDLE: begin
-            nxt_state = s_arvalid ? STATE_RD:
-                        s_awvalid ? STATE_WR:
-                                    STATE_IDLE;
+            nxt_state = s_axi_intf.arvalid ? STATE_RD:
+                        s_axi_intf.awvalid ? STATE_WR:
+                                             STATE_IDLE;
         end
         STATE_WR  : begin
-            nxt_state = ~|cnt & s_wvalid & s_wready ? SIATE_BRESP : STATE_WR;
+            nxt_state = ~|cnt & s_axi_intf.wvalid & s_axi_intf.wready ? SIATE_BRESP : STATE_WR;
         end
         SIATE_BRESP: begin
-            nxt_state = s_bready ? STATE_IDLE : SIATE_BRESP;
+            nxt_state = s_axi_intf.bready ? STATE_IDLE : SIATE_BRESP;
         end
         STATE_RD  : begin
-            nxt_state = penable & pready ? STATE_RRESP : STATE_RD;
+            nxt_state = m_apb_intf.penable & m_apb_intf.pready ? STATE_RRESP : STATE_RD;
         end
         STATE_RRESP: begin
-            nxt_state = ~|cnt & s_rready ? STATE_IDLE:
-                        s_rready         ? STATE_RD:
-                                           STATE_RRESP;
+            nxt_state = ~|cnt & s_axi_intf.rready ? STATE_IDLE:
+                        s_axi_intf.rready         ? STATE_RD:
+                                                    STATE_RRESP;
         end
     endcase
 end
 
-assign s_bid   = id_latch;
-assign s_bresp = resp_latch;
-assign s_rid   = id_latch;
-assign s_rdata = rdata_latch;
-assign s_rresp = resp_latch;
-assign s_rlast = ~|cnt;
-assign paddr   = addr_latch;
-assign pstrb   = s_wstrb;
-assign pwdata  = s_wdata;
+assign s_axi_intf.bid     = id_latch;
+assign s_axi_intf.bresp   = resp_latch;
+assign s_axi_intf.rid     = id_latch;
+assign s_axi_intf.rdata   = rdata_latch;
+assign s_axi_intf.rresp   = resp_latch;
+assign s_axi_intf.rlast   = ~|cnt;
+assign m_apb_intf.paddr   = addr_latch;
+assign m_apb_intf.pstrb   = s_axi_intf.wstrb;
+assign m_apb_intf.pwdata  = s_axi_intf.wdata;
 
 
 
 always_comb begin
-    s_awready = 1'b0;
-    s_wready  = 1'b0;
-    s_bvalid  = 1'b0;
-    s_arready = 1'b0;
-    s_rvalid  = 1'b0;
-    psel      = 1'b0;
-    pwrite    = 1'b0;
-    id_upd    = 1'b0;
-    cnt_upd   = 1'b0;
-    addr_upd  = 1'b0;
-    size_upd  = 1'b0;
-    cnt_nxt   = 1'b0;
-    addr_nxt  = 1'b0;
+    s_axi_intf.awready = 1'b0;
+    s_axi_intf.wready  = 1'b0;
+    s_axi_intf.bvalid  = 1'b0;
+    s_axi_intf.arready = 1'b0;
+    s_axi_intf.rvalid  = 1'b0;
+    m_apb_intf.psel    = 1'b0;
+    m_apb_intf.pwrite  = 1'b0;
+    id_upd             = 1'b0;
+    cnt_upd            = 1'b0;
+    addr_upd           = 1'b0;
+    size_upd           = 1'b0;
+    cnt_nxt            = 1'b0;
+    addr_nxt           = 1'b0;
     case (cur_state)
         STATE_IDLE: begin
-            s_awready = ~s_arvalid;
-            s_arready = 1'b1;
-            id_upd    = s_arvalid | s_awvalid;
-            cnt_upd   = s_arvalid | s_awvalid;
-            addr_upd  = s_arvalid | s_awvalid;
-            size_upd  = s_arvalid | s_awvalid;
+            s_axi_intf.awready = ~s_axi_intf.arvalid;
+            s_axi_intf.arready = 1'b1;
+            id_upd             = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            cnt_upd            = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            addr_upd           = s_axi_intf.arvalid | s_axi_intf.awvalid;
+            size_upd           = s_axi_intf.arvalid | s_axi_intf.awvalid;
         end
         STATE_WR  : begin
-            psel     = s_wvalid;
-            pwrite   = 1'b1;
-            s_wready = pready & penable;
-            cnt_nxt  = pready & penable & s_wvalid;
-            addr_nxt = pready & penable & s_wvalid;
+            m_apb_intf.psel    = s_axi_intf.wvalid;
+            m_apb_intf.pwrite  = 1'b1;
+            s_axi_intf.wready  = m_apb_intf.pready & m_apb_intf.penable;
+            cnt_nxt            = m_apb_intf.pready & m_apb_intf.penable & s_axi_intf.wvalid;
+            addr_nxt           = m_apb_intf.pready & m_apb_intf.penable & s_axi_intf.wvalid;
         end
         SIATE_BRESP: begin
-            s_bvalid = 1'b1;
+            s_axi_intf.bvalid  = 1'b1;
         end
         STATE_RD  : begin
-            psel     = 1'b1;
+            m_apb_intf.psel    = 1'b1;
         end
         STATE_RRESP: begin
-            s_rvalid = 1'b1;
-            cnt_nxt  = s_rready;
-            addr_nxt = s_rready;
+            s_axi_intf.rvalid  = 1'b1;
+            cnt_nxt            = s_axi_intf.rready;
+            addr_nxt           = s_axi_intf.rready;
         end
     endcase
 end
@@ -167,10 +129,10 @@ always_ff @(posedge aclk or negedge aresetn) begin
         resp_latch <= 2'b0;
     end
     else begin
-        if (pready & penable & pslverr) begin
+        if (m_apb_intf.pready & m_apb_intf.penable & m_apb_intf.pslverr) begin
             resp_latch <= `AXI_RESP_SLVERR;
         end
-        else if ((s_bready & s_bvalid) | (s_rready & s_rvalid)) begin
+        else if ((s_axi_intf.bready & s_axi_intf.bvalid) | (s_axi_intf.rready & s_axi_intf.rvalid)) begin
             resp_latch <= `AXI_RESP_OKAY;
         end
     end
@@ -178,14 +140,14 @@ end
 
 always_ff @(posedge aclk or negedge aresetn) begin
     if (~aresetn) begin
-        penable <= 1'b0;
+        m_apb_intf.penable <= 1'b0;
     end
     else begin
-        if (pready & penable) begin
-            penable <= 1'b0;
+        if (m_apb_intf.pready & m_apb_intf.penable) begin
+            m_apb_intf.penable <= 1'b0;
         end
-        else if (psel) begin
-            penable <= 1'b1;
+        else if (m_apb_intf.psel) begin
+            m_apb_intf.penable <= 1'b1;
         end
     end
 end
@@ -196,8 +158,8 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (cur_state == STATE_RD) begin
-            if (pready & penable) begin
-                rdata_latch <= prdata;
+            if (m_apb_intf.pready & m_apb_intf.penable) begin
+                rdata_latch <= m_apb_intf.prdata;
             end
         end
     end
@@ -209,7 +171,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (id_upd) begin
-            id_latch <= s_arvalid ? s_arid : s_awid;
+            id_latch <= s_axi_intf.arvalid ? s_axi_intf.arid : s_axi_intf.awid;
         end
     end
 end
@@ -220,7 +182,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (cnt_upd) begin
-            cnt <= s_arvalid ? s_arlen : s_awlen;
+            cnt <= s_axi_intf.arvalid ? s_axi_intf.arlen : s_axi_intf.awlen;
         end
         else if (cnt_nxt) begin
             cnt <= cnt - 8'b1;
@@ -234,8 +196,8 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (addr_upd) begin
-            if (s_arvalid) begin
-                case (s_arburst)
+            if (s_axi_intf.arvalid) begin
+                case (s_axi_intf.arburst)
                     `AXI_BURST_FIXED: begin
                         addr_mask_latch <= ~32'b0;
                     end
@@ -243,7 +205,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
                         addr_mask_latch <= 32'b0;
                     end
                     `AXI_BURST_WRAP : begin
-                        addr_mask_latch <= ~((({{(32-8){1'b0}}, s_arlen} + 32'b1) << s_arsize) - 32'b1);
+                        addr_mask_latch <= ~((({{(32-8){1'b0}}, s_axi_intf.arlen} + 32'b1) << s_axi_intf.arsize) - 32'b1);
                     end
                 endcase
             end
@@ -259,7 +221,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (addr_upd) begin
-            addr_latch <= s_arvalid ? s_araddr : s_awaddr;
+            addr_latch <= s_axi_intf.arvalid ? s_axi_intf.araddr : s_axi_intf.awaddr;
         end
         else if (addr_nxt) begin
             addr_latch <= (addr_latch & addr_mask_latch) | ((addr_latch + (32'b1 << size_latch)) & ~addr_mask_latch);
@@ -273,7 +235,7 @@ always_ff @(posedge aclk or negedge aresetn) begin
     end
     else begin
         if (id_upd) begin
-            size_latch <= s_arvalid ? s_arsize : s_awsize;
+            size_latch <= s_axi_intf.arvalid ? s_axi_intf.arsize : s_axi_intf.awsize;
         end
     end
 end

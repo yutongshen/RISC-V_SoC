@@ -54,6 +54,8 @@ merge:
 
 sim: all | ${bld_dir}
 	@make verdi.f;
+	@make -C rom;
+	@cp rom/*.hex ${bld_dir};
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
@@ -75,8 +77,8 @@ sim: all | ${bld_dir}
 	fi;
 
 axi: | ${bld_dir}
-	# @cd $(root_dir)/$(src_dir)/bus/; \
-	# ../../script/gen_axi_dec.sh 2 4 ../../script/axi_sideband.cfg ../../script/axi_mmap.cfg
+	@cd $(root_dir)/$(src_dir)/bus/; \
+	../../script/gen_axi_biu.sh 5 5 4 1 ../../script/axi_sideband.cfg ../../script/axi_mmap.cfg
 	# @cd $(root_dir)/mdl; \
 	# ../script/gen_axi_mon.sh 1 2 ../script/axi_sideband.cfg ../script/axi_mmap.cfg
 	# @cd $(root_dir)/$(sim_dir); \

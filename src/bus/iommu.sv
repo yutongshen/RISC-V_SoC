@@ -1,98 +1,90 @@
-module iommu (
-    input                  aclk,
-    input                  aresetn,
-    input         [  1: 0] s_awburst,
-    input         [  9: 0] s_awid,
-    input         [ 31: 0] s_awaddr,
-    input         [  2: 0] s_awsize,
-    input         [  7: 0] s_awlen,
-    input                  s_awvalid,
-    output logic           s_awready,
-    input         [  3: 0] s_wstrb,
-    input         [  9: 0] s_wid,
-    input         [ 31: 0] s_wdata,
-    input                  s_wlast,
-    input                  s_wvalid,
-    output logic           s_wready,
-    output logic  [  9: 0] s_bid,
-    output logic  [  1: 0] s_bresp,
-    output logic           s_bvalid,
-    input                  s_bready,
-    input         [ 31: 0] s_araddr,
-    input         [  1: 0] s_arburst,
-    input         [  2: 0] s_arsize,
-    input         [  9: 0] s_arid,
-    input         [  7: 0] s_arlen,
-    input                  s_arvalid,
-    output logic           s_arready,
-    output logic  [ 31: 0] s_rdata,
-    output logic  [  1: 0] s_rresp,
-    output logic  [  9: 0] s_rid,
-    output logic           s_rlast,
-    output logic           s_rvalid,
-    input                  s_rready,
-    output logic  [  1: 0] m_awburst,
-    output logic  [  9: 0] m_awid,
-    output logic  [ 31: 0] m_awaddr,
-    output logic  [  2: 0] m_awsize,
-    output logic  [  7: 0] m_awlen,
-    output logic           m_awvalid,
-    input                  m_awready,
-    output logic  [  3: 0] m_wstrb,
-    output logic  [  9: 0] m_wid,
-    output logic  [ 31: 0] m_wdata,
-    output logic           m_wlast,
-    output logic           m_wvalid,
-    input                  m_wready,
-    input         [  9: 0] m_bid,
-    input         [  1: 0] m_bresp,
-    input                  m_bvalid,
-    output logic           m_bready,
-    output logic  [ 31: 0] m_araddr,
-    output logic  [  1: 0] m_arburst,
-    output logic  [  2: 0] m_arsize,
-    output logic  [  9: 0] m_arid,
-    output logic  [  7: 0] m_arlen,
-    output logic           m_arvalid,
-    input                  m_arready,
-    input         [ 31: 0] m_rdata,
-    input         [  1: 0] m_rresp,
-    input         [  9: 0] m_rid,
-    input                  m_rlast,
-    input                  m_rvalid,
-    output logic           m_rready
+module iommu_ext (
+    axi_intf.slave  s_axi_intf,
+    axi_intf.master m_axi_intf
 );
 
-assign s_awready = m_awready;
-assign s_wready  = m_wready ;
-assign s_bid     = m_bid    ;
-assign s_bresp   = m_bresp  ;
-assign s_bvalid  = m_bvalid ;
-assign s_arready = m_arready;
-assign s_rdata   = m_rdata  ;
-assign s_rresp   = m_rresp  ;
-assign s_rid     = m_rid    ;
-assign s_rlast   = m_rlast  ;
-assign s_rvalid  = m_rvalid ;
+assign s_axi_intf.awready = m_axi_intf.awready;
+assign s_axi_intf.wready  = m_axi_intf.wready ;
+assign s_axi_intf.bid     = m_axi_intf.bid    ;
+assign s_axi_intf.bresp   = m_axi_intf.bresp  ;
+assign s_axi_intf.bvalid  = m_axi_intf.bvalid ;
+assign s_axi_intf.arready = m_axi_intf.arready;
+assign s_axi_intf.rdata   = m_axi_intf.rdata  ;
+assign s_axi_intf.rresp   = m_axi_intf.rresp  ;
+assign s_axi_intf.rid     = m_axi_intf.rid    ;
+assign s_axi_intf.rlast   = m_axi_intf.rlast  ;
+assign s_axi_intf.rvalid  = m_axi_intf.rvalid ;
 
-assign m_awburst = s_awburst;
-assign m_awid    = s_awid   ;
-assign m_awaddr  = {2'b0, s_awaddr[29:0]};
-assign m_awsize  = s_awsize ;
-assign m_awlen   = s_awlen  ;
-assign m_awvalid = s_awvalid;
-assign m_wstrb   = s_wstrb  ;
-assign m_wid     = s_wid    ;
-assign m_wdata   = s_wdata  ;
-assign m_wlast   = s_wlast  ;
-assign m_wvalid  = s_wvalid ;
-assign m_bready  = s_bready ;
-assign m_araddr  = {2'b0, s_araddr[29:0]};
-assign m_arburst = s_arburst;
-assign m_arsize  = s_arsize ;
-assign m_arid    = s_arid   ;
-assign m_arlen   = s_arlen  ;
-assign m_arvalid = s_arvalid;
-assign m_rready  = s_rready ;
+assign m_axi_intf.awburst = s_axi_intf.awburst;
+assign m_axi_intf.awid    = s_axi_intf.awid   ;
+assign m_axi_intf.awaddr  = {2'b0, s_axi_intf.awaddr[29:0]};
+assign m_axi_intf.awsize  = s_axi_intf.awsize ;
+assign m_axi_intf.awlen   = s_axi_intf.awlen  ;
+assign m_axi_intf.awlock  = s_axi_intf.awlock ;
+assign m_axi_intf.awcache = s_axi_intf.awcache;
+assign m_axi_intf.awprot  = s_axi_intf.awprot ;
+assign m_axi_intf.awvalid = s_axi_intf.awvalid;
+assign m_axi_intf.wstrb   = s_axi_intf.wstrb  ;
+assign m_axi_intf.wid     = s_axi_intf.wid    ;
+assign m_axi_intf.wdata   = s_axi_intf.wdata  ;
+assign m_axi_intf.wlast   = s_axi_intf.wlast  ;
+assign m_axi_intf.wvalid  = s_axi_intf.wvalid ;
+assign m_axi_intf.bready  = s_axi_intf.bready ;
+assign m_axi_intf.araddr  = {2'b0, s_axi_intf.araddr[29:0]};
+assign m_axi_intf.arburst = s_axi_intf.arburst;
+assign m_axi_intf.arsize  = s_axi_intf.arsize ;
+assign m_axi_intf.arid    = s_axi_intf.arid   ;
+assign m_axi_intf.arlen   = s_axi_intf.arlen  ;
+assign m_axi_intf.arlock  = s_axi_intf.arlock ;
+assign m_axi_intf.arcache = s_axi_intf.arcache;
+assign m_axi_intf.arprot  = s_axi_intf.arprot ;
+assign m_axi_intf.arvalid = s_axi_intf.arvalid;
+assign m_axi_intf.rready  = s_axi_intf.rready ;
+
+endmodule
+
+module iommu_ddr (
+    axi_intf.slave  s_axi_intf,
+    axi_intf.master m_axi_intf,
+    input [31:0]    offset
+);
+
+assign s_axi_intf.awready = m_axi_intf.awready;
+assign s_axi_intf.wready  = m_axi_intf.wready ;
+assign s_axi_intf.bid     = {6'b0, m_axi_intf.bid};
+assign s_axi_intf.bresp   = m_axi_intf.bresp  ;
+assign s_axi_intf.bvalid  = m_axi_intf.bvalid ;
+assign s_axi_intf.arready = m_axi_intf.arready;
+assign s_axi_intf.rdata   = m_axi_intf.rdata  ;
+assign s_axi_intf.rresp   = m_axi_intf.rresp  ;
+assign s_axi_intf.rid     = {6'b0, m_axi_intf.rid};
+assign s_axi_intf.rlast   = m_axi_intf.rlast  ;
+assign s_axi_intf.rvalid  = m_axi_intf.rvalid ;
+
+assign m_axi_intf.awburst = s_axi_intf.awburst;
+assign m_axi_intf.awid    = s_axi_intf.awid[5:0];
+assign m_axi_intf.awaddr  = s_axi_intf.awaddr + offset + 32'h8000_0000;
+assign m_axi_intf.awsize  = s_axi_intf.awsize ;
+assign m_axi_intf.awlen   = s_axi_intf.awlen  ;
+assign m_axi_intf.awlock  = s_axi_intf.awlock ;
+assign m_axi_intf.awcache = s_axi_intf.awcache;
+assign m_axi_intf.awprot  = s_axi_intf.awprot ;
+assign m_axi_intf.awvalid = s_axi_intf.awvalid;
+assign m_axi_intf.wstrb   = s_axi_intf.wstrb  ;
+assign m_axi_intf.wid     = s_axi_intf.wid[5:0];
+assign m_axi_intf.wdata   = s_axi_intf.wdata  ;
+assign m_axi_intf.wlast   = s_axi_intf.wlast  ;
+assign m_axi_intf.wvalid  = s_axi_intf.wvalid ;
+assign m_axi_intf.bready  = s_axi_intf.bready ;
+assign m_axi_intf.araddr  = s_axi_intf.araddr + offset + 32'h8000_0000;
+assign m_axi_intf.arburst = s_axi_intf.arburst;
+assign m_axi_intf.arsize  = s_axi_intf.arsize ;
+assign m_axi_intf.arid    = s_axi_intf.arid[5:0];
+assign m_axi_intf.arlen   = s_axi_intf.arlen  ;
+assign m_axi_intf.arlock  = s_axi_intf.arlock ;
+assign m_axi_intf.arcache = s_axi_intf.arcache;
+assign m_axi_intf.arprot  = s_axi_intf.arprot ;
+assign m_axi_intf.arvalid = s_axi_intf.arvalid;
+assign m_axi_intf.rready  = s_axi_intf.rready ;
 
 endmodule

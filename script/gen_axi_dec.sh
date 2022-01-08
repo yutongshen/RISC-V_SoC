@@ -270,10 +270,10 @@ echo "" >> ${fname};
 
 for ch in aw ar; do
     for (( i = 0; i < ${mstnum}; i++ )); do
-        printf "assign ${ch}sel[%3d] = s_${ch}addr >= %s && s_${ch}addr < %s + %s;\n" \
-               ${i} ${aw_chn_sideband[awaddr]}\'h${slvbase[${i}]} \
-               ${aw_chn_sideband[awaddr]}\'h${slvbase[${i}]} \
-               ${aw_chn_sideband[awaddr]}\'h${slvsize[${i}]} >> ${fname};
+        printf "assign ${ch}sel[%3d] = {1'b0, s_${ch}addr} >= %s && {1'b0, s_${ch}addr} < %s + %s;\n" \
+               ${i} $(expr ${aw_chn_sideband[awaddr]} + 1)\'h${slvbase[${i}]} \
+               $(expr ${aw_chn_sideband[awaddr]} + 1)\'h${slvbase[${i}]} \
+               $(expr ${aw_chn_sideband[awaddr]} + 1)\'h${slvsize[${i}]} >> ${fname};
     done
     printf "assign ${ch}sel[%3d] = ~|${ch}sel[%d:0]; // default slv\n" ${mstnum} `expr ${mstnum} - 1` >> ${fname};
     echo "" >> ${fname};

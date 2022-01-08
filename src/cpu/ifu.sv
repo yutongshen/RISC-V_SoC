@@ -44,7 +44,7 @@ module ifu (
     input                             stall,
     input                             attach,
     input                             dbg_exec,
-    input        [`IM_ADDR_LEN - 1:0] dbg_inst
+    input        [`IM_DATA_LEN - 1:0] dbg_inst
 );
 
 logic                      jump_in_id;

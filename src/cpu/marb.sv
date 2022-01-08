@@ -4,28 +4,11 @@ module marb (
     input                  clk,
     input                  rstn,
 
-    `AXI_INTF_SLV_DEF(s0, 10),
-    `AXI_INTF_SLV_DEF(s1, 10),
-    `AXI_INTF_SLV_DEF(s2, 10),
-    `AXI_INTF_SLV_DEF(s3, 10),
-    `AXI_INTF_SLV_DEF(s4, 10),
-    // input                  s0_cs, 
-    // input                  s0_we, 
-    // input         [ 31: 0] s0_addr,
-    // input         [  3: 0] s0_byte,
-    // input         [ 31: 0] s0_di,
-    // output logic  [ 31: 0] s0_do,
-    // output logic           s0_busy,
-    // output logic           s0_err,
-
-    // input                  s1_cs, 
-    // input                  s1_we, 
-    // input         [ 31: 0] s1_addr,
-    // input         [  3: 0] s1_byte,
-    // input         [ 31: 0] s1_di,
-    // output logic  [ 31: 0] s1_do,
-    // output logic           s1_busy,
-    // output logic           s1_err,
+    axi_intf.slave         s0_axi_intf,
+    axi_intf.slave         s1_axi_intf,
+    axi_intf.slave         s2_axi_intf,
+    axi_intf.slave         s3_axi_intf,
+    axi_intf.slave         s4_axi_intf,
 
     output logic           m0_cs, 
     output logic           m0_we, 
@@ -43,33 +26,39 @@ module marb (
     input         [ 31: 0] m1_do,
     input                  m1_busy,
 
-    output logic           m2_psel,
-    output logic           m2_penable,
-    output logic  [ 31: 0] m2_paddr,
-    output logic           m2_pwrite,
-    output logic  [  3: 0] m2_pstrb,
-    output logic  [ 31: 0] m2_pwdata,
-    input         [ 31: 0] m2_prdata,
-    input                  m2_pslverr,
-    input                  m2_pready,
-
-    output logic           m3_psel,
-    output logic           m3_penable,
-    output logic  [ 31: 0] m3_paddr,
-    output logic           m3_pwrite,
-    output logic  [  3: 0] m3_pstrb,
-    output logic  [ 31: 0] m3_pwdata,
-    input         [ 31: 0] m3_prdata,
-    input                  m3_pslverr,
-    input                  m3_pready
+    apb_intf.master        m_core_apb,
+    apb_intf.master        m_peri_apb,
+    axi_intf.master        m_ddr_axi
 );
 
+`AXI_INTF_DEF(s0, 10)
+`AXI_INTF_DEF(s1, 10)
+`AXI_INTF_DEF(s2, 10)
+`AXI_INTF_DEF(s3, 10)
+`AXI_INTF_DEF(s4, 10)
 `AXI_INTF_DEF(m0, 13)
 `AXI_INTF_DEF(m1, 13)
 `AXI_INTF_DEF(m2, 13)
 `AXI_INTF_DEF(m3, 13)
+`AXI_INTF_DEF(m4, 13)
 
-axi_5to4_biu u_axi_5to4_biu (
+`AXI_MST_INTF_TO_PORT(s0_axi_intf, s0)
+`AXI_MST_INTF_TO_PORT(s1_axi_intf, s1)
+`AXI_MST_INTF_TO_PORT(s2_axi_intf, s2)
+`AXI_MST_INTF_TO_PORT(s3_axi_intf, s3)
+`AXI_MST_INTF_TO_PORT(s4_axi_intf, s4)
+`AXI_MST_PORT_TO_INTF(m0, m0_axi)
+`AXI_MST_PORT_TO_INTF(m1, m1_axi)
+`AXI_MST_PORT_TO_INTF(m2, m2_axi)
+`AXI_MST_PORT_TO_INTF(m3, m3_axi)
+`AXI_MST_PORT_TO_INTF(m4, m_ddr_axi)
+
+axi_intf#(.ID_WIDTH(13)) m0_axi();
+axi_intf#(.ID_WIDTH(13)) m1_axi();
+axi_intf#(.ID_WIDTH(13)) m2_axi();
+axi_intf#(.ID_WIDTH(13)) m3_axi();
+
+axi_5to5_biu u_axi_5to5_biu (
     .aclk       ( clk        ),
     .aresetn    ( rstn       ),
 
@@ -81,73 +70,58 @@ axi_5to4_biu u_axi_5to4_biu (
     `AXI_INTF_CONNECT(m0, m0),
     `AXI_INTF_CONNECT(m1, m1),
     `AXI_INTF_CONNECT(m2, m2),
-    `AXI_INTF_CONNECT(m3, m3)
+    `AXI_INTF_CONNECT(m3, m3),
+    `AXI_INTF_CONNECT(m4, m4)
 );
 
 axi2mem_bridge u_axi2mem0 (
-    .aclk      ( clk        ),
-    .aresetn   ( rstn       ),
+    .aclk       ( clk           ),
+    .aresetn    ( rstn          ),
     // AXI slave port
-    `AXI_INTF_CONNECT(s, m0),
+    .s_axi_intf ( m0_axi.slave  ),
 
     // Memory intface master port
-    .m_cs      ( m0_cs      ),
-    .m_we      ( m0_we      ),
-    .m_addr    ( m0_addr    ),
-    .m_byte    ( m0_byte    ),
-    .m_di      ( m0_di      ),
-    .m_do      ( m0_do      ),
-    .m_busy    ( m0_busy    )
+    .m_cs       ( m0_cs         ),
+    .m_we       ( m0_we         ),
+    .m_addr     ( m0_addr       ),
+    .m_byte     ( m0_byte       ),
+    .m_di       ( m0_di         ),
+    .m_do       ( m0_do         ),
+    .m_busy     ( m0_busy       )
 );
 
 axi2mem_bridge u_axi2mem1 (
-    .aclk      ( clk        ),
-    .aresetn   ( rstn       ),
+    .aclk       ( clk           ),
+    .aresetn    ( rstn          ),
     // AXI slave port
-    `AXI_INTF_CONNECT(s, m1),
+    .s_axi_intf ( m1_axi.slave  ),
 
     // Memory intface master port
-    .m_cs      ( m1_cs      ),
-    .m_we      ( m1_we      ),
-    .m_addr    ( m1_addr    ),
-    .m_byte    ( m1_byte    ),
-    .m_di      ( m1_di      ),
-    .m_do      ( m1_do      ),
-    .m_busy    ( m1_busy    )
+    .m_cs       ( m1_cs         ),
+    .m_we       ( m1_we         ),
+    .m_addr     ( m1_addr       ),
+    .m_byte     ( m1_byte       ),
+    .m_di       ( m1_di         ),
+    .m_do       ( m1_do         ),
+    .m_busy     ( m1_busy       )
 );
 
 axi2apb_bridge u_axi2apb_m2 (
-    .aclk      ( clk        ),
-    .aresetn   ( rstn       ),
-    `AXI_INTF_CONNECT(s, m2),
+    .aclk       ( clk             ),
+    .aresetn    ( rstn            ),
+    .s_axi_intf ( m2_axi.slave    ),
 
     // APB master port
-    .psel    ( m2_psel    ),
-    .penable ( m2_penable ),
-    .paddr   ( m2_paddr   ),
-    .pwrite  ( m2_pwrite  ),
-    .pstrb   ( m2_pstrb   ),
-    .pwdata  ( m2_pwdata  ),
-    .prdata  ( m2_prdata  ),
-    .pslverr ( m2_pslverr ),
-    .pready  ( m2_pready  )
+    .m_apb_intf ( m_core_apb      )
 );
 
 axi2apb_bridge u_axi2apb_m3 (
-    .aclk      ( clk        ),
-    .aresetn   ( rstn       ),
-    `AXI_INTF_CONNECT(s, m3),
+    .aclk       ( clk             ),
+    .aresetn    ( rstn            ),
+    .s_axi_intf ( m3_axi.slave    ),
 
     // APB master port
-    .psel    ( m3_psel    ),
-    .penable ( m3_penable ),
-    .paddr   ( m3_paddr   ),
-    .pwrite  ( m3_pwrite  ),
-    .pstrb   ( m3_pstrb   ),
-    .pwdata  ( m3_pwdata  ),
-    .prdata  ( m3_prdata  ),
-    .pslverr ( m3_pslverr ),
-    .pready  ( m3_pready  )
+    .m_apb_intf ( m_peri_apb      )
 );
 
 endmodule

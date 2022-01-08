@@ -11,12 +11,15 @@
 
 module axi_vip_slave #(
     parameter ID                = 0,
-    parameter MEM_SIZE          = 8192,
-    parameter AXI_AXID_WIDTH    = 11,
+    parameter MEM_SIZE          = 2 ** 25,
+    parameter AXI_AXID_WIDTH    = 13,
     parameter AXI_AXADDR_WIDTH  = 32,
     parameter AXI_AXLEN_WIDTH   = 8,
     parameter AXI_AXSIZE_WIDTH  = 3,
     parameter AXI_AXBURST_WIDTH = 2,
+    parameter AXI_AXLOCK_WIDTH  = 2,
+    parameter AXI_AXCACHE_WIDTH = 4,
+    parameter AXI_AXPROT_WIDTH  = 3,
     parameter AXI_DATA_WIDTH    = 32,
     parameter AXI_RESP_WIDTH    = 2
 )(
@@ -28,6 +31,9 @@ module axi_vip_slave #(
     input        [  AXI_AXLEN_WIDTH - 1: 0] s_awlen,
     input        [ AXI_AXSIZE_WIDTH - 1: 0] s_awsize,
     input        [AXI_AXBURST_WIDTH - 1: 0] s_awburst,
+    input        [ AXI_AXLOCK_WIDTH - 1: 0] s_awlock,
+    input        [AXI_AXCACHE_WIDTH - 1: 0] s_awcache,
+    input        [ AXI_AXPROT_WIDTH - 1: 0] s_awprot,
     input                                   s_awvalid,
     output logic                            s_awready,
     // Write Data Channel
@@ -48,6 +54,9 @@ module axi_vip_slave #(
     input        [  AXI_AXLEN_WIDTH - 1: 0] s_arlen,
     input        [ AXI_AXSIZE_WIDTH - 1: 0] s_arsize,
     input        [AXI_AXBURST_WIDTH - 1: 0] s_arburst,
+    input        [ AXI_AXLOCK_WIDTH - 1: 0] s_arlock,
+    input        [AXI_AXCACHE_WIDTH - 1: 0] s_arcache,
+    input        [ AXI_AXPROT_WIDTH - 1: 0] s_arprot,
     input                                   s_arvalid,
     output logic                            s_arready,
     //  Read Data Channel
@@ -63,7 +72,7 @@ task err_msg (
     input string msg
 );
 
-    $display("[%0d ns] [VIP_SLV%0d] %s", ID, $time, msg);
+    $display("[%0d ns] [VIP_SLV%0d] %s", $time, ID, msg);
 
 endtask
 
@@ -134,12 +143,14 @@ endtask
 
 logic [   AXI_DATA_WIDTH - 1: 0] memory [MEM_SIZE];
 
+`ifdef MEM_INIT
 initial begin
     integer i, j;
     for (i = 0; i < MEM_SIZE; i = i + 1)
         for (j = 0; j < AXI_DATA_WIDTH; j = j + 1)
             memory[i][j] <= /*$random() % 2*/0;
 end
+`endif
 
 // WRITE
 

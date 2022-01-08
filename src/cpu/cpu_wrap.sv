@@ -6,37 +6,81 @@ module cpu_wrap (
     input                  clk,
     input                  rstn,
 
+    // DDR AXI interface
+    output logic  [  1: 0] ddr_m_awburst,
+    output logic  [  5: 0] ddr_m_awid,
+    output logic  [ 31: 0] ddr_m_awaddr,
+    output logic  [  2: 0] ddr_m_awsize,
+    output logic  [  7: 0] ddr_m_awlen,
+    output logic  [  1: 0] ddr_m_awlock,
+    output logic  [  3: 0] ddr_m_awcache,
+    output logic  [  2: 0] ddr_m_awprot,
+    output logic           ddr_m_awvalid,
+    input                  ddr_m_awready,
+    output logic  [  3: 0] ddr_m_wstrb,
+    output logic  [  5: 0] ddr_m_wid,
+    output logic  [ 31: 0] ddr_m_wdata,
+    output logic           ddr_m_wlast,
+    output logic           ddr_m_wvalid,
+    input                  ddr_m_wready,
+    input         [  5: 0] ddr_m_bid,
+    input         [  1: 0] ddr_m_bresp,
+    input                  ddr_m_bvalid,
+    output logic           ddr_m_bready,
+    output logic  [ 31: 0] ddr_m_araddr,
+    output logic  [  1: 0] ddr_m_arburst,
+    output logic  [  2: 0] ddr_m_arsize,
+    output logic  [  5: 0] ddr_m_arid,
+    output logic  [  7: 0] ddr_m_arlen,
+    output logic  [  1: 0] ddr_m_arlock,
+    output logic  [  3: 0] ddr_m_arcache,
+    output logic  [  2: 0] ddr_m_arprot,
+    output logic           ddr_m_arvalid,
+    input                  ddr_m_arready,
+    input         [ 31: 0] ddr_m_rdata,
+    input         [  1: 0] ddr_m_rresp,
+    input         [  5: 0] ddr_m_rid,
+    input                  ddr_m_rlast,
+    input                  ddr_m_rvalid,
+    output logic           ddr_m_rready,
+
     // external AXI interface
-    input         [  1: 0] axi_ext_awburst,
-    input         [  9: 0] axi_ext_awid,
-    input         [ 31: 0] axi_ext_awaddr,
-    input         [  2: 0] axi_ext_awsize,
-    input         [  7: 0] axi_ext_awlen,
-    input                  axi_ext_awvalid,
-    output logic           axi_ext_awready,
-    input         [  3: 0] axi_ext_wstrb,
-    input         [  9: 0] axi_ext_wid,
-    input         [ 31: 0] axi_ext_wdata,
-    input                  axi_ext_wlast,
-    input                  axi_ext_wvalid,
-    output logic           axi_ext_wready,
-    output logic  [  9: 0] axi_ext_bid,
-    output logic  [  1: 0] axi_ext_bresp,
-    output logic           axi_ext_bvalid,
-    input                  axi_ext_bready,
-    input         [ 31: 0] axi_ext_araddr,
-    input         [  1: 0] axi_ext_arburst,
-    input         [  2: 0] axi_ext_arsize,
-    input         [  9: 0] axi_ext_arid,
-    input         [  7: 0] axi_ext_arlen,
-    input                  axi_ext_arvalid,
-    output logic           axi_ext_arready,
-    output logic  [ 31: 0] axi_ext_rdata,
-    output logic  [  1: 0] axi_ext_rresp,
-    output logic  [  9: 0] axi_ext_rid,
-    output logic           axi_ext_rlast,
-    output logic           axi_ext_rvalid,
-    input                  axi_ext_rready,
+    input         [  1: 0] ext_s_awburst,
+    input         [  9: 0] ext_s_awid,
+    input         [ 31: 0] ext_s_awaddr,
+    input         [  2: 0] ext_s_awsize,
+    input         [  7: 0] ext_s_awlen,
+    input         [  1: 0] ext_s_awlock,
+    input         [  3: 0] ext_s_awcache,
+    input         [  2: 0] ext_s_awprot,
+    input                  ext_s_awvalid,
+    output logic           ext_s_awready,
+    input         [  3: 0] ext_s_wstrb,
+    input         [  9: 0] ext_s_wid,
+    input         [ 31: 0] ext_s_wdata,
+    input                  ext_s_wlast,
+    input                  ext_s_wvalid,
+    output logic           ext_s_wready,
+    output logic  [  9: 0] ext_s_bid,
+    output logic  [  1: 0] ext_s_bresp,
+    output logic           ext_s_bvalid,
+    input                  ext_s_bready,
+    input         [ 31: 0] ext_s_araddr,
+    input         [  1: 0] ext_s_arburst,
+    input         [  2: 0] ext_s_arsize,
+    input         [  9: 0] ext_s_arid,
+    input         [  7: 0] ext_s_arlen,
+    input         [  1: 0] ext_s_arlock,
+    input         [  3: 0] ext_s_arcache,
+    input         [  2: 0] ext_s_arprot,
+    input                  ext_s_arvalid,
+    output logic           ext_s_arready,
+    output logic  [ 31: 0] ext_s_rdata,
+    output logic  [  1: 0] ext_s_rresp,
+    output logic  [  9: 0] ext_s_rid,
+    output logic           ext_s_rlast,
+    output logic           ext_s_rvalid,
+    input                  ext_s_rready,
 
     // debug APB interface
     input                  dbg_psel,
@@ -59,6 +103,7 @@ logic                             core_rstn;
 logic                             srstn;
 logic                             xrstn;
 logic [              `XLEN - 1:0] core_bootvec;
+logic [                     31:0] ddr_offset;
 
 logic [                     63:0] systime;
 
@@ -214,12 +259,29 @@ logic                dbg_exec;
 logic                dbg_halted;
 logic                dbg_attach;
 
-
 `AXI_INTF_DEF(immu, 10)
 `AXI_INTF_DEF(dmmu, 10)
 `AXI_INTF_DEF(l1ic, 10)
 `AXI_INTF_DEF(l1dc, 10)
-`AXI_INTF_DEF(axi_ext_remap, 10)
+`AXI_INTF_DEF(ext_s_remap, 10)
+
+`AXI_MST_PORT_TO_INTF(ext_s,         ext_axi);
+`AXI_MST_INTF_TO_PORT(ddr_remap_axi, ddr_m);
+`APB_MST_PORT_TO_INTF(dbg,           dbg_apb);
+
+apb_intf dbg_apb();
+apb_intf core_apb();
+apb_intf cfgreg_apb();
+apb_intf intc_apb();
+apb_intf peri_apb();
+axi_intf#(.ID_WIDTH(10)) ext_axi();
+axi_intf#(.ID_WIDTH(10)) ext_remap_axi();
+axi_intf#(.ID_WIDTH(13)) ddr_axi();
+axi_intf#(.ID_WIDTH(6 )) ddr_remap_axi();
+axi_intf#(.ID_WIDTH(10)) immu_axi();
+axi_intf#(.ID_WIDTH(10)) dmmu_axi();
+axi_intf#(.ID_WIDTH(10)) l1ic_axi();
+axi_intf#(.ID_WIDTH(10)) l1dc_axi();
 
 cpu_top u_cpu_top (
     .clk                 ( clk                    ),
@@ -344,7 +406,7 @@ mmu u_immu(
     .pa_pre              ( immu_pa_pre         ),
     
     // AXI interface
-    `AXI_INTF_CONNECT(m, immu)
+    .m_axi_intf          ( immu_axi.master     )
 );
 
 mmu u_dmmu(
@@ -400,7 +462,7 @@ mmu u_dmmu(
     .pa_pre              ( dmmu_pa_pre         ),
     
     // AXI interface
-    `AXI_INTF_CONNECT(m, dmmu)
+    .m_axi_intf          ( dmmu_axi.master     )
 );
 
 mpu u_impu (
@@ -470,73 +532,54 @@ l1c u_l1ic (
     .core_wr     ( 1'b0            ),
     .core_ex     ( 1'b0            ),
     .core_vaddr  ( imem_addr       ),
-    .core_byte   ( {`XLEN/8{1'b0}} ),
+    .core_byte   ( {`XLEN/8{1'b1}} ),
     .core_wdata  ( `XLEN'b0        ),
     .core_rdata  ( imem_rdata      ),
     .core_bad    ( imem_bad        ),
     .core_busy   ( imem_busy       ),
     .xmon_xstate ( 1'b0            ),
 
-    `AXI_INTF_CONNECT(m, l1ic)
+    .m_axi_intf  ( l1ic_axi.master )
 );
 
 l1c u_l1dc (
-    .clk         ( clk           ),
-    .rstn        ( srstn         ),
+    .clk         ( clk             ),
+    .rstn        ( srstn           ),
 
-    .core_bypass ( dcache_bypass ),
-    .core_flush  ( 1'b0          ),
-    .core_pa_vld ( dmmu_pa_vld   ),
-    .core_paddr  ( dmmu_pa[31:0] ),
-    .core_pa_bad ( dmmu_pa_bad   ),
-    .core_req    ( dmem_en       ),
-    .core_wr     ( dmem_write    ),
-    .core_ex     ( dmem_ex       ),
-    .core_xstate ( dmem_xstate   ),
-    .core_vaddr  ( dmem_addr     ),
-    .core_byte   ( dmem_strb     ),
-    .core_wdata  ( dmem_wdata    ),
-    .core_rdata  ( dmem_rdata    ),
-    .core_bad    ( dmem_bad      ),
-    .core_busy   ( dmem_busy     ),
-    .xmon_xstate ( xmon_xstate   ),
+    .core_bypass ( dcache_bypass   ),
+    .core_flush  ( 1'b0            ),
+    .core_pa_vld ( dmmu_pa_vld     ),
+    .core_paddr  ( dmmu_pa[31:0]   ),
+    .core_pa_bad ( dmmu_pa_bad     ),
+    .core_req    ( dmem_en         ),
+    .core_wr     ( dmem_write      ),
+    .core_ex     ( dmem_ex         ),
+    .core_xstate ( dmem_xstate     ),
+    .core_vaddr  ( dmem_addr       ),
+    .core_byte   ( dmem_strb       ),
+    .core_wdata  ( dmem_wdata      ),
+    .core_rdata  ( dmem_rdata      ),
+    .core_bad    ( dmem_bad        ),
+    .core_busy   ( dmem_busy       ),
+    .xmon_xstate ( xmon_xstate     ),
 
-    `AXI_INTF_CONNECT(m, l1dc)
+    .m_axi_intf  ( l1dc_axi.master )
 );
 
-assign intc_psel      = core_paddr[27] && core_psel;
-assign intc_penable   = core_paddr[27] && core_penable;
-assign intc_paddr     = core_paddr;
-assign intc_pwrite    = core_pwrite;
-assign intc_pstrb     = core_pstrb;
-assign intc_pwdata    = core_pwdata;
-
-assign cfgreg_psel    = ~core_paddr[27] && core_psel;
-assign cfgreg_penable = ~core_paddr[27] && core_penable;
-assign cfgreg_paddr   = core_paddr;
-assign cfgreg_pwrite  = core_pwrite;
-assign cfgreg_pstrb   = core_pstrb;
-assign cfgreg_pwdata  = core_pwdata;
-
-assign core_prdata    = core_paddr[27] ? intc_prdata  : cfgreg_prdata;
-assign core_pslverr   = core_paddr[27] ? intc_pslverr : cfgreg_pslverr;
-assign core_pready    = core_paddr[27] ? intc_pready  : cfgreg_pready;
+core_apb_conn u_core_apb_conn (
+    .core_apb   ( core_apb.slave    ),
+    .cfgreg_apb ( cfgreg_apb.master ),
+    .intc_apb   ( intc_apb.master   )
+);
 
 cfgreg u_cfgreg (
-    .pclk         ( clk            ),
-    .presetn      ( rstn           ),
-    .psel         ( cfgreg_psel    ),
-    .penable      ( cfgreg_penable ),
-    .paddr        ( cfgreg_paddr   ),
-    .pwrite       ( cfgreg_pwrite  ),
-    .pstrb        ( cfgreg_pstrb   ),
-    .pwdata       ( cfgreg_pwdata  ),
-    .prdata       ( cfgreg_prdata  ),
-    .pslverr      ( cfgreg_pslverr ),
-    .pready       ( cfgreg_pready  ),
+    .clk          ( clk              ),
+    .rstn         ( rstn             ),
+    .apb_intf     ( cfgreg_apb.slave ),
 
-    .core_bootvec ( core_bootvec   ),
-    .core_rstn    ( core_rstn      )
+    .ddr_offset   ( ddr_offset       ),
+    .core_bootvec ( core_bootvec     ),
+    .core_rstn    ( core_rstn        )
 );
 
 rgu u_rgu (
@@ -547,59 +590,47 @@ rgu u_rgu (
     .srstn            ( srstn            )
 );
 
-iommu u_iommu (
-    .aclk       ( clk          ),
-    .aresetn    ( rstn         ),
+iommu_ext u_iommu_ext (
+    .s_axi_intf ( ext_axi.slave        ),
+    .m_axi_intf ( ext_remap_axi.master )
+);
 
-    `AXI_INTF_CONNECT(s, axi_ext),
-    `AXI_INTF_CONNECT(m, axi_ext_remap)
+iommu_ddr u_iommu_ddr (
+    .s_axi_intf ( ddr_axi.slave        ),
+    .m_axi_intf ( ddr_remap_axi.master ),
+    .offset     ( ddr_offset           )
 );
 
 marb u_marb (
-    .clk        ( clk          ),
-    .rstn       ( rstn         ),
+    .clk        ( clk                  ),
+    .rstn       ( rstn                 ),
 
-    `AXI_INTF_CONNECT(s0, immu),
-    `AXI_INTF_CONNECT(s1, dmmu),
-    `AXI_INTF_CONNECT(s2, l1ic),
-    `AXI_INTF_CONNECT(s3, l1dc),
-    `AXI_INTF_CONNECT(s4, axi_ext_remap),
 
-    .m0_cs      ( cs_0         ),
-    .m0_we      ( we_0         ),
-    .m0_addr    ( addr_0       ),
-    .m0_byte    ( byte_0       ),
-    .m0_di      ( di_0         ),
-    .m0_do      ( do_0         ),
-    .m0_busy    ( busy_0       ),
+    .s0_axi_intf ( immu_axi.slave      ),
+    .s1_axi_intf ( dmmu_axi.slave      ),
+    .s2_axi_intf ( l1ic_axi.slave      ),
+    .s3_axi_intf ( l1dc_axi.slave      ),
+    .s4_axi_intf ( ext_remap_axi.slave ),
 
-    .m1_cs      ( cs_1         ),
-    .m1_we      ( we_1         ),
-    .m1_addr    ( addr_1       ),
-    .m1_byte    ( byte_1       ),
-    .m1_di      ( di_1         ),
-    .m1_do      ( do_1         ),
-    .m1_busy    ( busy_1       ),
+    .m0_cs       ( cs_0                ),
+    .m0_we       ( we_0                ),
+    .m0_addr     ( addr_0              ),
+    .m0_byte     ( byte_0              ),
+    .m0_di       ( di_0                ),
+    .m0_do       ( do_0                ),
+    .m0_busy     ( busy_0              ),
 
-    .m2_psel    ( core_psel    ),
-    .m2_penable ( core_penable ),
-    .m2_paddr   ( core_paddr   ),
-    .m2_pwrite  ( core_pwrite  ),
-    .m2_pstrb   ( core_pstrb   ),
-    .m2_pwdata  ( core_pwdata  ),
-    .m2_prdata  ( core_prdata  ),
-    .m2_pslverr ( core_pslverr ),
-    .m2_pready  ( core_pready  ),
+    .m1_cs       ( cs_1                ),
+    .m1_we       ( we_1                ),
+    .m1_addr     ( addr_1              ),
+    .m1_byte     ( byte_1              ),
+    .m1_di       ( di_1                ),
+    .m1_do       ( do_1                ),
+    .m1_busy     ( busy_1              ),
 
-    .m3_psel    ( uart_psel    ),
-    .m3_penable ( uart_penable ),
-    .m3_paddr   ( uart_paddr   ),
-    .m3_pwrite  ( uart_pwrite  ),
-    .m3_pstrb   ( uart_pstrb   ),
-    .m3_pwdata  ( uart_pwdata  ),
-    .m3_prdata  ( uart_prdata  ),
-    .m3_pslverr ( uart_pslverr ),
-    .m3_pready  ( uart_pready  )
+    .m_core_apb  ( core_apb.master     ),
+    .m_peri_apb  ( peri_apb.master     ),
+    .m_ddr_axi   ( ddr_axi.master      )
 );
 
 // assign msip = 1'b0;
@@ -667,6 +698,7 @@ CG u_mem_cg_1 (
 
 assign busy_0 = 1'b0;
 
+/*
 sram u_sram_0 (
     .CK   ( mem_ck_0      ),
     .CS   ( cs_0          ),
@@ -676,6 +708,14 @@ sram u_sram_0 (
     .DI   ( di_0          ),
     .DO   ( do_0          )
 );
+*/
+rom32x1024 u_brom (
+    .CK ( mem_ck_0      ),
+    .CS ( cs_0          ),
+    .A  ( addr_0[2+:10] ),
+    .DO ( do_0          )
+);
+
 
 assign busy_1 = 1'b0;
 
@@ -696,23 +736,15 @@ assign ints = {
 };
 
 intc u_intc(
-    .clk     ( clk          ),
-    .rstn    ( srstn        ),
-    .psel    ( intc_psel    ),
-    .penable ( intc_penable ),
-    .paddr   ( intc_paddr   ),
-    .pwrite  ( intc_pwrite  ),
-    .pstrb   ( intc_pstrb   ),
-    .pwdata  ( intc_pwdata  ),
-    .prdata  ( intc_prdata  ),
-    .pslverr ( intc_pslverr ),
-    .pready  ( intc_pready  ),
-                            
-    .systime ( systime      ),
-    .msip    ( msip         ),
-    .mtip    ( mtip         ),
-    .meip    ( meip         ),
-    .ints    ( ints         )
+    .clk        ( clk            ),
+    .rstn       ( srstn          ),
+    .s_apb_intf ( intc_apb.slave ),
+
+    .systime    ( systime        ),
+    .msip       ( msip           ),
+    .mtip       ( mtip           ),
+    .meip       ( meip           ),
+    .ints       ( ints           )
 );
 
 systimer u_systimer (
@@ -723,17 +755,9 @@ systimer u_systimer (
 
 
 dbgapb u_dbgapb (
-    .pclk      ( clk           ),
-    .presetn   ( srstn         ),
-    .psel      ( dbg_psel      ),
-    .penable   ( dbg_penable   ),
-    .paddr     ( dbg_paddr     ),
-    .pwrite    ( dbg_pwrite    ),
-    .pstrb     ( dbg_pstrb     ),
-    .pwdata    ( dbg_pwdata    ),
-    .prdata    ( dbg_prdata    ),
-    .pslverr   ( dbg_pslverr   ),
-    .pready    ( dbg_pready    ),
+    .clk       ( clk           ),
+    .rstn      ( srstn         ),
+    .apb_intf  ( dbg_apb.slave ),
 
     .addr_out  ( dbg_addr      ),
     .wdata_out ( dbg_wdata     ),
@@ -751,20 +775,12 @@ dbgapb u_dbgapb (
 );
 
 uart u_uart(
-    .pclk    ( clk          ),
-    .presetn ( rstn         ),
-    .psel    ( uart_psel    ),
-    .penable ( uart_penable ),
-    .paddr   ( uart_paddr   ),
-    .pwrite  ( uart_pwrite  ),
-    .pstrb   ( uart_pstrb   ),
-    .pwdata  ( uart_pwdata  ),
-    .prdata  ( uart_prdata  ),
-    .pslverr ( uart_pslverr ),
-    .pready  ( uart_pready  ),
+    .clk      ( clk            ),
+    .rstn     ( rstn           ),
+    .apb_intf ( peri_apb.slave ),
 
-    .irq_out ( uart_irq     ),
-    .uart_rx ( uart_rx      ),
-    .uart_tx ( uart_tx      )
+    .irq_out  ( uart_irq       ),
+    .uart_rx  ( uart_rx        ),
+    .uart_tx  ( uart_tx        )
 );
 endmodule

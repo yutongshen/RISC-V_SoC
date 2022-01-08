@@ -1,6 +1,7 @@
 `timescale 1ns / 10ps
 
 `define CLK_PRIOD 20
+`define MAX_CYCLE 400000
 `define TEST_END_ADDR 32'hffc
 
 `include "cpu_define.h"
@@ -18,6 +19,7 @@ logic         clk;
 logic         rstn;
 
 `AXI_INTF_DEF(axi_ext, 10)
+`AXI_INTF_DEF(axi_ddr, 6)
 
 logic              dbg_psel;
 logic              dbg_penable;
@@ -57,7 +59,7 @@ initial begin
     repeat (10) @(posedge clk);
     // extaxi_wr(32'h0400_0004, 32'h48);
     extaxi_wr(32'h0400_0000, 32'h1);
-    repeat (200000) @(posedge clk);
+    repeat (`MAX_CYCLE) @(posedge clk);
     simend <= 1'b1;
 end
 
@@ -146,18 +148,13 @@ initial begin
         prog_byte2[i] = 8'h0; // $random();
         prog_byte3[i] = 8'h0; // $random();
     end
-    $readmemh({prog_path, "/sram_0_0.hex"}, prog_byte0);
-    $readmemh({prog_path, "/sram_0_1.hex"}, prog_byte1);
-    $readmemh({prog_path, "/sram_0_2.hex"}, prog_byte2);
-    $readmemh({prog_path, "/sram_0_3.hex"}, prog_byte3);
-    // $readmemh({prog_path, "/sram_1_0.hex"}, prog_byte0);
-    // $readmemh({prog_path, "/sram_1_1.hex"}, prog_byte1);
-    // $readmemh({prog_path, "/sram_1_2.hex"}, prog_byte2);
-    // $readmemh({prog_path, "/sram_1_3.hex"}, prog_byte3);
+    $readmemh({prog_path, "/ddr_0.hex"}, prog_byte0);
+    $readmemh({prog_path, "/ddr_1.hex"}, prog_byte1);
+    $readmemh({prog_path, "/ddr_2.hex"}, prog_byte2);
+    $readmemh({prog_path, "/ddr_3.hex"}, prog_byte3);
     #(`CLK_PRIOD)
     for (i = 0; i < 16384; i = i + 1) begin
-        u_cpu_wrap.u_sram_0.memory[i] <= {prog_byte3[i], prog_byte2[i], prog_byte1[i], prog_byte0[i]};
-        u_cpu_wrap.u_sram_1.memory[i] <= {prog_byte3[i+16384], prog_byte2[i+16384], prog_byte1[i+16384], prog_byte0[i+16384]};
+        u_ddr.memory[i] <= {prog_byte3[i], prog_byte2[i], prog_byte1[i], prog_byte0[i]};
     end
 end
 
@@ -175,7 +172,8 @@ cpu_wrap u_cpu_wrap (
     .rstn        ( rstn          ),
 
     // external AXI interface
-    `AXI_INTF_CONNECT(axi_ext, axi_ext),
+    `AXI_INTF_CONNECT(ext_s, axi_ext),
+    `AXI_INTF_CONNECT(ddr_m, axi_ddr),
 
     // debug APB interface
     .dbg_psel    ( dbg_psel      ),
@@ -194,6 +192,22 @@ cpu_wrap u_cpu_wrap (
     .uart_rx     ( uart_rx       )
 );
 
+axi_vip_slave #(
+    .ID                ( 0     ),
+    .MEM_SIZE          ( 2**25 ),
+    .AXI_AXID_WIDTH    ( 13    ),
+    .AXI_AXADDR_WIDTH  ( 32    ),
+    .AXI_AXLEN_WIDTH   ( 8     ),
+    .AXI_AXSIZE_WIDTH  ( 3     ),
+    .AXI_AXBURST_WIDTH ( 2     ),
+    .AXI_DATA_WIDTH    ( 32    ),
+    .AXI_RESP_WIDTH    ( 2     )
+) u_ddr (
+    .aclk    ( clk  ),
+    .aresetn ( rstn ),
+    `AXI_INTF_CONNECT(s, axi_ddr)
+);
+
 uart_mdl u_uart_mdl(
     .uart_tx ( uart_rx ),
     .uart_rx ( uart_tx )
@@ -204,7 +218,7 @@ logic [31:0] arg;
 logic [31:0] cmd;
 logic [ 1:0] _flag;
 
-logic [13:0] tohost;
+int          tohost;
 string       isa;
 
 initial begin
@@ -212,13 +226,33 @@ initial begin
     $value$plusargs("isa=%s", isa);
     if (isa != "") $display("isa: %s", isa);
     if (isa == "rv32uc-p-rvc" || isa == "rv64uc-p-rvc") begin
-        tohost = 14'hc00;
+        tohost = 'hc00;
     end
     else begin
-        tohost = 14'h400;
+        tohost = 'h400;
     end
 end
 
+always @(posedge clk) begin
+    if (~rstn) begin
+        u_ddr.memory[tohost]   = 32'b0;
+        u_ddr.memory[tohost+4] = 32'b0;
+    end
+    else if ({u_ddr.memory[tohost+4], u_ddr.memory[tohost]} !== 64'b0) begin
+        repeat (10) @(posedge clk); 
+        case (u_ddr.memory[tohost+4])
+            32'h00000000: begin
+                $display("ENDCODE = %x", u_ddr.memory[tohost]);
+                simend = 1'b1;
+            end
+            32'h01010000: $write("%c", u_ddr.memory[tohost]);
+        endcase
+        u_ddr.memory[tohost]   = 32'b0;
+        u_ddr.memory[tohost+4] = 32'b0;
+    end
+end
+
+/*
 always @(posedge clk) begin
     if (~rstn) begin
         arg <= 32'b0;
@@ -259,7 +293,7 @@ always @(posedge clk) begin
         u_cpu_wrap.u_sram_0.memory[tohost+14'h1] = 32'b0;
     end
 end
-
+*/
 `ifdef DBG_TEST
 `include "dbgapb_test.sv"
 `endif
@@ -302,9 +336,7 @@ endtask
 
 function logic [31:0] read;
 input [31:0] addr;
-
-if (~addr[16]) return u_cpu_wrap.u_sram_0.memory[addr[15:2]];
-else           return u_cpu_wrap.u_sram_1.memory[addr[15:2]];
+return u_ddr.memory[addr[26:2]];
 endfunction
 
 endmodule
