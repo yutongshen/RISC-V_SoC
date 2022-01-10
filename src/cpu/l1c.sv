@@ -270,12 +270,12 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn)                  refill_mask <= {12'b0, 4'hf};
-    else if (m_axi_intf.rvalid) refill_mask <= {refill_mask[11:0], refill_mask[15:12]};
+    else if (m_axi_intf.rvalid) refill_mask <= m_axi_intf.rlast ? {12'b0, 4'hf} : {refill_mask[11:0], refill_mask[15:12]};
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn)                  word_cnt <= 2'b0;
-    else if (m_axi_intf.rvalid) word_cnt <= word_cnt + 2'b1;
+    else if (m_axi_intf.rvalid) word_cnt <= m_axi_intf.rlast ? 2'b0 : (word_cnt + 2'b1);
 end
 
 always_ff @(posedge clk or negedge rstn) begin
