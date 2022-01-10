@@ -7,7 +7,9 @@ MEMORY {
 ENTRY(_start)
 
 SECTIONS {
-  .text : {
-    *(.text);
-  } > brom
+  .text : { *(.text) }
+  . = ALIGN(0x400);
+  _DTB = .;
+  .data : { *(.data )
+  }
 }

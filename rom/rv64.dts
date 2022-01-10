@@ -1,0 +1,91 @@
+/dts-v1/;
+
+/ {
+    model = "yt_rv64";
+    compatible = "yutong", "yt_rv64";
+    #address-cells = <2>;
+    #size-cells = <2>;
+    interrupt-parent = <&plic>;
+
+    cpus {
+        linux,phandle = <1>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+        timebase-frequency = <10000000>;
+        cpu0: cpu@0 {
+            device_type = "cpu";
+            reg = <0x0>;
+            status = "okay";
+            compatible = "riscv";
+            riscv,isa = "rv64imac";
+            mmu-type = "riscv,sv48";
+            riscv,pmpregions = <16>;
+            riscv,pmpgranularity = <4>;
+            clock-frequency = <1000000000>;
+            linux,boot-cpu;
+            cpu0_intc: interrupt-controller {
+                #interrupt-cells = <1>;
+                interrupt-controller;
+                compatible = "riscv,cpu-intc";
+            };
+        };
+        
+        cpu-map {
+            cluster0 {
+                core0 {
+                    cpu = <&cpu0>;
+                };
+            };
+        };
+    };
+
+    bootrom: bootrom@0 {
+        device_type = "bootrom";
+        reg = <0x00000000 0x00000000 0x00000000 0x00004000>;
+    };
+
+    sysram: sysram@10000 {
+        device_type = "memory";
+        reg = <0x00000000 0x00010000 0x00000000 0x00010000>;
+    };
+
+    ddr: ddr@80000000 {
+        device_type = "memory";
+        reg = <0x00000000 0x80000000 0x00000000 0x08000000>;
+    };
+
+    peribus: peribus@04000000 {
+        compatible = "riscv,bus";
+        #address-cells = <1>;
+        #size-cells = <1>;
+        reg = <0x00000000 0x040000000 0x00000000 0x10000000>;
+        
+        uart0: uart@10000000 {
+            compatible = "sifive,uart0";
+            reg = <0x10000000 0x1000>;
+            interrupts = <0>;
+        };
+
+        clint0: clint@04000000 {
+            compatible = "riscv,clint0";
+            reg = <0x04000000 0x10000>;
+            interrupts-extended = <&cpu0_intc 7>, <&cpu0_intc 3>;
+        };
+
+        plic: interrupt-controller@0c000000{
+            #interrupt-cells = <1>;
+            interrupt-controller;
+            compatible = "riscv,plic0";
+            riscv,ndev = <32>;
+            reg = <0x0c000000 0x4000000>;
+            interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>;
+        };
+    };
+
+    chosen {
+        riscv,kernel-start = <0x1 0x00000000>;
+        riscv,kernel-end = <0x1 0x02000000>;
+        bootargs = "root=/dev/sda2";
+        linux,platform = <0x00000600>;
+    };
+};

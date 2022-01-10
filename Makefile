@@ -109,3 +109,4 @@ clean:
 	@rm -rf ./build .*.swo .*.swp;
 	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp
 	@make -C $(sim_dir) clean;
+	@make -C rom clean;

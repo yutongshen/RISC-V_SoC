@@ -490,7 +490,7 @@ case (opcode_16)
             FUNCT3_C1_LUI : begin
                 rs1     = inst[ 11: 7];
                 rd      = inst[ 11: 7];
-                if (rd_addr == `GPR_SP_ADDR) $sformat(result, "c.addi16sp %s,%0d", regs_name(REG_SP), imm_ci_addi16sp);
+                if (rd_addr == `GPR_SP_ADDR) $sformat(result, "c.addi16sp %s,%0d", regs_name(REG_SP), $signed(imm_ci_addi16sp));
                 else                         $sformat(result, "c.lui %s,0x%0x", regs_name(rd), imm_ci_lui >> 12 & 20'hfffff);
             end
             FUNCT3_C1_OP  : begin
