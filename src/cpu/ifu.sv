@@ -7,6 +7,7 @@ module ifu (
 
     // Extension flag
     input                             misa_c_ext,
+    input        [               1:0] misa_mxl,
 
     // Branch
     input                             irq_en,
@@ -52,7 +53,7 @@ logic                      jump_in_exe;
 logic                      jump_in_mr;
 logic                      jump;
 logic [`IM_ADDR_LEN - 1:0] jump_addr;
-logic [`IM_ADDR_LEN - 1:0] jump_addr_latch;
+logic [`IM_ADDR_LEN - 1:0] jump_addr_post;
 logic [`IM_ADDR_LEN - 1:0] pc_nxt;
 logic [`IM_ADDR_LEN - 1:0] inst_len;
 logic                      inst_latch_valid;
@@ -79,16 +80,12 @@ assign jump_addr   = pipe_restart_en ? pipe_restart:
                      pc_alu_en       ? {pc_alu [`IM_ADDR_LEN-1:1], 1'b0}:
                                        {pc_jump[`IM_ADDR_LEN-1:1], 1'b0};
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-        jump_addr_latch <= {`IM_ADDR_LEN{1'b0}};
-    end
-    else begin
-        if (jump) begin
-            jump_addr_latch <= {jump_addr[`IM_ADDR_LEN-1:1], 1'b0};
-        end
-    end
-end
+`ifdef RV32
+assign jump_addr_post = jump_addr;
+`else
+assign jump_addr_post = {`IM_ADDR_LEN{misa_mxl == `MISA_MXL_XLEN_32}} & {{32{jump_addr[31]}}, jump_addr[0+:32]}|
+                        {`IM_ADDR_LEN{misa_mxl == `MISA_MXL_XLEN_64}} & jump_addr;
+`endif
 
 // avoid for jar misaligned and write rd
 assign id_jump_fault  = jump_in_id  & pc_jump[1] & ~misa_c_ext;
@@ -133,31 +130,31 @@ assign {xes_fault, page_fault} = pfu_bad;
 assign badaddr                 = misaligned ? pfu_pc : pfu_badaddr;
 
 pfu u_pfu (
-    .clk           ( clk         ),
-    .rstn          ( rstn        ),
-    .bootvec       ( bootvec     ),
+    .clk           ( clk                         ),
+    .rstn          ( rstn                        ),
+    .bootvec       ( bootvec                     ),
     .flush         ( ic_flush | eret_en | irq_en ),
-    .jump          ( jump        ),
-    .jump_addr     ( jump_addr   ),
-    .pop           ( pfu_pop     ),
-    .jump_token    ( jump_token  ),
-    .pc            ( pfu_pc      ),
-    .inst          ( pfu_inst    ),
-    .bad           ( pfu_bad     ),
-    .badaddr       ( pfu_badaddr ),
-    .empty         ( pfu_empty   ),
+    .jump          ( jump                        ),
+    .jump_addr     ( jump_addr_post              ),
+    .pop           ( pfu_pop                     ),
+    .jump_token    ( jump_token                  ),
+    .pc            ( pfu_pc                      ),
+    .inst          ( pfu_inst                    ),
+    .bad           ( pfu_bad                     ),
+    .badaddr       ( pfu_badaddr                 ),
+    .empty         ( pfu_empty                   ),
 
     // Inst Memory
-    .imem_req      ( imem_req    ),
-    .imem_addr     ( imem_addr   ),
-    .imem_rdata    ( imem_rdata  ),
-    .imem_bad      ( imem_bad    ),
-    .imem_busy     ( imem_busy   ),
+    .imem_req      ( imem_req                    ),
+    .imem_addr     ( imem_addr                   ),
+    .imem_rdata    ( imem_rdata                  ),
+    .imem_bad      ( imem_bad                    ),
+    .imem_busy     ( imem_busy                   ),
     
     // for btb
-    .btb_wr        ( pc_jump_en  ),
-    .btb_addr_in   ( id_pc       ),
-    .btb_target_in ( pc_jump     )
+    .btb_wr        ( pc_jump_en                  ),
+    .btb_addr_in   ( id_pc                       ),
+    .btb_target_in ( pc_jump                     )
 );
 
 endmodule

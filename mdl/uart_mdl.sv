@@ -3,7 +3,6 @@ module uart_mdl (
     input        uart_rx
 );
 
-`define UART_MDL_PARITY
 `define BAUD_RATE      115200
 `define UART_BIT_WIDTH (1000000000 / `BAUD_RATE)
 
@@ -112,7 +111,7 @@ initial begin
         #(`UART_BIT_WIDTH);
 `endif
         // stop bit
-        #(`UART_BIT_WIDTH);
+        // #(`UART_BIT_WIDTH);
 `ifdef UART_MDL_PARITY
         if (rxparity ^ ^rxdata) begin
             $display("[UART_MDL] parity error detect !");

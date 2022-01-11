@@ -30,6 +30,7 @@ module mmu (
     input        [              `XLEN - 1:0] tlb_flush_asid,
 
     // mmu csr
+    input                                    rv64_mode,
     input        [    `SATP_PPN_WIDTH - 1:0] satp_ppn,
     input        [   `SATP_ASID_WIDTH - 1:0] satp_asid,
     input        [   `SATP_MODE_WIDTH - 1:0] satp_mode,
@@ -214,10 +215,6 @@ assign pg_fault_last = ( access_x              && ~last_pte_x) ||
                        (                          ~last_pte_a);
 
 assign bus_boundary = |pa_pre[63:`BUS_WIDTH-1] & ~&pa_pre[63:`BUS_WIDTH-1];
-/*
-                      ( pa_pre[`BUS_WIDTH-1] && ~&pa_pre[63:`BUS_WIDTH]) ||
-                      (~pa_pre[`BUS_WIDTH-1] &&  |pa_pre[63:`BUS_WIDTH]);
-*/
 
 assign pmp_err      = (!pmp_v && prv_latch != `PRV_M) ||
                       (( pmp_l || prv_latch != `PRV_M) &&
@@ -431,7 +428,7 @@ end
 assign cache_bypass = ~pma_c;
 assign pa_bad       = {(bus_err | pmp_err) & ~pg_fault, pg_fault};
 
-assign pa_pre       = ~va_en                  ? va:
+assign pa_pre       = ~va_en                  ? {{32{rv64_mode}} & va[32+:32], va[0+:32]}:
                       tlb_data_sel            ? {{32{tlb_pte_ppn[21]}}, tlb_pte_ppn, va_latch[11:0]}:
 `ifdef RV32
                       cur_state == STATE_IDLE ? {{32{last_pte_ppn[21]}}, last_pte_ppn[21:10], last_spage[0] ? va[21:12] : last_pte_ppn[9:0], va[11:0]}:

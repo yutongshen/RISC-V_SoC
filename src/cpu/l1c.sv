@@ -137,7 +137,7 @@ always_comb begin
             data_cs            = core_req;
         end
         STATE_CMP   : begin
-            core_busy          = ~hit || |core_pa_bad;
+            core_busy          = ~hit || |core_pa_bad || |core_bypass;
             tag_cs             = ~core_pa_vld || (hit && core_req);
             data_cs            = ~core_pa_vld || (hit && core_req);
         end
@@ -166,7 +166,7 @@ always_comb begin
             m_axi_intf.wvalid  = wvalid_tmp;
             core_busy          = 1'b1;
             tag_cs             = 1'b1;
-            data_cs            = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass_latch && (~core_ex_latch | xmon_xstate);
+            data_cs            = hit && core_pa_vld && ~|core_pa_bad && ~core_bypass && (~core_ex_latch | xmon_xstate);
             data_we            = 1'b1;
             data_byte          = {{`CACHE_BLK_SIZE/8-`CACHE_DATA_WIDTH/8{1'b0}}, core_byte_latch}
                                  << {core_vaddr_latch[`CACHE_BLK_WIDTH-1:$clog2(`CACHE_DATA_WIDTH/8)], {$clog2(`CACHE_DATA_WIDTH/8){1'b0}}};

@@ -5,6 +5,7 @@ module cpu_top (
     input                                    srstn,
     input                                    xrstn,
     input        [              `XLEN - 1:0] cpu_id,
+    output logic                             rv64_mode,
     input        [              `XLEN - 1:0] bootvec,
     output logic                             warm_rst_trigger,
     input        [                     63:0] systime,
@@ -138,6 +139,7 @@ logic [              `XLEN - 1:0] id_gpr_rs2_data;
 logic [              `XLEN - 1:0] id_rs1_data;
 logic [              `XLEN - 1:0] id_rs2_data;
 logic [                     11:0] id_csr_addr;
+logic                             id_amo_64;
 logic                             id_len_64;
 logic [              `XLEN - 1:0] id_imm;
 
@@ -210,6 +212,7 @@ logic [              `XLEN - 1:0] id2exe_rs1_data;
 logic [              `XLEN - 1:0] id2exe_rs2_data;
 logic [                     11:0] id2exe_csr_waddr;
 logic [              `XLEN - 1:0] id2exe_csr_rdata;
+logic                             id2exe_amo_64;
 logic                             id2exe_len_64;
 logic [              `XLEN - 1:0] id2exe_imm;
 
@@ -334,6 +337,7 @@ logic                             exe2ma_mem_wr;
 logic                             exe2ma_mem_ex;
 logic [(`DM_DATA_LEN >> 3) - 1:0] exe2ma_mem_byte;
 logic                             exe2ma_mem_sign_ext;
+logic                             exe2ma_amo_64;
 logic                             exe2ma_len_64;
 logic [              `XLEN - 1:0] exe2ma_csr_rdata;
 logic                             exe2ma_pc_alu_sel;
@@ -543,6 +547,7 @@ ifu u_ifu (
     .bootvec         ( bootvec                      ),
     .ic_flush        ( ic_flush                     ),
     .misa_c_ext      ( exe_misa_c_ext               ),
+    .misa_mxl        ( exe_misa_mxl                 ),
     .irq_en          ( exe_irq_en | exe_trap_en     ),
     .irq_vec         ( irq_vec                      ),
     .eret_en         ( exe_eret_en                  ),
@@ -642,6 +647,7 @@ idu u_idu (
     .rs1_data            ( id_gpr_rs1_data        ),
     .rs2_data            ( id_gpr_rs2_data        ),
     .csr_addr            ( id_csr_addr            ),
+    .amo_64_o            ( id_amo_64              ),
     .len_64_o            ( id_len_64              ),
     .len_64_i            ( mr2wb_len_64           ),
     .imm                 ( id_imm                 ),
@@ -759,6 +765,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         id2exe_rs2_data            <= `XLEN'b0;
         id2exe_csr_waddr           <= 12'b0;
         id2exe_csr_rdata           <= `XLEN'b0;
+        id2exe_amo_64              <= 1'b0;
         id2exe_len_64              <= 1'b0;
         id2exe_imm                 <= `XLEN'b0;
         id2exe_rs1_rd              <= 1'b0;
@@ -824,6 +831,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_rs2_data            <= id_rs2_data;
             id2exe_csr_waddr           <= id_csr_addr;
             id2exe_csr_rdata           <= id_csr_rdata;
+            id2exe_amo_64              <= id_amo_64;
             id2exe_len_64              <= id_len_64;
             id2exe_imm                 <= id_imm;
             id2exe_rs1_rd              <= id_rs1_rd;
@@ -1084,6 +1092,7 @@ tpu u_tpu (
     .trap_epc            ( exe_trap_epc                )
 );
 
+assign rv64_mode   = exe_misa_mxl == `MISA_MXL_XLEN_64;
 assign satp_ppn    = exe_satp_ppn;
 assign satp_asid   = exe_satp_asid;
 assign satp_mode   = exe_satp_mode;
@@ -1097,8 +1106,8 @@ csr_alu u_csr_alu(
 );
 
 assign exe_csr_wdata_pre = id2exe_ext_csr_wr ? id2exe_ext_csr_wdata : exe_csr_alu_out;
-assign exe_csr_wdata     = exe_misa_mxl == 1'h1 ? {32'b0, exe_csr_wdata_pre[31:0]}:
-                                                  exe_csr_wdata_pre;
+assign exe_csr_wdata     = exe_misa_mxl == `MISA_MXL_XLEN_32 ? {32'b0, exe_csr_wdata_pre[31:0]}:
+                                                               exe_csr_wdata_pre;
 
 // EXE/MA pipeline
 always_ff @(posedge clk_wfi or negedge srstn_sync) begin
@@ -1113,6 +1122,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         exe2ma_mem_ex              <= 1'b0;
         exe2ma_mem_byte            <= {(`DM_DATA_LEN >> 3){1'b0}};
         exe2ma_mem_sign_ext        <= 1'b0;
+        exe2ma_amo_64              <= 1'b0;
         exe2ma_len_64              <= 1'b0;
         exe2ma_pc_alu_sel          <= 1'b0;
         exe2ma_csr_rdata           <= `XLEN'b0;
@@ -1149,13 +1159,14 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             exe2ma_pc                  <= id2exe_pc;
             exe2ma_inst                <= id2exe_inst;
             exe2ma_inst_valid          <= ((~exe_flush & ~exe_jump_fault & ~exe_irq_en) | (id2exe_ecall & exe_trap_en)) & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_inst_valid;
-            exe2ma_amo                 <= id2exe_amo;
+            exe2ma_amo                 <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_amo;
             exe2ma_amo_op              <= id2exe_amo_op;
             exe2ma_mem_req             <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_req;
             exe2ma_mem_wr              <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & id2exe_mem_wr;
             exe2ma_mem_ex              <= id2exe_mem_ex;
             exe2ma_mem_byte            <= id2exe_mem_byte;
             exe2ma_mem_sign_ext        <= id2exe_mem_sign_ext;
+            exe2ma_amo_64              <= id2exe_amo_64;
             exe2ma_len_64              <= id2exe_len_64;
             exe2ma_pc_alu_sel          <= id2exe_pc_alu_sel;
             exe2ma_csr_rdata           <= id2exe_csr_rdata;
@@ -1227,6 +1238,7 @@ dpu u_dpu (
     .rstn             ( srstn_sync           ),
 
     .len_64           ( exe2ma_len_64        ),
+    .amo_64           ( exe2ma_amo_64        ),
 
     .amo_i            ( exe2ma_amo           ),
     .amo_op_i         ( exe2ma_amo_op        ),

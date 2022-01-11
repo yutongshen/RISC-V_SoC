@@ -14,6 +14,7 @@ module dec (
     output logic [                      4:0] rs1_addr,
     output logic [                      4:0] rs2_addr,
     output logic [                      4:0] rd_addr,
+    output logic                             amo_64,
     output logic                             len_64,
 
     output logic [              `XLEN - 1:0] imm,
@@ -136,6 +137,7 @@ assign opcode_16 = inst[1:0];
 assign opcode_32 = inst[6:2];
 
 always_comb begin
+    amo_64              = 1'b0;
     len_64              = misa_mxl[1];
     rs1_rd              = 1'b0;
     rs2_rd              = 1'b0;
@@ -854,7 +856,7 @@ always_comb begin
                     OP_STORE_FP : ill_inst     = 1'b1;
                     OP_CUST_1   : ill_inst     = 1'b1;
                     OP_AMO      : begin
-                        len_64       = funct3 == 3'b011;
+                        amo_64       = funct3 == 3'b011;
                         amo          = 1'b1;
                         rs1_rd       = 1'b1;
                         rs2_rd       = 1'b1;

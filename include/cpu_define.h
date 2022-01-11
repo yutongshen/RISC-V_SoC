@@ -1,7 +1,7 @@
 `ifndef __CPU_DEFINE__
 `define __CPU_DEFINE__
 
-// `define RV32
+//`define RV32
 
 `ifdef RV32
   `define XLEN 32

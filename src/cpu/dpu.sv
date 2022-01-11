@@ -5,6 +5,7 @@ module dpu (
     input                                    rstn,
 
     input                                    len_64,
+    input                                    amo_64,
     
     input                                    amo_i,
     input        [        `AMO_OP_LEN - 1:0] amo_op_i,
@@ -53,7 +54,7 @@ logic                              sign_ext_latch;
 logic  [     `DM_DATA_LEN/8 - 1:0] byte_latch;
 logic                              load_latch;
 logic                              store_latch;
-logic                              len_64_latch;
+logic                              amo_64_latch;
 logic                              sc_latch;
 
 
@@ -183,13 +184,13 @@ always_ff @(posedge clk or negedge rstn) begin
         addr_latch     <= `DM_ADDR_LEN'b0;
         sign_ext_latch <= 1'b0;
         byte_latch     <= 4'b0;
-        len_64_latch   <= 1'b0;
+        amo_64_latch   <= 1'b0;
     end
     else if (dmem_req & ~dmem_busy) begin
         addr_latch     <= addr_i;
         sign_ext_latch <= sign_ext_i;
         byte_latch     <= byte_i;
-        len_64_latch   <= len_64;
+        amo_64_latch   <= amo_64;
     end
 end
 
@@ -205,7 +206,7 @@ always_ff @(posedge clk or negedge rstn) begin
 `ifdef RV32
         amo_src <= wdata_i;
 `else
-        amo_src <= len_64 ? wdata_i : {{32{wdata_i[31]}}, wdata_i[31:0]};
+        amo_src <= amo_64 ? wdata_i : {{32{wdata_i[31]}}, wdata_i[31:0]};
 `endif
     end
 end
@@ -213,7 +214,7 @@ end
 `ifdef RV32
 assign amo_mem_rdata  = dmem_rdata;
 `else
-assign amo_mem_rdata  = len_64_latch ? dmem_rdata :
+assign amo_mem_rdata  = amo_64_latch ? dmem_rdata :
                                       (({`XLEN{~addr_latch[2]}} & {{32{dmem_rdata[31]}}, dmem_rdata[31: 0]})|
                                        ({`XLEN{ addr_latch[2]}} & {{32{dmem_rdata[63]}}, dmem_rdata[63:32]}));
 `endif

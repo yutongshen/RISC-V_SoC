@@ -76,6 +76,7 @@ assign s_axi_intf.rresp   = resp_latch;
 assign s_axi_intf.rlast   = ~|cnt;
 assign m_apb_intf.paddr   = addr_latch;
 assign m_apb_intf.pstrb   = s_axi_intf.wstrb;
+assign m_apb_intf.pprot   = 3'b0;
 assign m_apb_intf.pwdata  = s_axi_intf.wdata;
 
 

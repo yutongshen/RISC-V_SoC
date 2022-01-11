@@ -1,8 +1,12 @@
 `timescale 1ns / 10ps
 
 `define CLK_PRIOD 20
-`define MAX_CYCLE 400000
+`define MAX_CYCLE 1000000
+//`define DDR_SIZE 2**17
+`define DDR_SIZE 2**25
 `define TEST_END_ADDR 32'hffc
+`define DDR_DATA(addr) \
+{u_ddr.mem_byte3[addr], u_ddr.mem_byte2[addr], u_ddr.mem_byte1[addr], u_ddr.mem_byte0[addr]}
 
 `include "cpu_define.h"
 `include "dbgapb_mmap.h"
@@ -39,11 +43,6 @@ logic         uart_rx;
 
 
 logic       simend;
-
-logic [7:0] prog_byte0 [32768];
-logic [7:0] prog_byte1 [32768];
-logic [7:0] prog_byte2 [32768];
-logic [7:0] prog_byte3 [32768];
 
 string      prog_path;
 
@@ -139,23 +138,16 @@ end
 
 // sram initial
 initial begin
+    integer i;
+    for (i = 0; i < `DDR_SIZE; i = i + 1) begin
+        `DDR_DATA(i) = 32'hdeaddead;
+    end
     #(`CLK_PRIOD * 5)
-    // Random initial
-    $value$plusargs("prog=%s", prog_path);
-    for (i = 0; i < 16384; i = i + 1) begin
-        prog_byte0[i] = 8'h0; // $random();
-        prog_byte1[i] = 8'h0; // $random();
-        prog_byte2[i] = 8'h0; // $random();
-        prog_byte3[i] = 8'h0; // $random();
-    end
-    $readmemh({prog_path, "/ddr_0.hex"}, prog_byte0);
-    $readmemh({prog_path, "/ddr_1.hex"}, prog_byte1);
-    $readmemh({prog_path, "/ddr_2.hex"}, prog_byte2);
-    $readmemh({prog_path, "/ddr_3.hex"}, prog_byte3);
-    #(`CLK_PRIOD)
-    for (i = 0; i < 16384; i = i + 1) begin
-        u_ddr.memory[i] <= {prog_byte3[i], prog_byte2[i], prog_byte1[i], prog_byte0[i]};
-    end
+    $value$plusargs("prog_path=%s", prog_path);
+    $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
+    $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
+    $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
+    $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
 end
 
 always #(`CLK_PRIOD / 2) clk <= ~clk;
@@ -193,15 +185,15 @@ cpu_wrap u_cpu_wrap (
 );
 
 axi_vip_slave #(
-    .ID                ( 0     ),
-    .MEM_SIZE          ( 2**25 ),
-    .AXI_AXID_WIDTH    ( 13    ),
-    .AXI_AXADDR_WIDTH  ( 32    ),
-    .AXI_AXLEN_WIDTH   ( 8     ),
-    .AXI_AXSIZE_WIDTH  ( 3     ),
-    .AXI_AXBURST_WIDTH ( 2     ),
-    .AXI_DATA_WIDTH    ( 32    ),
-    .AXI_RESP_WIDTH    ( 2     )
+    .ID                ( 0         ),
+    .MEM_SIZE          ( `DDR_SIZE ),
+    .AXI_AXID_WIDTH    ( 6         ),
+    .AXI_AXADDR_WIDTH  ( 32        ),
+    .AXI_AXLEN_WIDTH   ( 8         ),
+    .AXI_AXSIZE_WIDTH  ( 3         ),
+    .AXI_AXBURST_WIDTH ( 2         ),
+    .AXI_DATA_WIDTH    ( 32        ),
+    .AXI_RESP_WIDTH    ( 2         )
 ) u_ddr (
     .aclk    ( clk  ),
     .aresetn ( rstn ),
@@ -220,6 +212,7 @@ logic [ 1:0] _flag;
 
 int          tohost;
 string       isa;
+string       prog;
 
 initial begin
     isa = "";
@@ -234,21 +227,24 @@ initial begin
 end
 
 always @(posedge clk) begin
-    if (~rstn) begin
-        u_ddr.memory[tohost]   = 32'b0;
-        u_ddr.memory[tohost+4] = 32'b0;
-    end
-    else if ({u_ddr.memory[tohost+4], u_ddr.memory[tohost]} !== 64'b0) begin
-        repeat (10) @(posedge clk); 
-        case (u_ddr.memory[tohost+4])
-            32'h00000000: begin
-                $display("ENDCODE = %x", u_ddr.memory[tohost]);
-                simend = 1'b1;
-            end
-            32'h01010000: $write("%c", u_ddr.memory[tohost]);
-        endcase
-        u_ddr.memory[tohost]   = 32'b0;
-        u_ddr.memory[tohost+4] = 32'b0;
+    $value$plusargs("prog=%s", prog);
+    if (prog == "prog3") begin
+        if (~rstn) begin
+            `DDR_DATA(tohost)   = 32'b0;
+            `DDR_DATA(tohost+1) = 32'b0;
+        end
+        else if ({`DDR_DATA(tohost+1), `DDR_DATA(tohost)} !== 64'b0) begin
+            repeat (20) @(posedge clk); 
+            case (`DDR_DATA(tohost+1))
+                32'h00000000: begin
+                    $display("ENDCODE = %x", `DDR_DATA(tohost));
+                    simend = 1'b1;
+                end
+                32'h01010000: $write("%c", `DDR_DATA(tohost));
+            endcase
+            `DDR_DATA(tohost)   = 32'b0;
+            `DDR_DATA(tohost+1) = 32'b0;
+        end
     end
 end
 
@@ -336,7 +332,7 @@ endtask
 
 function logic [31:0] read;
 input [31:0] addr;
-return u_ddr.memory[addr[26:2]];
+return `DDR_DATA(addr[26:2]);
 endfunction
 
 endmodule

@@ -40,10 +40,42 @@ build_log: $(ELF_NAME)
 	$(RISCV_OBJDUMP) $< > $(ELF_NAME).log
 
 build_hex: $(ELF_NAME)
-	$(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses -0x80000000 ddr_0.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses -0x80000000 ddr_1.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses -0x80000000 ddr_2.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses -0x80000000 ddr_3.hex
+	@rm -f bss.hex
+	@touch bss.hex
+	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";        \
+	bss=$$(riscv64-unknown-elf-objdump -h $< | grep .bss);         \
+	if [[ "$${bss}" != "" ]]; then                                  \
+	    bss=($${bss});                                             \
+	    printf -v addr "%x" $$(((0x$${bss[3]} - 0x80000000) / 4)); \
+	    echo @$${addr} >> bss.hex;                                 \
+	    for (( i = 0; i < $$((0x$${bss[2]})); i = i + 16 )); do    \
+	        echo $${val} >> bss.hex;                               \
+	    done                                                       \
+	fi
+	@rm -f sbss.hex
+	@touch sbss.hex
+	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";         \
+	sbss=$$(riscv64-unknown-elf-objdump -h $< | grep .sbss);        \
+	if [[ "$${sbss}" != "" ]]; then                                  \
+	    sbss=($${sbss});                                            \
+	    printf -v addr "%x" $$(((0x$${sbss[3]} - 0x80000000) / 4)); \
+	    echo @$${addr} >> sbss.hex;                                 \
+	    for (( i = 0; i < $$((0x$${sbss[2]})); i = i + 16 )); do    \
+	        echo $${val} >> sbss.hex;                               \
+	    done                                                        \
+	fi
+	@$(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses -0x80000000 ddr_0.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses -0x80000000 ddr_1.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses -0x80000000 ddr_2.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses -0x80000000 ddr_3.hex
+	@cat bss.hex >> ddr_0.hex
+	@cat bss.hex >> ddr_1.hex
+	@cat bss.hex >> ddr_2.hex
+	@cat bss.hex >> ddr_3.hex
+	@cat sbss.hex >> ddr_0.hex
+	@cat sbss.hex >> ddr_1.hex
+	@cat sbss.hex >> ddr_2.hex
+	@cat sbss.hex >> ddr_3.hex
 
 %.o: %.bmp
 	$(RISCV_OBJCOPY) -I binary -O elf32-littleriscv -B riscv:rv32 $^ $@

@@ -54,12 +54,12 @@ assign irq_out    = (txwm_ip   && txwm_ie  ) ||
 assign apb_wr     = ~apb_intf.penable && apb_intf.psel &&  apb_intf.pwrite;
 assign apb_rd     = ~apb_intf.penable && apb_intf.psel && ~apb_intf.pwrite;
 
-assign tx_fifo_wr    = apb_wr && apb_intf.paddr[11:0] == `UART_TXFIFO;
+assign tx_fifo_wr    = apb_wr && apb_intf.paddr[11:0] == `UART_TXFIFO && ~tx_fifo_full && ~apb_intf.pwdata[31];
 assign tx_fifo_wdata = apb_intf.pwdata[`UART_DATA_WIDTH-1:0];
 
 uart_fifo u_tx_fifo(
-    .clk          ( clk    ),
-    .rstn         ( rstn ),
+    .clk          ( clk              ),
+    .rstn         ( rstn             ),
     .wr           ( tx_fifo_wr       ),
     .wdata        ( tx_fifo_wdata    ),
     .rd           ( tx_fifo_rd       ),
@@ -72,8 +72,8 @@ uart_fifo u_tx_fifo(
 );
 
 tx_ctrl u_tx_ctrl(
-    .clk      ( clk    ),
-    .rstn     ( rstn ),
+    .clk      ( clk              ),
+    .rstn     ( rstn             ),
     .enable   ( txen             ),
     .lcr      ( lcr              ),
     .nstop    ( nstop            ),
@@ -100,8 +100,8 @@ end
 assign rx_fifo_rd = apb_rd && apb_intf.paddr[11:0] == `UART_RXFIFO;
 
 uart_fifo u_rx_fifo(
-    .clk          ( clk    ),
-    .rstn         ( rstn ),
+    .clk          ( clk              ),
+    .rstn         ( rstn             ),
     .wr           ( rx_fifo_wr       ),
     .wdata        ( rx_fifo_wdata    ),
     .rd           ( rx_fifo_rd       ),
@@ -114,8 +114,8 @@ uart_fifo u_rx_fifo(
 );
 
 rx_ctrl u_rx_ctrl (
-    .clk      ( clk    ),
-    .rstn     ( rstn ),
+    .clk      ( clk              ),
+    .rstn     ( rstn             ),
     .enable   ( rxen             ),
     .lcr      ( lcr              ),
     .div      ( div              ),

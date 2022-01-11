@@ -15,6 +15,7 @@ module idu (
     output logic [                     11:0] csr_addr,
     output logic [              `XLEN - 1:0] rs1_data,
     output logic [              `XLEN - 1:0] rs2_data,
+    output logic                             amo_64_o,
     output logic                             len_64_o,
     input                                    len_64_i,
     output logic [              `XLEN - 1:0] imm,
@@ -139,6 +140,7 @@ dec u_dec (
     .rs1_addr            ( rs1_addr            ),
     .rs2_addr            ( rs2_addr            ),
     .rd_addr             ( rd_addr_o           ),
+    .amo_64              ( amo_64_o            ),
     .len_64              ( len_64_o            ),
     .imm                 ( imm                 ),
 

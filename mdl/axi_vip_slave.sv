@@ -141,16 +141,10 @@ if (`VERBOSE)
 
 endtask
 
-logic [   AXI_DATA_WIDTH - 1: 0] memory [MEM_SIZE];
-
-`ifdef MEM_INIT
-initial begin
-    integer i, j;
-    for (i = 0; i < MEM_SIZE; i = i + 1)
-        for (j = 0; j < AXI_DATA_WIDTH; j = j + 1)
-            memory[i][j] <= /*$random() % 2*/0;
-end
-`endif
+logic [ 7:0] mem_byte0 [MEM_SIZE];
+logic [ 7:0] mem_byte1 [MEM_SIZE];
+logic [ 7:0] mem_byte2 [MEM_SIZE];
+logic [ 7:0] mem_byte3 [MEM_SIZE];
 
 // WRITE
 
@@ -215,8 +209,14 @@ always @(posedge aclk) begin
                 w_verbose(s_wid, s_wdata, s_wstrb, s_wlast);
                 if (~awburst_err) begin
                     for (i = 0; i < AXI_DATA_WIDTH/8; i = i + 1) begin
-                        if (s_wstrb[i])
-                            memory[(waddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE][i*8+:8] = s_wdata[i*8+:8];
+                        if (s_wstrb[i]) begin
+                            case (i)
+                                0: mem_byte0[(waddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE] = s_wdata[i*8+:8];
+                                1: mem_byte1[(waddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE] = s_wdata[i*8+:8];
+                                2: mem_byte2[(waddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE] = s_wdata[i*8+:8];
+                                3: mem_byte3[(waddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE] = s_wdata[i*8+:8];
+                            endcase
+                        end
                     end
                 end
                 case (awburst)
@@ -278,7 +278,7 @@ always @(posedge aclk) begin
 end
 
 always @(posedge aclk) begin
-    integer i;
+    integer i, j;
     if (~aresetn) begin
         s_rvalid = 1'b0;
     end
@@ -289,7 +289,7 @@ always @(posedge aclk) begin
                                                        (arlen != 8'b111) && (arlen != 8'b1111));
             if (arburst_err) err_msg("Detect illigal burst");
             for (i = 0; i <= arlen; i = i + 1) begin
-                repeat($random() % 10) @(posedge aclk);
+                repeat($random() % 0) @(posedge aclk);
                 case (arburst)
                     `BURST_FIXED: raddr = araddr;
                     `BURST_INCR:  raddr = (araddr + (i << arsize));
@@ -297,7 +297,15 @@ always @(posedge aclk) begin
                                           ((araddr + (i << arsize)) & (((arlen + 1) << arsize) - 1));
                     default:      raddr = 0;
                 endcase
-                s_rdata = memory[(raddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE];
+                for (j = 0; j < AXI_DATA_WIDTH/8; j = j + 1) begin
+                    case (j)
+                        0: s_rdata[j*8+:8] = mem_byte0[(raddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE];
+                        1: s_rdata[j*8+:8] = mem_byte1[(raddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE];
+                        2: s_rdata[j*8+:8] = mem_byte2[(raddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE];
+                        3: s_rdata[j*8+:8] = mem_byte3[(raddr / (AXI_DATA_WIDTH/8)) % MEM_SIZE];
+                        default: s_rdata[j*8+:8] = 8'b0;
+                    endcase
+                end
                 s_rresp = arburst_err ? `RESP_SLVERR :
                                         `RESP_OKAY;
                 s_rlast  = i == arlen;

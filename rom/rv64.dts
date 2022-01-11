@@ -60,15 +60,14 @@
         #size-cells = <1>;
         reg = <0x00000000 0x040000000 0x00000000 0x10000000>;
         
-        uart0: uart@10000000 {
-            compatible = "sifive,uart0";
-            reg = <0x10000000 0x1000>;
-            interrupts = <0>;
+        cfgreg: cfgreg@04000000 {
+            compatible = "riscv,cfgreg";
+            reg = <0x04000000 0x1000>;
         };
 
-        clint0: clint@04000000 {
+        clint: clint@08000000 {
             compatible = "riscv,clint0";
-            reg = <0x04000000 0x10000>;
+            reg = <0x08000000 0x10000>;
             interrupts-extended = <&cpu0_intc 7>, <&cpu0_intc 3>;
         };
 
@@ -80,11 +79,17 @@
             reg = <0x0c000000 0x4000000>;
             interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>;
         };
+
+        uart: uart@10000000 {
+            compatible = "sifive,uart0";
+            reg = <0x10000000 0x1000>;
+            interrupts = <0>;
+        };
     };
 
     chosen {
-        riscv,kernel-start = <0x1 0x00000000>;
-        riscv,kernel-end = <0x1 0x02000000>;
+        riscv,kernel-start = <0x0 0xc0000000>;
+        riscv,kernel-end = <0x0 0xc2000000>;
         bootargs = "root=/dev/sda2";
         linux,platform = <0x00000600>;
     };

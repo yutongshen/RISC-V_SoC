@@ -102,6 +102,7 @@ module cpu_wrap (
 logic                             core_rstn;
 logic                             srstn;
 logic                             xrstn;
+logic                             rv64_mode;
 logic [              `XLEN - 1:0] core_bootvec;
 logic [                     31:0] ddr_offset;
 
@@ -192,7 +193,7 @@ logic          immu_pa_vld;
 logic [  1: 0] immu_pa_bad;
 logic [ 55: 0] immu_pa;
 logic          immu_pa_pre_vld;
-logic [ 55: 0] immu_pa_pre;
+logic [ 63: 0] immu_pa_pre;
 
 logic          dcache_bypass;
 logic          dmmu_pa_vld;
@@ -201,7 +202,7 @@ logic [ 55: 0] dmmu_pa;
 logic          dmmu_pa_pre_vld;
 logic          dmmu_pa_pre_wr;
 logic          dmmu_pa_pre_rd;
-logic [ 55: 0] dmmu_pa_pre;
+logic [ 63: 0] dmmu_pa_pre;
 
 logic          core_psel;
 logic          core_penable;
@@ -288,6 +289,7 @@ cpu_top u_cpu_top (
     .srstn               ( srstn                  ),
     .xrstn               ( xrstn                  ),
     .cpu_id              ( `XLEN'd0               ),
+    .rv64_mode           ( rv64_mode              ),
     .bootvec             ( core_bootvec           ),
     .warm_rst_trigger    ( warm_rst_trigger       ),
     .systime             ( systime                ),
@@ -355,7 +357,7 @@ cpu_top u_cpu_top (
     .halted              ( dbg_halted             )
 );
 
-mmu u_immu(
+mmu u_immu (
     .clk                 ( clk                 ),
     .rstn                ( srstn               ),
     
@@ -383,6 +385,7 @@ mmu u_immu(
     .pma_e               ( ipma_e              ),
 
     // mmu csr
+    .rv64_mode           ( rv64_mode           ),
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
     .satp_mode           ( satp_mode           ),
@@ -393,7 +396,11 @@ mmu u_immu(
 
     // virtual address
     .va_valid            ( imem_en             ),
-    .va                  ( {16'b0, imem_addr}  ),
+`ifdef RV32
+    .va                  ( {{32{imem_addr[31]}}, imem_addr}  ),
+`else
+    .va                  ( imem_addr           ),
+`endif
 
     // Cache bypass
     .cache_bypass        ( icache_bypass       ),
@@ -409,7 +416,7 @@ mmu u_immu(
     .m_axi_intf          ( immu_axi.master     )
 );
 
-mmu u_dmmu(
+mmu u_dmmu (
     .clk                 ( clk                 ),
     .rstn                ( srstn               ),
     
@@ -437,6 +444,7 @@ mmu u_dmmu(
     .pma_e               ( dpma_e              ),
 
     // mmu csr
+    .rv64_mode           ( rv64_mode           ),
     .satp_ppn            ( satp_ppn            ),
     .satp_asid           ( satp_asid           ),
     .satp_mode           ( satp_mode           ),
@@ -447,7 +455,11 @@ mmu u_dmmu(
 
     // virtual address
     .va_valid            ( dmem_en             ),
-    .va                  ( {16'b0, dmem_addr}  ),
+`ifdef RV32
+    .va                  ( {{32{dmem_addr[31]}}, dmem_addr}  ),
+`else
+    .va                  ( dmem_addr           ),
+`endif
 
     // Cache bypass
     .cache_bypass        ( dcache_bypass       ),
@@ -466,46 +478,46 @@ mmu u_dmmu(
 );
 
 mpu u_impu (
-    .clk      ( clk         ),
-    .rstn     ( srstn       ),
-    .pmpcfg   ( pmpcfg      ),
-    .pmpaddr  ( pmpaddr     ),
-    .pmacfg   ( pmacfg      ),
-    .pmaaddr  ( pmaaddr     ),
-    .paddr    ( immu_pa_pre[33:0] ),
+    .clk      ( clk                        ),
+    .rstn     ( srstn                      ),
+    .pmpcfg   ( pmpcfg                     ),
+    .pmpaddr  ( pmpaddr                    ),
+    .pmacfg   ( pmacfg                     ),
+    .pmaaddr  ( pmaaddr                    ),
+    .paddr    ( immu_pa_pre[0+:`PADDR_LEN] ),
 
-    .pmp_v    ( ipmp_v      ),
-    .pmp_l    ( ipmp_l      ),
-    .pmp_x    ( ipmp_x      ),
-    .pmp_w    ( ipmp_w      ),
-    .pmp_r    ( ipmp_r      ),
+    .pmp_v    ( ipmp_v                     ),
+    .pmp_l    ( ipmp_l                     ),
+    .pmp_x    ( ipmp_x                     ),
+    .pmp_w    ( ipmp_w                     ),
+    .pmp_r    ( ipmp_r                     ),
         
-    .pma_v    ( ipma_v      ),
-    .pma_l    ( ipma_l      ),
-    .pma_c    ( ipma_c      ),
-    .pma_e    ( ipma_e      )
+    .pma_v    ( ipma_v                     ),
+    .pma_l    ( ipma_l                     ),
+    .pma_c    ( ipma_c                     ),
+    .pma_e    ( ipma_e                     )
         
 );
 
 mpu u_dmpu (
-    .clk      ( clk         ),
-    .rstn     ( srstn       ),
-    .pmpcfg   ( pmpcfg      ),
-    .pmpaddr  ( pmpaddr     ),
-    .pmacfg   ( pmacfg      ),
-    .pmaaddr  ( pmaaddr     ),
-    .paddr    ( dmmu_pa_pre[33:0] ),
+    .clk      ( clk                        ),
+    .rstn     ( srstn                      ),
+    .pmpcfg   ( pmpcfg                     ),
+    .pmpaddr  ( pmpaddr                    ),
+    .pmacfg   ( pmacfg                     ),
+    .pmaaddr  ( pmaaddr                    ),
+    .paddr    ( dmmu_pa_pre[0+:`PADDR_LEN] ),
 
-    .pmp_v    ( dpmp_v      ),
-    .pmp_l    ( dpmp_l      ),
-    .pmp_x    ( dpmp_x      ),
-    .pmp_w    ( dpmp_w      ),
-    .pmp_r    ( dpmp_r      ),
+    .pmp_v    ( dpmp_v                     ),
+    .pmp_l    ( dpmp_l                     ),
+    .pmp_x    ( dpmp_x                     ),
+    .pmp_w    ( dpmp_w                     ),
+    .pmp_r    ( dpmp_r                     ),
         
-    .pma_v    ( dpma_v      ),
-    .pma_l    ( dpma_l      ),
-    .pma_c    ( dpma_c      ),
-    .pma_e    ( dpma_e      )
+    .pma_v    ( dpma_v                     ),
+    .pma_l    ( dpma_l                     ),
+    .pma_c    ( dpma_c                     ),
+    .pma_e    ( dpma_e                     )
 
 );
 
@@ -531,7 +543,7 @@ l1c u_l1ic (
     .core_req    ( imem_en         ),
     .core_wr     ( 1'b0            ),
     .core_ex     ( 1'b0            ),
-    .core_vaddr  ( imem_addr       ),
+    .core_vaddr  ( imem_addr[31:0] ),
     .core_byte   ( {`XLEN/8{1'b1}} ),
     .core_wdata  ( `XLEN'b0        ),
     .core_rdata  ( imem_rdata      ),
@@ -555,7 +567,7 @@ l1c u_l1dc (
     .core_wr     ( dmem_write      ),
     .core_ex     ( dmem_ex         ),
     .core_xstate ( dmem_xstate     ),
-    .core_vaddr  ( dmem_addr       ),
+    .core_vaddr  ( dmem_addr[31:0] ),
     .core_byte   ( dmem_strb       ),
     .core_wdata  ( dmem_wdata      ),
     .core_rdata  ( dmem_rdata      ),
