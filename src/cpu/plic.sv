@@ -1,5 +1,6 @@
 `include "soc_define.h"
 `include "plic_mmap.h"
+`define CONTEXT_NUM (2*`CPU_NUM)
 
 module plic (
     input                        clk,
@@ -7,11 +8,12 @@ module plic (
     apb_intf.slave               apb_intf,
 
     output logic [`CPU_NUM-1: 0] meip,
+    output logic [`CPU_NUM-1: 0] seip,
     input        [`INT_NUM-1: 0] ints
 );
 
-logic [        31:0] claim_id    [`CPU_NUM];
-logic [        31:0] cmplet_id   [`CPU_NUM];
+logic [        31:0] claim_id    [`CONTEXT_NUM];
+logic [        31:0] cmplet_id   [`CONTEXT_NUM];
 
 logic [`INT_NUM-1:1] claim;
 logic [`INT_NUM-1:1] cmplet;
@@ -19,13 +21,13 @@ logic [`INT_NUM-1:1] cmplet;
 logic [`INT_NUM-1:0] int_pend;
 logic [`INT_NUM-1:0] int_type;
 logic [`INT_NUM-1:0] int_pol;
-logic [        31:0] int_prior   [`INT_NUM];
-logic [`INT_NUM-1:0] int_en      [`CPU_NUM];
-logic [        31:0] int_id      [`CPU_NUM];
-logic [        31:0] threshold   [`CPU_NUM];
+logic [        31:0] int_prior   [    `INT_NUM];
+logic [`INT_NUM-1:0] int_en      [`CONTEXT_NUM];
+logic [        31:0] int_id      [`CONTEXT_NUM];
+logic [        31:0] threshold   [`CONTEXT_NUM];
 
-logic [        31:0] int_id_tmp  [`CPU_NUM];
-logic [        31:0] int_max_pri [`CPU_NUM];
+logic [        31:0] int_id_tmp  [`CONTEXT_NUM];
+logic [        31:0] int_max_pri [`CONTEXT_NUM];
 
 logic                apb_wr;
 
@@ -74,7 +76,7 @@ generate
             integer i;
             claim [gvar_i] = 1'b0;
             cmplet[gvar_i] = 1'b0;
-            for (i = 0; i < `CPU_NUM; i = i + 1) begin
+            for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
                 claim [gvar_i] = claim [gvar_i] | (claim_id [i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
                 cmplet[gvar_i] = cmplet[gvar_i] | (cmplet_id[i][0+:$clog2(`INT_NUM)] == gvar_i[0+:$clog2(`INT_NUM)]);
             end
@@ -94,7 +96,7 @@ generate
 
     assign int_pend[0] = 1'b0;
 
-    for (gvar_i = 0; gvar_i < `CPU_NUM; gvar_i = gvar_i + 1) begin: g_target
+    for (gvar_i = 0; gvar_i < `CONTEXT_NUM; gvar_i = gvar_i + 1) begin: g_target
         logic [`INT_NUM-1:0] ip_ie_ints;
         logic [        31:0] en_ints_pri [11][`CMP_TREE_L0_NUM];
         logic [         9:0] id_sel      [11][`CMP_TREE_L0_NUM];
@@ -211,7 +213,8 @@ endgenerate
 always_comb begin: comb_meip
     integer i;
     for (i = 0; i < `CPU_NUM; i = i + 1) begin
-        meip[i] = claim_id[i] != int_id[i];
+        meip[i] = claim_id[i*2  ] != int_id[i*2  ];
+        seip[i] = claim_id[i*2+1] != int_id[i*2+1];
     end
 end
 
@@ -266,12 +269,12 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_int_en
     integer i, j;
     if (~rstn) begin
-        for (j = 0; j < `CPU_NUM; j = j + 1) begin
+        for (j = 0; j < `CONTEXT_NUM; j = j + 1) begin
             int_en[j] <= `INT_NUM'b0;
         end
     end
     else if (apb_wr) begin
-        for (j = 0; j < `CPU_NUM; j = j + 1) begin
+        for (j = 0; j < `CONTEXT_NUM; j = j + 1) begin
             for (i = 0; i < `INT_NUM; i = i + 32) begin
                 if (apb_intf.paddr[25:0] == `PLIC_INT_EN + i[28:3] + 26'h80 * j[25:0]) begin
                     int_en[j][i+:32] <= apb_intf.pwdata;
@@ -284,12 +287,12 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_threshold
     integer i;
     if (~rstn) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             threshold[i] <= 32'b0;
         end
     end
     else if (apb_wr) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             if (apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]) begin
                 threshold[i] <= apb_intf.pwdata;
             end
@@ -300,12 +303,12 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_int_id
     integer i;
     if (~rstn) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             int_id   [i] <= 32'b0;
         end
     end
     else begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             if (!(~apb_intf.penable && apb_intf.psel &&
                 apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4)) begin
                 if (~|claim_id[i]) begin // non-preemptive
@@ -319,12 +322,12 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_claim_id
     integer i;
     if (~rstn) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             claim_id [i] <= 32'b0;
         end
     end
     else begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             if (~apb_intf.penable && apb_intf.psel &&
                 apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
                 claim_id [i] <= apb_intf.pwrite ? 32'b0 : int_id[i];
@@ -336,12 +339,12 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_cmplet_id
     integer i;
     if (~rstn) begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             cmplet_id[i] <= 32'b0;
         end
     end
     else begin
-        for (i = 0; i < `CPU_NUM; i = i + 1) begin
+        for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
             if (apb_wr && apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4) begin
                 cmplet_id[i] <= claim_id[i];
             end
@@ -391,7 +394,7 @@ end
 always_comb begin: comb_prdata_ie
     integer i, j;
     prdata_ie = 32'b0;
-    for (j = 0; j < `CPU_NUM; j = j + 1) begin
+    for (j = 0; j < `CONTEXT_NUM; j = j + 1) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin
             prdata_ie = prdata_ie |
                         (int_en[j][i+:32] &
@@ -403,7 +406,7 @@ end
 always_comb begin: comb_prdata_th
     integer i;
     prdata_th = 32'b0;
-    for (i = 0; i < `CPU_NUM; i = i + 1) begin
+    for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
         prdata_th = prdata_th |
                     (threshold[i] & {32{apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0]}});
     end
@@ -412,7 +415,7 @@ end
 always_comb begin: comb_prdata_id
     integer i;
     prdata_id = 32'b0;
-    for (i = 0; i < `CPU_NUM; i = i + 1) begin
+    for (i = 0; i < `CONTEXT_NUM; i = i + 1) begin
         prdata_id = prdata_id |
                     (int_id[i] & {32{apb_intf.paddr[25:0] == `PLIC_PRIOR_TH + 26'h1000 * i[25:0] + 26'h4}});
     end

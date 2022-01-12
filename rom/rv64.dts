@@ -58,7 +58,7 @@
         compatible = "riscv,bus";
         #address-cells = <1>;
         #size-cells = <1>;
-        reg = <0x00000000 0x040000000 0x00000000 0x10000000>;
+        reg = <0x00000000 0x04000000 0x00000000 0x10000000>;
         
         cfgreg: cfgreg@04000000 {
             compatible = "riscv,cfgreg";
@@ -83,13 +83,13 @@
         uart: uart@10000000 {
             compatible = "sifive,uart0";
             reg = <0x10000000 0x1000>;
-            interrupts = <0>;
+            interrupts = <1>;
         };
     };
 
     chosen {
-        riscv,kernel-start = <0x0 0xc0000000>;
-        riscv,kernel-end = <0x0 0xc2000000>;
+        /*riscv,kernel-start = <0x0 0x84000000>;
+        riscv,kernel-end   = <0x0 0x86000000>;*/
         bootargs = "root=/dev/sda2";
         linux,platform = <0x00000600>;
     };

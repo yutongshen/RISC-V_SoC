@@ -4,11 +4,17 @@
 #define pmacfg3   0x3c3
 #define pmaaddr15 0x3df
 #define ENABLE_DDR_CACHE
+#define ENABLE_UART_IRQ
 
 .section .text
 .align 2
 .globl _start
 _start:
+#ifdef ENABLE_UART_IRQ
+  li t0, 0x10000000;
+  li t1, 7;
+  sw t1, 0x10(t0);
+#endif
   csrr a0, mhartid;
   la a1, _DTB;
   # check RV64/32

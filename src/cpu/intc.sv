@@ -9,6 +9,7 @@ module intc (
     output logic [`CPU_NUM-1: 0] msip,
     output logic [`CPU_NUM-1: 0] mtip,
     output logic [`CPU_NUM-1: 0] meip,
+    output logic [`CPU_NUM-1: 0] seip,
     input        [`INT_NUM-1: 0] ints
 );
 
@@ -37,6 +38,7 @@ plic u_plic(
     .apb_intf ( plic_apb.slave  ),
 
     .meip     ( meip            ),
+    .seip     ( seip            ),
     .ints     ( ints            )
 );
 

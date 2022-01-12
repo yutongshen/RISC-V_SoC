@@ -48,7 +48,7 @@ build_hex: $(ELF_NAME)
 	    bss=($${bss});                                             \
 	    printf -v addr "%x" $$(((0x$${bss[3]} - 0x80000000) / 4)); \
 	    echo @$${addr} >> bss.hex;                                 \
-	    for (( i = 0; i < $$((0x$${bss[2]})); i = i + 16 )); do    \
+	    for (( i = 0; i < $$((0x$${bss[2]})); i = i + 64 )); do    \
 	        echo $${val} >> bss.hex;                               \
 	    done                                                       \
 	fi
@@ -60,7 +60,7 @@ build_hex: $(ELF_NAME)
 	    sbss=($${sbss});                                            \
 	    printf -v addr "%x" $$(((0x$${sbss[3]} - 0x80000000) / 4)); \
 	    echo @$${addr} >> sbss.hex;                                 \
-	    for (( i = 0; i < $$((0x$${sbss[2]})); i = i + 16 )); do    \
+	    for (( i = 0; i < $$((0x$${sbss[2]})); i = i + 64 )); do    \
 	        echo $${val} >> sbss.hex;                               \
 	    done                                                        \
 	fi

@@ -40,8 +40,6 @@ logic [`XLEN-1: 0] dbg_rdata;
 logic         uart_tx;
 logic         uart_rx;
 
-
-
 logic       simend;
 
 string      prog_path;

@@ -36,6 +36,7 @@ module cpu_top (
     input                                    msip,
     input                                    mtip,
     input                                    meip,
+    input                                    seip,
 
     // inst interface
     output logic                             imem_en,
@@ -292,6 +293,8 @@ logic [              `XLEN - 1:0] exe_csr_src2;
 logic [              `XLEN - 1:0] exe_csr_alu_out;
 logic [              `XLEN - 1:0] exe_csr_wdata_pre;
 logic [              `XLEN - 1:0] exe_csr_wdata;
+logic [              `XLEN - 1:0] exe_csr_sdata;
+logic [              `XLEN - 1:0] exe_csr_cdata;
 logic                             exe_pmu_csr_wr;
 logic                             exe_fpu_csr_wr;
 logic                             exe_dbg_csr_wr;
@@ -986,6 +989,7 @@ sru u_sru (
     .ext_msip         ( msip              ),
     .ext_mtip         ( mtip              ),
     .ext_meip         ( meip              ),
+    .ext_seip         ( seip              ),
     .wakeup           ( wakeup_event      ),
     .irq_trigger      ( exe_irq_en        ),
     .cause            ( exe_cause         ),
@@ -1015,6 +1019,8 @@ sru u_sru (
     .csr_waddr        ( id2exe_csr_waddr  ),
     .csr_raddr        ( id_csr_addr       ),
     .csr_wdata        ( exe_csr_wdata     ),
+    .csr_sdata        ( exe_csr_sdata     ),
+    .csr_cdata        ( exe_csr_cdata     ),
     .csr_rdata        ( id_sru_csr_rdata  )
 );
 
@@ -1102,6 +1108,8 @@ csr_alu u_csr_alu(
     .csr_op ( id2exe_csr_op   ),
     .src1   ( exe_csr_src1    ),
     .src2   ( exe_csr_src2    ),
+    .stb    ( exe_csr_sdata   ),
+    .clr    ( exe_csr_cdata   ),
     .out    ( exe_csr_alu_out )
 );
 

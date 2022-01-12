@@ -56,6 +56,7 @@ module sru (
     input                           ext_msip,
     input                           ext_mtip,
     input                           ext_meip,
+    input                           ext_seip,
     output logic                    wakeup,
     output logic                    irq_trigger,
     output logic [       `XLEN-1:0] cause,
@@ -85,6 +86,8 @@ module sru (
     input        [            11:0] csr_waddr,
     input        [            11:0] csr_raddr,
     input        [       `XLEN-1:0] csr_wdata,
+    input        [       `XLEN-1:0] csr_sdata,
+    input        [       `XLEN-1:0] csr_cdata,
     output logic [       `XLEN-1:0] csr_rdata
 );
 
@@ -96,6 +99,8 @@ logic [      `IM_ADDR_LEN-1:0] vec_offset;
 logic                          msip_d1;
 logic                          mtip_d1;
 logic                          meip_d1;
+logic                          seip_d1;
+logic                          seip_d2;
 
 logic [             `XLEN-1:0] sstatus;
 logic [                  30:0] sstatus_low;
@@ -162,6 +167,7 @@ logic                          mip_msip;
 logic                          mip_stip;
 logic                          mip_mtip;
 logic                          mip_seip;
+logic                          mip_seip_sw;
 logic                          mip_meip;
 
 logic [                  25:0] misa_ext;
@@ -619,13 +625,17 @@ end
 assign mip = {{(`XLEN-12){1'b0}}, mip_meip, 1'b0, mip_seip, 1'b0, mip_mtip, 1'b0,
               mip_stip, 1'b0, mip_msip, 1'b0, mip_ssip, 1'b0};
 
-assign sip = {{(`XLEN-2){1'b0}}, mip_ssip, 1'b0};
+assign sip = {{(`XLEN-10){1'b0}}, mip_seip, 3'b0, mip_stip, 3'b0, mip_ssip, 1'b0};
+
+assign mip_seip = seip_d1 | mip_seip_sw;
 
 always_ff @(posedge clk_free or negedge srstn) begin
     if (~srstn) begin
         msip_d1  <= 1'b0;
         mtip_d1  <= 1'b0;
         meip_d1  <= 1'b0;
+        seip_d1  <= 1'b0;
+        seip_d2  <= 1'b0;
         mip_msip <= 1'b0;
         mip_mtip <= 1'b0;
         mip_meip <= 1'b0;
@@ -634,6 +644,8 @@ always_ff @(posedge clk_free or negedge srstn) begin
         msip_d1  <= ext_msip;
         mtip_d1  <= ext_mtip;
         meip_d1  <= ext_meip;
+        seip_d1  <= ext_seip;
+        seip_d2  <= seip_d1;
         mip_msip <= msip_d1;
         mip_mtip <= mtip_d1;
         mip_meip <= meip_d1;
@@ -642,18 +654,19 @@ end
 
 always_ff @(posedge clk or negedge srstn) begin
     if (~srstn) begin
-        mip_ssip <= 1'b0;
-        mip_stip <= 1'b0;
-        mip_seip <= 1'b0;
+        mip_ssip    <= 1'b0;
+        mip_stip    <= 1'b0;
+        mip_seip_sw <= 1'b0;
     end
     else if (~sleep) begin
         if (csr_wr && csr_waddr == `CSR_SIP_ADDR)  begin
-            mip_ssip <= csr_wdata[1] & mideleg_ssip;
+            mip_ssip    <= csr_wdata[1]/* & mideleg_ssip*/;
+            mip_seip_sw <= (mip_seip_sw | csr_sdata[9]) & ~csr_cdata[9];
         end
         else if (csr_wr && csr_waddr == `CSR_MIP_ADDR) begin
-            mip_ssip <= csr_wdata[1];
-            mip_stip <= csr_wdata[5];
-            mip_seip <= csr_wdata[9];
+            mip_ssip    <= csr_wdata[1];
+            mip_stip    <= csr_wdata[5];
+            mip_seip_sw <= (mip_seip_sw | csr_sdata[9]) & ~csr_cdata[9];
         end
     end
 end

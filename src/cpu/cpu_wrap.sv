@@ -111,6 +111,7 @@ logic [                     63:0] systime;
 logic                             msip;
 logic                             mtip;
 logic                             meip;
+logic                             seip;
 
 logic                             imem_en;
 logic [       `IM_ADDR_LEN - 1:0] imem_addr;
@@ -320,6 +321,7 @@ cpu_top u_cpu_top (
     .msip                ( msip                   ),
     .mtip                ( mtip                   ),
     .meip                ( meip                   ),
+    .seip                ( seip                   ),
 
     // inst interface
     .imem_en             ( imem_en                ),
@@ -747,7 +749,7 @@ assign ints = {
     1'b0 // reserve
 };
 
-intc u_intc(
+intc u_intc (
     .clk        ( clk            ),
     .rstn       ( srstn          ),
     .s_apb_intf ( intc_apb.slave ),
@@ -756,6 +758,7 @@ intc u_intc(
     .msip       ( msip           ),
     .mtip       ( mtip           ),
     .meip       ( meip           ),
+    .seip       ( seip           ),
     .ints       ( ints           )
 );
 
