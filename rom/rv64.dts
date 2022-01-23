@@ -41,12 +41,12 @@
 
     bootrom: bootrom@0 {
         device_type = "bootrom";
-        reg = <0x00000000 0x00000000 0x00000000 0x00004000>;
+        reg = <0x00000000 0x00000000 0x00000000 0x00002000>;
     };
 
     sysram: sysram@10000 {
         device_type = "memory";
-        reg = <0x00000000 0x00010000 0x00000000 0x00010000>;
+        reg = <0x00000000 0x00020000 0x00000000 0x00020000>;
     };
 
     ddr: ddr@80000000 {
@@ -88,8 +88,8 @@
     };
 
     chosen {
-        /*riscv,kernel-start = <0x0 0x84000000>;
-        riscv,kernel-end   = <0x0 0x86000000>;*/
+        /*riscv,kernel-start = <0x0 0x84000000>;*/
+        riscv,kernel-end   = <0x0 0x86000000>;
         bootargs = "root=/dev/sda2";
         linux,platform = <0x00000600>;
     };

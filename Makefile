@@ -4,9 +4,11 @@ syn_dir       := ./syn
 inc_dir       := ./include
 bld_dir       := ./build
 sim_dir       := ./sim
+rom_dir       := ./rom
 scrp_dir      := ./script
 flist         := designlist.f
 simlist       := sim.f
+tmdl_msg_log  := tmdl_msg.log
 err_ignore    := 2> /dev/null || :
 
 INIT_MMAP     := ./script/build_mmap -i 
@@ -54,12 +56,38 @@ merge:
 
 sim: all | ${bld_dir}
 	@make verdi.f;
-	@make -C rom;
-	@cp rom/*.hex ${bld_dir};
+	@make -C ${rom_dir};
+	@cp ${rom_dir}/*.hex ${bld_dir};
+		
+	# Gen MMAP head file
+	@${INIT_MMAP} ${inc_dir}/mmap.h ${bld_dir}/mmap_soc.h
+	@for file in ${inc_dir}/*_mmap.h; do \
+	    ${XTEND_MMAP} ${bld_dir}/mmap_soc.h $${file}; \
+	done
+	
+	# Move prog to build directory
+	@rm ${bld_dir}/${tmdl_msg_log};
+	@rm -rf ${bld_dir}/prog;
+	@mkdir ${bld_dir}/prog;
+	@mkdir ${bld_dir}/prog/include;
+	@for file in ${sim_dir}/prog${prog}/*; do \
+	    if [[ ! "$${file}" == "${sim_dir}/prog${prog}/*" ]]; then \
+	        _file=$$(basename $${file}); \
+	        if [[ "$${_file#*.}" == "c" ]]; then \
+	            ${TMDL_PARSE_C} $${file} ${bld_dir}/prog/$${_file} ${bld_dir}/${tmdl_msg_log}; \
+	        elif [[ "$${_file#*.}" == "S" ]] || [[ "$${_file#*.}" == "s" ]]; then \
+	            ${TMDL_PARSE_S} $${file} ${bld_dir}/prog/$${_file} ${bld_dir}/${tmdl_msg_log}; \
+	        else \
+	            cp $${file} ${bld_dir}/prog/ ${err_ignore}; \
+	        fi; \
+	    fi; \
+	done;
+	@cp ${bld_dir}/mmap_soc.h ${bld_dir}/prog/include
+	
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
-	        make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=$${i} > /dev/null; \
-	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=$(root_dir)/$(sim_dir)/prog$(prog) +prog=prog$(prog) +isa=$${i};); \
+	        make -C $(bld_dir)/prog isa=$${i} > /dev/null; \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=$${i};); \
             cpi=$$(echo "$${res}" | grep "CPI:"); \
             inst=$$(echo "$${res}" | grep "minstret:"); \
             cycl=$$(echo "$${res}" | grep "mcycle:"); \
@@ -71,9 +99,9 @@ sim: all | ${bld_dir}
 	        fi; \
 	    done; \
 	else \
-	    make -C $(root_dir)/$(sim_dir)/prog$(prog) isa=${isa}; \
+	    make -C $(bld_dir)/prog isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog_path=$(root_dir)/$(sim_dir)/prog$(prog) +prog=prog$(prog) +isa=${isa} +nclinedebug +define+FSDB; \
+	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +nclinedebug +define+FSDB; \
 	fi;
 
 axi: | ${bld_dir}

@@ -96,7 +96,13 @@ module cpu_wrap (
 
     // UART interface
     output logic           uart_tx,
-    input                  uart_rx
+    input                  uart_rx,
+
+    // SPI interface
+    output logic           sclk,
+    output logic           nss,
+    output logic           mosi,
+    input                  miso
 );
 
 logic                             core_rstn;
@@ -236,16 +242,8 @@ logic [ 31: 0] cfgreg_prdata;
 logic          cfgreg_pslverr;
 logic          cfgreg_pready;
 
-logic          uart_psel;
-logic          uart_penable;
-logic [ 31: 0] uart_paddr;
-logic          uart_pwrite;
-logic [  3: 0] uart_pstrb;
-logic [ 31: 0] uart_pwdata;
-logic [ 31: 0] uart_prdata;
-logic          uart_pslverr;
-logic          uart_pready;
 logic          uart_irq;
+logic          spi_irq;
 
 logic [       11: 0] dbg_addr;
 logic [`XLEN - 1: 0] dbg_wdata;
@@ -723,20 +721,20 @@ sram u_sram_0 (
     .DO   ( do_0          )
 );
 */
-rom32x1024 u_brom (
+rom32x2048 u_brom (
     .CK ( mem_ck_0      ),
     .CS ( cs_0          ),
-    .A  ( addr_0[2+:10] ),
+    .A  ( addr_0[2+:11] ),
     .DO ( do_0          )
 );
 
 
 assign busy_1 = 1'b0;
 
-sram u_sram_1 (
+sram u_sram (
     .CK   ( mem_ck_1      ),
     .CS   ( cs_1          ),
-    .A    ( addr_1[2+:14] ),
+    .A    ( addr_1[2+:15] ),
     .BYTE ( byte_1        ),
     .WE   ( we_1          ),
     .DI   ( di_1          ),
@@ -744,7 +742,8 @@ sram u_sram_1 (
 );
 
 assign ints = {
-    30'b0,
+    29'b0,
+    spi_irq,
     uart_irq,
     1'b0 // reserve
 };
@@ -789,13 +788,21 @@ dbgapb u_dbgapb (
     .attach    ( dbg_attach    )
 );
 
-uart u_uart(
-    .clk      ( clk            ),
-    .rstn     ( rstn           ),
-    .apb_intf ( peri_apb.slave ),
+peri u_peri(
+    .clk        ( clk            ),
+    .rstn       ( rstn           ),
+    .s_apb_intf ( peri_apb.slave ),
 
-    .irq_out  ( uart_irq       ),
-    .uart_rx  ( uart_rx        ),
-    .uart_tx  ( uart_tx        )
+    .uart_rx    ( uart_rx        ),
+    .uart_tx    ( uart_tx        ),
+
+    .sclk       ( sclk           ),
+    .nss        ( nss            ),
+    .mosi       ( mosi           ),
+    .miso       ( miso           ),
+
+    .uart_irq   ( uart_irq       ),
+    .spi_irq    ( spi_irq        )
 );
+
 endmodule

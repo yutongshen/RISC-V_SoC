@@ -1,6 +1,8 @@
 `ifndef __PLIC_MMAP__
 `define __PLIC_MMAP__
 
+// PLIC_BASE
+
 `define PLIC_INT_PRIOR   26'h000_0000
 `define PLIC_INT_PEND    26'h000_1000
 `define PLIC_INT_TYPE    26'h000_1080

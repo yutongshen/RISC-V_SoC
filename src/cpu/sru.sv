@@ -57,6 +57,7 @@ module sru (
     input                           ext_mtip,
     input                           ext_meip,
     input                           ext_seip,
+    input                           int_mask,
     output logic                    wakeup,
     output logic                    irq_trigger,
     output logic [       `XLEN-1:0] cause,
@@ -195,8 +196,8 @@ assign eret_en     = ~trap_en && (sret || mret);
 
 assign trap_m_mode = ~trap_s_mode;
 assign trap_s_mode = prv <= `PRV_S && |(medeleg & (`XLEN'b1 << trap_cause[`XLEN-2:0]));
-assign ints_m_mode = ((prv == `PRV_M && mstatus_mie) || prv < `PRV_M) && |(~mideleg & mip & mie);
-assign ints_s_mode = ((prv == `PRV_S && mstatus_sie) || prv < `PRV_S) && |( mideleg & mip & mie) && !ints_m_mode;
+assign ints_m_mode = ((prv == `PRV_M && mstatus_mie) || prv < `PRV_M) && ~int_mask && |(~mideleg & mip & mie);
+assign ints_s_mode = ((prv == `PRV_S && mstatus_sie) || prv < `PRV_S) && ~int_mask && |( mideleg & mip & mie) && !ints_m_mode;
 
 assign trap_vec    = ((trap_en ? (trap_m_mode ? mtvec : stvec):
                                  (ints_m_mode ? mtvec : stvec)) & ~`IM_ADDR_LEN'h3) + vec_offset;

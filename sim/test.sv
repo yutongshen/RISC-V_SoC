@@ -1,12 +1,13 @@
 `timescale 1ns / 10ps
 
 `define CLK_PRIOD 20
-`define MAX_CYCLE 1000000
+`define MAX_CYCLE 2000000
 //`define DDR_SIZE 2**17
 `define DDR_SIZE 2**25
-`define TEST_END_ADDR 32'hffc
+`define TEST_END_ADDR 32'h1fffc
 `define DDR_DATA(addr) \
 {u_ddr.mem_byte3[addr], u_ddr.mem_byte2[addr], u_ddr.mem_byte1[addr], u_ddr.mem_byte0[addr]}
+`define SRAM_DATA(addr) u_cpu_wrap.u_sram.memory[addr]
 
 `include "cpu_define.h"
 `include "dbgapb_mmap.h"
@@ -37,18 +38,23 @@ logic              dbg_pslverr;
 logic              dbg_pready;
 logic [`XLEN-1: 0] dbg_rdata;
 
-logic         uart_tx;
-logic         uart_rx;
+logic              uart_tx;
+logic              uart_rx;
 
-logic       simend;
+logic              spi_sclk;
+logic              spi_nss;
+logic              spi_mosi;
+logic              spi_miso;
 
-string      prog_path;
+logic              simend;
+
+string             prog_path;
 
 // clock and reset
 initial begin
-    simend <= 1'b0;
-    clk    <= 1'b0;
-    rstn   <= 1'b0;
+    simend   <= 1'b0;
+    rstn     <= 1'b0;
+    spi_miso <= 1'b1;
     dbgapb_init;
     axi_init;
     repeat (10) @(posedge clk);
@@ -60,12 +66,17 @@ initial begin
     simend <= 1'b1;
 end
 
+initial begin
+    clk = 1'b0;
+    forever clk = #(`CLK_PRIOD / 2) ~clk;
+end
+
 // Simulation end check
 always @(posedge clk) begin
-    if (u_cpu_wrap.u_sram_1.memory[`TEST_END_ADDR >> 2] === 32'b1) begin
+    if (u_cpu_wrap.u_sram.memory[`TEST_END_ADDR >> 2] === 32'b1) begin
         $display("TEST_END flag detected");
         $display("Simulation end!");
-        $display("END CODE: %x", u_cpu_wrap.u_sram_1.memory[(`TEST_END_ADDR >> 2) - 1]);
+        $display("END CODE: %x", u_cpu_wrap.u_sram.memory[(`TEST_END_ADDR >> 2) - 1]);
         simend <= 1'b1;
     end
 end
@@ -135,20 +146,35 @@ initial begin
 end
 
 // sram initial
+`define SRAM_SIZE 2**15
+logic [7:0] sram_byte0 [`SRAM_SIZE];
+logic [7:0] sram_byte1 [`SRAM_SIZE];
+logic [7:0] sram_byte2 [`SRAM_SIZE];
+logic [7:0] sram_byte3 [`SRAM_SIZE];
+
 initial begin
     integer i;
+    $value$plusargs("prog_path=%s", prog_path);
+    /*
     for (i = 0; i < `DDR_SIZE; i = i + 1) begin
         `DDR_DATA(i) = 32'hdeaddead;
     end
-    #(`CLK_PRIOD * 5)
-    $value$plusargs("prog_path=%s", prog_path);
     $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
     $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
     $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
     $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
+    */
+    for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
+        {sram_byte3[i], sram_byte2[i], sram_byte1[i], sram_byte0[i]} = 32'hdeaddead;
+    end
+    $readmemh({prog_path, "/sram_0.hex"}, sram_byte0);
+    $readmemh({prog_path, "/sram_1.hex"}, sram_byte1);
+    $readmemh({prog_path, "/sram_2.hex"}, sram_byte2);
+    $readmemh({prog_path, "/sram_3.hex"}, sram_byte3);
+    for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
+        `SRAM_DATA(i) = {sram_byte3[i], sram_byte2[i], sram_byte1[i], sram_byte0[i]};
+    end
 end
-
-always #(`CLK_PRIOD / 2) clk <= ~clk;
 
 `ifdef FSDB
 initial begin
@@ -179,7 +205,13 @@ cpu_wrap u_cpu_wrap (
 
     // UART interface
     .uart_tx     ( uart_tx       ),
-    .uart_rx     ( uart_rx       )
+    .uart_rx     ( uart_rx       ),
+
+    // SPI interface
+    .sclk        ( spi_sclk      ),
+    .nss         ( spi_nss       ),
+    .mosi        ( spi_mosi      ),
+    .miso        ( spi_miso      )
 );
 
 axi_vip_slave #(
@@ -228,66 +260,26 @@ always @(posedge clk) begin
     $value$plusargs("prog=%s", prog);
     if (prog == "prog3") begin
         if (~rstn) begin
-            `DDR_DATA(tohost)   = 32'b0;
-            `DDR_DATA(tohost+1) = 32'b0;
+            `SRAM_DATA(tohost)   = 32'b0;
+            `SRAM_DATA(tohost+1) = 32'b0;
         end
-        else if ({`DDR_DATA(tohost+1), `DDR_DATA(tohost)} !== 64'b0) begin
+        else if ({`SRAM_DATA(tohost+1), `SRAM_DATA(tohost)} !== 64'b0) begin
             repeat (20) @(posedge clk); 
-            case (`DDR_DATA(tohost+1))
+            case (`SRAM_DATA(tohost+1))
                 32'h00000000: begin
-                    $display("ENDCODE = %x", `DDR_DATA(tohost));
+                    $display("ENDCODE = %x", `SRAM_DATA(tohost));
                     simend = 1'b1;
                 end
-                32'h01010000: $write("%c", `DDR_DATA(tohost));
+                32'h01010000: $write("%c", `SRAM_DATA(tohost));
             endcase
-            `DDR_DATA(tohost)   = 32'b0;
-            `DDR_DATA(tohost+1) = 32'b0;
+            `SRAM_DATA(tohost)   = 32'b0;
+            `SRAM_DATA(tohost+1) = 32'b0;
         end
     end
 end
 
-/*
-always @(posedge clk) begin
-    if (~rstn) begin
-        arg <= 32'b0;
-        cmd <= 32'b0;
-    end
-    else if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
-        if (u_cpu_wrap.u_sram_0.A == tohost) begin
-            arg <= u_cpu_wrap.u_sram_0.DI;
-        end
-        else if (u_cpu_wrap.u_sram_0.A == tohost + 14'h1) begin
-            cmd <= u_cpu_wrap.u_sram_0.DI;
-        end
-    end
-end
+`include "tmdl.sv"
 
-always @(posedge clk) begin
-    if (~rstn) begin
-        _flag <= 2'b0;
-    end
-    else if (u_cpu_wrap.u_sram_0.CS && u_cpu_wrap.u_sram_0.WE) begin
-        if (_flag) begin
-            _flag <= {_flag[0], 1'b0};
-        end
-        else if (u_cpu_wrap.u_sram_0.A == tohost) begin
-            _flag <= 2'b1;
-        end
-    end
-    else if (_flag[1]) begin
-        case (cmd)
-            32'h00000000: begin
-                $display("ENDCODE = %x", arg);
-                simend = 1'b1;
-            end
-            32'h01010000: $write("%c", arg);
-        endcase
-        _flag <= 2'b0;
-        u_cpu_wrap.u_sram_0.memory[tohost] = 32'b0;
-        u_cpu_wrap.u_sram_0.memory[tohost+14'h1] = 32'b0;
-    end
-end
-*/
 `ifdef DBG_TEST
 `include "dbgapb_test.sv"
 `endif
@@ -330,7 +322,7 @@ endtask
 
 function logic [31:0] read;
 input [31:0] addr;
-return `DDR_DATA(addr[26:2]);
+return `SRAM_DATA(addr[26:2]);
 endfunction
 
 endmodule

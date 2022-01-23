@@ -288,6 +288,7 @@ logic [              `XLEN - 1:0] exe_pc2rd;
 logic                             exe_gpr_hazard;
 logic                             exe_csr_hazard;
 logic                             exe_hazard;
+logic                             exe_int_mask;
 logic [              `XLEN - 1:0] exe_csr_src1;
 logic [              `XLEN - 1:0] exe_csr_src2;
 logic [              `XLEN - 1:0] exe_csr_alu_out;
@@ -970,6 +971,8 @@ assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~ex
 assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
+assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid;
+
 sru u_sru (
     .clk              ( clk_wfi           ),
     .clk_free         ( clk               ),
@@ -990,6 +993,7 @@ sru u_sru (
     .ext_mtip         ( mtip              ),
     .ext_meip         ( meip              ),
     .ext_seip         ( seip              ),
+    .int_mask         ( exe_int_mask      ),
     .wakeup           ( wakeup_event      ),
     .irq_trigger      ( exe_irq_en        ),
     .cause            ( exe_cause         ),

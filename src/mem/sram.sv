@@ -2,7 +2,7 @@ module sram (
     input               CK,
     input               CS,
     input               WE,
-    input        [13:0] A,
+    input        [14:0] A,
     input        [ 3:0] BYTE,
     input        [31:0] DI,
     output logic [31:0] DO
@@ -98,7 +98,7 @@ SRAM i_SRAM (
 );
 `else
 logic [31:0] data_out_pre;
-logic [31:0] memory [16384];
+logic [31:0] memory [2**15];
 
 assign data_out_pre = CS ? memory[A] : 32'hx;
 

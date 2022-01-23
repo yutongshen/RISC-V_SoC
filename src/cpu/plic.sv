@@ -315,6 +315,9 @@ always_ff @(posedge clk or negedge rstn) begin: reg_int_id
                     int_id   [i] <= int_max_pri[i] > threshold[i] ? int_id_tmp[i] : 32'b0;
                 end
             end
+            else if (apb_intf.pwrite) begin
+                int_id   [i] <= 32'b0;
+            end
         end
     end
 end

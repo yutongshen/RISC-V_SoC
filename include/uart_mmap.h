@@ -1,6 +1,8 @@
 `ifndef __UART_MMAP__
 `define __UART_MMAP__
 
+// UART_BASE
+
 `define UART_TXFIFO 12'h00
 `define UART_RXFIFO 12'h04
 `define UART_TXCTRL 12'h08

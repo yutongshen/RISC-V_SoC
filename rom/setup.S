@@ -4,7 +4,7 @@
 #define pmacfg3   0x3c3
 #define pmaaddr15 0x3df
 #define ENABLE_DDR_CACHE
-#define ENABLE_UART_IRQ
+// #define ENABLE_UART_IRQ
 
 .section .text
 .align 2
@@ -53,6 +53,6 @@ rv64:
   ret;
 .align 3
 dram_base:
-  .dword 0x80000000
+  .dword 0x00020000
 dram_size:
-  .dword 0x80000000
+  .dword 0x00020000

@@ -34,8 +34,10 @@
 ../src/cpu/plic.sv
 ../src/cpu/dbgapb.sv
 ../src/cpu/util.sv
+../src/cpu/peri.sv
 ../src/peri/systimer.sv
 ../src/peri/uart.sv
+../src/peri/spi.sv
 ../src/bus/iommu.sv
 ../src/bus/axi2mem_bridge.sv
 ../src/bus/axi2apb_bridge.sv
@@ -45,9 +47,10 @@
 ../src/bus/axi_slice.sv
 ../src/bus/core_apb_conn.sv
 ../src/bus/intc_apb_conn.sv
+../src/bus/peri_apb_conn.sv
 ../src/intf/apb_intf.sv
 ../src/intf/axi_intf.sv
-../src/mem/rom32x1024.sv
+../src/mem/rom32x2048.sv
 ../src/mem/sram.sv
 ../src/mem/sram32x31.sv
 ../src/mem/sram32x64.sv

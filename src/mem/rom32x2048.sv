@@ -1,14 +1,14 @@
-module rom32x1024 (
+module rom32x2048 (
     input               CK,
     input               CS,
-    input        [ 9:0] A,
+    input        [10:0] A,
     output logic [31:0] DO
 );
     
-(* rom_style = "block" *) logic [7:0] byte_0 [1024];
-(* rom_style = "block" *) logic [7:0] byte_1 [1024];
-(* rom_style = "block" *) logic [7:0] byte_2 [1024];
-(* rom_style = "block" *) logic [7:0] byte_3 [1024];
+(* rom_style = "block" *) logic [7:0] byte_0 [2048];
+(* rom_style = "block" *) logic [7:0] byte_1 [2048];
+(* rom_style = "block" *) logic [7:0] byte_2 [2048];
+(* rom_style = "block" *) logic [7:0] byte_3 [2048];
 
 initial begin
     $readmemh("rom_0.hex", byte_0);
