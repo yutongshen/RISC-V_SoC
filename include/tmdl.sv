@@ -1,8 +1,10 @@
 `include "mmap.h"
 `include "tmdl_mmap.h"
 
-`define TM_PRINT_ADDR (`TMDL_BASE+`TMDL_TM_PRINT)
-`define TM_ARGS_ADDR  (`TMDL_BASE+`TMDL_TM_ARGS)
+`define TM_INFO_ADDR   (`TMDL_BASE+`TMDL_TM_INFO)
+`define TM_ERROR_ADDR  (`TMDL_BASE+`TMDL_TM_ERROR)
+`define TM_ARGS_ADDR   (`TMDL_BASE+`TMDL_TM_ARGS)
+`define TM_SIMEND_ADDR (`TMDL_BASE+`TMDL_TM_SIMEND)
 `define TM_FIFO_DEPTH 16
 `define CPU_TOP u_cpu_wrap.u_cpu_top
 
@@ -10,6 +12,7 @@ logic [                      64:0] arg_fifo [`TM_FIFO_DEPTH];
 logic [$clog2(`TM_FIFO_DEPTH)-1:0] wptr;
 logic [$clog2(`TM_FIFO_DEPTH)-1:0] rptr;
 string tmdl_log [$];
+int    err_cnt;
 
 initial begin
     string tmp;
@@ -25,16 +28,49 @@ always @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         wptr <= 0;
         rptr <= 0;
+        err_cnt <= 0;
     end
     else if (`CPU_TOP.dmem_en && `CPU_TOP.dmem_write) begin
         case (`CPU_TOP.dmem_addr)
-            `TM_PRINT_ADDR: begin
-                $write("%6d ns: [TM_PRINT] ", $time);
+            `TM_INFO_ADDR: begin
+                $write("%6d ns: [TM_INFO] ", $time);
                 tm_print(tmdl_log[`CPU_TOP.dmem_wdata]);
+                $write("\n");
+            end
+            `TM_ERROR_ADDR: begin
+                err_cnt <= err_cnt + 1;
+                $write("%6d ns: [TM_ERROR] **ERROR** ", $time);
+                tm_print(tmdl_log[`CPU_TOP.dmem_wdata]);
+                $write("\n");
             end
             `TM_ARGS_ADDR: begin
                 arg_fifo[wptr] <= `CPU_TOP.dmem_wdata;
                 wptr           <= wptr + 1;
+            end
+            `TM_SIMEND_ADDR: begin
+                $display("\n### Simulation end ###\n");
+                if (err_cnt) begin
+                    $display("There ars %0d error", err_cnt);
+                    $display("'########::::'###::::'####:'##:::::::");
+                    $display(" ##.....::::'## ##:::. ##:: ##:::::::");
+                    $display(" ##::::::::'##:. ##::: ##:: ##:::::::");
+                    $display(" ######:::'##:::. ##:: ##:: ##:::::::");
+                    $display(" ##...:::: #########:: ##:: ##:::::::");
+                    $display(" ##::::::: ##.... ##:: ##:: ##:::::::");
+                    $display(" ##::::::: ##:::: ##:'####: ########:");
+                    $display("..::::::::..:::::..::....::........::"); 
+                end
+                else begin
+                    $display("'########:::::'###:::::'######:::'######::");
+                    $display(" ##.... ##:::'## ##:::'##... ##:'##... ##:");
+                    $display(" ##:::: ##::'##:. ##:: ##:::..:: ##:::..::");
+                    $display(" ########::'##:::. ##:. ######::. ######::");
+                    $display(" ##.....::: #########::..... ##::..... ##:");
+                    $display(" ##:::::::: ##.... ##:'##::: ##:'##::: ##:");
+                    $display(" ##:::::::: ##:::: ##:. ######::. ######::");
+                    $display("..:::::::::..:::::..:::......::::......:::");
+                end
+                simend = 1'b1;
             end
         endcase
     end

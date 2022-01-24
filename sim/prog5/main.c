@@ -10,6 +10,12 @@
 #define UART_TXWM_IP   ( 1)
 #define UART_RXWM_IP   ( 2)
 #define UART_PERROR_IP ( 4)
+#define CPHA_BIT       ( 0)
+#define CPOL_BIT       ( 1)
+#define MSTR_BIT       ( 2)
+#define SPE_BIT        ( 6)
+#define LSBFIRST_BIT   ( 7)
+#define DFF_BIT        (11)
 
 int cnt = 0;
 const char str[20] = "Hello World";
@@ -64,8 +70,14 @@ void set_mtimecmp_delay(long delay) {
     *CLINT_TIMECMP_64P = *CLINT_TIME_64P + delay;
 }
 
-void spi_init(int cpha, int cpol) {
-    *SPI_CR1_32P = (1 << 6) | ((cpol & 0x1) << 1) | ((cpha & 0x1) << 0);
+void spi_init(int cpha, int cpol, int lsb, int dff) {
+    *SPI_CR1_32P = 0;
+    *SPI_CR1_32P = (        0x1  << SPE_BIT     )|
+                   (        0x1  << MSTR_BIT    )|
+                   ((dff  & 0x1) << DFF_BIT     )|
+                   ((lsb  & 0x1) << LSBFIRST_BIT)|
+                   ((cpol & 0x1) << CPOL_BIT    )|
+                   ((cpha & 0x1) << CPHA_BIT    );
 }
 
 void spi_halt() {
@@ -73,6 +85,7 @@ void spi_halt() {
 }
 
 int spi_readwritebyte(int byte) {
+    /* TM_INFO="SPI send date: %hx", byte */
     while (!(*SPI_SR_32P & 0x1));
     *SPI_DR_32P = byte;
     while (!(*SPI_SR_32P & 0x2));
@@ -80,12 +93,39 @@ int spi_readwritebyte(int byte) {
 }
 
 int main() {
-    /* TM_PRINT="Into main function\n" */
+    /* TM_INFO="Into main function" */
+    int spi_rdata, spi_wdata, tmp;
     plic_init();
     irq_init();
-    uart_init();
-    spi_init(1, 0);
-    // set_mtimecmp_delay(0x1800 * puts("hello"));
+    /* TM_INFO="UART test (wait interrupt)" */
+    // uart_init();
+    // while (cnt != 2) {
+    //     asm volatile ("wfi");
+    // }
+
+    /* TM_INFO="SPI test" */
+    for (int i = 0; i <= 0xf; ++i) {
+        /* TM_INFO="Set SPI CPHA: %c, CPOL: %c, LSBFIRST: %c, DFF: %c", (i&0x8)?'1':'0', (i&0x4)?'1':'0', (i&0x2)?'1':'0', (i&0x1)?'1':'0' */
+        spi_init(!!(i&0x8), !!(i&0x4), !!(i&0x2), !!(i&0x1));
+        spi_rdata = spi_readwritebyte(spi_wdata = 0x01234567);
+        tmp = spi_wdata;
+        spi_rdata = spi_readwritebyte(spi_wdata = 0x89abcdef);
+        if (spi_rdata != (tmp & ((i&0x1)?0xffff:0xff))) {
+            /* TM_ERROR="Receive data from SPI %hx, expect is %hx", spi_rdata, (tmp & ((i&0x1)?0xffff:0xff)) */
+        }
+        else {
+            /* TM_INFO="Receive data from SPI %hx ... pass", spi_rdata */
+        }
+        tmp = spi_wdata;
+        spi_rdata = spi_readwritebyte(spi_wdata = 0xbeefcafe);
+        if (spi_rdata != (tmp & ((i&0x1)?0xffff:0xff))) {
+            /* TM_ERROR="Receive data from SPI %hx, expect is %hx", spi_rdata, (tmp & ((i&0x1)?0xffff:0xff)) */
+        }
+        else {
+            /* TM_INFO="Receive data from SPI %hx ... pass", spi_rdata */
+        }
+    }
+    /*
     asm volatile (
         "li t0, 0x10001000;\n"
         "li t1, 0xaa;\n"
@@ -93,39 +133,39 @@ int main() {
         "li t1, 0xbb;\n"
         "sh t1, 0xc(t0);\n"
     );
-    while (cnt != 2) {
-        asm volatile ("wfi");
-    }
+    */
+    *TMDL_TM_SIMEND_32P = 1;
+    while (1);
     return 0;
 }
 
 void isr(int cause) {
     if (cause == CAUSE_MTIP) {
-        /* TM_PRINT="Receive timer interrupt\n" */
+        /* TM_INFO="Receive timer interrupt" */
         set_mtimecmp_delay(0x500);
     }
     else if (cause == CAUSE_MEIP) {
         int irq_id = PLIC_PRIOR_TH_32P[1];
-        /* TM_PRINT="Receive external interrupt ID: %d\n", irq_id */
+        /* TM_INFO="Receive external interrupt ID: %d", irq_id */
 
         switch (irq_id) {
             case IRQ_UART:
                 if (*UART_IE_32P & *UART_IP_32P & UART_TXWM_IP) {
-                    /* TM_PRINT="Sent Hello World from UART TX\n" */
+                    /* TM_INFO="Sent Hello World from UART TX" */
                     puts(str);
                     *UART_IE_32P &= ~0x1;
                     ++cnt;
                 }
                 else if (*UART_IE_32P & *UART_IP_32P & UART_RXWM_IP) {
-                    /* TM_PRINT="Receive Hello World from UART RX\n" */
+                    /* TM_INFO="Receive Hello World from UART RX" */
                     const char *str_ptr = str;
                     char ch;
                     while ((ch = getch()) != '\n') {
                         if (ch == *str_ptr) {
-                            /* TM_PRINT="Receive data: %c ... pass\n", ch */
+                            /* TM_INFO="Receive data: %c ... pass", ch */
                         }
                         else {
-                            /* TM_PRINT="Receive data: %c, expect is %c\n", ch, *str_ptr */
+                            /* TM_ERROR="Receive data: %c, expect is %c", ch, *str_ptr */
                         }
                         ++str_ptr;
                     }
@@ -136,7 +176,7 @@ void isr(int cause) {
                     *UART_IE_32P &= ~0x4;
                 }
                 else {
-                    /* TM_PRINT="Unknown UART IRQ\n" */
+                    /* TM_ERROR="Unknown UART IRQ" */
                 }
             case IRQ_SPI:
         }
@@ -144,10 +184,10 @@ void isr(int cause) {
         PLIC_PRIOR_TH_32P[1] = 0;
     }
     else {
-        /* TM_PRINT="Receive unknown interrupt #%d\n", cause */
+        /* TM_ERROR="Receive unknown interrupt #%d", cause */
     }
 }
 
 void bad_trap(int cause) {
-    /* TM_PRINT="#%d Bad trap!!!\n", cause */
+    /* TM_ERROR="#%d Bad trap!!!", cause */
 }

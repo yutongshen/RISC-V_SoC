@@ -1,7 +1,7 @@
 #!/bin/bash
 
 count=0;
-caller_pat="\/\*[[:blank:]]*TM_PRINT[[:blank:]]*=[[:blank:]]*\"([[:print:]]*)\"(.*)\*\/";
+caller_pat="\/\*[[:blank:]]*TM_([[:upper:]]*)[[:blank:]]*=[[:blank:]]*\"([[:print:]]*)\"(.*)\*\/";
 arg_pat="^[[:blank:]]*([^[:blank:]]+.*[^[:blank:]]+|[^[:blank:]]+)[[:blank:]]*$"
 FLAG="";
 
@@ -11,59 +11,69 @@ Parse()
     out=${1};
     if [[ $line =~ $caller_pat ]]; then
         caller=${BASH_REMATCH[0]};
-        fmt=${BASH_REMATCH[1]};
-        items=${BASH_REMATCH[2]};
-        args=();
-        match=true;
-        IFS=','; read -ra items <<< "${items}";
-        IFS='%'; read -ra flags <<< "${fmt/%%/}";
-        for arg in "${items[@]:1}"; do
-            if [[ ! ${arg} =~ ${arg_pat} ]]; then
-                match=false
-                break;
-            fi
-            args+=(${BASH_REMATCH[1]});
-        done
-        flags=${flags[@]:1};
-        IFS='';
-        if [[ ${match} ]]; then
-            extend="${caller}"
-            if [[ "${FLAG}" == "S" ]]; then
-                extend="${extend} sd a0, -8(sp); sd a1, -16(sp);"
-                if [[ ${#args[@]} -gt 0 ]]; then
-                    extend="${extend} li a0, TMDL_TM_ARGS;"
+        typ=${BASH_REMATCH[1]};
+        fmt=${BASH_REMATCH[2]};
+        items=${BASH_REMATCH[3]};
+        if [[ "${typ}" == "INFO" ]] || [[ "${typ}" == "ERROR" ]]; then
+            args=();
+            match=true;
+            IFS=','; read -ra items <<< "${items}";
+            IFS='%'; read -ra flags <<< "${fmt/%%/}";
+            for arg in "${items[@]:1}"; do
+                if [[ ! ${arg} =~ ${arg_pat} ]]; then
+                    match=false
+                    break;
                 fi
-            fi
-            i=0
-            for arg in "${args[@]}"; do
-                if [[ "${FLAG}" == "S" ]]; then
-                    if [[ ${arg} =~ ^[0-9]+$|^0[xb][0-9]+$ ]]; then
-                        extend="${extend} li a1, ${arg};"
-                    elif [[ "${arg}" == "a0" ]]; then
-                        extend="${extend} ld a1, -8(sp);";
-                    elif [[ "${arg}" == "a1" ]]; then
-                        extend="${extend} ld a1, -16(sp);";
-                    else
-                        extend="${extend} mv a1, ${arg};";
-                    fi
-                    extend="${extend} sd a1, 0(a0);";
-                else
-                    [[ ${flags[${i}]} =~ ^[-+0-9\.\ ]*f.*$ ]] \
-                        && extend="${extend} /* float */ *TMDL_TM_ARGS_32P = ${arg};" \
-                        || extend="${extend} *TMDL_TM_ARGS_64P = ${arg};";
-                fi
+                args+=(${BASH_REMATCH[1]});
             done
-            [[ "${FLAG}" == "S" ]] \
-                && extend="${extend} li a0, TMDL_TM_PRINT; li a1, ${count}; sd a1, 0(a0); ld a0, -8(sp); ld a1, -16(sp);" \
-                || extend="${extend} *TMDL_TM_PRINT_64P = ${count};";
-            out=${1/"${caller}"/"${extend}"};
-            # echo "LINE:   ${1}";
-            # echo "CALLER: ${caller}";
-            # echo "EXTEND: ${extend}";
-            # echo "LOG:    ${fmt}";
-            # echo "OUT:    ${out}";
-            echo "${fmt}" >> ${logfile};
-            count=`expr ${count} + 1`;
+            flags=${flags[@]:1};
+            IFS='';
+            if [[ ${match} ]]; then
+                extend="${caller}"
+                if [[ "${FLAG}" == "S" ]]; then
+                    extend="${extend} sd a0, -8(sp); sd a1, -16(sp);"
+                    if [[ ${#args[@]} -gt 0 ]]; then
+                        extend="${extend} li a0, TMDL_TM_ARGS;"
+                    fi
+                fi
+                i=0
+                for arg in "${args[@]}"; do
+                    if [[ "${FLAG}" == "S" ]]; then
+                        if [[ ${arg} =~ ^[0-9]+$|^0[xb][0-9]+$ ]]; then
+                            extend="${extend} li a1, ${arg};"
+                        elif [[ "${arg}" == "a0" ]]; then
+                            extend="${extend} ld a1, -8(sp);";
+                        elif [[ "${arg}" == "a1" ]]; then
+                            extend="${extend} ld a1, -16(sp);";
+                        else
+                            extend="${extend} mv a1, ${arg};";
+                        fi
+                        extend="${extend} sd a1, 0(a0);";
+                    else
+                        [[ ${flags[${i}]} =~ ^[-+0-9\.\ ]*f.*$ ]] \
+                            && extend="${extend} /* float */ *TMDL_TM_ARGS_32P = ${arg};" \
+                            || extend="${extend} *TMDL_TM_ARGS_64P = ${arg};";
+                    fi
+                done
+                if [[ "${typ}" == "INFO" ]]; then
+                    [[ "${FLAG}" == "S" ]] \
+                        && extend="${extend} li a0, TMDL_TM_INFO; li a1, ${count}; sd a1, 0(a0); ld a0, -8(sp); ld a1, -16(sp);" \
+                        || extend="${extend} *TMDL_TM_INFO_32P = ${count};";
+                elif [[ "${typ}" == "ERROR" ]]; then
+                    [[ "${FLAG}" == "S" ]] \
+                        && extend="${extend} li a0, TMDL_TM_ERROR; li a1, ${count}; sd a1, 0(a0); ld a0, -8(sp); ld a1, -16(sp);" \
+                        || extend="${extend} *TMDL_TM_ERROR_32P = ${count};";
+                fi
+                out=${1/"${caller}"/"${extend}"};
+                # echo "LINE:   ${1}";
+                # echo "CALLER: ${caller}";
+                # echo "EXTEND: ${extend}";
+                # echo "TYPE:   ${typ}";
+                # echo "LOG:    ${fmt}";
+                # echo "OUT:    ${out}";
+                echo "${fmt}" >> ${logfile};
+                count=`expr ${count} + 1`;
+            fi
         fi
     fi
     echo "${out}" >> ${outfile};

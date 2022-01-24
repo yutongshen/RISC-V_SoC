@@ -66,7 +66,7 @@ sim: all | ${bld_dir}
 	done
 	
 	# Move prog to build directory
-	@rm ${bld_dir}/${tmdl_msg_log};
+	@rm -f ${bld_dir}/${tmdl_msg_log};
 	@rm -rf ${bld_dir}/prog;
 	@mkdir ${bld_dir}/prog;
 	@mkdir ${bld_dir}/prog/include;
@@ -135,6 +135,6 @@ synthesize: | $(bld_dir) $(syn_dir)
 
 clean:
 	@rm -rf ./build .*.swo .*.swp;
-	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp
+	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp ./mdl/.*.swp
 	@make -C $(sim_dir) clean;
 	@make -C rom clean;

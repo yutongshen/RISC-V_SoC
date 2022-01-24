@@ -41,10 +41,10 @@ logic [`XLEN-1: 0] dbg_rdata;
 logic              uart_tx;
 logic              uart_rx;
 
-logic              spi_sclk;
-logic              spi_nss;
-logic              spi_mosi;
-logic              spi_miso;
+wire               spi_sclk;
+wire               spi_nss;
+wire               spi_mosi;
+wire               spi_miso;
 
 logic              simend;
 
@@ -54,7 +54,6 @@ string             prog_path;
 initial begin
     simend   <= 1'b0;
     rstn     <= 1'b0;
-    spi_miso <= 1'b1;
     dbgapb_init;
     axi_init;
     repeat (10) @(posedge clk);
@@ -233,6 +232,21 @@ axi_vip_slave #(
 uart_mdl u_uart_mdl(
     .uart_tx ( uart_rx ),
     .uart_rx ( uart_tx )
+);
+
+spi_mdl u_spi_mdl (
+    .rstn     ( rstn     ),
+
+    .SCLK     ( spi_sclk ),
+    .NSS      ( spi_nss  ),
+    .MOSI     ( spi_mosi ),
+    .MISO     ( spi_miso ),
+
+    // Control signal
+    .CPHA     ( u_cpu_wrap.u_peri.u_spi.spi_cr1_cpha     ),
+    .CPOL     ( u_cpu_wrap.u_peri.u_spi.spi_cr1_cpol     ),
+    .LSBFIRST ( u_cpu_wrap.u_peri.u_spi.spi_cr1_lsbfirst ),
+    .DFF      ( u_cpu_wrap.u_peri.u_spi.spi_cr1_dff      )
 );
 
 // For riscv-tests used

@@ -10,10 +10,10 @@ module peri (
     output            uart_tx,
 
     // SPI interface
-    output            sclk,
-    output            nss,
-    output            mosi,
-    input             miso,
+    inout             sclk,
+    inout             nss,
+    inout             mosi,
+    inout             miso,
 
     // IRQ
     output            uart_irq,
