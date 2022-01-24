@@ -6,10 +6,10 @@ module spi (
     apb_intf.slave s_apb_intf,
 
     // SPI interface
-    inout          sclk,
-    inout          nss,
-    inout          mosi,
-    inout          miso,
+    output logic   sclk,
+    output logic   nss,
+    output logic   mosi,
+    input          miso,
 
     // Interrupt
     output logic   irq_out
@@ -23,9 +23,6 @@ localparam STATE_DATA  = 2'b11;
 logic [ 1:0] cur_state;
 logic [ 1:0] nxt_state;
 
-logic        sclk_o;
-logic        nss_o;
-logic        mosi_o;
 logic        sclk_pre;
 logic        nss_pre;
 logic        mosi_pre;
@@ -81,8 +78,6 @@ logic [15:0] spi_tx_buff;
 logic [15:0] spi_rx_buff;
 logic [31:0] prdata_t;
 
-// APB interface
-
 assign apb_wr = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
 assign apb_rd = ~s_apb_intf.penable && s_apb_intf.psel && ~s_apb_intf.pwrite;
 
@@ -115,8 +110,8 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr1
         spi_cr1_br       <= ~spi_cr1_spe ? s_apb_intf.pwdata[5:3] : spi_cr1_br;
         spi_cr1_spe      <= s_apb_intf.pwdata[6];
         spi_cr1_lsbfirst <= ~spi_cr1_spe ? s_apb_intf.pwdata[7] : spi_cr1_lsbfirst;
-        spi_cr1_ssi      <= s_apb_intf.pwdata[8];
-        spi_cr1_ssm      <= s_apb_intf.pwdata[9];
+        // spi_cr1_ssi      <= s_apb_intf.pwdata[8];
+        // spi_cr1_ssm      <= s_apb_intf.pwdata[9];
         // spi_cr1_rxonly   <= s_apb_intf.pwdata[10];
         spi_cr1_dff      <= ~spi_cr1_spe ? s_apb_intf.pwdata[11] : spi_cr1_dff;
         // spi_cr1_crcnext  <= s_apb_intf.pwdata[12];
@@ -133,7 +128,7 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr2
     if (~rstn) begin
         spi_cr2_rxdmaen <= 1'b0;
         spi_cr2_txdmaen <= 1'b0;
-        spi_cr2_ssoe    <= 1'b1;
+        spi_cr2_ssoe    <= 1'b0;
         spi_cr2_errie   <= 1'b0;
         spi_cr2_rxneie  <= 1'b0;
         spi_cr2_txeie   <= 1'b0;
@@ -283,14 +278,6 @@ end
 assign s_apb_intf.pslverr = 1'b0;
 assign s_apb_intf.pready  = 1'b1;
 
-// SPI internal
-assign sclk      = spi_cr1_mstr ? sclk_o : 1'bz;
-assign nss       = spi_cr2_ssoe ? nss_o  : 1'bz;
-assign mosi      = spi_cr1_mstr ? mosi_o : 1'bz;
-
-assign nss_inter = spi_cr1_ssm  ? spi_cr1_ssi :
-                   spi_cr2_ssoe ? 1'b1 : nss;
-
 always_ff @(posedge clk or negedge rstn) begin: baud_rate_cnt
     if (~rstn) begin
         sclk_cnt <= 8'b0;
@@ -327,19 +314,19 @@ always_comb begin: sft_cnt_zero_comb
     sft_cnt_zero = ~|sft_cnt;
 end
 
-always_ff @(posedge clk or negedge rstn) begin: reg_sclk_o
-    if (~rstn) sclk_o <= 1'b0;
-    else       sclk_o <= sclk_pre ^ spi_cr1_cpol;
+always_ff @(posedge clk or negedge rstn) begin: sclk_o
+    if (~rstn) sclk <= 1'b0;
+    else       sclk <= sclk_pre ^ spi_cr1_cpol;
 end
 
-always_ff @(posedge clk or negedge rstn) begin: reg_nss_o
-    if (~rstn) nss_o <= 1'b1;
-    else       nss_o <= nss_pre;
+always_ff @(posedge clk or negedge rstn) begin: nss_o
+    if (~rstn) nss <= 1'b1;
+    else       nss <= nss_pre;
 end
 
-always_ff @(posedge clk or negedge rstn) begin: reg_mosi_o
-    if (~rstn) mosi_o <= 1'b0;
-    else       mosi_o <= mosi_pre;
+always_ff @(posedge clk or negedge rstn) begin: mosi_o
+    if (~rstn) mosi <= 1'b0;
+    else       mosi <= mosi_pre;
 end
 
 

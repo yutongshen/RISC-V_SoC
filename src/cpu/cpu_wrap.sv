@@ -99,10 +99,10 @@ module cpu_wrap (
     input                  uart_rx,
 
     // SPI interface
-    inout                  sclk,
-    inout                  nss,
-    inout                  mosi,
-    inout                  miso
+    output logic           sclk,
+    output logic           nss,
+    output logic           mosi,
+    input                  miso
 );
 
 logic                             core_rstn;
