@@ -99,9 +99,13 @@ module cpu_wrap (
     input                  uart_rx,
 
     // SPI interface
-    output logic           sclk,
-    output logic           nss,
-    output logic           mosi,
+    // inout                  sclk,
+    // inout                  nss,
+    // inout                  mosi,
+    // inout                  miso
+    output                 sclk,
+    output                 nss,
+    output                 mosi,
     input                  miso
 );
 
@@ -722,7 +726,8 @@ sram u_sram_0 (
 );
 */
 rom32x2048 u_brom (
-    .CK ( mem_ck_0      ),
+    // .CK ( mem_ck_0      ),
+    .CK ( clk           ),
     .CS ( cs_0          ),
     .A  ( addr_0[2+:11] ),
     .DO ( do_0          )
@@ -732,7 +737,8 @@ rom32x2048 u_brom (
 assign busy_1 = 1'b0;
 
 sram u_sram (
-    .CK   ( mem_ck_1      ),
+    // .CK   ( mem_ck_1      ),
+    .CK   ( clk           ),
     .CS   ( cs_1          ),
     .A    ( addr_1[2+:15] ),
     .BYTE ( byte_1        ),

@@ -1,6 +1,6 @@
 `timescale 1ns / 10ps
 
-`define CLK_PRIOD 20
+`define CLK_PRIOD 30
 `define MAX_CYCLE 2000000
 //`define DDR_SIZE 2**17
 `define DDR_SIZE 2**25
@@ -81,6 +81,7 @@ always @(posedge clk) begin
 end
 
 always @(posedge simend) begin
+    integer f, i;
     $display("mcycle:   %0d", u_cpu_wrap.u_cpu_top.u_pmu.mcycle);
     $display("minstret: %0d", u_cpu_wrap.u_cpu_top.u_pmu.minstret);
     $display("CPI:      %f",  u_cpu_wrap.u_cpu_top.u_pmu.mcycle * 1.0 / u_cpu_wrap.u_cpu_top.u_pmu.minstret);
@@ -96,6 +97,12 @@ always @(posedge simend) begin
                                                                                     "Reserved");
 `endif
     show_pt({u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_ppn, 12'b0}, {u_cpu_wrap.u_cpu_top.u_mmu_csr.satp_mode});
+    // dump sysram
+    f = $fopen("./sysram.bin", "wb");
+    for (i = 0; i < 1024/4; i = i + 1) begin
+        $fwrite(f, "%u", `SRAM_DATA(i));
+    end
+    $fclose(f);
     $finish;
 end
 

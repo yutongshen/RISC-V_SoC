@@ -102,8 +102,8 @@ int main() {
     // while (cnt != 2) {
     //     asm volatile ("wfi");
     // }
-
     /* TM_INFO="SPI test" */
+    // *SPI_CR2_32P &= ~(1 << 2);
     for (int i = 0; i <= 0xf; ++i) {
         /* TM_INFO="Set SPI CPHA: %c, CPOL: %c, LSBFIRST: %c, DFF: %c", (i&0x8)?'1':'0', (i&0x4)?'1':'0', (i&0x2)?'1':'0', (i&0x1)?'1':'0' */
         spi_init(!!(i&0x8), !!(i&0x4), !!(i&0x2), !!(i&0x1));

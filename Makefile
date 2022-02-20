@@ -55,15 +55,17 @@ merge:
 	cat cpu_wrap_nodef.all.sv >> cpu_wrap.dc.sv;
 
 sim: all | ${bld_dir}
-	@make verdi.f;
-	@make -C ${rom_dir};
-	@cp ${rom_dir}/*.hex ${bld_dir};
-		
 	# Gen MMAP head file
 	@${INIT_MMAP} ${inc_dir}/mmap.h ${bld_dir}/mmap_soc.h
 	@for file in ${inc_dir}/*_mmap.h; do \
 	    ${XTEND_MMAP} ${bld_dir}/mmap_soc.h $${file}; \
 	done
+	
+	@make verdi.f;
+		
+	@cp ${bld_dir}/mmap_soc.h rom/mmap_soc.h;
+	@make -C ${rom_dir};
+	@cp ${rom_dir}/*.hex ${bld_dir};
 	
 	# Move prog to build directory
 	@rm -f ${bld_dir}/${tmdl_msg_log};

@@ -75,7 +75,7 @@ clz_64 u_src2_clz (
 );
 `endif
 
-assign sft_bit      = 7'd`XLEN - src2_clz + src1_clz;
+assign sft_bit      = 7'd`XLEN - 7'b1 - src2_clz + src1_clz;
 `ifdef RV32
 assign sft_bit_div4 = {1'b0, sft_bit[5:2]};
 assign nxt_cnt      = 5'd7 - sft_bit_div4;

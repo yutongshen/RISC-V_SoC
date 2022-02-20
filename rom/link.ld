@@ -1,15 +1,84 @@
 OUTPUT_ARCH("riscv")
 
 MEMORY {
-  brom : ORIGIN = 0x00000000, LENGTH = 0x00001000
+  brom   : ORIGIN = 0x00000000, LENGTH = 0x00002000
+  sysram : ORIGIN = 0x00020000, LENGTH = 0x00020000
 }
 
 ENTRY(_start)
 
 SECTIONS {
-  .text : { *(.text) }
-  . = ALIGN(0x400);
-  _DTB = .;
-  .data : { *(.data )
-  }
+  .text : {
+    __text_start = .;
+    setup.o(.text);
+    main.o(.text);
+    *(.text);
+    *(.text.*);
+    . = ALIGN(0x400);
+    __text_end = .;
+  } > brom
+/*
+  .init : {
+    KEEP (*(.init))
+  } > brom
+
+  .fini : {
+    KEEP (*(.fini))
+  } > brom
+
+  .rodata : {
+    __rodata_start = .;
+    *(.rodata)
+    *(.rodata.*)
+    *(.gnu.linkonce.r.*)
+    __rodata_end = .;
+  } > brom
+
+  .sbss : {
+    __sbss_start = .;
+    *(.sbss)
+    *(.sbss.*)
+    *(.gnu.linkonce.sb.*)
+    __sbss_end = .;
+  } > brom
+
+  .sdata : {
+    __sdata_paddr_start = LOADADDR(.sdata);
+    __sdata_start = .;
+    _gp = . + 0x800;
+    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata*)
+    *(.sdata .sdata.* .gnu.linkonce.s.*)
+    __sdata_end = .;
+  } > brom
+*/
+
+  .data : {
+    __data_paddr_start = LOADADDR(.data);
+    __data_start = .;
+    _DTB = .;
+    rv64.o(.data)
+    *(.data)
+    *(.data.*)
+    *(.gnu.linkonce.d.*)
+    __data_end = .;
+  } > brom
+
+/*
+  .bss : {
+    __bss_start = .;
+    *(.bss)
+    *(.bss.*)
+    *(.gnu.linkonce.b.*)
+    *(COMMON)
+    __bss_end = .;
+  } > brom
+*/
+
+  .stack : {
+    . += 0x1f000;
+    _stack_end = .;
+    . += 0x1000;
+    _stack = .;
+    __stack = _stack;
+  } > sysram
 }
