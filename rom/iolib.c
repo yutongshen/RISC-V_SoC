@@ -107,7 +107,8 @@ __U8 __fseek(__FILE *file, __U32 offset, __U8 whence) {
     return 1;
 }
 
-__U8 __fread(__FILE *file, __U8P buff, __U32 size) {
+__U8 __fread(__FILE *file, void *buff, __U32 size) {
+    __U8P cbuff = (__U8P) buff;
     __U32 sect, partial_size, i = 0, offset = file->seek % 0x200;
 
     while (i < size) {
@@ -124,9 +125,9 @@ __U8 __fread(__FILE *file, __U8P buff, __U32 size) {
         partial_size = 0x200 - file->seek % 0x200;
         if (i + partial_size >= size)
             partial_size = size - i;
-        __memcpy(buff, file->buff + offset, partial_size);
+        __memcpy(cbuff, file->buff + offset, partial_size);
         i += partial_size;
-        buff += partial_size;
+        cbuff += partial_size;
         file->seek += partial_size;
         offset = 0;
     }

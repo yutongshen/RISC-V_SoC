@@ -20,6 +20,12 @@ OBJ_DTS := $(patsubst %.dts,%.o,$(DTS))
 SRC     := $(SRC_C) $(SRC_S)
 OBJ     := $(OBJ_C) $(OBJ_S) $(OBJ_DTS)
 
+ifneq ($(def),)
+DEFINE := -D$(def)
+else
+DEFINE := 
+endif
+
 .SUFFIXES: .o .S .c
 
 .PHONY: all
@@ -43,10 +49,10 @@ build_hex: $(ELF_NAME)
 	$(RISCV_OBJCOPY) -I binary -O elf64-littleriscv -B riscv:rv64 tmp $@
 
 %.o: %.S
-	$(RISCV_GCC) -c $(CFLAGS) $^
+	$(RISCV_GCC) -c $(CFLAGS) $^ $(DEFINE)
 
 %.o: %.c
-	$(RISCV_GCC) -c $(CFLAGS) $^
+	$(RISCV_GCC) -c $(CFLAGS) $^ $(DEFINE)
 
 auto-format:
 	@if [ "${SRC_H}" != "" ] || [ "${SRC_C}" != "" ] || [ "${SRC_CPP}" != "" ]; then \

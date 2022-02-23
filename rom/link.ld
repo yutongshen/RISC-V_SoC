@@ -17,44 +17,11 @@ SECTIONS {
     . = ALIGN(0x400);
     __text_end = .;
   } > brom
-/*
-  .init : {
-    KEEP (*(.init))
-  } > brom
-
-  .fini : {
-    KEEP (*(.fini))
-  } > brom
-
-  .rodata : {
-    __rodata_start = .;
-    *(.rodata)
-    *(.rodata.*)
-    *(.gnu.linkonce.r.*)
-    __rodata_end = .;
-  } > brom
-
-  .sbss : {
-    __sbss_start = .;
-    *(.sbss)
-    *(.sbss.*)
-    *(.gnu.linkonce.sb.*)
-    __sbss_end = .;
-  } > brom
-
-  .sdata : {
-    __sdata_paddr_start = LOADADDR(.sdata);
-    __sdata_start = .;
-    _gp = . + 0x800;
-    *(.srodata.cst16) *(.srodata.cst8) *(.srodata.cst4) *(.srodata.cst2) *(.srodata*)
-    *(.sdata .sdata.* .gnu.linkonce.s.*)
-    __sdata_end = .;
-  } > brom
-*/
 
   .data : {
     __data_paddr_start = LOADADDR(.data);
     __data_start = .;
+    . = ALIGN(0x8);
     _DTB = .;
     rv64.o(.data)
     *(.data)

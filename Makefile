@@ -64,7 +64,8 @@ sim: all | ${bld_dir}
 	@make verdi.f;
 		
 	@cp ${bld_dir}/mmap_soc.h rom/mmap_soc.h;
-	@make -C ${rom_dir};
+	@make -C ${rom_dir} clean;
+	@make -C ${rom_dir} def=${def};
 	@cp ${rom_dir}/*.hex ${bld_dir};
 	
 	# Move prog to build directory
@@ -89,7 +90,7 @@ sim: all | ${bld_dir}
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(bld_dir)/prog isa=$${i} > /dev/null; \
-	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=$${i};); \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=$${i} +define+NOFSDB;); \
             cpi=$$(echo "$${res}" | grep "CPI:"); \
             inst=$$(echo "$${res}" | grep "minstret:"); \
             cycl=$$(echo "$${res}" | grep "mcycle:"); \
@@ -103,7 +104,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(bld_dir)/prog isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +nclinedebug +define+FSDB; \
+	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}

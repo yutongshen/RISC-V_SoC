@@ -59,8 +59,6 @@ init_system:
     li t1, 7;
     sw t1, 0x10(t0);
 #endif
-    csrr a0, mhartid;
-    la a1, _DTB;
     # check RV64/32
     csrr t0, misa;
     bltz t0, rv64;
@@ -95,8 +93,9 @@ rv64:
 
 goto_main:
     jal main;
-    mv ra, s0;
-    ret;
+    csrr a0, mhartid;
+    la a1, _DTB;
+    jr s0;
 
 dead_loop:
   j dead_loop

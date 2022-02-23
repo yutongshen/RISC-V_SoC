@@ -70,9 +70,17 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
 }
 
 __U8 __sd_readblk(__U32 sector, __U8P buff) {
+#ifndef FAKE_SD
     __CS_ENABLE();
     if (__sd_sendcmd(__CMD17, sector, 0)) return 0;
     return __sd_rcvdata(buff, 512, 1);
+#else
+    *TMDL_TM_SD_SECT_64P = sector;
+    *TMDL_TM_SD_DEST_64P = (__U64) buff;
+    *TMDL_TM_SD_RBLK_64P = 1;
+    *TMDL_TM_DCACHE_FLUSH_64P = 1;
+    return 1;
+#endif
 }
 
 __U8 __sd_init(__U8P __sd_type) {

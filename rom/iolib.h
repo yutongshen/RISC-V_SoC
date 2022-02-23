@@ -11,7 +11,7 @@
 #define __SEEK_CUR 1
 #define __SEEK_END 2
 
-typedef struct __BPB {
+typedef struct {
     __U16 bytes_sect;
     __U16 sects_fat;
     __U16 fat_base;
@@ -26,7 +26,7 @@ typedef struct __BPB {
     __U32 fat[512/4];
 } __BPB;
 
-typedef struct __FILE {
+typedef struct {
     __U8   fname[8];
     __U8   subfname[3];
     __U8   attr;
@@ -50,6 +50,6 @@ typedef struct __FILE {
 __U8 __fat_bpb_init(__BPB *__bpb);
 __U8 __fopen(__FILE *__file, const char *__fname);
 __U8 __fseek(__FILE *file, __U32 offset, __U8 whence);
-__U8 __fread(__FILE *file, __U8P buff, __U32 size);
+__U8 __fread(__FILE *file, void *buff, __U32 size);
 
 #endif

@@ -5,13 +5,23 @@
 `define TM_ERROR_ADDR  (`TMDL_BASE+`TMDL_TM_ERROR)
 `define TM_ARGS_ADDR   (`TMDL_BASE+`TMDL_TM_ARGS)
 `define TM_SIMEND_ADDR (`TMDL_BASE+`TMDL_TM_SIMEND)
+`define TM_SD_SECT_ADDR (`TMDL_BASE+`TMDL_TM_SD_SECT)
+`define TM_SD_DEST_ADDR (`TMDL_BASE+`TMDL_TM_SD_DEST)
+`define TM_SD_RBLK_ADDR (`TMDL_BASE+`TMDL_TM_SD_RBLK)
+`define TM_ICACHE_FLUSH_ADDR (`TMDL_BASE+`TMDL_TM_ICACHE_FLUSH)
+`define TM_DCACHE_FLUSH_ADDR (`TMDL_BASE+`TMDL_TM_DCACHE_FLUSH)
 `define TM_FIFO_DEPTH 16
 `define CPU_TOP u_cpu_wrap.u_cpu_top
 
-logic [                      64:0] arg_fifo [`TM_FIFO_DEPTH];
+logic [                      63:0] arg_fifo [`TM_FIFO_DEPTH];
 logic [$clog2(`TM_FIFO_DEPTH)-1:0] wptr;
 logic [$clog2(`TM_FIFO_DEPTH)-1:0] rptr;
+logic [                      31:0] sd_sect;
+logic [                      31:0] sd_dest;
+logic [                       7:0] sd_tmp;
 string tmdl_log [$];
+string sd_image_path;
+int    sd_image;
 int    err_cnt;
 
 initial begin
@@ -29,6 +39,8 @@ always @(posedge clk or negedge rstn) begin
         wptr <= 0;
         rptr <= 0;
         err_cnt <= 0;
+        sd_sect <= 0;
+        sd_dest <= 0;
     end
     else if (`CPU_TOP.dmem_en && `CPU_TOP.dmem_write) begin
         case (`CPU_TOP.dmem_addr)
@@ -71,6 +83,40 @@ always @(posedge clk or negedge rstn) begin
                     $display("..:::::::::..:::::..:::......::::......:::");
                 end
                 simend = 1'b1;
+            end
+            `TM_SD_SECT_ADDR: begin
+                sd_sect <= `CPU_TOP.dmem_wdata;
+            end
+            `TM_SD_DEST_ADDR: begin
+                sd_dest <= `CPU_TOP.dmem_wdata;
+            end
+            `TM_SD_RBLK_ADDR: begin
+                $sformat(sd_image_path, "../mdl/sd_image/sd_image_%08x.bin", sd_sect);
+                $display("%0d ns: [FAKE_SD] READ SD sector: %8x to SRAM[%8x]", $time, sd_sect, sd_dest);
+                sd_image = $fopen(sd_image_path, "rb");
+                for (i = 0; i < 512; i = i + 1) begin
+                    if (sd_image) begin
+                        $fread(sd_tmp, sd_image);
+                        `SRAM_DATA((i+sd_dest-`SRAM_BASE)/4)[((i+sd_dest)&3)*8+:8] = sd_tmp;
+                    end
+                    else begin
+                        if (i & 1) `SRAM_DATA((i+sd_dest-`SRAM_BASE)/4)[((i+sd_dest)&3)*8+:8] = 8'had;
+                        else       `SRAM_DATA((i+sd_dest-`SRAM_BASE)/4)[((i+sd_dest)&3)*8+:8] = 8'hde;
+                    end
+                end
+                $fclose(sd_image);
+            end
+            `TM_ICACHE_FLUSH_ADDR: begin
+                $display("%6d ns: [TMDL] I-Cache flushed", $time);
+                force u_cpu_wrap.u_l1ic.valid = 64'b0;
+                #1;
+                release u_cpu_wrap.u_l1ic.valid;
+            end
+            `TM_DCACHE_FLUSH_ADDR: begin
+                $display("%6d ns: [TMDL] D-Cache flushed", $time);
+                force u_cpu_wrap.u_l1dc.valid = 64'b0;
+                #1;
+                release u_cpu_wrap.u_l1dc.valid;
             end
         endcase
     end

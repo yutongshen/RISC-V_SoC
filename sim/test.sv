@@ -1,6 +1,6 @@
 `timescale 1ns / 10ps
 
-`define CLK_PRIOD 30
+`include "clkdef.h"
 `define MAX_CYCLE 2000000
 //`define DDR_SIZE 2**17
 `define DDR_SIZE 2**25
@@ -183,10 +183,12 @@ initial begin
 end
 
 `ifdef FSDB
+`ifndef NOFSDB
 initial begin
     $fsdbDumpfile("top.fsdb");
     $fsdbDumpvars(0, test, "+struct", "+mda");
 end
+`endif
 `endif
 
 cpu_wrap u_cpu_wrap (

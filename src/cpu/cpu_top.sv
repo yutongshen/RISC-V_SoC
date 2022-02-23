@@ -282,9 +282,11 @@ logic [              `XLEN - 1:0] exe_alu_src1;
 logic [              `XLEN - 1:0] exe_alu_src2;
 logic [              `XLEN - 1:0] exe_alu_out;
 logic [              `XLEN - 1:0] exe_mdu_out;
+logic                             exe_mdu_sel;
 logic                             exe_mdu_okay;
 logic [              `XLEN - 1:0] exe_rd_data;
 logic [              `XLEN - 1:0] exe_pc2rd;
+logic                             exe_mem_hazard;
 logic                             exe_gpr_hazard;
 logic                             exe_csr_hazard;
 logic                             exe_hazard;
@@ -918,9 +920,10 @@ assign exe_rs2_data  = ({`XLEN{ exe2ma_fwd_table   [id2exe_rs2_addr]}} & ma_rd_d
                                ~ma2mr_fwd_table    [id2exe_rs2_addr]&
                                ~mr2wb_fwd_table    [id2exe_rs2_addr]}} & id2exe_rs2_data);
 
-assign exe_gpr_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr])) ||
+assign exe_mem_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr])) ||
                         (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
-                        ma_pipe_restart || exe2ma_amo || (id2exe_mdu_sel && ~exe_mdu_okay);
+                        ma_pipe_restart || exe2ma_amo;
+assign exe_gpr_hazard = exe_mem_hazard || (id2exe_mdu_sel && ~exe_mdu_okay);
 assign exe_csr_hazard = (exe2ma_mem_req | ma2mr_mem_req) & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
                         id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_sret | id2exe_mret | id2exe_ill_inst);
 
@@ -933,6 +936,8 @@ assign exe_pc2rd    = id2exe_pc_imm_sel   ? exe_pc_imm : exe_pc_add_4;
 
 assign exe_alu_src1 = id2exe_rs1_zero_sel ? exe_rs1_data : `XLEN'b0;
 assign exe_alu_src2 = id2exe_rs2_imm_sel  ? exe_rs2_data : id2exe_imm;
+
+assign exe_mdu_sel  = id2exe_mdu_sel && ~exe_mem_hazard;
 
 alu u_alu (
    .alu_op    ( id2exe_alu_op ),
@@ -947,7 +952,7 @@ mdu u_mdu(
     .clk    ( clk_wfi         ),
     .rstn   ( srstn_sync      ),
     .len_64 ( id2exe_len_64   ),
-    .trig   ( id2exe_mdu_sel  ),
+    .trig   ( exe_mdu_sel     ),
     .mdu_op ( id2exe_mdu_op   ),
     .flush  ( exe_flush_force ),
     .src1   ( exe_alu_src1    ),

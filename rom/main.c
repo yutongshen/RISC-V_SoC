@@ -4,6 +4,7 @@
 #include "spi.h"
 #include "iolib.h"
 #include "util.h"
+#include "elf_loader.h"
 
 __U32 main(void) {
     __U8   __sd_type;
@@ -12,14 +13,13 @@ __U32 main(void) {
     __file.bpb = &__bpb;
 
     __uart_init();
+#ifndef FAKE_SD
     __sd_init(&__sd_type);
+#endif
     __fat_bpb_init(&__bpb);
     __fopen(&__file, "boot.bin");
 
-    __fseek(&__file, 0xdc10, __SEEK_CUR);
-    __fread(&__file, (void *) 0x20000, 1024);
-
-    *TMDL_TM_SIMEND_32P = 0;
+    __elf_loader(&__file);
 
     return 0;
 }

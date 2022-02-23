@@ -6,6 +6,7 @@
 
 +incdir+../include
 +define+CPULOG
++define+FSDB
 
 +nc64bit
 +access+r
