@@ -7,12 +7,10 @@ logic [12: 0] awid;
 logic [31: 0] awaddr;
 logic [ 2: 0] awsize;
 logic [ 7: 0] awlen;
-logic         awvalid;
 logic [ 3: 0] wstrb;
 logic [12: 0] wid;
 logic [31: 0] wdata;
 logic         wlast;
-logic         wvalid;
 
 awburst = 2'h1;
 awid    = 10'b0;
@@ -36,6 +34,30 @@ wait fork;
 axi_ext_bready  = 1'b1;
 do @(posedge (clk)); while (axi_ext_bvalid !== 1'b1);
 axi_ext_bready  = 1'b0;
+
+endtask
+
+task extaxi_rd;
+input [31:0] addr;
+
+logic [ 1: 0] arburst;
+logic [12: 0] arid;
+logic [31: 0] araddr;
+logic [ 2: 0] arsize;
+logic [ 7: 0] arlen;
+
+arburst = 2'h1;
+arid    = 10'b0;
+araddr  = addr;
+arsize  = 3'h2;
+arlen   = 8'h0;
+
+// fork begin
+extaxi_ar_chn_send(arid, araddr, arlen, arsize, arburst);
+// end join_none
+// wait fork;
+
+axi_ext_rready  = 1'b1;
 
 endtask
 
@@ -69,6 +91,23 @@ axi_ext_wlast  = wlast;
 axi_ext_wvalid = 1'b1;
 do @(posedge (clk)); while (axi_ext_wready !== 1'b1);
 axi_ext_wvalid = 1'b0;
+endtask
+
+task extaxi_ar_chn_send;
+input [12: 0] arid;
+input [31: 0] araddr;
+input [ 7: 0] arlen;
+input [ 2: 0] arsize;
+input [ 1: 0] arburst;
+
+axi_ext_arburst = arburst;
+axi_ext_arid    = arid;
+axi_ext_araddr  = araddr;
+axi_ext_arsize  = arsize;
+axi_ext_arlen   = arlen;
+axi_ext_arvalid = 1'b1;
+do @(posedge (clk)); while (axi_ext_arready !== 1'b1);
+axi_ext_arvalid = 1'b0;
 endtask
 
 task axi_init;

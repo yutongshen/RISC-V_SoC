@@ -59,12 +59,8 @@ string             prog_path;
 initial begin
     simend   <= 1'b0;
     rstn     <= 1'b0;
-    axi_init;
     repeat (10) @(posedge clk);
     rstn   <= 1'b1;
-    repeat (10) @(posedge clk);
-    // extaxi_wr(32'h0400_0004, 32'h48);
-    extaxi_wr(32'h0400_0000, 32'h1);
     repeat (`MAX_CYCLE) @(posedge clk);
     simend <= 1'b1;
 end
@@ -72,6 +68,13 @@ end
 initial begin
     dbgapb_init;
     repeat (10000) dbgapb_rd(32'h4, 1'b0);
+end
+initial begin
+    axi_init;
+    repeat (20) @(posedge clk);
+    // extaxi_wr(32'h0400_0004, 32'h48);
+    extaxi_wr(32'h0400_0000, 32'h1);
+    // repeat (10000) extaxi_rd(32'h0400_0000);
 end
 
 initial begin
