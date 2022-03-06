@@ -46,7 +46,7 @@ module cpu_wrap (
 
     // external AXI interface
     input         [  1: 0] ext_s_awburst,
-    input         [  9: 0] ext_s_awid,
+    input         [  8: 0] ext_s_awid,
     input         [ 31: 0] ext_s_awaddr,
     input         [  2: 0] ext_s_awsize,
     input         [  7: 0] ext_s_awlen,
@@ -56,19 +56,19 @@ module cpu_wrap (
     input                  ext_s_awvalid,
     output logic           ext_s_awready,
     input         [  3: 0] ext_s_wstrb,
-    input         [  9: 0] ext_s_wid,
+    input         [  8: 0] ext_s_wid,
     input         [ 31: 0] ext_s_wdata,
     input                  ext_s_wlast,
     input                  ext_s_wvalid,
     output logic           ext_s_wready,
-    output logic  [  9: 0] ext_s_bid,
+    output logic  [  8: 0] ext_s_bid,
     output logic  [  1: 0] ext_s_bresp,
     output logic           ext_s_bvalid,
     input                  ext_s_bready,
     input         [ 31: 0] ext_s_araddr,
     input         [  1: 0] ext_s_arburst,
     input         [  2: 0] ext_s_arsize,
-    input         [  9: 0] ext_s_arid,
+    input         [  8: 0] ext_s_arid,
     input         [  7: 0] ext_s_arlen,
     input         [  1: 0] ext_s_arlock,
     input         [  3: 0] ext_s_arcache,
@@ -77,7 +77,7 @@ module cpu_wrap (
     output logic           ext_s_arready,
     output logic  [ 31: 0] ext_s_rdata,
     output logic  [  1: 0] ext_s_rresp,
-    output logic  [  9: 0] ext_s_rid,
+    output logic  [  8: 0] ext_s_rid,
     output logic           ext_s_rlast,
     output logic           ext_s_rvalid,
     input                  ext_s_rready,
@@ -106,7 +106,13 @@ module cpu_wrap (
     output                 sclk,
     output                 nss,
     output                 mosi,
-    input                  miso
+    input                  miso,
+
+    // JTAG interface
+    input                  tck,
+    input                  tms,
+    input                  tdi,
+    output                 tdo
 );
 
 logic                             core_rstn;
@@ -267,25 +273,29 @@ logic                dbg_attach;
 `AXI_INTF_DEF(dmmu, 10)
 `AXI_INTF_DEF(l1ic, 10)
 `AXI_INTF_DEF(l1dc, 10)
-`AXI_INTF_DEF(ext_s_remap, 10)
+`AXI_INTF_DEF(ext_s_remap, 9)
 
 `AXI_MST_PORT_TO_INTF(ext_s,         ext_axi);
 `AXI_MST_INTF_TO_PORT(ddr_remap_axi, ddr_m);
-`APB_MST_PORT_TO_INTF(dbg,           dbg_apb);
+`APB_MST_PORT_TO_INTF(dbg,           ext_dbg_apb);
 
+apb_intf ext_dbg_apb();
 apb_intf dbg_apb();
 apb_intf core_apb();
 apb_intf cfgreg_apb();
 apb_intf intc_apb();
 apb_intf peri_apb();
-axi_intf#(.ID_WIDTH(10)) ext_axi();
-axi_intf#(.ID_WIDTH(10)) ext_remap_axi();
+apb_intf dap_apb();
+axi_intf#(.ID_WIDTH( 9)) ext_axi();
+axi_intf#(.ID_WIDTH( 9)) ext_remap_axi();
 axi_intf#(.ID_WIDTH(13)) ddr_axi();
-axi_intf#(.ID_WIDTH(6 )) ddr_remap_axi();
+axi_intf#(.ID_WIDTH( 6)) ddr_remap_axi();
 axi_intf#(.ID_WIDTH(10)) immu_axi();
 axi_intf#(.ID_WIDTH(10)) dmmu_axi();
 axi_intf#(.ID_WIDTH(10)) l1ic_axi();
 axi_intf#(.ID_WIDTH(10)) l1dc_axi();
+axi_intf#(.ID_WIDTH( 9)) dap_axi();
+axi_intf#(.ID_WIDTH(10)) dbg_axi();
 
 cpu_top u_cpu_top (
     .clk                 ( clk                    ),
@@ -617,6 +627,16 @@ iommu_ddr u_iommu_ddr (
     .offset     ( ddr_offset           )
 );
 
+dbg_axi_arb_2to1 u_dbg_axi_arb_2to1 (
+    .clk         ( clk                 ),
+    .rstn        ( rstn                ),
+
+    .s0_axi_intf ( ext_remap_axi.slave ),
+    .s1_axi_intf ( dap_axi.slave       ),
+
+    .m_axi_intf  ( dbg_axi.master      )
+);
+
 marb u_marb (
     .clk        ( clk                  ),
     .rstn       ( rstn                 ),
@@ -626,7 +646,7 @@ marb u_marb (
     .s1_axi_intf ( dmmu_axi.slave      ),
     .s2_axi_intf ( l1ic_axi.slave      ),
     .s3_axi_intf ( l1dc_axi.slave      ),
-    .s4_axi_intf ( ext_remap_axi.slave ),
+    .s4_axi_intf ( dbg_axi.slave       ),
 
     .m0_cs       ( cs_0                ),
     .m0_we       ( we_0                ),
@@ -773,6 +793,15 @@ systimer u_systimer (
     .systime ( systime )
 );
 
+apb_2to1_mux u_dbg_apb_arb_2to1 (
+    .clk         ( clk                ),
+    .rstn        ( rstn               ),
+
+    .s0_apb_intf ( ext_dbg_apb.slave  ),
+    .s1_apb_intf ( dap_apb.slave      ),
+
+    .m_apb_intf  ( dbg_apb.master     )
+);
 
 dbgapb u_dbgapb (
     .clk       ( clk           ),
@@ -794,7 +823,7 @@ dbgapb u_dbgapb (
     .attach    ( dbg_attach    )
 );
 
-peri u_peri(
+peri u_peri (
     .clk        ( clk            ),
     .rstn       ( rstn           ),
     .s_apb_intf ( peri_apb.slave ),
@@ -809,6 +838,34 @@ peri u_peri(
 
     .uart_irq   ( uart_irq       ),
     .spi_irq    ( spi_irq        )
+);
+
+assign trstn = 1'b1;
+
+dap u_dap (
+    // clock and reset
+    .clk          ( clk            ),
+    .rstn         ( rstn           ),
+
+    // DP port
+    .tck          ( tck            ),
+    .trstn        ( trstn          ),
+    .tms          ( tms            ),
+    .tdi          ( tdi            ),
+    .tdo          ( tdo            ),
+
+    // Other
+    .apb_spiden   ( 1'b1           ),
+    .apb_deviceen ( 1'b1           ),
+    .axi_spiden   ( 1'b1           ),
+    .axi_deviceen ( 1'b1           ),
+
+    // APB_AP port
+    .m_apb_intf   ( dap_apb.master ),
+
+    // AXI_AP port
+    .m_axi_intf   ( dap_axi.master )
+
 );
 
 endmodule

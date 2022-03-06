@@ -23,7 +23,7 @@ integer       i;
 logic         clk;
 logic         rstn;
 
-`AXI_INTF_DEF(axi_ext, 10)
+`AXI_INTF_DEF(axi_ext, 9)
 `AXI_INTF_DEF(axi_ddr, 6)
 
 logic              dbg_psel;
@@ -46,6 +46,11 @@ wire               spi_nss;
 wire               spi_mosi;
 wire               spi_miso;
 
+logic              jtag_tck;
+logic              jtag_tms;
+logic              jtag_tdi;
+logic              jtag_tdo;
+
 logic              simend;
 
 string             prog_path;
@@ -54,7 +59,6 @@ string             prog_path;
 initial begin
     simend   <= 1'b0;
     rstn     <= 1'b0;
-    dbgapb_init;
     axi_init;
     repeat (10) @(posedge clk);
     rstn   <= 1'b1;
@@ -63,6 +67,11 @@ initial begin
     extaxi_wr(32'h0400_0000, 32'h1);
     repeat (`MAX_CYCLE) @(posedge clk);
     simend <= 1'b1;
+end
+
+initial begin
+    dbgapb_init;
+    repeat (10000) dbgapb_rd(32'h4, 1'b0);
 end
 
 initial begin
@@ -219,7 +228,13 @@ cpu_wrap u_cpu_wrap (
     .sclk        ( spi_sclk      ),
     .nss         ( spi_nss       ),
     .mosi        ( spi_mosi      ),
-    .miso        ( spi_miso      )
+    .miso        ( spi_miso      ),
+
+    // JTAG interface
+    .tck         ( jtag_tck      ),
+    .tms         ( jtag_tms      ),
+    .tdi         ( jtag_tdi      ),
+    .tdo         ( jtag_tdo      )
 );
 
 axi_vip_slave #(
@@ -256,6 +271,13 @@ spi_mdl u_spi_mdl (
     .CPOL     ( u_cpu_wrap.u_peri.u_spi.spi_cr1_cpol     ),
     .LSBFIRST ( u_cpu_wrap.u_peri.u_spi.spi_cr1_lsbfirst ),
     .DFF      ( u_cpu_wrap.u_peri.u_spi.spi_cr1_dff      )
+);
+
+jtag_mdl u_jtag_mdl (
+    .tck ( jtag_tck ),
+    .tms ( jtag_tms ),
+    .tdi ( jtag_tdi ),
+    .tdo ( jtag_tdo )
 );
 
 // For riscv-tests used

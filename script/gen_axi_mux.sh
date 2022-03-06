@@ -493,7 +493,7 @@ echo "        s_awsel  [i]  = s_awvalid[i] & (|aw_grant_matrix[i]);"           >
 echo "    end"                                                                 >> ${fname};
 echo "end"                                                                     >> ${fname};
 echo ""                                                                        >> ${fname};
-echo "assign m_awvalid = |s_awvalid;"                                          >> ${fname};
+echo "assign m_awvalid = |s_awvalid & ~|s_wsel;"                               >> ${fname};
 echo ""                                                                        >> ${fname};
 echo "always_ff @(posedge aclk or negedge aresetn) begin"                      >> ${fname};
 echo "    if (~aresetn) begin"                                                 >> ${fname};

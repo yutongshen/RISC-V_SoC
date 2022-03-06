@@ -110,6 +110,8 @@ sim: all | ${bld_dir}
 axi: | ${bld_dir}
 	@cd $(root_dir)/$(src_dir)/bus/; \
 	../../script/gen_axi_biu.sh 5 5 4 1 ../../script/axi_sideband.cfg ../../script/axi_mmap.cfg
+	@cd $(root_dir)/$(src_dir)/bus/; \
+	../../script/gen_axi_mux.sh 2 ../../script/axi_sideband_2to1.cfg
 	# @cd $(root_dir)/mdl; \
 	# ../script/gen_axi_mon.sh 1 2 ../script/axi_sideband.cfg ../script/axi_mmap.cfg
 	# @cd $(root_dir)/$(sim_dir); \
