@@ -33,7 +33,6 @@ logic [ 3:0] mem_ap_csw_mode;
 logic [ 1:0] mem_ap_csw_addrinc;
 logic [ 2:0] mem_ap_csw_size;
 logic [31:0] mem_ap_tar;
-logic [31:0] mem_ap_drw;
 logic [31:0] mem_ap_bd0;
 logic [31:0] mem_ap_bd1;
 logic [31:0] mem_ap_bd2;
@@ -43,7 +42,12 @@ logic        tx_tog_pre;
 logic        rx_tog_s1;
 logic        rx_tog_s2;
 logic        rx_tog_s3;
-logic        rx_tog_s4;
+logic        rx_rec;
+logic        rx_rec_dly;
+
+logic [31:0] tx_mem_rdata;
+logic        tx_mem_slverr;
+
 logic [ 3:0] cnt;
 
 always_ff @(posedge tck or negedge dbgrstn) begin: reg_rdata
@@ -56,9 +60,9 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_rdata
                     ({32{ap_addr == 6'h1 && ap_rnw}} & mem_ap_tar);
         ap_slverr <= 1'b0;
     end
-    else if (rx_tog_s3 ^ rx_tog_s4) begin
-        ap_rdata  <= rx_mem_rdata;
-        ap_slverr <= rx_mem_slverr;
+    else if (rx_rec_dly) begin
+        ap_rdata  <= tx_mem_rdata;
+        ap_slverr <= tx_mem_slverr;
     end
 end
 
@@ -73,7 +77,7 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_busy
                        ap_addr == 6'h7;
         end
     end
-    else if (rx_tog_s3 ^ rx_tog_s4) begin
+    else if (rx_rec_dly) begin
         ap_busy <= 1'b0;
     end
 end
@@ -118,17 +122,6 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_tar
     end
     else if (ap_upd && ap_addr == 6'h3 && mem_ap_csw_addrinc == 2'h1) begin
         mem_ap_tar <= mem_ap_tar + (32'b1 << mem_ap_csw_size);
-    end
-end
-
-always_ff @(posedge tck or negedge dbgrstn) begin: reg_drw
-    if (~dbgrstn) begin
-        mem_ap_drw <= 32'b0;
-    end
-    else if (ap_upd && ap_addr == 6'h3) begin
-        if (~ap_rnw) begin
-            mem_ap_drw <= ap_wdata;
-        end
     end
 end
 
@@ -231,13 +224,29 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_rx_tog
         rx_tog_s1 <= 1'b0;
         rx_tog_s2 <= 1'b0;
         rx_tog_s3 <= 1'b0;
-        rx_tog_s4 <= 1'b0;
     end
     else begin
         rx_tog_s1 <= rx_tog;
         rx_tog_s2 <= rx_tog_s1;
         rx_tog_s3 <= rx_tog_s2;
-        rx_tog_s4 <= rx_tog_s3;
+    end
+end
+
+assign rx_rec = rx_tog_s2 ^ rx_tog_s3;
+
+always_ff @(posedge tck or negedge dbgrstn) begin: reg_rx_rec_dly
+    if (~dbgrstn) rx_rec_dly <= 1'b0;
+    else          rx_rec_dly <= rx_rec;
+end
+
+always_ff @(posedge tck or negedge dbgrstn) begin: reg_rx2tx
+    if (~dbgrstn) begin
+        tx_mem_rdata  <= 32'b0;
+        tx_mem_slverr <= 1'b0;
+    end
+    else if (rx_rec) begin
+        tx_mem_rdata  <= rx_mem_rdata;
+        tx_mem_slverr <= rx_mem_slverr;
     end
 end
 

@@ -28,7 +28,6 @@ logic        rx_tog_pre;
 logic        tx_tog_s1;
 logic        tx_tog_s2;
 logic        tx_tog_s3;
-logic        tx_tog_s4;
 logic [ 3:0] ignore_tx_cnt;
 logic        ignore_tx;
 logic        tx_rec;
@@ -46,13 +45,11 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_tx_tog
         tx_tog_s1 <= 1'b0;
         tx_tog_s2 <= 1'b0;
         tx_tog_s3 <= 1'b0;
-        tx_tog_s4 <= 1'b0;
     end
     else begin
         tx_tog_s1 <= tx_tog;
         tx_tog_s2 <= tx_tog_s1;
         tx_tog_s3 <= tx_tog_s2;
-        tx_tog_s4 <= tx_tog_s3;
     end
 end
 

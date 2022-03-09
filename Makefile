@@ -138,6 +138,10 @@ synthesize: | $(bld_dir) $(syn_dir)
 	cd $(bld_dir); \
 	dc_shell -no_home_init -f ../script/synthesis.tcl
 
+submit:
+	scp src/cpu_wrap_nodef.all.sv fred2@140.116.245.115:/home/fred2/RISC-V_SoC/src/
+	scp rom/rom_*.hex fred2@140.116.245.115:/home/fred2/RISC-V_SoC/src/
+
 clean:
 	@rm -rf ./build .*.swo .*.swp;
 	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp ./mdl/.*.swp
