@@ -111,7 +111,9 @@ axi: | ${bld_dir}
 	@cd $(root_dir)/$(src_dir)/bus/; \
 	../../script/gen_axi_biu.sh 5 5 4 1 ../../script/axi_sideband.cfg ../../script/axi_mmap.cfg
 	@cd $(root_dir)/$(src_dir)/bus/; \
-	../../script/gen_axi_mux.sh 2 ../../script/axi_sideband_2to1.cfg
+	../../script/gen_axi_mux.sh 2 ../../script/axi_sideband_2to1_id8.cfg id8
+	@cd $(root_dir)/$(src_dir)/bus/; \
+	../../script/gen_axi_mux.sh 2 ../../script/axi_sideband_2to1_id9.cfg id9
 	# @cd $(root_dir)/mdl; \
 	# ../script/gen_axi_mon.sh 1 2 ../script/axi_sideband.cfg ../script/axi_mmap.cfg
 	# @cd $(root_dir)/$(sim_dir); \
@@ -144,6 +146,6 @@ submit:
 
 clean:
 	@rm -rf ./build .*.swo .*.swp;
-	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./include/.*.swp ./mdl/.*.swp
+	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./src/dbg/.*.swp ./src/peri/.*.swp ./include/.*.swp ./mdl/.*.swp
 	@make -C $(sim_dir) clean;
 	@make -C rom clean;

@@ -19,6 +19,9 @@ module peri (
     output            mosi,
     input             miso,
 
+    // SPI DMA interface
+    axi_intf.master   m_dma_axi_intf,
+
     // IRQ
     output            uart_irq,
     output            spi_irq
@@ -44,19 +47,22 @@ uart u_uart(
 );
 
 
-spi u_spi (
-    .clk        ( clk           ),
-    .rstn       ( rstn          ),
-    .s_apb_intf ( spi_apb.slave ),
+spi_core u_spi_core (
+    .clk        ( clk            ),
+    .rstn       ( rstn           ),
+    .s_apb_intf ( spi_apb.slave  ),
 
     // SPI interface
-    .sclk       ( sclk          ),
-    .nss        ( nss           ),
-    .mosi       ( mosi          ),
-    .miso       ( miso          ),
+    .sclk       ( sclk           ),
+    .nss        ( nss            ),
+    .mosi       ( mosi           ),
+    .miso       ( miso           ),
+
+    // DMA
+    .m_axi_intf ( m_dma_axi_intf ),
 
     // Interrupt
-    .irq_out    ( spi_irq       )
+    .irq_out    ( spi_irq        )
 );
 
 endmodule

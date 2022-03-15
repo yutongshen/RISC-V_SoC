@@ -179,38 +179,38 @@ initial begin
     // AXI_AP TAR
     jtag_w_ir(4'hb);
     do begin
-        jtag_rw_dr(35, {32'h20001, 2'h1, 1'b0});
+        jtag_rw_dr(35, {32'h8000_0001, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP write mem[0x20001]
+    // AXI_AP write mem[0x80000001]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h11111111, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20001] = %08x", 32'h11111111);
-    // AXI_AP write mem[0x20005]
+    $display("[JTAG_MDL] AXI write [0x80000001] = %08x", 32'h11111111);
+    // AXI_AP write mem[0x80000005]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h22222222, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20005] = %08x", 32'h22222222);
-    // AXI_AP write mem[0x20009]
+    $display("[JTAG_MDL] AXI write [0x80000005] = %08x", 32'h22222222);
+    // AXI_AP write mem[0x80000009]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h33333333, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20009] = %08x", 32'h33333333);
-    // AXI_AP write mem[0x2000d]
+    $display("[JTAG_MDL] AXI write [0x80000009] = %08x", 32'h33333333);
+    // AXI_AP write mem[0x8000000d]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h44444444, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x2000d] = %08x", 32'h44444444);
+    $display("[JTAG_MDL] AXI write [0x8000000d] = %08x", 32'h44444444);
     // AXI_AP TAR
     jtag_w_ir(4'hb);
     do begin
-        jtag_rw_dr(35, {32'h20001, 2'h1, 1'b0});
+        jtag_rw_dr(35, {32'h80000001, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP read mem[0x20001]
+    // AXI_AP read mem[0x80000001]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -219,8 +219,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20001] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x20005]
+    $display("[JTAG_MDL] AXI read [0x80000001] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x80000005]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -229,8 +229,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20005] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x20009]
+    $display("[JTAG_MDL] AXI read [0x80000005] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x80000009]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -239,8 +239,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20009] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x2000d]
+    $display("[JTAG_MDL] AXI read [0x80000009] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x8000000d]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -249,7 +249,7 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x2000d] = %08x", rdata[34:3]);
+    $display("[JTAG_MDL] AXI read [0x8000000d] = %08x", rdata[34:3]);
     // AXI_AP CSW 16-bit and Auto-incr addr
     jtag_w_ir(4'hb);
     do begin
@@ -258,38 +258,38 @@ initial begin
     // AXI_AP TAR
     jtag_w_ir(4'hb);
     do begin
-        jtag_rw_dr(35, {32'h20001, 2'h1, 1'b0});
+        jtag_rw_dr(35, {32'h80000001, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP write mem[0x20001]
+    // AXI_AP write mem[0x80000001]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h11111111, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20001] = %08x", 32'h1111);
-    // AXI_AP write mem[0x20003]
+    $display("[JTAG_MDL] AXI write [0x80000001] = %08x", 32'h1111);
+    // AXI_AP write mem[0x80000003]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h22222222, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20003] = %08x", 32'h2222);
-    // AXI_AP write mem[0x20005]
+    $display("[JTAG_MDL] AXI write [0x80000003] = %08x", 32'h2222);
+    // AXI_AP write mem[0x80000005]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h33333333, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20005] = %08x", 32'h3333);
-    // AXI_AP write mem[0x20007]
+    $display("[JTAG_MDL] AXI write [0x80000005] = %08x", 32'h3333);
+    // AXI_AP write mem[0x80000007]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h44444444, 2'h3, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI write [0x20009] = %08x", 32'h4444);
+    $display("[JTAG_MDL] AXI write [0x80000007] = %08x", 32'h4444);
     // AXI_AP TAR
     jtag_w_ir(4'hb);
     do begin
-        jtag_rw_dr(35, {32'h20001, 2'h1, 1'b0});
+        jtag_rw_dr(35, {32'h80000001, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP read mem[0x20001]
+    // AXI_AP read mem[0x80000001]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -298,8 +298,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20001] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x20005]
+    $display("[JTAG_MDL] AXI read [0x80000001] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x80000003]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -308,8 +308,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20003] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x20009]
+    $display("[JTAG_MDL] AXI read [0x80000003] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x80000005]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -318,8 +318,8 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20005] = %08x", rdata[34:3]);
-    // AXI_AP read mem[0x2000d]
+    $display("[JTAG_MDL] AXI read [0x80000005] = %08x", rdata[34:3]);
+    // AXI_AP read mem[0x80000007]
     jtag_w_ir(4'hb);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
@@ -328,7 +328,7 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read [0x20009] = %08x", rdata[34:3]);
+    $display("[JTAG_MDL] AXI read [0x80000007] = %08x", rdata[34:3]);
 
 
 `endif

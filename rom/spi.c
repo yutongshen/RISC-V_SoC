@@ -3,6 +3,24 @@
 #include "util.h"
 #include "spi.h"
 
+__U8 __dma_spi_mem_cpy(__U8P __buff, __U32 len) {
+    *DMA_DEST_32P = (__U32) __buff;
+    *DMA_LEN_32P  = len;
+    
+    *DMA_CON_32P  = 0;
+    // Set SRC SPI / DEST INCR
+    *DMA_CON_32P  |= 0x6 << 4;
+
+    // Set SRC BYTE / DEST WORD
+    *DMA_CON_32P  |= 0x8 << 8;
+
+    // Start
+    *DMA_CON_32P  |= 0x1;
+
+    while (*DMA_CON_32P & 0x80000000);
+    return 1;
+}
+
 __U8 __spi_init(__U32 __br) {
     *SPI_CR1_32P = 0;
     *SPI_CR1_32P = (          1  << __SPI_CR1_SPE_BIT     )|
@@ -55,8 +73,9 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
         if (retry++ > 5000) return r1;
     } while (r1 != 0xfe);
     
-    while (size--) 
-        *buff++ = __spi_rwbyte(__DUMMY_DATA);
+    // while (size--) 
+    //     *buff++ = __spi_rwbyte(__DUMMY_DATA);
+    __dma_spi_mem_cpy(buff, 512);
 
     __spi_rwbyte(__DUMMY_DATA);
     __spi_rwbyte(__DUMMY_DATA);
@@ -72,6 +91,7 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
 __U8 __sd_readblk(__U32 sector, __U8P buff) {
 #ifndef FAKE_SD
     __CS_ENABLE();
+    *TMDL_TM_DCACHE_FLUSH_64P = 1;
     if (__sd_sendcmd(__CMD17, sector, 0)) return 0;
     return __sd_rcvdata(buff, 512, 1);
 #else

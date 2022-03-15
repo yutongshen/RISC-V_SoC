@@ -123,6 +123,23 @@
 #define SPI_DR_64P ((UINT64P) (SPI_BASE + 0x0C))
 
 // ==============================
+//  DMA_BASE
+// ==============================
+#define DMA_BASE 0x10001800
+#define DMA_SRC (DMA_BASE + 0x00)
+#define DMA_SRC_32P ((UINT32P) (DMA_BASE + 0x00))
+#define DMA_SRC_64P ((UINT64P) (DMA_BASE + 0x00))
+#define DMA_DEST (DMA_BASE + 0x04)
+#define DMA_DEST_32P ((UINT32P) (DMA_BASE + 0x04))
+#define DMA_DEST_64P ((UINT64P) (DMA_BASE + 0x04))
+#define DMA_LEN (DMA_BASE + 0x08)
+#define DMA_LEN_32P ((UINT32P) (DMA_BASE + 0x08))
+#define DMA_LEN_64P ((UINT64P) (DMA_BASE + 0x08))
+#define DMA_CON (DMA_BASE + 0x0C)
+#define DMA_CON_32P ((UINT32P) (DMA_BASE + 0x0C))
+#define DMA_CON_64P ((UINT64P) (DMA_BASE + 0x0C))
+
+// ==============================
 //  DDR_BASE
 // ==============================
 #define DDR_BASE 0x80000000

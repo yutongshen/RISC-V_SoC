@@ -357,8 +357,8 @@ done
 printf "    end\n" >> ${fname};
 printf "end\n\n" >> ${fname};
 
-printf "assign m_awvalid = awsel & {%d{s_awvalid & ~b_fifo_full}};\n" `expr ${mstnum} + 1` >> ${fname};
-printf "assign s_awready = |(awsel & m_awready) & ~b_fifo_full;\n" >> ${fname};
+printf "assign m_awvalid = awsel & {%d{s_awvalid & ~|wsel & ~b_fifo_full}};\n" `expr ${mstnum} + 1` >> ${fname};
+printf "assign s_awready = |(awsel & m_awready) & ~|wsel & ~b_fifo_full;\n" >> ${fname};
 echo "" >> ${fname};
 printf "assign m_wlast   = wsel & {%d{s_wlast }};\n" `expr ${mstnum} + 1` >> ${fname};
 printf "assign m_wvalid  = wsel & {%d{s_wvalid}};\n" `expr ${mstnum} + 1` >> ${fname};

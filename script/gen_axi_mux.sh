@@ -3,8 +3,13 @@ source ./$(dirname ${0})/util.sh;
 
 slvnum=${1};
 
-fname="axi_${1}to1_mux.sv";
-module="axi_${1}to1_mux";
+if [ "${3}" != "" ]; then
+    fname="axi_${1}to1_mux_${3}.sv";
+    module="axi_${1}to1_mux_${3}";
+else
+    fname="axi_${1}to1_mux.sv";
+    module="axi_${1}to1_mux";
+fi
 sbfile="${2}";
 
 declare -A aw_chn_sideband;
@@ -247,7 +252,11 @@ for (( i=0; i<${slvnum}; i++ )); do
 done
 echo "" >> ${fname};
 
-printf "%s %s (\n" "axi_arbitrator_${slvnum}s" "u_axi_arbitrator" >> ${fname};
+if [ "${3}" != "" ]; then
+    printf "%s %s (\n" "axi_arbitrator_${slvnum}s_${3}" "u_axi_arbitrator" >> ${fname};
+else
+    printf "%s %s (\n" "axi_arbitrator_${slvnum}s" "u_axi_arbitrator" >> ${fname};
+fi
 print_conn aclk      aclk 1    >> ${fname};
 print_conn aresetn   aresetn   >> ${fname};
 print_conn s_arsel   s_arsel   >> ${fname};
@@ -389,7 +398,11 @@ echo ""                                                                    >> ${
 
 printf "endmodule\n\n"                             >> ${fname};
 
-printf "module %s (\n" "axi_arbitrator_${slvnum}s" >> ${fname};
+if [ "${3}" != "" ]; then
+    printf "module %s (\n" "axi_arbitrator_${slvnum}s_${3}" >> ${fname};
+else
+    printf "module %s (\n" "axi_arbitrator_${slvnum}s" >> ${fname};
+fi
 print_io i 1         aclk 1                        >> ${fname};
 print_io i 1         aresetn                       >> ${fname};
 print_io o ${slvnum} s_arsel                       >> ${fname};

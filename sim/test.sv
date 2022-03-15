@@ -1,7 +1,7 @@
 `timescale 1ns / 10ps
 
 `include "clkdef.h"
-`define MAX_CYCLE 2000000
+`define MAX_CYCLE 20000000
 //`define DDR_SIZE 2**17
 `define DDR_SIZE 2**25
 `define TEST_END_ADDR 32'h1fffc
@@ -23,7 +23,7 @@ integer       i;
 logic         clk;
 logic         rstn;
 
-`AXI_INTF_DEF(axi_ext, 9)
+`AXI_INTF_DEF(axi_ext, 8)
 `AXI_INTF_DEF(axi_ddr, 6)
 
 logic              dbg_psel;
@@ -270,10 +270,10 @@ spi_mdl u_spi_mdl (
     .MISO     ( spi_miso ),
 
     // Control signal
-    .CPHA     ( u_cpu_wrap.u_peri.u_spi.spi_cr1_cpha     ),
-    .CPOL     ( u_cpu_wrap.u_peri.u_spi.spi_cr1_cpol     ),
-    .LSBFIRST ( u_cpu_wrap.u_peri.u_spi.spi_cr1_lsbfirst ),
-    .DFF      ( u_cpu_wrap.u_peri.u_spi.spi_cr1_dff      )
+    .CPHA     ( u_cpu_wrap.u_peri.u_spi_core.u_spi.spi_cr1_cpha     ),
+    .CPOL     ( u_cpu_wrap.u_peri.u_spi_core.u_spi.spi_cr1_cpol     ),
+    .LSBFIRST ( u_cpu_wrap.u_peri.u_spi_core.u_spi.spi_cr1_lsbfirst ),
+    .DFF      ( u_cpu_wrap.u_peri.u_spi_core.u_spi.spi_cr1_dff      )
 );
 
 jtag_mdl u_jtag_mdl (

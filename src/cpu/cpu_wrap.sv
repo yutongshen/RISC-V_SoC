@@ -46,7 +46,7 @@ module cpu_wrap (
 
     // external AXI interface
     input         [  1: 0] ext_s_awburst,
-    input         [  8: 0] ext_s_awid,
+    input         [  7: 0] ext_s_awid,
     input         [ 31: 0] ext_s_awaddr,
     input         [  2: 0] ext_s_awsize,
     input         [  7: 0] ext_s_awlen,
@@ -56,19 +56,19 @@ module cpu_wrap (
     input                  ext_s_awvalid,
     output logic           ext_s_awready,
     input         [  3: 0] ext_s_wstrb,
-    input         [  8: 0] ext_s_wid,
+    input         [  7: 0] ext_s_wid,
     input         [ 31: 0] ext_s_wdata,
     input                  ext_s_wlast,
     input                  ext_s_wvalid,
     output logic           ext_s_wready,
-    output logic  [  8: 0] ext_s_bid,
+    output logic  [  7: 0] ext_s_bid,
     output logic  [  1: 0] ext_s_bresp,
     output logic           ext_s_bvalid,
     input                  ext_s_bready,
     input         [ 31: 0] ext_s_araddr,
     input         [  1: 0] ext_s_arburst,
     input         [  2: 0] ext_s_arsize,
-    input         [  8: 0] ext_s_arid,
+    input         [  7: 0] ext_s_arid,
     input         [  7: 0] ext_s_arlen,
     input         [  1: 0] ext_s_arlock,
     input         [  3: 0] ext_s_arcache,
@@ -77,7 +77,7 @@ module cpu_wrap (
     output logic           ext_s_arready,
     output logic  [ 31: 0] ext_s_rdata,
     output logic  [  1: 0] ext_s_rresp,
-    output logic  [  8: 0] ext_s_rid,
+    output logic  [  7: 0] ext_s_rid,
     output logic           ext_s_rlast,
     output logic           ext_s_rvalid,
     input                  ext_s_rready,
@@ -286,16 +286,18 @@ apb_intf cfgreg_apb();
 apb_intf intc_apb();
 apb_intf peri_apb();
 apb_intf dap_apb();
-axi_intf#(.ID_WIDTH( 9)) ext_axi();
-axi_intf#(.ID_WIDTH( 9)) ext_remap_axi();
+axi_intf#(.ID_WIDTH( 8)) ext_axi();
+axi_intf#(.ID_WIDTH( 8)) ext_remap_axi();
 axi_intf#(.ID_WIDTH(13)) ddr_axi();
 axi_intf#(.ID_WIDTH( 6)) ddr_remap_axi();
+axi_intf#(.ID_WIDTH( 9)) dma_axi();
 axi_intf#(.ID_WIDTH(10)) immu_axi();
 axi_intf#(.ID_WIDTH(10)) dmmu_axi();
 axi_intf#(.ID_WIDTH(10)) l1ic_axi();
 axi_intf#(.ID_WIDTH(10)) l1dc_axi();
-axi_intf#(.ID_WIDTH( 9)) dap_axi();
-axi_intf#(.ID_WIDTH(10)) dbg_axi();
+axi_intf#(.ID_WIDTH( 8)) dap_axi();
+axi_intf#(.ID_WIDTH( 9)) dbg_axi();
+axi_intf#(.ID_WIDTH(10)) peri_axi();
 
 cpu_top u_cpu_top (
     .clk                 ( clk                    ),
@@ -637,6 +639,16 @@ dbg_axi_arb_2to1 u_dbg_axi_arb_2to1 (
     .m_axi_intf  ( dbg_axi.master      )
 );
 
+peri_axi_arb_2to1 u_peri_axi_arb_2to1 (
+    .clk         ( clk             ),
+    .rstn        ( rstn            ),
+
+    .s0_axi_intf ( dma_axi.slave   ),
+    .s1_axi_intf ( dbg_axi.slave   ),
+
+    .m_axi_intf  ( peri_axi.master )
+);
+
 marb u_marb (
     .clk        ( clk                  ),
     .rstn       ( rstn                 ),
@@ -646,7 +658,7 @@ marb u_marb (
     .s1_axi_intf ( dmmu_axi.slave      ),
     .s2_axi_intf ( l1ic_axi.slave      ),
     .s3_axi_intf ( l1dc_axi.slave      ),
-    .s4_axi_intf ( dbg_axi.slave       ),
+    .s4_axi_intf ( peri_axi.slave      ),
 
     .m0_cs       ( cs_0                ),
     .m0_we       ( we_0                ),
@@ -824,20 +836,21 @@ dbgapb u_dbgapb (
 );
 
 peri u_peri (
-    .clk        ( clk            ),
-    .rstn       ( rstn           ),
-    .s_apb_intf ( peri_apb.slave ),
+    .clk            ( clk            ),
+    .rstn           ( rstn           ),
+    .s_apb_intf     ( peri_apb.slave ),
 
-    .uart_rx    ( uart_rx        ),
-    .uart_tx    ( uart_tx        ),
+    .uart_rx        ( uart_rx        ),
+    .uart_tx        ( uart_tx        ),
 
-    .sclk       ( sclk           ),
-    .nss        ( nss            ),
-    .mosi       ( mosi           ),
-    .miso       ( miso           ),
+    .sclk           ( sclk           ),
+    .nss            ( nss            ),
+    .mosi           ( mosi           ),
+    .miso           ( miso           ),
+    .m_dma_axi_intf ( dma_axi.master ),
 
-    .uart_irq   ( uart_irq       ),
-    .spi_irq    ( spi_irq        )
+    .uart_irq       ( uart_irq       ),
+    .spi_irq        ( spi_irq        )
 );
 
 assign trstn = 1'b1;

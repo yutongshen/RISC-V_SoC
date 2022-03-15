@@ -21,7 +21,7 @@ SRC     := $(SRC_C) $(SRC_S)
 OBJ     := $(OBJ_C) $(OBJ_S) $(OBJ_DTS)
 
 ifneq ($(def),)
-DEFINE := -D$(def)
+DEFINE  := -D$(subst +, -D,$(def))
 else
 DEFINE := 
 endif

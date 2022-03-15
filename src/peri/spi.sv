@@ -1,22 +1,30 @@
 `include "spi_mmap.h"
 
 module spi (
-    input          clk,
-    input          rstn,
-    apb_intf.slave s_apb_intf,
+    input               clk,
+    input               rstn,
+    apb_intf.slave      s_apb_intf,
 
     // SPI interface
-    // inout          sclk,
-    // inout          nss,
-    // inout          mosi,
-    // inout          miso
-    output         sclk,
-    output         nss,
-    output         mosi,
-    input          miso,
+    // inout               sclk,
+    // inout               nss,
+    // inout               mosi,
+    // inout               miso
+    output              sclk,
+    output              nss,
+    output              mosi,
+    input               miso,
+
+    // DMA signal
+    input               dma_rxreq,
+    output logic        dma_rxne,
+    output logic [15:0] dma_rxbuff,
+    input               dma_txreq,
+    output logic        dma_txe,
+    input        [15:0] dma_txbuff,
 
     // Interrupt
-    output logic   irq_out
+    output logic        irq_out
 );
 
 localparam STATE_OFF   = 2'b00;
@@ -152,6 +160,8 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr2
     end
 end
 
+assign dma_rxne = spi_sr_rxne;
+assign dma_txe  = spi_sr_txe;
 assign spi_sr = {24'b0, spi_sr_bsy, spi_sr_ovr,    spi_sr_modf, spi_sr_crcerr,
                         spi_sr_udr, spi_sr_chside, spi_sr_rxne, spi_sr_txe};
 
@@ -177,13 +187,16 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_dr
     else if (apb_wr && s_apb_intf.paddr[11:0] == `SPI_DR && spi_sr_txe) begin
         spi_tx_buff <= s_apb_intf.pwdata[15:0];
     end
+    else if (dma_txreq && spi_sr_txe) begin
+        spi_tx_buff <= dma_txbuff;
+    end
 end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_spi_txe
     if (~rstn) begin
         spi_sr_txe <= 1'b1;
     end
-    else if (apb_wr && s_apb_intf.paddr[11:0] == `SPI_DR) begin
+    else if (spi_sr_txe && ((apb_wr && s_apb_intf.paddr[11:0] == `SPI_DR) || dma_txreq)) begin
         spi_sr_txe <= 1'b0;
     end
     else if (tx_pop) begin
@@ -248,7 +261,9 @@ always_comb begin: mosi_pre_comb
     endcase
 end
 
-always_ff @(posedge clk or negedge rstn) begin: rx_buff
+assign dma_rxbuff = spi_rx_buff;
+
+always_ff @(posedge clk or negedge rstn) begin: reg_rx_buff
     if (~rstn) begin
         spi_rx_buff <= 16'b0;
     end
@@ -261,7 +276,7 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_rxne
     if (~rstn) begin
         spi_sr_rxne <= 1'b0;
     end
-    else if (apb_rd && s_apb_intf.paddr[11:0] == `SPI_DR) begin
+    else if (spi_sr_rxne && ((apb_rd && s_apb_intf.paddr[11:0] == `SPI_DR) || dma_rxreq)) begin
         spi_sr_rxne <= 1'b0;
     end
     else if (rx_pop_latch) begin

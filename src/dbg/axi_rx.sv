@@ -82,14 +82,14 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_tx_rec_dly
     else          tx_rec_dly <= tx_rec;
 end
 
-assign m_axi_intf.awid    = 9'h0;
+assign m_axi_intf.awid    = 8'h0;
 assign m_axi_intf.awburst = `AXI_BURST_INCR;
 assign m_axi_intf.awsize  = 2'h2;
 assign m_axi_intf.awlock  = 2'h0;
 assign m_axi_intf.awcache = 4'h0;
-assign m_axi_intf.wid     = 9'h0;
+assign m_axi_intf.wid     = 8'h0;
 assign m_axi_intf.bready  = 1'b1;
-assign m_axi_intf.arid    = 9'h0;
+assign m_axi_intf.arid    = 8'h0;
 assign m_axi_intf.arburst = `AXI_BURST_INCR;
 assign m_axi_intf.arsize  = 2'h2;
 assign m_axi_intf.arlock  = 2'h0;
