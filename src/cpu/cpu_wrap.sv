@@ -252,6 +252,14 @@ logic [ 31: 0] cfgreg_prdata;
 logic          cfgreg_pslverr;
 logic          cfgreg_pready;
 
+logic [ 31: 0] m0_snp_addr;
+logic          m0_snp_valid;
+logic          m0_snp_ready;
+
+logic [ 31: 0] m1_snp_addr;
+logic          m1_snp_valid;
+logic          m1_snp_ready;
+
 logic          uart_irq;
 logic          spi_irq;
 
@@ -268,6 +276,7 @@ logic [       31: 0] dbg_inst;
 logic                dbg_exec;
 logic                dbg_halted;
 logic                dbg_attach;
+
 
 `AXI_INTF_DEF(immu, 10)
 `AXI_INTF_DEF(dmmu, 10)
@@ -298,6 +307,7 @@ axi_intf#(.ID_WIDTH(10)) l1dc_axi();
 axi_intf#(.ID_WIDTH( 8)) dap_axi();
 axi_intf#(.ID_WIDTH( 9)) dbg_axi();
 axi_intf#(.ID_WIDTH(10)) peri_axi();
+axi_intf#(.ID_WIDTH(10)) peri_scu_axi();
 
 cpu_top u_cpu_top (
     .clk                 ( clk                    ),
@@ -567,6 +577,10 @@ l1c u_l1ic (
     .core_busy   ( imem_busy       ),
     .xmon_xstate ( 1'b0            ),
 
+    .snp_addr    ( m0_snp_addr     ),
+    .snp_valid   ( m0_snp_valid    ),
+    .snp_ready   ( m0_snp_ready    ),
+
     .m_axi_intf  ( l1ic_axi.master )
 );
 
@@ -590,6 +604,10 @@ l1c u_l1dc (
     .core_bad    ( dmem_bad        ),
     .core_busy   ( dmem_busy       ),
     .xmon_xstate ( xmon_xstate     ),
+
+    .snp_addr    ( m1_snp_addr     ),
+    .snp_valid   ( m1_snp_valid    ),
+    .snp_ready   ( m1_snp_ready    ),
 
     .m_axi_intf  ( l1dc_axi.master )
 );
@@ -649,6 +667,22 @@ peri_axi_arb_2to1 u_peri_axi_arb_2to1 (
     .m_axi_intf  ( peri_axi.master )
 );
 
+scu u_scu (
+    .clk          ( clk                ),
+    .rstn         ( rstn               ),
+
+    .s_axi_intf   ( peri_axi.slave     ),
+    .m_axi_intf   ( peri_scu_axi.master),
+
+    .m0_snp_addr  ( m0_snp_addr        ),
+    .m0_snp_valid ( m0_snp_valid       ),
+    .m0_snp_ready ( m0_snp_ready       ),
+                                
+    .m1_snp_addr  ( m1_snp_addr        ),
+    .m1_snp_valid ( m1_snp_valid       ),
+    .m1_snp_ready ( m1_snp_ready       )
+);
+
 marb u_marb (
     .clk        ( clk                  ),
     .rstn       ( rstn                 ),
@@ -658,7 +692,7 @@ marb u_marb (
     .s1_axi_intf ( dmmu_axi.slave      ),
     .s2_axi_intf ( l1ic_axi.slave      ),
     .s3_axi_intf ( l1dc_axi.slave      ),
-    .s4_axi_intf ( peri_axi.slave      ),
+    .s4_axi_intf ( peri_scu_axi.slave  ),
 
     .m0_cs       ( cs_0                ),
     .m0_we       ( we_0                ),

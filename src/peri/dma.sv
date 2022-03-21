@@ -279,10 +279,10 @@ always_ff @(posedge clk or negedge rstn) begin: reg_src_len
         src_len <= 8'b0;
     end
     else if (dma_con_en) begin
-        src_len <= 8'h7 - ((dma_src[7:0] >> dma_con_src_size) & 8'h7);
+        src_len <= 8'h3 - ((dma_src[7:0] >> dma_con_src_size) & 8'h3);
     end
     else if (m_axi_intf.arvalid && m_axi_intf.arready) begin
-        src_len <= 8'h7;
+        src_len <= 8'h3;
     end
 end
 
@@ -317,10 +317,10 @@ always_ff @(posedge clk or negedge rstn) begin: reg_dest_len
         dest_len <= 8'b0;
     end
     else if (dma_con_en) begin
-        dest_len <= 8'h7 - ((dma_dest[7:0] >> dma_con_dest_size) & 8'h7);
+        dest_len <= 8'h3 - ((dma_dest[7:0] >> dma_con_dest_size) & 8'h3);
     end
     else if (m_axi_intf.awvalid && m_axi_intf.awready) begin
-        dest_len <= 8'h7;
+        dest_len <= 8'h3;
     end
 end
 

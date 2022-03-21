@@ -49,6 +49,7 @@
 ../src/dbg/axi_ap.sv
 ../src/dbg/axi_rx.sv
 ../src/dbg/mem_ap.sv
+../src/bus/scu.sv
 ../src/bus/iommu.sv
 ../src/bus/axi2mem_bridge.sv
 ../src/bus/axi2apb_bridge.sv

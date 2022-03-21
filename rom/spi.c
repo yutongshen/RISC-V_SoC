@@ -91,7 +91,6 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
 __U8 __sd_readblk(__U32 sector, __U8P buff) {
 #ifndef FAKE_SD
     __CS_ENABLE();
-    *TMDL_TM_DCACHE_FLUSH_64P = 1;
     if (__sd_sendcmd(__CMD17, sector, 0)) return 0;
     return __sd_rcvdata(buff, 512, 1);
 #else

@@ -146,6 +146,6 @@ submit:
 
 clean:
 	@rm -rf ./build .*.swo .*.swp;
-	@rm -f ./src/cpu/.*.swp ./src/bus/.*.swp ./src/dbg/.*.swp ./src/peri/.*.swp ./include/.*.swp ./mdl/.*.swp
+	@rm -f ./src/cpu/.*.sw* ./src/bus/.*.sw* ./src/dbg/.*.sw* ./src/peri/.*.sw* ./include/.*.sw* ./mdl/.*.sw*
 	@make -C $(sim_dir) clean;
 	@make -C rom clean;

@@ -22,6 +22,11 @@ module l1c (
     output logic                             core_busy,
     input                                    xmon_xstate,
 
+    // Snooping
+    input        [  `CACHE_ADDR_WIDTH - 1:0] snp_addr,
+    input                                    snp_valid,
+    output logic                             snp_ready,
+
     // external
     axi_intf.master                          m_axi_intf
 );
@@ -74,6 +79,17 @@ logic                             arvalid_tmp;
 logic                             awvalid_tmp;
 logic                             wvalid_tmp;
 
+// snooping
+logic                             sf_cs;
+logic                             sf_we;
+logic [   `CACHE_IDX_WIDTH - 1:0] sf_addr;
+logic [   `CACHE_TAG_WIDTH - 1:0] sf_in;
+logic [   `CACHE_TAG_WIDTH - 1:0] sf_out;
+logic                             snp_hit;
+logic                             snp_rd_latch;
+logic [  `CACHE_ADDR_WIDTH - 1:0] snp_addr_latch;
+logic                             valid_wr_mask;
+
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) cur_state <= STATE_IDLE;
@@ -92,9 +108,9 @@ always_comb begin
             nxt_state = ~core_pa_vld ? STATE_CMP :
                         |core_pa_bad ? STATE_IDLE:
                          core_bypass ? STATE_READ:
-                        hit ? core_req ? core_wr     ? STATE_WRITE:
-                                                       STATE_CMP:
-                                       STATE_IDLE:
+                         hit         ? core_req ? core_wr     ? STATE_WRITE:
+                                                                STATE_CMP:
+                                                  STATE_IDLE:
                                        STATE_MREQ;
         end
         STATE_MREQ  : begin
@@ -190,6 +206,7 @@ assign data_addr  = core_busy ? core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WI
                                 core_vaddr      [`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH];
 assign tag_in     = core_paddr_latch[`CACHE_TAG_REGION];
 assign hit        = valid_latch && core_pa_vld && (tag_out == core_paddr[`CACHE_TAG_REGION]);
+
 assign core_rdata = cur_state == STATE_IDLE ? core_rdata_tmp:
                     data_out[{core_vaddr_latch[`CACHE_BLK_WIDTH-1:$clog2(`CACHE_DATA_WIDTH/8)], {3+$clog2(`CACHE_DATA_WIDTH/8){1'b0}}}+:`XLEN];
 assign m_axi_intf.awid     = 10'b0;
@@ -314,7 +331,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
     else begin
         if (core_flush)    valid <= 64'b0;
-        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= ~m_axi_intf.rresp[1] && ~core_pa_bad[1];
+        else if (valid_wr) valid[core_vaddr_latch[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= ~m_axi_intf.rresp[1] && ~core_pa_bad[1] && ~valid_wr_mask;
+        else if (snp_hit)  valid[snp_addr_latch  [`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] <= 1'b0;
     end
 end
 
@@ -378,6 +396,55 @@ sram64x128 u_dataram(
     .BYTE ( data_byte ),
     .DI   ( data_in   ),
     .DO   ( data_out  )
+);
+
+// Snooping filter
+assign sf_cs   = tag_we || (snp_valid && valid[snp_addr[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH]] &&
+                            nxt_state != STATE_REFILL);
+assign sf_we   = tag_we;
+assign sf_addr = tag_we ? tag_addr : snp_addr[`CACHE_BLK_WIDTH+:`CACHE_IDX_WIDTH];
+assign sf_in   = tag_in;
+
+assign snp_hit = snp_addr_latch[`CACHE_TAG_REGION] == sf_out && snp_rd_latch;
+
+// assign snp_ack   = ((invld || invld_latch) && cur_state != STATE_REFILL) || valid_miss;
+assign snp_ready = ~tag_we;
+
+always_ff @(posedge clk or negedge rstn) begin: reg_snp_latch
+    if (~rstn) begin
+        snp_rd_latch    <= 1'b0;
+        snp_addr_latch  <= {`CACHE_ADDR_WIDTH{1'b0}};
+    end
+    else begin
+        snp_rd_latch    <= sf_cs & ~sf_we;
+        snp_addr_latch  <= snp_addr;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_invld
+    if (~rstn) begin
+        valid_wr_mask <= 1'b0;
+    end
+    else if (cur_state == STATE_REFILL && m_axi_intf.rlast && m_axi_intf.rvalid) begin
+        valid_wr_mask <= 1'b0;
+    end
+    else begin
+        valid_wr_mask <= (nxt_state == STATE_REFILL && cur_state == STATE_CMP &&
+                          snp_addr  [`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH] ==
+                          core_paddr[`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH]) ||
+                         (cur_state == STATE_REFILL &&
+                          snp_addr_latch  [`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH] ==
+                          core_paddr_latch[`CACHE_ADDR_WIDTH-1:`CACHE_BLK_WIDTH]);
+    end
+end
+
+sram64x22 u_sfram(
+    .CK   ( clk     ),
+    .CS   ( sf_cs   ),
+    .WE   ( sf_we   ),
+    .A    ( sf_addr ),
+    .DI   ( sf_in   ),
+    .DO   ( sf_out  )
 );
 
 endmodule
