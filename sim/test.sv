@@ -382,7 +382,7 @@ endtask
 
 function logic [31:0] read;
 input [31:0] addr;
-return `SRAM_DATA(addr[26:2]);
+return `DDR_DATA(addr[26:2]);
 endfunction
 
 endmodule
