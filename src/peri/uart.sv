@@ -55,8 +55,20 @@ assign irq_out    = (txwm_ip   && txwm_ie  ) ||
 assign apb_wr     = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
 assign apb_rd     = ~s_apb_intf.penable && s_apb_intf.psel && ~s_apb_intf.pwrite;
 
+`ifndef FAKE_UART
 assign tx_fifo_wr    = apb_wr && s_apb_intf.paddr[11:0] == `UART_TXFIFO && ~tx_fifo_full && ~s_apb_intf.pwdata[31];
 assign tx_fifo_wdata = s_apb_intf.pwdata[`UART_DATA_WIDTH-1:0];
+`else
+assign tx_fifo_wr    = 1'b0;
+assign tx_fifo_wdata = s_apb_intf.pwdata[`UART_DATA_WIDTH-1:0];
+always @(posedge clk or negedge rstn) begin: fake_uart_tx
+    if (~rstn) begin
+    end
+    else if (apb_wr && s_apb_intf.paddr[11:0] == `UART_TXFIFO && ~s_apb_intf.pwdata[31]) begin
+        $write("%c", tx_fifo_wdata[7:0]);
+    end
+end
+`endif
 
 uart_fifo u_tx_fifo(
     .clk          ( clk              ),

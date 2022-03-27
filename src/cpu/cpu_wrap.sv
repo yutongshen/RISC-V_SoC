@@ -4,6 +4,7 @@
 
 module cpu_wrap (
     input                  clk,
+    input                  clk_32k,
     input                  rstn,
 
     // DDR AXI interface
@@ -219,6 +220,7 @@ logic [ 55: 0] dmmu_pa;
 logic          dmmu_pa_pre_vld;
 logic          dmmu_pa_pre_wr;
 logic          dmmu_pa_pre_rd;
+logic          dmmu_pa_pre_ex;
 logic [ 63: 0] dmmu_pa_pre;
 
 logic          core_psel;
@@ -390,6 +392,7 @@ mmu u_immu (
     // access type
     .access_w            ( 1'b0                ),
     .access_x            ( 1'b1                ),
+    .access_ex           ( 1'b0                ),
 
     // TLB control
     .tlb_flush_req       ( tlb_flush_req       ),
@@ -449,6 +452,7 @@ mmu u_dmmu (
     // access type
     .access_w            ( dmem_write          ),
     .access_x            ( 1'b0                ),
+    .access_ex           ( dmem_ex             ),
 
     // TLB control
     .tlb_flush_req       ( tlb_flush_req       ),
@@ -497,6 +501,7 @@ mmu u_dmmu (
     .pa_pre_vld          ( dmmu_pa_pre_vld     ),
     .pa_pre_wr           ( dmmu_pa_pre_wr      ),
     .pa_pre_rd           ( dmmu_pa_pre_rd      ),
+    .pa_pre_ex           ( dmmu_pa_pre_ex      ),
     .pa_pre              ( dmmu_pa_pre         ),
     
     // AXI interface
@@ -551,7 +556,7 @@ xmon u_xmon(
     .clk    ( clk         ),
     .rstn   ( rstn        ),
 
-    .ac     ( dmmu_pa_pre_vld & dmem_ex & dmmu_pa_pre_rd),
+    .ac     ( dmmu_pa_pre_vld & dmmu_pa_pre_ex & dmmu_pa_pre_rd),
     .rl     ( dmmu_pa_pre_vld & dmmu_pa_pre_wr),
     .addr   ( dmmu_pa_pre[31:0] ),
     .xstate ( xmon_xstate )
@@ -834,7 +839,8 @@ intc u_intc (
 );
 
 systimer u_systimer (
-    .clk     ( clk     ),
+    .clk_sys ( clk     ),
+    .clk_32k ( clk_32k ),
     .rstn    ( rstn    ),
     .systime ( systime )
 );

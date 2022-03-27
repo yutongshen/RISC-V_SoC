@@ -1212,7 +1212,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             exe2ma_csr_wdata           <= exe_csr_wdata;
             exe2ma_wfi                 <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~exe2ma_wfi & ~wakeup_event & id2exe_wfi;
             exe2ma_prv                 <= exe_prv;
-            exe2ma_trap_en             <= exe_irq_en | exe_trap_en;
+            exe2ma_trap_en             <= ~(ma_pipe_restart | mr_pipe_restart) & (exe_irq_en | exe_trap_en);
             exe2ma_cause               <= exe_cause;
             exe2ma_tval                <= exe_tval;
             exe2ma_epc                 <= exe_trap_epc;
@@ -1223,7 +1223,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             exe2ma_fwd_table           <= {32{~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_fwd_table;
             exe2ma_hz_table            <= {32{~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_hz_table;
             exe2ma_attach              <= id2exe_attach;
-            exe2ma_pipe_restart        <= exe_misa_upd;
+            exe2ma_pipe_restart        <= ~exe_trap_en & (exe_misa_upd | exe_satp_upd);
         end
         else begin
             exe2ma_rs1_data            <= ma_rs1_data;

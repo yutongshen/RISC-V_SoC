@@ -85,12 +85,13 @@ sim: all | ${bld_dir}
 	        fi; \
 	    fi; \
 	done;
+	@touch ${bld_dir}/${tmdl_msg_log};
 	@cp ${bld_dir}/mmap_soc.h ${bld_dir}/prog/include
 	
 	@if [ "$(prog)" == "3" ] && [ "${isa}" == "" ]; then \
 	    for i in $(ISA); do \
 	        make -C $(bld_dir)/prog isa=$${i} > /dev/null; \
-	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=$${i} +define+NOFSDB;); \
+	        res=$$(cd $(bld_dir); ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=$${i} +define+NOFSDB +define+MAX_CYCLE=500000;); \
             cpi=$$(echo "$${res}" | grep "CPI:"); \
             inst=$$(echo "$${res}" | grep "minstret:"); \
             cycl=$$(echo "$${res}" | grep "mcycle:"); \
@@ -104,7 +105,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(bld_dir)/prog isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +nclinedebug; \
+	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +define+FAKE_UART +define+MAX_CYCLE=20000000 +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}

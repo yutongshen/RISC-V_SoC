@@ -9,6 +9,7 @@ module mmu (
     // access type
     input                                    access_w,
     input                                    access_x,
+    input                                    access_ex,
 
     // mpu csr
     input                                    pmp_v,
@@ -53,6 +54,7 @@ module mmu (
     output logic                             pa_pre_vld,
     output logic                             pa_pre_wr,
     output logic                             pa_pre_rd,
+    output logic                             pa_pre_ex,
     output logic [                     63:0] pa_pre,
     
     // AXI interface
@@ -73,7 +75,7 @@ logic                        last_hit;
 logic                        last_va_en;
 logic [                35:0] last_vpn;
 logic [                 2:0] last_spage;
-logic [                19:0] vpn;
+logic [                35:0] vpn;
 logic [                36:0] vpn_latch;
 logic [                21:0] ppn_latch;
 logic [`SATP_MODE_WIDTH-1:0] satp_mode_latch;
@@ -83,6 +85,7 @@ logic                        sum_latch;
 logic                        access_r_latch;
 logic                        access_w_latch;
 logic                        access_x_latch;
+logic                        access_ex_latch;
 logic [                63:0] pte_latch;
 logic [                43:0] pte_ppn, tlb_pte_ppn, last_pte_ppn;
 logic [                 1:0] pte_rsw, tlb_pte_rsw, last_pte_rsw;
@@ -149,6 +152,7 @@ always_comb begin
     pa_pre_vld         = 1'b0;
     pa_pre_wr          = access_w_latch;
     pa_pre_rd          = access_r_latch;
+    pa_pre_ex          = access_ex_latch;
     busy               = 1'b0;
     tlb_data_sel       = 1'b0;
     case (cur_state)
@@ -157,6 +161,7 @@ always_comb begin
             pa_pre_vld         = va_valid && (~va_en || last_hit);
             pa_pre_wr          = ~access_x &  access_w;
             pa_pre_rd          = ~access_x & ~access_w;
+            pa_pre_ex          = access_ex;
             busy               = 1'b0;
         end
         STATE_CHECK: begin
@@ -380,6 +385,7 @@ always_ff @(posedge clk or negedge rstn) begin
         access_r_latch  <= 1'b0;
         access_w_latch  <= 1'b0;
         access_x_latch  <= 1'b0;
+        access_ex_latch <= 1'b0;
         satp_mode_latch <= `SATP_MODE_WIDTH'b0;
     end
     else if (va_valid) begin
@@ -388,6 +394,7 @@ always_ff @(posedge clk or negedge rstn) begin
         access_r_latch  <= ~access_x & ~access_w;
         access_w_latch  <= ~access_x &  access_w;
         access_x_latch  <=  access_x;
+        access_ex_latch <=  access_ex;
         satp_mode_latch <= satp_mode;
     end
 end
@@ -447,9 +454,17 @@ assign pa_pre       = ~va_en                  ? {{32{rv64_mode}} & va[32+:32], v
 `endif
 
 assign va_en        = prv_post < `PRV_M && satp_mode != `SATP_MODE_NONE;
-assign vpn          = va[12+:20];
 
+`ifdef RV32
+assign vpn[19:0]    = va[12+:20];
 assign last_hit     = (last_va_en && va_en && last_vpn[19:0] == {vpn[19:10], vpn[9:0] & {10{~last_spage[0]}}});
+`else
+assign vpn          = va[12+:36];
+assign last_hit     = (last_va_en && va_en && last_vpn == {vpn[27+:9],
+                                                           vpn[18+:9] & {9{~last_spage[2]}},
+                                                           vpn[ 9+:9] & {9{~last_spage[1]}},
+                                                           vpn[ 0+:9] & {9{~last_spage[0]}}});
+`endif
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin

@@ -21,6 +21,7 @@ module test;
 integer       i;
 
 logic         clk;
+logic         clk_32k;
 logic         rstn;
 
 `AXI_INTF_DEF(axi_ext, 8)
@@ -55,6 +56,10 @@ logic              simend;
 
 string             prog_path;
 
+logic [     31: 0] dbg_sig;
+
+assign dbg_sig = `DDR_DATA(32'h8affe8 >> 2);
+
 // clock and reset
 initial begin
     simend   <= 1'b0;
@@ -75,6 +80,11 @@ initial begin
     // extaxi_wr(32'h0400_0004, 32'h48);
     extaxi_wr(32'h0400_0000, 32'h1);
     // repeat (10000) extaxi_rd(32'h0400_0000);
+end
+
+initial begin
+    clk_32k = 1'b0;
+    forever clk_32k = #(31250 / 2) ~clk_32k;
 end
 
 initial begin
@@ -173,15 +183,7 @@ logic [7:0] sram_byte3 [`SRAM_SIZE];
 initial begin
     integer i;
     $value$plusargs("prog_path=%s", prog_path);
-    /*
-    for (i = 0; i < `DDR_SIZE; i = i + 1) begin
-        `DDR_DATA(i) = 32'hdeaddead;
-    end
-    $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
-    $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
-    $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
-    $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
-    */
+    // Fill SRAM
     for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
         {sram_byte3[i], sram_byte2[i], sram_byte1[i], sram_byte0[i]} = 32'hdeaddead;
     end
@@ -192,6 +194,15 @@ initial begin
     for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
         `SRAM_DATA(i) = {sram_byte3[i], sram_byte2[i], sram_byte1[i], sram_byte0[i]};
     end
+
+    // Fill DRAM
+    for (i = 0; i < `DDR_SIZE; i = i + 1) begin
+        `DDR_DATA(i) = 32'hdeaddead;
+    end
+    $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
+    $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
+    $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
+    $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
 end
 
 `ifdef FSDB
@@ -205,6 +216,7 @@ end
 
 cpu_wrap u_cpu_wrap (
     .clk         ( clk           ),
+    .clk_32k     ( clk_32k       ),
     .rstn        ( rstn          ),
 
     // external AXI interface
@@ -308,20 +320,20 @@ always @(posedge clk) begin
     $value$plusargs("prog=%s", prog);
     if (prog == "prog3") begin
         if (~rstn) begin
-            `SRAM_DATA(tohost)   = 32'b0;
-            `SRAM_DATA(tohost+1) = 32'b0;
+            `DDR_DATA(tohost)   = 32'b0;
+            `DDR_DATA(tohost+1) = 32'b0;
         end
-        else if ({`SRAM_DATA(tohost+1), `SRAM_DATA(tohost)} !== 64'b0) begin
+        else if ({`DDR_DATA(tohost+1), `DDR_DATA(tohost)} !== 64'b0) begin
             repeat (20) @(posedge clk); 
-            case (`SRAM_DATA(tohost+1))
+            case (`DDR_DATA(tohost+1))
                 32'h00000000: begin
-                    $display("ENDCODE = %x", `SRAM_DATA(tohost));
+                    $display("ENDCODE = %x", `DDR_DATA(tohost));
                     simend = 1'b1;
                 end
-                32'h01010000: $write("%c", `SRAM_DATA(tohost));
+                32'h01010000: $write("%c", `DDR_DATA(tohost));
             endcase
-            `SRAM_DATA(tohost)   = 32'b0;
-            `SRAM_DATA(tohost+1) = 32'b0;
+            `DDR_DATA(tohost)   = 32'b0;
+            `DDR_DATA(tohost+1) = 32'b0;
         end
     end
 end

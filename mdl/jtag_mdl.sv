@@ -38,6 +38,7 @@ initial begin
     // release test.u_cpu_wrap.u_dap.u_jtag_dp.sfter;
 end
 
+/*
 initial begin
     tck = 1'b0;
     tms = 1'b0;
@@ -333,6 +334,7 @@ initial begin
 
 `endif
 end
+*/
 
 task jtag_tms_tdi;
 input tms_i;

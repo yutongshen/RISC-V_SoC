@@ -1,6 +1,7 @@
 SHELL     := /bin/bash
 ELF_NAME  := main
-MEM_START := 0x00020000
+SRAM_START := 0x00020000
+DRAM_START := 0x80000000
 
 ifeq ($(isa),)
   ISA := rv32ui-v-add
@@ -44,40 +45,44 @@ build_log: $(ELF_NAME)
 build_hex: $(ELF_NAME)
 	@rm -f bss.hex
 	@touch bss.hex
-	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";          \
-	bss=$$(riscv64-unknown-elf-objdump -h $< | grep .bss);           \
+	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";           \
+	bss=$$(riscv64-unknown-elf-objdump -h $< | grep .bss);            \
 	if [[ "$${bss}" != "" ]]; then                                   \
-	    bss=($${bss});                                               \
-	    printf -v addr "%x" $$(((0x$${bss[3]} - ${MEM_START}) / 4)); \
-	    echo @$${addr} >> bss.hex;                                   \
-	    for (( i = 0; i < $$((0x$${bss[2]})); i = i + 64 )); do      \
-	        echo $${val} >> bss.hex;                                 \
-	    done                                                         \
+	    bss=($${bss});                                                \
+	    printf -v addr "%x" $$(((0x$${bss[3]} - ${DRAM_START}) / 4)); \
+	    echo @$${addr} >> bss.hex;                                    \
+	    for (( i = 0; i < $$((0x$${bss[2]})); i = i + 64 )); do       \
+	        echo $${val} >> bss.hex;                                  \
+	    done                                                          \
 	fi
 	@rm -f sbss.hex
 	@touch sbss.hex
-	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";           \
-	sbss=$$(riscv64-unknown-elf-objdump -h $< | grep .sbss);          \
-	if [[ "$${sbss}" != "" ]]; then                                   \
-	    sbss=($${sbss});                                              \
-	    printf -v addr "%x" $$(((0x$${sbss[3]} - ${MEM_START}) / 4)); \
-	    echo @$${addr} >> sbss.hex;                                   \
-	    for (( i = 0; i < $$((0x$${sbss[2]})); i = i + 64 )); do      \
-	        echo $${val} >> sbss.hex;                                 \
-	    done                                                          \
+	@val="00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";            \
+	sbss=$$(riscv64-unknown-elf-objdump -h $< | grep .sbss);           \
+	if [[ "$${sbss}" != "" ]]; then                                    \
+	    sbss=($${sbss});                                               \
+	    printf -v addr "%x" $$(((0x$${sbss[3]} - ${DRAM_START}) / 4)); \
+	    echo @$${addr} >> sbss.hex;                                    \
+	    for (( i = 0; i < $$((0x$${sbss[2]})); i = i + 64 )); do       \
+	        echo $${val} >> sbss.hex;                                  \
+	    done                                                           \
 	fi
-	@$(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses -${MEM_START} sram_0.hex
-	@$(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses -${MEM_START} sram_1.hex
-	@$(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses -${MEM_START} sram_2.hex
-	@$(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses -${MEM_START} sram_3.hex
-	@cat bss.hex  >> sram_0.hex
-	@cat bss.hex  >> sram_1.hex
-	@cat bss.hex  >> sram_2.hex
-	@cat bss.hex  >> sram_3.hex
-	@cat sbss.hex >> sram_0.hex
-	@cat sbss.hex >> sram_1.hex
-	@cat sbss.hex >> sram_2.hex
-	@cat sbss.hex >> sram_3.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 0 --change-addresses -${DRAM_START} ddr_0.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 1 --change-addresses -${DRAM_START} ddr_1.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 2 --change-addresses -${DRAM_START} ddr_2.hex
+	@$(RISCV_OBJCOPY) $< -i 4 -b 3 --change-addresses -${DRAM_START} ddr_3.hex
+	@cat bss.hex  >> ddr_0.hex
+	@cat bss.hex  >> ddr_1.hex
+	@cat bss.hex  >> ddr_2.hex
+	@cat bss.hex  >> ddr_3.hex
+	@cat sbss.hex >> ddr_0.hex
+	@cat sbss.hex >> ddr_1.hex
+	@cat sbss.hex >> ddr_2.hex
+	@cat sbss.hex >> ddr_3.hex
+	@touch sram_0.hex
+	@touch sram_1.hex
+	@touch sram_2.hex
+	@touch sram_3.hex
 
 %.o: %.bmp
 	$(RISCV_OBJCOPY) -I binary -O elf32-littleriscv -B riscv:rv32 $^ $@

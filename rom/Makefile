@@ -5,10 +5,10 @@ export RISCV_GCC ?= $(CROSS_PREFIX)gcc
 export RISCV_OBJDUMP ?= $(CROSS_PREFIX)objdump -xsd
 export RISCV_OBJCOPY ?= $(CROSS_PREFIX)objcopy -O verilog
 
-INCDIR := ../include/
-LDFILE := link.ld
-CFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac -mabi=lp64 -I$(INCDIR)
-LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac -mabi=lp64 -T$(LDFILE) -lgcc
+INCDIR  := ../include/
+LDFILE  := link.ld
+CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -I$(INCDIR)
+LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -T$(LDFILE) -lgcc
 
 
 SRC_C   := $(wildcard *.c)

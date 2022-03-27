@@ -92,7 +92,9 @@ rv64:
     ld s0, sysram_base;
 
 goto_main:
+#ifdef REAL_ROM
     jal main;
+#endif
     csrr a0, mhartid;
     la a1, _DTB;
     jr s0;
@@ -110,8 +112,16 @@ fb_end:
     ret;
 
 
+#ifndef JUMP_DDR
 .align 3
 sysram_base:
   .dword 0x00020000
 sysram_size:
   .dword 0x00020000
+#else
+.align 3
+sysram_base:
+  .dword 0x80000000
+sysram_size:
+  .dword 0x80000000
+#endif

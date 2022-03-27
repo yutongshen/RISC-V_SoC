@@ -28,9 +28,11 @@ initial begin
     string tmp;
     int f;
     f = $fopen("tmdl_msg.log", "r");
-    while (!$feof(f)) begin
-        $fgets(tmp, f);
-        tmdl_log.push_back(tmp);
+    if (f) begin
+        while (!$feof(f)) begin
+            $fgets(tmp, f);
+            tmdl_log.push_back(tmp);
+        end
     end
 end
 

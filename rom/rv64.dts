@@ -88,8 +88,8 @@
     };
 
     chosen {
-        /*riscv,kernel-start = <0x0 0x84000000>;*/
-        riscv,kernel-end   = <0x0 0x86000000>;
+        riscv,kernel-start = <0x0 0x80200000>;
+        riscv,kernel-end   = <0x0 0x84000000>;
         bootargs = "root=/dev/sda2";
         linux,platform = <0x00000600>;
     };

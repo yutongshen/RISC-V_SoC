@@ -7,7 +7,6 @@
 #include "elf_loader.h"
 
 __U32 main(void) {
-#ifdef REAL_ROM
     __U8   __sd_type;
     __BPB  __bpb;
     __FILE __file;
@@ -21,7 +20,6 @@ __U32 main(void) {
     __fopen(&__file, "boot.bin");
 
     __elf_loader(&__file);
-#endif
 
     return 0;
 }
