@@ -105,7 +105,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(bld_dir)/prog isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +define+FAKE_UART +define+MAX_CYCLE=20000000 +nclinedebug; \
+	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +define+FAKE_UART +define+MAX_CYCLE=1000000000 +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}
@@ -125,7 +125,7 @@ axi: | ${bld_dir}
 verdi: ${bld_dir}
 	@make verdi.f;
 	@cd $(bld_dir); \
-	verdi -sverilog -f verdi.f &
+	verdi -sverilog -f verdi.f -ssf top.fsdb &
 
 verdi_axi: ${bld_dir}
 	@cd $(bld_dir); \

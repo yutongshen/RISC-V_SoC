@@ -14,19 +14,23 @@ SECTIONS {
     main.o(.text);
     *(.text);
     *(.text.*);
-    . = ALIGN(0x400);
     __text_end = .;
+  } > brom
+
+  .rodata : {
+    *(.rodata)
+    . = ALIGN(0x8);
   } > brom
 
   .data : {
     __data_paddr_start = LOADADDR(.data);
     __data_start = .;
-    . = ALIGN(0x8);
     _DTB = .;
     rv64.o(.data)
     *(.data)
     *(.data.*)
     *(.gnu.linkonce.d.*)
+    . = ALIGN(0x8);
     __data_end = .;
   } > brom
 

@@ -77,6 +77,10 @@ build_hex: $(ELF_NAME)
 	@cat sbss.hex >> sram_1.hex
 	@cat sbss.hex >> sram_2.hex
 	@cat sbss.hex >> sram_3.hex
+	@touch ddr_0.hex
+	@touch ddr_1.hex
+	@touch ddr_2.hex
+	@touch ddr_3.hex
 	
 
 %.o: %.bmp

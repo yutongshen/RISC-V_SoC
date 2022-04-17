@@ -17,6 +17,16 @@
             reg = <0x0>;
             status = "okay";
             compatible = "riscv";
+            i-cache-block-size = <16>;
+            i-cache-sets = <64>;
+            i-cache-size = <1024>;
+            i-tlb-sets = <32>;
+            i-tlb-size = <128>;
+            d-cache-block-size = <16>;
+            d-cache-sets = <64>;
+            d-cache-size = <1024>;
+            d-tlb-sets = <32>;
+            d-tlb-size = <128>;
             riscv,isa = "rv64imac";
             mmu-type = "riscv,sv48";
             riscv,pmpregions = <16>;
@@ -58,7 +68,7 @@
         compatible = "riscv,bus";
         #address-cells = <1>;
         #size-cells = <1>;
-        reg = <0x00000000 0x04000000 0x00000000 0x10000000>;
+        ranges;
         
         cfgreg: cfgreg@04000000 {
             compatible = "riscv,cfgreg";

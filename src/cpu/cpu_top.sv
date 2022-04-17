@@ -119,6 +119,7 @@ logic                             if_inst_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] if_inst_badaddr;
 
 // IF/ID pipeline
+logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
 logic [       `IM_DATA_LEN - 1:0] if2id_inst;
 logic                             if2id_inst_valid;
 logic [       `IM_ADDR_LEN - 1:0] if2id_inst_misaligned_epc;
@@ -126,7 +127,6 @@ logic                             if2id_inst_misaligned;
 logic                             if2id_inst_page_fault;
 logic                             if2id_inst_xes_fault;
 logic [       `IM_ADDR_LEN - 1:0] if2id_inst_badaddr;
-logic [       `IM_ADDR_LEN - 1:0] if2id_pc;
 logic                             if2id_jump_token;
 logic                             if2id_attach;
 logic                             if2id_stall_flag;
@@ -924,8 +924,10 @@ assign exe_mem_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || m
                         (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
                         ma_pipe_restart || exe2ma_amo;
 assign exe_gpr_hazard = exe_mem_hazard || (id2exe_mdu_sel && ~exe_mdu_okay);
-assign exe_csr_hazard = (exe2ma_mem_req | ma2mr_mem_req) & (id2exe_pmu_csr_wr | id2exe_fpu_csr_wr | id2exe_dbg_csr_wr | 
-                        id2exe_mmu_csr_wr | id2exe_mpu_csr_wr | id2exe_sru_csr_wr | id2exe_sret | id2exe_mret | id2exe_ill_inst);
+assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req) &&
+                        (id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
+                         id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
+                         id2exe_sret       || id2exe_mret       || id2exe_ill_inst);
 
 assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
 
@@ -1068,9 +1070,9 @@ mpu_csr u_mpu_csr (
     .csr_rdata ( id_mpu_csr_rdata )
 
 );
-assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) &
+assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) & ~ma_pipe_restart &
                       ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
-assign exe_misa_upd =  id2exe_sru_csr_wr &
+assign exe_misa_upd =  id2exe_sru_csr_wr & ~ma_pipe_restart &
                       ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_MISA_ADDR;
 
 tpu u_tpu (
@@ -1223,7 +1225,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             exe2ma_fwd_table           <= {32{~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_fwd_table;
             exe2ma_hz_table            <= {32{~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event)}} & exe_hz_table;
             exe2ma_attach              <= id2exe_attach;
-            exe2ma_pipe_restart        <= ~exe_trap_en & (exe_misa_upd | exe_satp_upd);
+            exe2ma_pipe_restart        <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) & ~exe_trap_en &  & (exe_misa_upd | exe_satp_upd);
         end
         else begin
             exe2ma_rs1_data            <= ma_rs1_data;

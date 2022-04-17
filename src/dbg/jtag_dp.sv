@@ -118,12 +118,13 @@ always_comb begin: next_state
     endcase
 end
 
-always_ff @(posedge tck or negedge trstn) begin: reg_ir_sft
-    if (~trstn)                         tdo <= 1'b0;
-    else if (cur_state == STATE_SFT_IR ||
-             cur_state == STATE_SFT_DR) tdo <= sfter[0];
-    else                                tdo <= 4'b0;
-end
+assign tdo = sfter[0];
+// always_ff @(posedge tck or negedge trstn) begin: reg_ir_sft
+//     if (~trstn)                         tdo <= 1'b0;
+//     else if (cur_state == STATE_SFT_IR ||
+//              cur_state == STATE_SFT_DR) tdo <= sfter[0];
+//     else                                tdo <= 4'b0;
+// end
 
 always_ff @(posedge tck or negedge trstn) begin: reg_ap_busy_latch
     if (~trstn)                         ap_busy_latch <= 1'b0;
