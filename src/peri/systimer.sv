@@ -47,7 +47,7 @@ gray2bin u_gray2bin_32k (
 );
 
 always_ff @(posedge clk_sys or negedge rstn_sys) begin: timer_sync
-    if (~rstn_32k) begin
+    if (~rstn_sys) begin
         timer_gray_d1 <= 64'b0;
         timer_gray_d2 <= 64'b0;
     end

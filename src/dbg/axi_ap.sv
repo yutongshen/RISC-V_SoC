@@ -12,6 +12,10 @@ module axi_ap (
     output logic        ap_slverr,
     output logic        ap_busy,
 
+    output logic        ap_buf_push,
+    output logic [31:0] ap_buf_wdata,
+    output logic [ 1:0] ap_buf_wresp,
+
     input               spiden,
     input               deviceen,
 
@@ -19,6 +23,7 @@ module axi_ap (
 );
 
 logic        tx_tog;
+logic        tx_mem_sector;
 logic [31:0] tx_mem_addr;
 logic        tx_mem_write;
 logic [31:0] tx_mem_wdata;
@@ -53,6 +58,7 @@ mem_ap u_mem_ap (
     .ap_busy       ( ap_busy       ),
                                  
     .tx_tog        ( tx_tog        ),
+    .tx_mem_sector ( tx_mem_sector ),
     .tx_mem_addr   ( tx_mem_addr   ),
     .tx_mem_write  ( tx_mem_write  ),
     .tx_mem_wdata  ( tx_mem_wdata  ),
@@ -73,6 +79,7 @@ axi_rx u_axi_rx (
     .rx_rstn       ( rx_rstn       ),
 
     .tx_tog        ( tx_tog        ),
+    .tx_mem_sector ( tx_mem_sector ),
     .tx_mem_addr   ( tx_mem_addr   ),
     .tx_mem_write  ( tx_mem_write  ),
     .tx_mem_wdata  ( tx_mem_wdata  ),
@@ -82,6 +89,11 @@ axi_rx u_axi_rx (
     .rx_tog        ( rx_tog        ),
     .rx_mem_rdata  ( rx_mem_rdata  ),
     .rx_mem_slverr ( rx_mem_slverr ),
+
+    .ap_buf_push   ( ap_buf_push   ),
+    .ap_buf_wdata  ( ap_buf_wdata  ),
+    .ap_buf_wresp  ( ap_buf_wresp  ),
+
 
     .m_axi_intf    ( m_axi_intf    )
 );

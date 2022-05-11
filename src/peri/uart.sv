@@ -174,9 +174,12 @@ always_ff @(posedge clk or negedge rstn) begin
         perror_ip <= perror_ip && ~s_apb_intf.pwdata[2];
     end
     else begin
-        txwm_ip   <= txwm_ip_tmp   || txwm_ip;
-        rxwm_ip   <= rxwm_ip_tmp   || rxwm_ip;
-        perror_ip <= perror_ip_tmp || perror_ip;
+        txwm_ip   <= txwm_ip_tmp;
+        rxwm_ip   <= rxwm_ip_tmp;
+        perror_ip <= perror_ip_tmp;
+        // txwm_ip   <= txwm_ip_tmp   || txwm_ip;
+        // rxwm_ip   <= rxwm_ip_tmp   || rxwm_ip;
+        // perror_ip <= perror_ip_tmp || perror_ip;
     end
 end
 

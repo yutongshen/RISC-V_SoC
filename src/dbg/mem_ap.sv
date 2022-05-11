@@ -11,6 +11,7 @@ module mem_ap (
     output logic        ap_busy,
 
     output logic        tx_tog,
+    output logic        tx_mem_sector,
     output logic [31:0] tx_mem_addr,
     output logic        tx_mem_write,
     output logic [31:0] tx_mem_wdata,
@@ -30,6 +31,7 @@ logic [31:0] mem_ap_csw;
 logic        mem_ap_csw_dbgswen;
 logic [ 6:0] mem_ap_csw_prot;
 logic [ 3:0] mem_ap_csw_mode;
+logic        mem_ap_csw_sector;
 logic [ 1:0] mem_ap_csw_addrinc;
 logic [ 2:0] mem_ap_csw_size;
 logic [31:0] mem_ap_tar;
@@ -57,7 +59,7 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_rdata
     end
     else if (~ap_busy && ap_upd) begin
         ap_rdata  <= ({32{ap_addr == 6'h0 && ap_rnw}} & mem_ap_csw)|
-                    ({32{ap_addr == 6'h1 && ap_rnw}} & mem_ap_tar);
+                     ({32{ap_addr == 6'h1 && ap_rnw}} & mem_ap_tar);
         ap_slverr <= 1'b0;
     end
     else if (rx_rec_dly) begin
@@ -90,7 +92,7 @@ assign mem_ap_csw = {mem_ap_csw_dbgswen,
                      ap_busy,
                      deviceen,
                      mem_ap_csw_addrinc,
-                     1'b0,
+                     mem_ap_csw_sector,
                      mem_ap_csw_size};
 
 always_ff @(posedge tck or negedge dbgrstn) begin: reg_csw
@@ -99,13 +101,15 @@ always_ff @(posedge tck or negedge dbgrstn) begin: reg_csw
         mem_ap_csw_prot    <= 7'b0;
         mem_ap_csw_mode    <= 4'b0;
         mem_ap_csw_addrinc <= 2'h0;
+        mem_ap_csw_sector  <= 1'b0;
         mem_ap_csw_size    <= 3'h2;
     end
     else if (ap_upd && ap_addr == 6'h0) begin
         if (~ap_rnw) begin
-            mem_ap_csw_dbgswen <= ap_wdata[31];
+            mem_ap_csw_dbgswen <= ap_wdata[31:31];
             mem_ap_csw_prot    <= ap_wdata[30:24];
             mem_ap_csw_addrinc <= ap_wdata[ 5: 4];
+            mem_ap_csw_sector  <= ap_wdata[ 3: 3];
             mem_ap_csw_size    <= ~fixedsz ? ap_wdata[2:0] : mem_ap_csw_size;
         end
     end
@@ -195,15 +199,17 @@ end
 
 always_ff @(posedge tck or negedge dbgrstn) begin: reg_tx_req
     if (~dbgrstn) begin
-        tx_mem_addr  <= 32'b0;
-        tx_mem_write <= 1'b0;
-        tx_mem_wdata <= 32'b0;
-        tx_mem_size  <= 3'b0;
-        tx_mem_prot  <= 7'b0;
-        tx_mem_secen <= 1'b0;
+        tx_mem_sector <= 1'b0;
+        tx_mem_addr   <= 32'b0;
+        tx_mem_write  <= 1'b0;
+        tx_mem_wdata  <= 32'b0;
+        tx_mem_size   <= 3'b0;
+        tx_mem_prot   <= 7'b0;
+        tx_mem_secen  <= 1'b0;
     end
     else if (~ap_busy) begin
         if (ap_upd) begin
+            tx_mem_sector      <= mem_ap_csw_sector;
             tx_mem_addr[31:4]  <= mem_ap_tar[31:4];
             tx_mem_addr[ 3:0]  <= ({4{ap_addr == 6'h3}} & mem_ap_tar[3:0])|
                                   ({4{ap_addr == 6'h4}} & 4'h0           )|

@@ -20,6 +20,12 @@ module jtag_dp (
     input               ap_slverr,
     input        [ 2:0] ap_ack,
 
+    output logic        ap_buf_rrstn,
+    output logic        ap_buf_dpop,
+    input        [31:0] ap_buf_rdata,
+    output logic        ap_buf_rpop,
+    input        [31:0] ap_buf_rresp,
+
     output logic        dbgrstn
 );
 
@@ -57,6 +63,9 @@ logic        ap_busy_latch;
 logic [31:0] ap_cmp_data;
 logic        ap_cmp_en;
 
+logic [ 4:0] ap_buf_cnt;
+logic        buf_pop;
+
 logic [ 3:0] cur_state;
 logic [ 3:0] nxt_state;
 
@@ -82,6 +91,8 @@ localparam STATE_RESET   = 4'hf,
 localparam RG_ABORT      = 4'h8,
            RG_DPACC      = 4'ha,
            RG_APACC      = 4'hb,
+           RG_APDBUF     = 4'hc,
+           RG_APRBUF     = 4'hd,
            RG_IDCODE     = 4'he,
            RG_BYPASS     = 4'hf;
 
@@ -119,12 +130,6 @@ always_comb begin: next_state
 end
 
 assign tdo = sfter[0];
-// always_ff @(posedge tck or negedge trstn) begin: reg_ir_sft
-//     if (~trstn)                         tdo <= 1'b0;
-//     else if (cur_state == STATE_SFT_IR ||
-//              cur_state == STATE_SFT_DR) tdo <= sfter[0];
-//     else                                tdo <= 4'b0;
-// end
 
 always_ff @(posedge tck or negedge trstn) begin: reg_ap_busy_latch
     if (~trstn)                         ap_busy_latch <= 1'b0;
@@ -150,6 +155,8 @@ always_ff @(posedge tck or negedge trstn) begin: reg_sfter
     else if (cur_state == STATE_CAP_DR) sfter      <= ({35{ir == RG_ABORT }} & {3'b0, `UNPREDICTABLE})|
                                                       ({35{ir == RG_DPACC ||
                                                            ir == RG_APACC }} & dapacc_cap_data)|
+                                                      ({35{ir == RG_APDBUF}} & {3'b0, ap_buf_rdata})|
+                                                      ({35{ir == RG_APRBUF}} & {3'b0, ap_buf_rresp})|
                                                       ({35{ir == RG_IDCODE}} & {3'b0,
                                                                                 4`DAP_VER,
                                                                                 16`DAP_PARTNUM,
@@ -160,6 +167,10 @@ always_ff @(posedge tck or negedge trstn) begin: reg_sfter
         if (ir == RG_ABORT ||
             ir == RG_DPACC ||
             ir == RG_APACC)             sfter       <= {tdi, sfter[34:1]};
+        else if (ir == RG_APDBUF)       sfter[31:0] <= ap_buf_dpop ? ap_buf_rdata:
+                                                                     {1'b0, sfter[31:1]};
+        else if (ir == RG_APRBUF)       sfter[31:0] <= ap_buf_rpop ? ap_buf_rresp:
+                                                                     {1'b0, sfter[31:1]};
         else if (ir == RG_IDCODE)       sfter[31:0] <= {tdi, sfter[31:1]};
         else if (ir == RG_BYPASS)       sfter[0]    <=  tdi;
     end
@@ -275,8 +286,8 @@ always_ff @(posedge tck or negedge trstn) begin: reg_dr_dpacc
     end
 end
 
-assign ap_upd       = ir == RG_APACC && cur_state == STATE_UPD_DR && ~ap_busy_latch &&
-                      ~dpacc_csr_stickycmp && ~dpacc_csr_stickyerr && ~dpacc_csr_stickyorun;
+assign ap_upd       = ir == RG_APACC && cur_state == STATE_UPD_DR && ~ap_busy_latch
+                      /* && ~dpacc_csr_stickycmp && ~dpacc_csr_stickyerr && ~dpacc_csr_stickyorun */;
 assign ap_sel       = dpacc_apsel_apsel;
 assign ap_wdata     = datain;
 assign ap_addr[7:4] = dpacc_apsel_apaddrh;
@@ -303,6 +314,34 @@ always_ff @(posedge tck or negedge trstn) begin: reg_ap_cmp_data
     end
     else if (ir == RG_DPACC && cur_state == STATE_UPD_DR && ~ap_busy_latch) begin
         ap_cmp_en   <= 1'b0;
+    end
+end
+
+assign ap_buf_dpop = (ir == RG_APDBUF && cur_state == STATE_CAP_DR) ||
+                     (ir == RG_APDBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
+
+assign ap_buf_rpop = (ir == RG_APRBUF && cur_state == STATE_CAP_DR) ||
+                     (ir == RG_APRBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
+
+assign ap_buf_rrstn = ~((ir == RG_APDBUF || ir == RG_APRBUF) && cur_state == STATE_SFT_DR && tms);
+
+always_ff @(posedge tck or negedge trstn) begin: reg_ap_buf
+    if (~trstn) begin
+        ap_buf_cnt <= 5'b0;
+    end
+    else if (~rstn_trig) begin
+        ap_buf_cnt <= 5'b0;
+    end
+    else if (ir == RG_APDBUF || ir == RG_APRBUF) begin
+        if (cur_state == STATE_CAP_DR) begin
+            ap_buf_cnt <= -5'b1;
+        end
+        else if (cur_state == STATE_SFT_DR) begin
+            ap_buf_cnt <= ap_buf_cnt - 5'b1;
+        end
+        else if (cur_state == STATE_UPD_DR) begin
+            ap_buf_cnt <= 5'b0;
+        end
     end
 end
 
