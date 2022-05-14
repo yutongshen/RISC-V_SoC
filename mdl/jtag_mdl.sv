@@ -69,6 +69,7 @@ initial begin
     jtag_apb_wr(`DBGAPB_INST, {20'b0, `INST_RESUME});
     jtag_apb_wr(`DBGAPB_INST_WR, 32'b1);
 `else
+/*
     $display("[JTAG_MDL] jtag test start");
     // APB_AP test
     jtag_apb_wr(`DBGAPB_DBG_EN, 32'h1);
@@ -287,7 +288,7 @@ initial begin
 
     // AXI_AP test
     // APSEL AXI_AP sel
-    axi_ap_test_addr = 32'h0000_0100;
+    axi_ap_test_addr = 32'h0400_1000;
     jtag_w_ir(4'ha);
     do begin
         jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
@@ -313,35 +314,9 @@ initial begin
     $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
     jtag_w_ir(4'hc);
     jtag_rd_dbuf;
-
-    // AXI_AP test
-    // APSEL AXI_AP sel
-    axi_ap_test_addr = 32'h1000_1ff0;
-    jtag_w_ir(4'ha);
-    do begin
-        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP CSW 32-bit and Auto-incr addr and sector
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP TAR
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
-    do begin
-        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-    end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
     jtag_w_ir(4'hd);
     jtag_rd_rbuf;
+*/
 `endif
 end
 

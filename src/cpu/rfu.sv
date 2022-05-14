@@ -9,6 +9,7 @@ module rfu (
     input        [        4:0] rd_addr,
     input        [`XLEN - 1:0] rd_data,
 
+    output logic [`XLEN - 1:0] gpr [32],
     input                      halted,
     input        [        4:0] dbg_gpr_addr,
     input        [`XLEN - 1:0] dbg_gpr_in,
@@ -18,7 +19,6 @@ module rfu (
 );
 
 logic               rstn_sync;
-logic [`XLEN - 1:0] gpr [0:31];
 integer             i;
 
 logic [        4:0] rd_addr_dbg;

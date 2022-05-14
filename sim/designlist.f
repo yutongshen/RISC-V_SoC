@@ -31,6 +31,7 @@
 ../src/cpu/xmon.sv
 ../src/cpu/l1c.sv
 ../src/cpu/cfgreg.sv
+../src/cpu/cpustatreg.sv
 ../src/cpu/intc.sv
 ../src/cpu/clint.sv
 ../src/cpu/plic.sv

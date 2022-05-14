@@ -59,6 +59,7 @@ module cpu_top (
     input                                    dmem_busy,
 
     // debug intface
+    output logic [              `XLEN - 1:0] dbg_gpr_all [32],
     input        [                     11:0] dbg_addr,
     input        [              `XLEN - 1:0] dbg_wdata,
     input                                    dbg_gpr_rd,
@@ -706,6 +707,7 @@ idu u_idu (
     .rd_wr_o             ( id_rd_wr               ),
 
     .halted              ( halted                 ),
+    .dbg_gpr_all         ( dbg_gpr_all            ),
     .dbg_addr            ( dbg_addr               ),
     .dbg_wdata           ( dbg_wdata              ),
     .dbg_gpr_rd          ( dbg_gpr_rd             ),

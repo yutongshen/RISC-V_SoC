@@ -74,6 +74,7 @@ module idu (
     output logic                             rd_wr_o,
     
     input                                    halted,
+    output logic [              `XLEN - 1:0] dbg_gpr_all [32],
     input        [                     11:0] dbg_addr,
     input        [              `XLEN - 1:0] dbg_wdata,
     input                                    dbg_gpr_rd,
@@ -118,6 +119,7 @@ rfu u_rfu (
     .wen          ( rd_wr_i       ),
     .rd_addr      ( rd_addr_i     ),
     .rd_data      ( rd_data       ),
+    .gpr          ( dbg_gpr_all   ),
     .halted       ( halted        ),
     .dbg_gpr_addr ( dbg_addr[4:0] ),
     .dbg_gpr_in   ( dbg_wdata     ),

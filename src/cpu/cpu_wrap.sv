@@ -265,6 +265,7 @@ logic          m1_snp_ready;
 logic          uart_irq;
 logic          spi_irq;
 
+logic [`XLEN - 1: 0] dbg_gpr_all [32];
 logic [       11: 0] dbg_addr;
 logic [`XLEN - 1: 0] dbg_wdata;
 logic                dbg_gpr_rd;
@@ -294,6 +295,7 @@ apb_intf ext_dbg_apb();
 apb_intf dbg_apb();
 apb_intf core_apb();
 apb_intf cfgreg_apb();
+apb_intf cpustatreg_apb();
 apb_intf intc_apb();
 apb_intf peri_apb();
 apb_intf dap_apb();
@@ -370,6 +372,7 @@ cpu_top u_cpu_top (
     .dmem_busy           ( dmem_busy              ),
 
     // debug intface
+    .dbg_gpr_all         ( dbg_gpr_all            ),
     .dbg_addr            ( dbg_addr               ),
     .dbg_wdata           ( dbg_wdata              ),
     .dbg_gpr_rd          ( dbg_gpr_rd             ),
@@ -618,9 +621,10 @@ l1c u_l1dc (
 );
 
 core_apb_conn u_core_apb_conn (
-    .core_apb   ( core_apb.slave    ),
-    .cfgreg_apb ( cfgreg_apb.master ),
-    .intc_apb   ( intc_apb.master   )
+    .core_apb       ( core_apb.slave        ),
+    .cfgreg_apb     ( cfgreg_apb.master     ),
+    .cpustatreg_apb ( cpustatreg_apb.master ),
+    .intc_apb       ( intc_apb.master       )
 );
 
 cfgreg u_cfgreg (
@@ -631,6 +635,15 @@ cfgreg u_cfgreg (
     .ddr_offset   ( ddr_offset       ),
     .core_bootvec ( core_bootvec     ),
     .core_rstn    ( core_rstn        )
+);
+
+cpustatreg u_cpustatreg (
+    .clk          ( clk                  ),
+    .rstn         ( rstn                 ),
+    .apb_intf     ( cpustatreg_apb.slave ),
+
+    .pc           ( dbg_pc               ),
+    .gpr          ( dbg_gpr_all          )
 );
 
 rgu u_rgu (

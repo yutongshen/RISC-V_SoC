@@ -42,7 +42,7 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_ddr_offset
     if (~rstn) begin
-        ddr_offset <= 32'b0;
+        ddr_offset <= 32'h2000_0000;
     end
     else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_DDROFFSET) begin
         ddr_offset <= apb_intf.pwdata;

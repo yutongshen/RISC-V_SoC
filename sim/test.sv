@@ -84,7 +84,8 @@ end
 
 initial begin
     clk_32k = 1'b0;
-    forever clk_32k = #(31250 / 2) ~clk_32k;
+    // forever clk_32k = #(31250 / 2) ~clk_32k;
+    forever clk_32k = #(1000 / 2) ~clk_32k;
 end
 
 initial begin

@@ -61,11 +61,11 @@
 
     ddr: ddr@80000000 {
         device_type = "memory";
-        reg = <0x00000000 0x80000000 0x00000000 0x08000000>;
+        reg = <0x00000000 0x80000000 0x00000000 0x20000000>;
     };
 
     peribus: peribus@04000000 {
-        compatible = "riscv,bus";
+        compatible = "simple-bus";
         #address-cells = <1>;
         #size-cells = <1>;
         ranges;
@@ -73,6 +73,11 @@
         cfgreg: cfgreg@04000000 {
             compatible = "riscv,cfgreg";
             reg = <0x04000000 0x1000>;
+        };
+
+        cpustatreg: cpustatreg@04001000 {
+            compatible = "riscv,cpustatreg";
+            reg = <0x04001000 0x1000>;
         };
 
         clint: clint@08000000 {
@@ -93,6 +98,12 @@
         uart: uart@10000000 {
             compatible = "sifive,uart0";
             reg = <0x10000000 0x1000>;
+            interrupts = <1>;
+        };
+
+        spi: spi@10001000 {
+            compatible = "riscv,spi0";
+            reg = <0x10001000 0x1000>;
             interrupts = <1>;
         };
     };

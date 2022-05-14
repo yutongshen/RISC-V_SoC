@@ -45,7 +45,7 @@ void *__memcpy(void *buff1, const void *buff2, __U32 len) {
 }
 
 void __delay(__U32 __ms) {
-    *CLINT_TIMECMP_64P = *CLINT_TIME_64P + __ms * 1000000/30;
+    *CLINT_TIMECMP_64P = *CLINT_TIME_64P + __ms * 1000000/1000;
     __CSR_SET(mie, 1 << 7);
     __WFI();
     __CSR_CLR(mie, 1 << 7);
