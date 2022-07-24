@@ -146,7 +146,7 @@ submit:
 	scp rom/rom_*.hex fred2@140.116.245.115:/home/fred2/RISC-V_SoC/src/
 
 clean:
-	@rm -rf ./build .*.swo .*.swp;
+	@rm -rf ${bld_dir} .*.swo .*.swp;
 	@rm -f ./src/cpu/.*.sw* ./src/bus/.*.sw* ./src/dbg/.*.sw* ./src/peri/.*.sw* ./include/.*.sw* ./mdl/.*.sw*
 	@make -C $(sim_dir) clean;
 	@make -C rom clean;

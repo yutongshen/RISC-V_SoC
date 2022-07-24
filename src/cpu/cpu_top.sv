@@ -980,7 +980,10 @@ assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~ex
 assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
-assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid;
+assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall ||
+                        ((id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
+                          id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
+                          id2exe_sret || id2exe_mret) && ~stall_wfi);
 
 sru u_sru (
     .clk              ( clk_wfi           ),

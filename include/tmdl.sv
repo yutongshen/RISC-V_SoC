@@ -45,7 +45,7 @@ always @(posedge clk or negedge rstn) begin
         sd_dest <= 0;
     end
     else if (`CPU_TOP.dmem_en && `CPU_TOP.dmem_write) begin
-        case (`CPU_TOP.dmem_addr)
+        case (`CPU_TOP.dmem_addr & `XLEN'hffff_ffff)
             `TM_INFO_ADDR: begin
                 $write("%6d ns: [TM_INFO] ", $time);
                 tm_print(tmdl_log[`CPU_TOP.dmem_wdata]);

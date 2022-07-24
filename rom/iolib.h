@@ -24,6 +24,7 @@ typedef struct {
     __U8  n_fats;
     __U8  fs_type;
     __U32 fat[512/4];
+    __U16 fat_cur;
 } __BPB;
 
 typedef struct {
@@ -43,7 +44,10 @@ typedef struct {
     __BPB *bpb;
     __U32  seek;
     __U32  sect;
-    __U32  clst[128];
+    __U32  cur_clst_idx;
+    __U32  max_clst_idx;
+    __U32  clst[512];
+    __U32  superclst[512];
     __U8   buff[512];
 } __FILE;
 

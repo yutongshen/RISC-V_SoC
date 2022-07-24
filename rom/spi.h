@@ -33,6 +33,43 @@
 
 #define __DUMMY_DATA 0xff
 
+#define DMA_TYPE_FIXED 0
+#define DMA_TYPE_INCR  1
+#define DMA_TYPE_SPI   2
+#define DMA_TYPE_CONST 3
+
+#define DMA_SIZE_BYTE  0
+#define DMA_SIZE_HWORD 1
+#define DMA_SIZE_WORD  2
+#define DMA_SIZE_DWORD 3 // no support
+
+#define __dma_spi2buf(__BUFF__, __LEN__) do {           \
+    __dma_cfg(0, (__U32) (__BUFF__), (__U32) (__LEN__), \
+              DMA_TYPE_SPI, DMA_TYPE_INCR,              \
+              DMA_SIZE_BYTE, DMA_SIZE_WORD);            \
+    while (__dma_busy());                               \
+} while(0)
+
+#define __dma_memcpy(__BUFF1__, __BUFF2__, __LEN__) do { \
+    __dma_cfg((__U32) (__BUFF2__), (__U32) (__BUFF1__),  \
+              (__U32) (__LEN__),                         \
+              DMA_TYPE_INCR, DMA_TYPE_INCR,              \
+              DMA_SIZE_WORD, DMA_SIZE_WORD);             \
+    while (__dma_busy());                                \
+} while(0)
+
+#define __dma_memfill(__BUFF1__, __BUFF2__, __LEN__) do { \
+    __dma_cfg((__U32) (__BUFF2__), (__U32) (__BUFF1__),  \
+              (__U32) (__LEN__),                         \
+              DMA_TYPE_CONST, DMA_TYPE_INCR,             \
+              DMA_SIZE_WORD,  DMA_SIZE_WORD);            \
+    while (__dma_busy());                                \
+} while(0)
+
+void __dma_cfg(__U32 src, __U32 dest, __U32 len,
+               __U8 src_btype, __U8 dest_btype,
+               __U8 src_size,  __U8 dest_size);
+__U32 __dma_busy();
 __U8 __spi_init(__U32 __br);
 __U8 __spi_rwbyte(__U8 __byte);
 __U8 __sd_getresp(__U8P buff, __U32 n);

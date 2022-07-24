@@ -3,22 +3,18 @@
 #include "util.h"
 #include "spi.h"
 
-__U8 __dma_spi_mem_cpy(__U8P __buff, __U32 len) {
-    *DMA_DEST_32P = (__U32) __buff;
+inline void __dma_cfg(__U32 src, __U32 dest, __U32 len,
+                      __U8 src_btype, __U8 dest_btype,
+                      __U8 src_size,  __U8 dest_size) {
+    *DMA_SRC_32P  = src;
+    *DMA_DEST_32P = dest;
     *DMA_LEN_32P  = len;
     
-    *DMA_CON_32P  = 0;
-    // Set SRC SPI / DEST INCR
-    *DMA_CON_32P  |= 0x6 << 4;
+    *DMA_CON_32P  = dest_size << 10 | src_size << 8 | dest_btype << 6 | src_btype << 4 | 1;
+}
 
-    // Set SRC BYTE / DEST WORD
-    *DMA_CON_32P  |= 0x8 << 8;
-
-    // Start
-    *DMA_CON_32P  |= 0x1;
-
-    while (*DMA_CON_32P & 0x80000000);
-    return 1;
+inline __U32 __dma_busy() {
+    return *DMA_CON_32P >> 31;
 }
 
 __U8 __spi_init(__U32 __br) {
@@ -73,9 +69,7 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
         if (retry++ > 5000) return r1;
     } while (r1 != 0xfe);
     
-    // while (size--) 
-    //     *buff++ = __spi_rwbyte(__DUMMY_DATA);
-    __dma_spi_mem_cpy(buff, 512);
+    __dma_spi2buf(buff, 512);
 
     __spi_rwbyte(__DUMMY_DATA);
     __spi_rwbyte(__DUMMY_DATA);

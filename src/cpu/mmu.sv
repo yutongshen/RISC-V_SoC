@@ -228,7 +228,12 @@ assign pmp_err      = (!pmp_v && prv_latch != `PRV_M) ||
                        (!pmp_r && access_r_latch)));
                     
 assign tlb_spage_in = spage[2:0];
+`ifdef RV32
 assign tlb_vpn      = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
+`else
+assign tlb_vpn      = ({36{~satp_mode_latch[3]}} & {16'b0, busy ? va_latch[12+:20] : va[12+:20]}) |
+                      ({36{ satp_mode_latch[3]}} & {       busy ? va_latch[12+:36] : va[12+:36]});
+`endif
 assign tlb_pte_in   = pte_latch;
 assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} =
 `ifdef RV32
@@ -453,7 +458,8 @@ assign pa_pre       = ~va_en                  ? {{32{rv64_mode}} & va[32+:32], v
                                                                          spage[0] ? va_latch[12+: 9] : pte_ppn[ 0+: 9], va_latch[11:0]}));
 `endif
 
-assign va_en        = prv_post < `PRV_M && satp_mode != `SATP_MODE_NONE;
+assign va_en        = (prv_post  < `PRV_M && satp_mode       != `SATP_MODE_NONE && cur_state == STATE_IDLE)|
+                      (prv_latch < `PRV_M && satp_mode_latch != `SATP_MODE_NONE && cur_state != STATE_IDLE);
 
 `ifdef RV32
 assign vpn[19:0]    = va[12+:20];

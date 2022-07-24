@@ -16,9 +16,13 @@ module axi_rx (
     output logic [31:0] rx_mem_rdata,
     output logic        rx_mem_slverr,
 
-    output logic        ap_buf_push,
-    output logic [31:0] ap_buf_wdata,
-    output logic [ 1:0] ap_buf_wresp,
+    output logic        ap_rbuf_push,
+    output logic [31:0] ap_rbuf_wdata,
+    output logic [ 1:0] ap_rbuf_wresp,
+
+    output logic        ap_wbuf_pop,
+    input        [31:0] ap_wbuf_rdata,
+    input        [ 5:0] ap_wbuf_rsize,
 
     axi_intf.master     m_axi_intf
 );
@@ -40,7 +44,7 @@ logic [ 3:0] ignore_tx_cnt;
 logic        ignore_tx;
 logic        tx_rec;
 
-logic [ 3:0] sector_send_cnt;
+logic [ 5:0] sector_send_cnt;
 logic [ 3:0] sector_rec_cnt;
 
 logic        burst;
@@ -117,9 +121,13 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_axi_aw
         m_axi_intf.awprot  <= 3'b0;
     end
     else if (tx_rec_dly && rx_mem_write) begin
-        m_axi_intf.awaddr  <= {rx_mem_addr[31:2], 2'b0};
-        m_axi_intf.awlen   <= {7'b0, burst};
+        m_axi_intf.awaddr  <= rx_mem_sector ? {rx_mem_addr[31:4], 4'b0} : {rx_mem_addr[31:2], 2'b0};
+        m_axi_intf.awlen   <= rx_mem_sector ? 8'h3 : {7'b0, burst};
         m_axi_intf.awprot  <= rx_mem_prot[2:0] & {1'b1, rx_mem_secen, 1'b1};;
+    end
+    else if (rx_mem_sector && ((~m_axi_intf.wlast && m_axi_intf.wvalid && m_axi_intf.wready)||
+                               (m_axi_intf.awvalid && m_axi_intf.awready))) begin
+        m_axi_intf.awaddr  <= m_axi_intf.awaddr + 32'h4;
     end
 end
 
@@ -127,7 +135,9 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_axi_aw_vld
     if (~rx_rstn) begin
         m_axi_intf.awvalid <= 1'b0;
     end
-    else if (tx_rec_dly && rx_mem_write) begin
+    else if ((tx_rec_dly && rx_mem_write) ||
+             (rx_mem_sector && (|sector_send_cnt[5:1]) &&
+              m_axi_intf.wlast && m_axi_intf.wvalid && m_axi_intf.wready)) begin
         m_axi_intf.awvalid <= 1'b1;
     end
     else if (m_axi_intf.awready) begin
@@ -141,15 +151,23 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_axi_w
         m_axi_intf.wdata   <= 32'b0;
         m_axi_intf.wlast   <= 1'b0;
     end
-    else if (tx_rec_dly && rx_mem_write) begin
-        m_axi_intf.wstrb   <= bmask << rx_mem_addr[1:0];
-        m_axi_intf.wdata   <= rx_mem_wdata << {rx_mem_addr[1:0], 3'b0};
-        m_axi_intf.wlast   <= ~burst;
+    else if (~rx_mem_sector) begin
+        if (tx_rec_dly && rx_mem_write) begin
+            m_axi_intf.wstrb   <= bmask << rx_mem_addr[1:0];
+            m_axi_intf.wdata   <= rx_mem_wdata << {rx_mem_addr[1:0], 3'b0};
+            m_axi_intf.wlast   <= ~burst;
+        end
+        else if (~m_axi_intf.wlast && m_axi_intf.wvalid && m_axi_intf.wready) begin
+            m_axi_intf.wstrb   <= bmask >> -rx_mem_addr[1:0];
+            m_axi_intf.wdata   <= rx_mem_wdata >> {-rx_mem_addr[1:0], 3'b0};
+            m_axi_intf.wlast   <= 1'b1;
+        end
     end
-    else if (~m_axi_intf.wlast && m_axi_intf.wvalid && m_axi_intf.wready) begin
-        m_axi_intf.wstrb   <= bmask >> -rx_mem_addr[1:0];
-        m_axi_intf.wdata   <= rx_mem_wdata >> {-rx_mem_addr[1:0], 3'b0};
-        m_axi_intf.wlast   <= 1'b1;
+    else begin
+        m_axi_intf.wstrb <= m_axi_intf.awvalid || m_axi_intf.wready ? {4{|sector_send_cnt & ap_wbuf_pop}}:
+                                                                      m_axi_intf.wstrb;
+        m_axi_intf.wdata <= m_axi_intf.awvalid || m_axi_intf.wready ? ap_wbuf_rdata : m_axi_intf.wdata;
+        m_axi_intf.wlast <= m_axi_intf.awaddr[3:2] == 2'h3 && m_axi_intf.wready;
     end
 end
 
@@ -157,7 +175,10 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_axi_w_vld
     if (~rx_rstn) begin
         m_axi_intf.wvalid <= 1'b0;
     end
-    else if (tx_rec_dly && rx_mem_write) begin
+    else if (rx_mem_sector && rx_mem_write && m_axi_intf.awvalid && m_axi_intf.awready) begin
+        m_axi_intf.wvalid <= 1'b1;
+    end
+    else if (tx_rec_dly && ~rx_mem_sector && rx_mem_write) begin
         m_axi_intf.wvalid <= 1'b1;
     end
     else if (m_axi_intf.wlast && m_axi_intf.wready) begin
@@ -186,22 +207,35 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_sector_rec_cnt
         sector_rec_cnt <= 4'b0;
     end
     else if (tx_rec_dly && ~rx_mem_write) begin
-        sector_rec_cnt <= rx_mem_sector ? -4'b1 : 4'b0;
+        sector_rec_cnt <= rx_mem_sector ? 4'hf : 4'b0;
     end
-    else if (m_axi_intf.rlast && m_axi_intf.rvalid && m_axi_intf.rready) begin
-        sector_rec_cnt <= sector_rec_cnt - 4'b1;
+    else if (tx_rec_dly &&  rx_mem_write) begin
+        sector_rec_cnt <= rx_mem_sector ? ap_wbuf_rsize[5:2] -
+                                          (~({2'b0, rx_mem_addr[3:2]} + {2'b0, ap_wbuf_rsize[1:0]}) >> 2):
+                                          4'b0;
+    end
+    else if ((m_axi_intf.rlast && m_axi_intf.rvalid && m_axi_intf.rready) ||
+             (                    m_axi_intf.bvalid && m_axi_intf.bready)) begin
+        sector_rec_cnt <= |sector_rec_cnt ? sector_rec_cnt - 4'b1 : 4'b0;
     end
 end
 
 always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_sector_send_cnt
     if (~rx_rstn) begin
-        sector_send_cnt <= 4'b0;
+        sector_send_cnt <= 6'b0;
     end
     else if (tx_rec_dly && ~rx_mem_write) begin
-        sector_send_cnt <= rx_mem_sector ? -4'b1 : 4'b0;
+        sector_send_cnt <= rx_mem_sector ? 6'hf : 6'b0;
+    end
+    else if (tx_rec_dly &&  rx_mem_write) begin
+        sector_send_cnt <= rx_mem_sector ? ap_wbuf_rsize - 6'h1 : 6'b0;
     end
     else if (m_axi_intf.arvalid && m_axi_intf.arready) begin
-        sector_send_cnt <= sector_send_cnt - 4'b1;
+        sector_send_cnt <= |sector_send_cnt ? sector_send_cnt - 6'b1 : 6'b0;
+    end
+    else if (m_axi_intf.wvalid && m_axi_intf.wready) begin
+        sector_send_cnt <= |sector_send_cnt ? sector_send_cnt - {5'b0, |m_axi_intf.wstrb}:
+                                              6'b0;
     end
 end
 
@@ -224,7 +258,8 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_rx_tog
     else begin
         rx_tog <= ((~rx_mem_sector && m_axi_intf.rlast && m_axi_intf.rvalid && m_axi_intf.rready)||
                    ( rx_mem_sector && m_axi_intf.rlast && m_axi_intf.rvalid && m_axi_intf.rready && ~|sector_rec_cnt)||
-                   (m_axi_intf.bvalid && m_axi_intf.bready)) ^ rx_tog;
+                   (~rx_mem_sector && m_axi_intf.bvalid && m_axi_intf.bready)||
+                   ( rx_mem_sector && m_axi_intf.bvalid && m_axi_intf.bready && ~|sector_rec_cnt)) ^ rx_tog;
     end
 end
 
@@ -250,8 +285,12 @@ always_ff @(posedge rx_clk or negedge rx_rstn) begin: reg_rx_resp
     end
 end
 
-assign ap_buf_push  = rx_mem_sector && m_axi_intf.rvalid && m_axi_intf.rready;
-assign ap_buf_wdata = m_axi_intf.rdata;
-assign ap_buf_wresp = m_axi_intf.rresp;
+assign ap_rbuf_push  = rx_mem_sector && m_axi_intf.rvalid && m_axi_intf.rready;
+assign ap_rbuf_wdata = m_axi_intf.rdata;
+assign ap_rbuf_wresp = m_axi_intf.rresp;
+
+assign ap_wbuf_pop   = rx_mem_sector && (m_axi_intf.awaddr >= rx_mem_addr) &&
+                       ((~m_axi_intf.wlast && m_axi_intf.wvalid && m_axi_intf.wready)||
+                        (m_axi_intf.awvalid && m_axi_intf.awready));
 
 endmodule

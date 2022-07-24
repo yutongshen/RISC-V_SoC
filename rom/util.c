@@ -1,6 +1,7 @@
 #include "mmap_soc.h"
 #include "typedef.h"
 #include "util.h"
+#include "spi.h"
 
 __U32 __strcmp(const __U8P str1, const __U8P str2, __U32 len) {
     while (len--) {
@@ -12,6 +13,7 @@ __U32 __strcmp(const __U8P str1, const __U8P str2, __U32 len) {
 }
 
 void *__memcpy(void *buff1, const void *buff2, __U32 len) {
+    /*
     if (((__U64) buff1 | (__U64) buff2) & 0x7) {
         while (len) {
             *(__U8P) buff1 = *(__U8P) buff2;
@@ -40,7 +42,8 @@ void *__memcpy(void *buff1, const void *buff2, __U32 len) {
             len -= 2;
         }
         if (len) *(__U8P) buff1 = *(__U8P) buff2;
-    }
+    }*/
+    __dma_memcpy(buff1, buff2, len);
     return buff1;
 }
 

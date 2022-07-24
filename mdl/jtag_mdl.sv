@@ -24,6 +24,7 @@ logic [ 3:0] apaddr_h_latch;
 logic [31:0] apbap_tar_latch;
 logic [31:0] axi_ap_test_addr;
 logic [31:0] axi_ap_test_data;
+logic [32*64-1:0] wdata_buf;
 
 initial begin
     // // Test reset fault toggle
@@ -41,7 +42,7 @@ initial begin
 end
 
 initial begin
-    integer i;
+    integer i, j;
 
     tck = 1'b0;
     tms = 1'b0;
@@ -74,15 +75,15 @@ initial begin
     // APB_AP test
     jtag_apb_wr(`DBGAPB_DBG_EN, 32'h1);
     jtag_apb_wr(`DBGAPB_INST, 32'hbeefbeef);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin // CTRL/STAT CMP mode
         jtag_rw_dr(35, {32'hf08, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'hbeefbeef, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h1, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
@@ -91,11 +92,11 @@ initial begin
     end while (rdata[2:0] == `RESP_WAIT);
     if (rdata[7]) $display("[JTAG_MDL] STICKYCMP PASS (CTRL/STAT: %08x)", rdata[34:3]);
     else          $display("[JTAG_MDL] STICKYCMP FAIL (CTRL/STAT: %08x)", rdata[34:3]);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'hbeef0000, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h1, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
@@ -104,15 +105,15 @@ initial begin
     end while (rdata[2:0] == `RESP_WAIT);
     if (~rdata[7]) $display("[JTAG_MDL] STICKYCMP PASS (CTRL/STAT: %08x)", rdata[34:3]);
     else           $display("[JTAG_MDL] STICKYCMP FAIL (CTRL/STAT: %08x)", rdata[34:3]);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin // CTRL/STAT VERF mode
         jtag_rw_dr(35, {32'hf04, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'hbeefbeef, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h1, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
@@ -121,11 +122,11 @@ initial begin
     end while (rdata[2:0] == `RESP_WAIT);
     if (~rdata[7]) $display("[JTAG_MDL] STICKYCMP PASS (CTRL/STAT: %08x)", rdata[34:3]);
     else           $display("[JTAG_MDL] STICKYCMP FAIL (CTRL/STAT: %08x)", rdata[34:3]);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'hbeef0000, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h1, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
@@ -135,11 +136,11 @@ initial begin
     if (rdata[7]) $display("[JTAG_MDL] STICKYCMP PASS (CTRL/STAT: %08x)", rdata[34:3]);
     else          $display("[JTAG_MDL] STICKYCMP FAIL (CTRL/STAT: %08x)", rdata[34:3]);
     // auto addr incr
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin // CTRL/STAT NORM mode
         jtag_rw_dr(35, {32'hf00, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin // CSW ADDRINC
         jtag_rw_dr(35, {32'h10, 2'h0, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
@@ -170,68 +171,119 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h44444444, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    
-    // AXI_AP test
-    // APSEL AXI_AP sel
-    axi_ap_test_addr = 32'h0200_0000;
-    jtag_w_ir(4'ha);
-    do begin
-        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP CSW 32-bit and Auto-incr addr
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {32'h12, 2'h0, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP TAR
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
-    for (i = 0; i < 'h20; i = i + 1) begin
-        axi_ap_test_data = i << 24 | i << 16 | i << 8 | i;
+*/    
+    j = 0;
+    forever begin
+        // AXI_AP test
+        // APSEL AXI_AP sel
+        axi_ap_test_addr = 32'h8000_0000;
+        jtag_w_ir(5'ha);
         do begin
-            jtag_rw_dr(35, {axi_ap_test_data, 2'h3, 1'b0});
+            jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
         end while (rdata[2:0] == `RESP_WAIT);
-        $display("[JTAG_MDL] AXI write [%08x] = %08x", axi_ap_test_addr + 4 * i, axi_ap_test_data);
+        // AXI_AP CSW 32-bit and Auto-incr addr
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {32'h12, 2'h0, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        // AXI_AP TAR
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        jtag_w_ir(5'hb);
+        for (i = 0; i < 'h20; i = i + 1) begin
+            axi_ap_test_data = i << 24 | i << 16 | i << 8 | i;
+            do begin
+                jtag_rw_dr(35, {axi_ap_test_data, 2'h3, 1'b0});
+            end while (rdata[2:0] == `RESP_WAIT);
+            // $display("[JTAG_MDL] AXI write [%08x] = %08x", axi_ap_test_addr + 4 * i, axi_ap_test_data);
+        end
+        // AXI_AP TAR
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        jtag_w_ir(5'hb);
+        for (i = 0; i < 'h20; i = i + 1) begin
+            jtag_w_ir(5'hb);
+            do begin
+                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+            end while (rdata[2:0] == `RESP_WAIT);
+            jtag_w_ir(5'ha);
+            do begin
+                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+            end while (rdata[2:0] == `RESP_WAIT);
+            if (rdata[34:3] != (i << 24 | i << 16 | i << 8 | i))
+                $display("[JTAG_MDL] there are some error !!! (%08x)", rdata[34:3]);
+            // $display("[JTAG_MDL] AXI read [%08x] = %08x", axi_ap_test_addr + 4 * i, rdata[34:3]);
+        end
+
+        jtag_w_ir(5'ha);
+        do begin
+            jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        // AXI_AP CSW 32-bit and Auto-incr addr
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {32'h12, 2'h0, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        // AXI_AP TAR
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        jtag_w_ir(5'hb);
+        for (i = 'h1f; i >= 0; i = i - 1) begin
+            axi_ap_test_data = i << 24 | i << 16 | i << 8 | i;
+            do begin
+                jtag_rw_dr(35, {axi_ap_test_data, 2'h3, 1'b0});
+            end while (rdata[2:0] == `RESP_WAIT);
+            // $display("[JTAG_MDL] AXI write [%08x] = %08x", axi_ap_test_addr + 4 * i, axi_ap_test_data);
+        end
+        // AXI_AP TAR
+        jtag_w_ir(5'hb);
+        do begin
+            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        jtag_w_ir(5'hb);
+        for (i = 'h1f; i >= 0; i = i - 1) begin
+            jtag_w_ir(5'hb);
+            do begin
+                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+            end while (rdata[2:0] == `RESP_WAIT);
+            jtag_w_ir(5'ha);
+            do begin
+                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+            end while (rdata[2:0] == `RESP_WAIT);
+            if (rdata[34:3] != (i << 24 | i << 16 | i << 8 | i))
+                $display("[JTAG_MDL] there are some error !!! (%08x)", rdata[34:3]);
+            // $display("[JTAG_MDL] AXI read [%08x] = %08x", axi_ap_test_addr + 4 * i, rdata[34:3]);
+        end
+        j = j + 1;
+        if (j % 10 == 0) 
+            $display("[JTAG_MDL] %d times", j);
     end
-    // AXI_AP TAR
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
-    for (i = 0; i < 'h20; i = i + 1) begin
-        jtag_w_ir(4'hb);
-        do begin
-            jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-        end while (rdata[2:0] == `RESP_WAIT);
-        jtag_w_ir(4'ha);
-        do begin
-            jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-        end while (rdata[2:0] == `RESP_WAIT);
-        $display("[JTAG_MDL] AXI read [%08x] = %08x", axi_ap_test_addr + 4 * i, rdata[34:3]);
-    end
+/*
 
     // AXI_AP test
     // APSEL AXI_AP sel
     axi_ap_test_addr = 32'h0002_0003;
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
     // AXI_AP CSW 32-bit and Auto-incr addr
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'h12, 2'h0, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
     // AXI_AP TAR
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     for (i = 0; i < 'h20; i = i + 1) begin
         axi_ap_test_data = i << 24 | i << 16 | i << 8 | i;
         do begin
@@ -240,17 +292,17 @@ initial begin
         $display("[JTAG_MDL] AXI write [%08x] = %08x", axi_ap_test_addr + 4 * i, axi_ap_test_data);
     end
     // AXI_AP TAR
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     for (i = 0; i < 'h20; i = i + 1) begin
-        jtag_w_ir(4'hb);
+        jtag_w_ir(5'hb);
         do begin
             jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
         end while (rdata[2:0] == `RESP_WAIT);
-        jtag_w_ir(4'ha);
+        jtag_w_ir(5'ha);
         do begin
             jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
         end while (rdata[2:0] == `RESP_WAIT);
@@ -260,61 +312,122 @@ initial begin
     // AXI_AP test
     // APSEL AXI_AP sel
     axi_ap_test_addr = 32'h0000_0000;
-    jtag_w_ir(4'ha);
-    do begin
-        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP CSW 32-bit and Auto-incr addr and sector
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    // AXI_AP TAR
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
-    do begin
-        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-    end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
-    do begin
-        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-    end while (rdata[2:0] == `RESP_WAIT);
-    $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
-    jtag_w_ir(4'hc);
-    jtag_rd_dbuf;
 
     // AXI_AP test
     // APSEL AXI_AP sel
     axi_ap_test_addr = 32'h0400_1000;
-    jtag_w_ir(4'ha);
+
+    $display("AP_WBUF test");
+    axi_ap_test_addr = 32'h8000_0000;
+    for (i = 0; i < 64; i = i + 1) begin
+        wdata_buf[i*32+:32] = 32'h03020100 + ((i*4&'hff) << 24 | (i*4&'hff) << 16 | (i*4&'hff) << 8 | (i*4&'hff));
+    end
+    jtag_w_ir(5'h12);
+    jtag_wr_wbuf(wdata_buf, 64);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
     // AXI_AP CSW 32-bit and Auto-incr addr and sector
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
     // AXI_AP TAR
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     do begin
         jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    $display("[JTAG_MDL] AXI write sector [%08x]", axi_ap_test_addr);
+    jtag_w_ir(5'ha);
+    do begin
+        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP CSW 32-bit and Auto-incr addr and sector
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP TAR
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
     $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
-    jtag_w_ir(4'hc);
+    jtag_w_ir(5'h10);
     jtag_rd_dbuf;
-    jtag_w_ir(4'hd);
+
+    axi_ap_test_addr = 32'h8000_008c;
+    for (i = 0; i < 64; i = i + 1) begin
+        wdata_buf[i*32+:32] = ((i*4&'hff) << 24 | (i*4&'hff) << 16 | (i*4&'hff) << 8 | (i*4&'hff));
+    end
+    jtag_w_ir(5'h12);
+    jtag_wr_wbuf(wdata_buf, 31);
+    jtag_w_ir(5'ha);
+    do begin
+        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP CSW 32-bit and Auto-incr addr and sector
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP TAR
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'ha);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+    end while (rdata[2:0] == `RESP_WAIT);
+    $display("[JTAG_MDL] AXI write sector [%08x]", axi_ap_test_addr);
+    jtag_w_ir(5'ha);
+    do begin
+        jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP CSW 32-bit and Auto-incr addr and sector
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    // AXI_AP TAR
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'hb);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+    end while (rdata[2:0] == `RESP_WAIT);
+    jtag_w_ir(5'ha);
+    do begin
+        jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+    end while (rdata[2:0] == `RESP_WAIT);
+    $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
+    jtag_w_ir(5'h10);
+    jtag_rd_dbuf;
+    jtag_w_ir(5'h11);
     jtag_rd_rbuf;
 */
 `endif
@@ -352,20 +465,36 @@ end
 endtask
 
 task jtag_w_ir;
-input [3:0] ir;
+input [4:0] ir;
 integer i;
 if (ir !== ir_latch) begin
     jtag_tms(1'b1); // Select-DR scan
     jtag_tms(1'b1); // Select-IR scan
     jtag_tms(1'b0); // Capture-IR
     jtag_tms(1'b0); // Shift-IR
-    for (i = 0; i < 3; i = i + 1)
+    for (i = 0; i < 4; i = i + 1)
         jtag_tdi(ir[i]);
     jtag_tms_tdi(1'b1, ir[i]); // Exit1-IR
     jtag_tms(1'b1); // Update-IR
     jtag_tms(1'b0); // Run-Test or Idle
     ir_latch = ir;
 end
+endtask
+
+task jtag_wr_wbuf;
+input [32*64 - 1:0] wdata;
+input int n;
+integer i;
+jtag_tms(1'b1); // Select-DR scan
+jtag_tms(1'b0); // Capture-DR
+jtag_tms(1'b0); // Shift-DR
+for (i = 0; i < 32*n - 1; i = i + 1) begin
+    jtag_tdi(wdata[0]);
+    wdata = {1'b0, wdata[32*64-1:1]};
+end
+jtag_tms_tdi(1'b1, wdata[0]); // Exit1-DR
+jtag_tms(1'b1); // Update-DR
+jtag_tms(1'b0); // Run-Test or Idle
 endtask
 
 task jtag_rd_dbuf;
@@ -429,7 +558,7 @@ input [31:0] wdata;
 
 if (~|addr[1:0]) begin
     if (addr[3:2] !== 2'h2 || apsel_latch !== wdata[31:24] || apaddr_h_latch !== wdata[7:4]) begin
-        jtag_w_ir(4'ha);
+        jtag_w_ir(5'ha);
         do begin
             jtag_rw_dr(35, {wdata, addr[3:2], 1'b0});
         end while (rdata[2:0] == `RESP_WAIT);
@@ -443,7 +572,7 @@ endtask
 
 task jtag_dapacc_rdbuff;
 
-jtag_w_ir(4'ha);
+jtag_w_ir(5'ha);
 do begin
     jtag_rw_dr(35, {32'b0, 2'h3, 1'b1});
 end while (rdata[2:0] == `RESP_WAIT);
@@ -455,7 +584,7 @@ input [ 7:0] addr;
 input [31:0] wdata;
 
 if (~|addr[1:0]) begin
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     if (addr !== 8'h4 || apbap_tar_latch !== wdata) begin
         jtag_dpacc_wr(4'h8, {8'b0, 16'b0, addr[7:4], 4'b0}); // SELECT
         do begin
@@ -472,7 +601,7 @@ task jtag_apbapacc_rd;
 input [ 7:0] addr;
 
 if (~|addr[1:0]) begin
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     jtag_dpacc_wr(4'h8, {8'b0, 16'b0, addr[7:4], 4'b0}); // SELECT
     do begin
         jtag_rw_dr(35, {32'b0, addr[3:2], 1'b1});
@@ -486,12 +615,12 @@ input [ 7:0] addr;
 input [31:0] cmp_data;
 
 if (~|addr[1:0]) begin
-    jtag_w_ir(4'hb);
+    jtag_w_ir(5'hb);
     jtag_dpacc_wr(4'h8, {8'b0, 16'b0, addr[7:4], 4'b0}); // SELECT
     do begin
         jtag_rw_dr(35, {cmp_data, addr[3:2], 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-    jtag_w_ir(4'ha);
+    jtag_w_ir(5'ha);
     do begin
         jtag_rw_dr(35, {32'b0, 2'h1, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);

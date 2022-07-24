@@ -7,8 +7,8 @@ export RISCV_OBJCOPY ?= $(CROSS_PREFIX)objcopy -O verilog
 
 INCDIR  := ../include/
 LDFILE  := link.ld
-CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -I$(INCDIR)
-LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -T$(LDFILE) -lgcc
+CFLAGS  := -O2 -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -I$(INCDIR)
+LDFLAGS := -O2 -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -T$(LDFILE) -lgcc
 
 
 SRC_C   := $(wildcard *.c)
@@ -43,6 +43,7 @@ build_hex: $(ELF_NAME)
 	$(RISCV_OBJCOPY) $< -i 4 -b 1 rom_1.hex
 	$(RISCV_OBJCOPY) $< -i 4 -b 2 rom_2.hex
 	$(RISCV_OBJCOPY) $< -i 4 -b 3 rom_3.hex
+	$(CROSS_PREFIX)objcopy -O binary $< rom.bin
 
 %.o: %.dts
 	@dtc -I dts -O dtb $^ > tmp

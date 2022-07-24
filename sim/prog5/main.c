@@ -17,6 +17,18 @@
 #define LSBFIRST_BIT   ( 7)
 #define DFF_BIT        (11)
 
+#define DMA_TYPE_FIXED 0
+#define DMA_TYPE_INCR  1
+#define DMA_TYPE_SPI   2
+#define DMA_TYPE_CONST 3
+
+#define DMA_SIZE_BYTE  0
+#define DMA_SIZE_HWORD 1
+#define DMA_SIZE_WORD  2
+#define DMA_SIZE_DWORD 3 // no support
+#define __U32 volatile unsigned int
+#define __U8  volatile unsigned char
+
 int cnt = 0;
 const char str[20] = "Hello World";
 
@@ -92,6 +104,35 @@ int spi_readwritebyte(int byte) {
     return *SPI_DR_32P;
 }
 
+void __dma_cfg(__U32 src, __U32 dest, __U32 len,
+                      __U8 src_btype, __U8 dest_btype,
+                      __U8 src_size,  __U8 dest_size) {
+    *DMA_SRC_32P  = src;
+    *DMA_DEST_32P = dest;
+    *DMA_LEN_32P  = len;
+    
+    *DMA_CON_32P  = dest_size << 10 | src_size << 8 | dest_btype << 6 | src_btype << 4 | 1;
+}
+
+__U32 __dma_busy() {
+    return *DMA_CON_32P >> 31;
+}
+
+#define __dma_spi2buf(__BUFF__, __LEN__) do {           \
+    __dma_cfg(0, (__U32) (__BUFF__), (__U32) (__LEN__), \
+              DMA_TYPE_SPI, DMA_TYPE_INCR,              \
+              DMA_SIZE_BYTE, DMA_SIZE_WORD);            \
+    while (__dma_busy());                               \
+} while(0)
+
+#define __dma_memcpy(__BUFF1__, __BUFF2__, __LEN__) do { \
+    __dma_cfg((__U32) (__BUFF2__), (__U32) (__BUFF1__),  \
+              (__U32) (__LEN__),                         \
+              DMA_TYPE_INCR, DMA_TYPE_INCR,              \
+              DMA_SIZE_WORD, DMA_SIZE_WORD);             \
+    while (__dma_busy());                                \
+} while(0)
+
 int main() {
     /* TM_INFO="Into main function" */
     int spi_rdata, spi_wdata, tmp;
@@ -104,6 +145,8 @@ int main() {
     // }
     /* TM_INFO="SPI test" */
     // *SPI_CR2_32P &= ~(1 << 2);
+    /* TM_INFO="SPI_DMA test" */
+    __dma_memcpy(0x30003, 0x1, 0x200);
     for (int i = 0; i <= 0xf; ++i) {
         /* TM_INFO="Set SPI CPHA: %c, CPOL: %c, LSBFIRST: %c, DFF: %c", (i&0x8)?'1':'0', (i&0x4)?'1':'0', (i&0x2)?'1':'0', (i&0x1)?'1':'0' */
         spi_init(!!(i&0x8), !!(i&0x4), !!(i&0x2), !!(i&0x1));

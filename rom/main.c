@@ -13,13 +13,33 @@ __U32 main(void) {
     __file.bpb = &__bpb;
 
     __uart_init();
+    __puts("[BROM] UART init done");
 #ifndef FAKE_SD
+    __puts("[BROM] SD card init");
     __sd_init(&__sd_type);
 #endif
+    __puts("[BROM] FAT BPB init");
     __fat_bpb_init(&__bpb);
-    __fopen(&__file, "boot.bin");
 
-    __elf_loader(&__file);
+    if (*CFGREG_RSVREG0_32P == 0) {
+        // load bbl
+        __puts("[BROM] load bbl");
+        __fopen(&__file, "boot.bin");
+        __elf_loader(&__file);
 
+        // load rootfs
+        __puts("[BROM] load rootfs");
+        __fopen(&__file, "riscv.fs");
+        __fread(&__file, (void *) 0x90000000, __file.size);
+
+        *CFGREG_RSVREG0_32P = 0xcafecafe;
+    }
+
+    // load linux
+    __puts("[BROM] load vmlinux");
+    __fopen(&__file, "vmlinux");
+    __elf_loader_reloc(&__file, 0x80200000);
+
+    __puts("[BROM] boot rom init done");
     return 0;
 }

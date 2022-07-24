@@ -7,11 +7,18 @@
     #size-cells = <2>;
     interrupt-parent = <&plic>;
 
+    rtcclk: rtcclk {
+        compatible = "fixed-clock";
+        #clock-cells = <1>;
+        clock-frequency = <1000000>;
+        clock-output-names = "rtcclk";
+    };
+
     cpus {
         linux,phandle = <1>;
         #address-cells = <1>;
         #size-cells = <0>;
-        timebase-frequency = <10000000>;
+        timebase-frequency = <1000000>;
         cpu0: cpu@0 {
             device_type = "cpu";
             reg = <0x0>;
@@ -27,11 +34,11 @@
             d-cache-size = <1024>;
             d-tlb-sets = <32>;
             d-tlb-size = <128>;
-            riscv,isa = "rv64imac";
+            riscv,isa = "rv64imacfd";
             mmu-type = "riscv,sv48";
             riscv,pmpregions = <16>;
             riscv,pmpgranularity = <4>;
-            clock-frequency = <1000000000>;
+            clock-frequency = <33000000>;
             linux,boot-cpu;
             cpu0_intc: interrupt-controller {
                 #interrupt-cells = <1>;
@@ -61,7 +68,12 @@
 
     ddr: ddr@80000000 {
         device_type = "memory";
-        reg = <0x00000000 0x80000000 0x00000000 0x20000000>;
+        reg = <0x00000000 0x80000000 0x00000000 0x08000000>;
+    };
+         
+    flash: flash@84000000 {
+        compatible = "simple,flash0";
+        reg = <0x00000000 0x90000000 0x00000000 0x08000000>;
     };
 
     peribus: peribus@04000000 {
@@ -95,23 +107,51 @@
             interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>;
         };
 
-        uart: uart@10000000 {
+        uart0: uart@10000000 {
+            interrupts = <0x1>;
+            interrupt-parent = <&plic>;
             compatible = "sifive,uart0";
+            clocks = <&rtcclk 0>;
             reg = <0x10000000 0x1000>;
-            interrupts = <1>;
         };
-
-        spi: spi@10001000 {
+/*
+        spi0: spi@10001000 {
+            interrupts = <0x2>;
+            interrupt-parent = <&plic>;
             compatible = "riscv,spi0";
             reg = <0x10001000 0x1000>;
-            interrupts = <1>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+            status = "okay";
+
+            spidev@0 {
+                compatible = "rohm,dh2228fv";
+                reg = <0x0>;
+                spi-max-frequency = <1000000>;
+                voltage-ranges = <0xce4 0xce4>;
+                disable-wp;
+            };
+
+            mmc@1 {
+                compatible = "mmc-spi-slot";
+                reg = <0x1>;
+                spi-max-frequency = <1000000>;
+                voltage-ranges = <0xce4 0xce4>;
+                disable-wp;
+            };
         };
+        */
     };
 
     chosen {
         riscv,kernel-start = <0x0 0x80200000>;
-        riscv,kernel-end   = <0x0 0x84000000>;
-        bootargs = "root=/dev/sda2";
+        riscv,kernel-end   = <0x0 0x87000000>;
+        bootargs = "root=/dev/srda ro console=ttySIF0";
+        stdout-path = "uart0@10001000";
         linux,platform = <0x00000600>;
+    };
+
+    aliases {
+        serial0 = &uart0;
     };
 };

@@ -12,9 +12,13 @@ module axi_ap (
     output logic        ap_slverr,
     output logic        ap_busy,
 
-    output logic        ap_buf_push,
-    output logic [31:0] ap_buf_wdata,
-    output logic [ 1:0] ap_buf_wresp,
+    output logic        ap_rbuf_push,
+    output logic [31:0] ap_rbuf_wdata,
+    output logic [ 1:0] ap_rbuf_wresp,
+
+    output logic        ap_wbuf_pop,
+    input        [31:0] ap_wbuf_rdata,
+    input        [ 5:0] ap_wbuf_rsize,
 
     input               spiden,
     input               deviceen,
@@ -90,10 +94,13 @@ axi_rx u_axi_rx (
     .rx_mem_rdata  ( rx_mem_rdata  ),
     .rx_mem_slverr ( rx_mem_slverr ),
 
-    .ap_buf_push   ( ap_buf_push   ),
-    .ap_buf_wdata  ( ap_buf_wdata  ),
-    .ap_buf_wresp  ( ap_buf_wresp  ),
+    .ap_rbuf_push  ( ap_rbuf_push  ),
+    .ap_rbuf_wdata ( ap_rbuf_wdata ),
+    .ap_rbuf_wresp ( ap_rbuf_wresp ),
 
+    .ap_wbuf_pop   ( ap_wbuf_pop   ),
+    .ap_wbuf_rdata ( ap_wbuf_rdata ),
+    .ap_wbuf_rsize ( ap_wbuf_rsize ),
 
     .m_axi_intf    ( m_axi_intf    )
 );

@@ -811,10 +811,13 @@ sram u_sram_0 (
 */
 rom32x2048 u_brom (
     // .CK ( mem_ck_0      ),
-    .CK ( clk           ),
-    .CS ( cs_0          ),
-    .A  ( addr_0[2+:11] ),
-    .DO ( do_0          )
+    .CK   ( clk           ),
+    .CS   ( cs_0          ),
+    .A    ( addr_0[2+:11] ),
+    .BYTE ( byte_0        ),
+    .WE   ( we_0          ),
+    .DI   ( di_0          ),
+    .DO   ( do_0          )
 );
 
 

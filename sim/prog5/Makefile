@@ -15,8 +15,8 @@ export RISCV_OBJCOPY ?= $(CROSS_PREFIX)objcopy -O verilog
 
 INCDIR := ./include/
 LDFILE := link.ld
-CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64i -mabi=lp64 -I$(INCDIR)
-LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64i -mabi=lp64 -T$(LDFILE) -lgcc
+CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -I$(INCDIR)
+LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv64imac_zifencei_zicsr -mabi=lp64 -T$(LDFILE) -lgcc
 
 SRC_C   := $(wildcard *.c)
 OBJ_C   := $(patsubst %.c,%.o,$(SRC_C))
@@ -81,6 +81,11 @@ build_hex: $(ELF_NAME)
 	@cat main_1.hex >> sram_1.hex
 	@cat main_2.hex >> sram_2.hex
 	@cat main_3.hex >> sram_3.hex
+	
+	@touch ddr_0.hex
+	@touch ddr_1.hex
+	@touch ddr_2.hex
+	@touch ddr_3.hex
 	
 
 %.o: %.bmp

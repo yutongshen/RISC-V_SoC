@@ -20,17 +20,21 @@ module jtag_dp (
     input               ap_slverr,
     input        [ 2:0] ap_ack,
 
-    output logic        ap_buf_rrstn,
-    output logic        ap_buf_dpop,
-    input        [31:0] ap_buf_rdata,
-    output logic        ap_buf_rpop,
-    input        [31:0] ap_buf_rresp,
+    output logic        ap_rbuf_rrstn,
+    output logic        ap_rbuf_dpop,
+    input        [31:0] ap_rbuf_rdata,
+    output logic        ap_rbuf_rpop,
+    input        [31:0] ap_rbuf_rresp,
+
+    output logic        ap_wbuf_wrstn,
+    output logic        ap_wbuf_push,
+    output logic [31:0] ap_wbuf_wdata,
 
     output logic        dbgrstn
 );
 
 logic [34:0] sfter;
-logic [ 3:0] ir;
+logic [ 4:0] ir;
 logic [34:0] dr_abort;
 
 logic        err;
@@ -71,6 +75,8 @@ logic [ 3:0] nxt_state;
 
 logic        rstn_trig;
 
+logic        ap_wbuf_push_pre;
+
 localparam STATE_RESET   = 4'hf,
            STATE_RUN     = 4'hc,
            STATE_SEL_DR  = 4'h7,
@@ -88,13 +94,14 @@ localparam STATE_RESET   = 4'hf,
            STATE_EX2_IR  = 4'h8,
            STATE_UPD_IR  = 4'hd;
 
-localparam RG_ABORT      = 4'h8,
-           RG_DPACC      = 4'ha,
-           RG_APACC      = 4'hb,
-           RG_APDBUF     = 4'hc,
-           RG_APRBUF     = 4'hd,
-           RG_IDCODE     = 4'he,
-           RG_BYPASS     = 4'hf;
+localparam RG_ABORT      = 5'h8,
+           RG_DPACC      = 5'ha,
+           RG_APACC      = 5'hb,
+           RG_IDCODE     = 5'he,
+           RG_BYPASS     = 5'hf,
+           RG_APDBUF     = 5'h10,
+           RG_APRBUF     = 5'h11,
+           RG_APWBUF     = 5'h12;
 
 localparam RESP_OK_FAULT = 3'h2,
            RESP_WAIT     = 3'h1;
@@ -150,36 +157,38 @@ assign dapacc_cap_data = {(dpacc_sel_latch ? dpacc_res : ap_rdata), (~ap_busy_la
 always_ff @(posedge tck or negedge trstn) begin: reg_sfter
     if (~trstn)                         sfter      <= 35'b0;
     else if (~rstn_trig)                sfter      <= 35'b0;
-    else if (cur_state == STATE_CAP_IR) sfter[3:0] <= 4'b1;
-    else if (cur_state == STATE_SFT_IR) sfter[3:0] <= {tdi, sfter[3:1]};
+    else if (cur_state == STATE_CAP_IR) sfter[4:0] <= 4'b1;
+    else if (cur_state == STATE_SFT_IR) sfter[4:0] <= {tdi, sfter[4:1]};
     else if (cur_state == STATE_CAP_DR) sfter      <= ({35{ir == RG_ABORT }} & {3'b0, `UNPREDICTABLE})|
                                                       ({35{ir == RG_DPACC ||
                                                            ir == RG_APACC }} & dapacc_cap_data)|
-                                                      ({35{ir == RG_APDBUF}} & {3'b0, ap_buf_rdata})|
-                                                      ({35{ir == RG_APRBUF}} & {3'b0, ap_buf_rresp})|
                                                       ({35{ir == RG_IDCODE}} & {3'b0,
                                                                                 4`DAP_VER,
                                                                                 16`DAP_PARTNUM,
                                                                                 11`DAP_MANID,
                                                                                 1'b1})|
-                                                      ({35{ir == RG_BYPASS}} & 35'b0);
+                                                      ({35{ir == RG_BYPASS}} & 35'b0)|
+                                                      ({35{ir == RG_APDBUF}} & {3'b0, ap_rbuf_rdata})|
+                                                      ({35{ir == RG_APRBUF}} & {3'b0, ap_rbuf_rresp})|
+                                                      ({35{ir == RG_APWBUF}} & 35'b0);
     else if (cur_state == STATE_SFT_DR) begin
         if (ir == RG_ABORT ||
             ir == RG_DPACC ||
             ir == RG_APACC)             sfter       <= {tdi, sfter[34:1]};
-        else if (ir == RG_APDBUF)       sfter[31:0] <= ap_buf_dpop ? ap_buf_rdata:
-                                                                     {1'b0, sfter[31:1]};
-        else if (ir == RG_APRBUF)       sfter[31:0] <= ap_buf_rpop ? ap_buf_rresp:
-                                                                     {1'b0, sfter[31:1]};
         else if (ir == RG_IDCODE)       sfter[31:0] <= {tdi, sfter[31:1]};
         else if (ir == RG_BYPASS)       sfter[0]    <=  tdi;
+        else if (ir == RG_APDBUF)       sfter[31:0] <= ap_rbuf_dpop ? ap_rbuf_rdata:
+                                                                      {1'b0, sfter[31:1]};
+        else if (ir == RG_APRBUF)       sfter[31:0] <= ap_rbuf_rpop ? ap_rbuf_rresp:
+                                                                      {1'b0, sfter[31:1]};
+        else if (ir == RG_APWBUF)       sfter[31:0] <= {tdi, sfter[31:1]};
     end
 end
 
 always_ff @(posedge tck or negedge trstn) begin: reg_ir
     if (~trstn)                         ir <= RG_IDCODE;
     else if (~rstn_trig)                ir <= RG_IDCODE;
-    else if (cur_state == STATE_UPD_IR) ir <= sfter[3:0];
+    else if (cur_state == STATE_UPD_IR) ir <= sfter[4:0];
 end
 
 always_ff @(posedge tck or negedge trstn) begin: reg_dr_abort
@@ -317,13 +326,20 @@ always_ff @(posedge tck or negedge trstn) begin: reg_ap_cmp_data
     end
 end
 
-assign ap_buf_dpop = (ir == RG_APDBUF && cur_state == STATE_CAP_DR) ||
-                     (ir == RG_APDBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
+assign ap_rbuf_rrstn = ~((ir == RG_APDBUF || ir == RG_APRBUF) && cur_state == STATE_UPD_DR);
+assign ap_rbuf_dpop  = (ir == RG_APDBUF && cur_state == STATE_CAP_DR) ||
+                       (ir == RG_APDBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
+assign ap_rbuf_rpop  = (ir == RG_APRBUF && cur_state == STATE_CAP_DR) ||
+                       (ir == RG_APRBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
 
-assign ap_buf_rpop = (ir == RG_APRBUF && cur_state == STATE_CAP_DR) ||
-                     (ir == RG_APRBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt);
+assign ap_wbuf_wrstn     = ~(ir == RG_APWBUF && cur_state == STATE_CAP_DR);
+assign ap_wbuf_push_pre  = ir == RG_APWBUF && cur_state == STATE_SFT_DR && ~|ap_buf_cnt;
+assign ap_wbuf_wdata     = sfter[31:0];
 
-assign ap_buf_rrstn = ~((ir == RG_APDBUF || ir == RG_APRBUF) && cur_state == STATE_SFT_DR && tms);
+always_ff @(posedge tck or negedge trstn) begin: reg_ap_wbuf_push
+    if (~trstn) ap_wbuf_push <= 1'b0;
+    else        ap_wbuf_push <= ap_wbuf_push_pre;
+end
 
 always_ff @(posedge tck or negedge trstn) begin: reg_ap_buf
     if (~trstn) begin
@@ -332,7 +348,7 @@ always_ff @(posedge tck or negedge trstn) begin: reg_ap_buf
     else if (~rstn_trig) begin
         ap_buf_cnt <= 5'b0;
     end
-    else if (ir == RG_APDBUF || ir == RG_APRBUF) begin
+    else if (ir == RG_APDBUF || ir == RG_APRBUF || ir == RG_APWBUF) begin
         if (cur_state == STATE_CAP_DR) begin
             ap_buf_cnt <= -5'b1;
         end

@@ -3,7 +3,7 @@
 `include "clkdef.h"
 `define MAX_CYCLE 20000000
 //`define DDR_SIZE 2**17
-`define DDR_SIZE 2**25
+`define DDR_SIZE 2**27
 `define TEST_END_ADDR 32'h1fffc
 `define DDR_DATA(addr) \
 {u_ddr.mem_byte3[addr], u_ddr.mem_byte2[addr], u_ddr.mem_byte1[addr], u_ddr.mem_byte0[addr]}
@@ -174,6 +174,27 @@ initial begin
     // release u_cpu_wrap.u_cpu_top.msip;
 end
 
+// brom initial
+`ifndef BROM
+`define ROM_SIZE 2048
+`define ROM_BYTE0 u_cpu_wrap.u_brom.byte_0
+`define ROM_BYTE1 u_cpu_wrap.u_brom.byte_1
+`define ROM_BYTE2 u_cpu_wrap.u_brom.byte_2
+`define ROM_BYTE3 u_cpu_wrap.u_brom.byte_3
+
+initial begin
+    integer i;
+    // Fill ROM
+    for (i = 0; i < `ROM_SIZE; i = i + 1) begin
+        {`ROM_BYTE3[i], `ROM_BYTE2[i], `ROM_BYTE1[i], `ROM_BYTE0[i]} = 32'hdeaddead;
+    end
+    $readmemh({"rom_0.hex"}, `ROM_BYTE0);
+    $readmemh({"rom_1.hex"}, `ROM_BYTE1);
+    $readmemh({"rom_2.hex"}, `ROM_BYTE2);
+    $readmemh({"rom_3.hex"}, `ROM_BYTE3);
+end
+`endif
+
 // sram initial
 `define SRAM_SIZE 2**15
 logic [7:0] sram_byte0 [`SRAM_SIZE];
@@ -182,7 +203,8 @@ logic [7:0] sram_byte2 [`SRAM_SIZE];
 logic [7:0] sram_byte3 [`SRAM_SIZE];
 
 initial begin
-    integer i;
+    integer i, flash_bin;
+    logic [31:0] tmp;
     $value$plusargs("prog_path=%s", prog_path);
     // Fill SRAM
     for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
@@ -197,18 +219,41 @@ initial begin
     end
 
     // Fill DRAM
-    for (i = 0; i < `DDR_SIZE; i = i + 1) begin
+    for (i = 0; i < 2**25; i = i + 1) begin
         `DDR_DATA(i) = 32'hdeaddead;
     end
     $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
     $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
     $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
     $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
+
+    // Fill DRAM
+    flash_bin = $fopen({prog_path, "/riscv_disk"}, "rb");
+    if (flash_bin) begin
+        i = 2**26;
+        while (!$feof(flash_bin)) begin
+            $fread(tmp, flash_bin);
+            `DDR_DATA(i) = {tmp[7:0], tmp[15:8], tmp[23:16], tmp[31:24]};
+            i = i + 1;
+        end
+        $fclose(flash_bin);
+    end
+    i = 2**26 + 'h100;
+    $display("DDR[%08x] = %08x", i+0, `DDR_DATA(i+0));
+    $display("DDR[%08x] = %08x", i+1, `DDR_DATA(i+1));
+    $display("DDR[%08x] = %08x", i+2, `DDR_DATA(i+2));
+    $display("DDR[%08x] = %08x", i+3, `DDR_DATA(i+3));
 end
 
 `ifdef FSDB
 `ifndef NOFSDB
 initial begin
+    integer i;
+    // 0x7fff_ffff = 2147483647
+    // #14350000000;
+    for (i = 0; i < 8; i = i + 1)
+        #2000000000;
+    #1000000000;
     $fsdbDumpfile("top.fsdb");
     $fsdbDumpvars(0, test, "+struct", "+mda");
 end

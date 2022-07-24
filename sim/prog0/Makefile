@@ -5,10 +5,10 @@ export RISCV_GCC ?= $(CROSS_PREFIX)gcc
 export RISCV_OBJDUMP ?= $(CROSS_PREFIX)objdump -xsd
 export RISCV_OBJCOPY ?= $(CROSS_PREFIX)objcopy -O verilog
 
-INCDIR := ../include/
-LDFILE := link.ld
-CFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i -mabi=ilp32 -I$(INCDIR)
-LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i -mabi=ilp32 -T$(LDFILE) -lgcc
+INCDIR  := ./include/
+LDFILE  := link.ld
+CFLAGS  := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i_zifencei_zicsr -mabi=ilp32 -I$(INCDIR)
+LDFLAGS := -static -mcmodel=medany -fvisibility=hidden -nostdlib -nostartfiles -march=rv32i_zifencei_zicsr -mabi=ilp32 -T$(LDFILE) -lgcc
 
 
 SRC_C   := $(wildcard *.c)
@@ -33,10 +33,15 @@ build_log: $(ELF_NAME)
 	$(RISCV_OBJDUMP) $< > $(ELF_NAME).log
 
 build_hex: $(ELF_NAME)
-	$(RISCV_OBJCOPY) $< -i 4 -b 0 sram_0_0.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 1 sram_0_1.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 2 sram_0_2.hex
-	$(RISCV_OBJCOPY) $< -i 4 -b 3 sram_0_3.hex
+	$(RISCV_OBJCOPY) $< -i 4 -b 0 sram_0.hex
+	$(RISCV_OBJCOPY) $< -i 4 -b 1 sram_1.hex
+	$(RISCV_OBJCOPY) $< -i 4 -b 2 sram_2.hex
+	$(RISCV_OBJCOPY) $< -i 4 -b 3 sram_3.hex
+	
+	@touch ddr_0.hex
+	@touch ddr_1.hex
+	@touch ddr_2.hex
+	@touch ddr_3.hex
 
 %.o: %.bmp
 	$(RISCV_OBJCOPY) -I binary -O elf32-littleriscv -B riscv:rv32 $^ $@

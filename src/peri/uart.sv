@@ -143,7 +143,7 @@ always_ff @(posedge clk or negedge rstn) begin
         rxen  <= 1'b0;
         rxcnt <= 3'b0;
     end
-    else if (apb_wr && s_apb_intf.paddr[11:0] == `UART_TXCTRL) begin
+    else if (apb_wr && s_apb_intf.paddr[11:0] == `UART_RXCTRL) begin
         rxen  <= s_apb_intf.pwdata[0];
         rxcnt <= s_apb_intf.pwdata[18:16];
     end

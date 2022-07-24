@@ -359,6 +359,7 @@ assign tsr     = mstatus_tsr;
 assign sum     = mstatus_sum;
 assign mprv    = mstatus_mprv;
 assign mpp     = mstatus_mpp;
+assign mstatus_sd   = (|mstatus_fs) | (|mstatus_xs);
 
 always_ff @(posedge clk or negedge srstn) begin
     if (~srstn) begin
@@ -378,7 +379,6 @@ always_ff @(posedge clk or negedge srstn) begin
         mstatus_tsr  <= 1'b0;
         mstatus_uxl  <= 2'h2;
         mstatus_sxl  <= 2'h2;
-        mstatus_sd   <= 1'b0;
     end
     else if (trap_en) begin
         if (trap_s_mode) begin
@@ -416,7 +416,7 @@ always_ff @(posedge clk or negedge srstn) begin
         mstatus_sie  <= csr_wdata[`MSTATUS_SIE_BIT  ];
         mstatus_spie <= csr_wdata[`MSTATUS_SPIE_BIT ];
         mstatus_spp  <= csr_wdata[`MSTATUS_SPP_BIT  ];
-        // mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
+        mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
         // mstatus_xs   <= csr_wdata[`MSTATUS_XS_BIT   ];
         mstatus_sum  <= csr_wdata[`MSTATUS_SUM_BIT  ];
         mstatus_mxr  <= csr_wdata[`MSTATUS_MXR_BIT  ];
@@ -428,7 +428,7 @@ always_ff @(posedge clk or negedge srstn) begin
         mstatus_mpie <= csr_wdata[`MSTATUS_MPIE_BIT ];
         mstatus_spp  <= csr_wdata[`MSTATUS_SPP_BIT  ];
         mstatus_mpp  <= csr_wdata[`MSTATUS_MPP_BIT  ];
-        // mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
+        mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
         // mstatus_xs   <= csr_wdata[`MSTATUS_XS_BIT   ];
         mstatus_mprv <= csr_wdata[`MSTATUS_MPRV_BIT ];
         mstatus_sum  <= csr_wdata[`MSTATUS_SUM_BIT  ];
@@ -436,7 +436,6 @@ always_ff @(posedge clk or negedge srstn) begin
         mstatus_tvm  <= csr_wdata[`MSTATUS_TVM_BIT  ];
         mstatus_tw   <= csr_wdata[`MSTATUS_TW_BIT   ];
         mstatus_tsr  <= csr_wdata[`MSTATUS_TSR_BIT  ];
-        mstatus_sd   <= csr_wdata[`MSTATUS_32_SD_BIT];
     end
 end
 
@@ -551,7 +550,7 @@ always_ff @(posedge clk or negedge srstn) begin
 end
 
 always_ff @(posedge clk or negedge srstn) begin
-    if (~srstn)                                       mtvec <= `XLEN'b0;
+    if (~srstn)                                      mtvec <= `XLEN'b0;
     else if (csr_wr && csr_waddr == `CSR_MTVEC_ADDR) mtvec <= (~`XLEN'h2  & csr_wdata);
 end
 

@@ -17,12 +17,7 @@ SECTIONS {
     __text_end = .;
   } > brom
 
-  .rodata : {
-    *(.rodata)
-    . = ALIGN(0x8);
-  } > brom
-
-  .data : {
+  .data : ALIGN(0x8) {
     __data_paddr_start = LOADADDR(.data);
     __data_start = .;
     _DTB = .;
@@ -30,8 +25,11 @@ SECTIONS {
     *(.data)
     *(.data.*)
     *(.gnu.linkonce.d.*)
-    . = ALIGN(0x8);
     __data_end = .;
+  } > brom
+
+  .rodata : {
+    *(.rodata)
   } > brom
 
 /*

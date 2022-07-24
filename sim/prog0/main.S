@@ -650,11 +650,11 @@ bgeu:
   sw t0, 0(s0)
   addi s0, s0, 4
 auipc:
-  auipc t0, 0x00000  # t0 = 0x00000ae4
-  auipc t1, 0xfffff  # t1 = 0xfffffae8
-  auipc t2, 0x13579  # t2 = 0x13579aec
-  add t1, t1, t2     # t1 = 0x135795d4
-  add t0, t0, t1     # t0 = 0x1357a0b8
+  auipc t0, 0x00000  # t0 = 0x00000b0c
+  auipc t1, 0xfffff  # t1 = 0xfffffb10
+  auipc t2, 0x13579  # t2 = 0x13579b14
+  add t1, t1, t2     # t1 = 0x13579624
+  add t0, t0, t1     # t0 = 0x1357a130
   sw t0, 0(s0)
   addi s0, s0, 4
 lui:

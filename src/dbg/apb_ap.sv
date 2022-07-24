@@ -12,9 +12,13 @@ module apb_ap (
     output logic        ap_slverr,
     output logic        ap_busy,
 
-    output logic        ap_buf_push,
-    output logic [31:0] ap_buf_wdata,
-    output logic [ 1:0] ap_buf_wresp,
+    output logic        ap_rbuf_push,
+    output logic [31:0] ap_rbuf_wdata,
+    output logic [ 1:0] ap_rbuf_wresp,
+
+    output logic        ap_wbuf_pop,
+    input        [31:0] ap_wbuf_rdata,
+    input        [ 5:0] ap_wbuf_rsize,
 
     input               spiden,
     input               deviceen,
@@ -92,8 +96,10 @@ apb_rx u_apb_rx (
     .m_apb_intf    ( m_apb_intf    )
 );
 
-assign ap_buf_push  = 1'b0;
-assign ap_buf_wdata = 32'b0;
-assign ap_buf_wresp = 2'b0;
+assign ap_rbuf_push  = 1'b0;
+assign ap_rbuf_wdata = 32'b0;
+assign ap_rbuf_wresp = 2'b0;
+
+assign ap_wbuf_pop   = 1'b0;
 
 endmodule

@@ -82,6 +82,10 @@ build_hex: $(ELF_NAME)
 	@cat main_2.hex >> sram_2.hex
 	@cat main_3.hex >> sram_3.hex
 	
+	@touch ddr_0.hex
+	@touch ddr_1.hex
+	@touch ddr_2.hex
+	@touch ddr_3.hex
 
 %.o: %.bmp
 	$(RISCV_OBJCOPY) -I binary -O elf32-littleriscv -B riscv:rv32 $^ $@

@@ -84,5 +84,6 @@ typedef struct {
 } __SHDR64;
 
 void *__elf_loader(__FILE *file);
+void *__elf_loader_reloc(__FILE *file, __U64 relocate);
 
 #endif

@@ -3,6 +3,7 @@
 #include "spi.h"
 #include "iolib.h"
 #include "util.h"
+#include "uart.h"
 
 __U8 __fat_bpb_init(__BPB *__bpb) {
     __U8  buff[512];
@@ -47,9 +48,61 @@ __U8 __fat_bpb_init(__BPB *__bpb) {
     __bpb->max_clst = (tmp - __bpb->data_base + sect) / __bpb->sects_clst + 2;
 
     // Read fat table check
-    if (!__sd_readblk(__bpb->fat_base, (__U8P) __bpb->fat)) return 0;
+    // if (!__sd_readblk(__bpb->fat_base, (__U8P) __bpb->fat)) return 0;
+    __bpb->fat_cur = -1;
 
     return 1;
+}
+
+__U32 __nxt_clst(__BPB *__bpb, __U32 __clst) {
+    __U32 tmp;
+
+    tmp = __clst + __bpb->dir_base;
+
+    if (tmp / 128 != __bpb->fat_cur) { 
+        // Load FAT table
+        __bpb->fat_cur = tmp / 128;
+        if (!__sd_readblk(__bpb->fat_base + __bpb->fat_cur,
+                          (__U8P) __bpb->fat)) return 0;
+    }
+    tmp = __bpb->fat[tmp % 128];
+    return tmp == 0x0fffffff ? -1 : (tmp - __bpb->dir_base);
+}
+
+__U32 __get_clst(__FILE *__file, __U32 __idx) {
+    __U16 super_clst; // super_clst must less than 512
+    __U32 tmp;
+    __U8  eof;
+    __U16 i;
+    
+    super_clst = __idx / 512;
+    if (super_clst != __file->cur_clst_idx) {
+        while (super_clst > __file->max_clst_idx) {
+            tmp = __file->superclst[__file->max_clst_idx];
+            eof = 0;
+            for (i = 0; i < 512 && !eof; ++i) {
+                tmp = __nxt_clst(__file->bpb, tmp);
+                eof = tmp == -1;
+            }
+            __file->superclst[++(__file->max_clst_idx)] = tmp;
+            if (tmp == -1) return -1;
+        }
+        tmp = __file->superclst[super_clst];
+        if (tmp == -1) return -1;
+
+        __file->clst[0] = tmp;
+        eof = 0;
+        for (i = 1; i < 512; ++i) {
+            if (!eof) {
+                tmp = __nxt_clst(__file->bpb, tmp);
+                eof = tmp == -1;
+            }
+            __file->clst[i] = tmp;
+        }
+        __file->cur_clst_idx = super_clst;
+        __file->superclst[super_clst+1] = tmp == -1 ? -1 : __nxt_clst(__file->bpb, tmp);
+    }
+    return __file->clst[__idx % 512];
 }
 
 __U8 __fopen(__FILE *__file, const char *__fname) {
@@ -64,7 +117,7 @@ __U8 __fopen(__FILE *__file, const char *__fname) {
         fname[i++] = *__fname++ & ~0x20;
     while (i < 8)
         fname[i++] = 0x20;
-    ++__fname;
+    if (*__fname == '.') ++__fname;
     i = 0;
     while (i < 3 && *__fname) subfname[i++] = *__fname++ & ~0x20;
     while (i < 3)             subfname[i++] = 0x20;
@@ -81,17 +134,11 @@ __U8 __fopen(__FILE *__file, const char *__fname) {
         }
         // Match
         __memcpy(__file, &buff[i], 0x20);
-        __file->seek    =  0;
-        __file->sect    = -1;
-        __file->clst[0] = ((__U32) (__file->entry_l) | (__U32) ((__file->entry_h) << 16)) - __file->bpb->dir_base;
-        eof = 0;
-        for (j = 1; j < 128; ++j) {
-            if (!eof) {
-                tmp = __file->bpb->fat[__file->clst[j-1] + __file->bpb->dir_base];
-                eof = tmp == 0x0fffffff;
-            }
-            __file->clst[j] = eof ? -1 : (tmp - __file->bpb->dir_base);
-        }
+        __file->seek         =  0;
+        __file->sect         = -1;
+        __file->cur_clst_idx = -1;
+        __file->max_clst_idx =  0;
+        __file->superclst[0] = ((__U32) (__file->entry_l) | (__U32) ((__file->entry_h) << 16)) - __file->bpb->dir_base;
         return 1;
     }
     return 0;
@@ -113,23 +160,40 @@ __U8 __fread(__FILE *file, void *buff, __U32 size) {
 
     while (i < size) {
         sect = file->seek / 0x200;
-        if (sect != file->sect) {
-            // Load sect
-            if (!__sd_readblk(file->bpb->data_base +
-                              sect % file->bpb->sects_clst +
-                              file->clst[sect / file->bpb->sects_clst] * file->bpb->sects_clst,
-                              file->buff))
-                return 0;
-            file->sect = sect;
+        if (size - i >= 0x200 && !offset) {
+            if (sect != file->sect) {
+                if (!__sd_readblk(file->bpb->data_base +
+                                  sect % file->bpb->sects_clst +
+                                  __get_clst(file, sect / file->bpb->sects_clst) * file->bpb->sects_clst,
+                                  cbuff))
+                    return 0;
+            }
+            else {
+                __memcpy(cbuff, file->buff, 0x200);
+            }
+            cbuff += 0x200;
+            file->seek += 0x200;
+            i += 0x200;
         }
-        partial_size = 0x200 - file->seek % 0x200;
-        if (i + partial_size >= size)
-            partial_size = size - i;
-        __memcpy(cbuff, file->buff + offset, partial_size);
-        i += partial_size;
-        cbuff += partial_size;
-        file->seek += partial_size;
-        offset = 0;
+        else {
+            if (sect != file->sect) {
+                // Load sect
+                if (!__sd_readblk(file->bpb->data_base +
+                                  sect % file->bpb->sects_clst +
+                                  __get_clst(file, sect / file->bpb->sects_clst) * file->bpb->sects_clst,
+                                  file->buff))
+                    return 0;
+                file->sect = sect;
+            }
+            partial_size = 0x200 - file->seek % 0x200;
+            if (i + partial_size >= size)
+                partial_size = size - i;
+            __memcpy(cbuff, file->buff + offset, partial_size);
+            i += partial_size;
+            cbuff += partial_size;
+            file->seek += partial_size;
+            offset = 0;
+        }
     }
     return 1;
 }
