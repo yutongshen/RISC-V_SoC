@@ -1,32 +1,44 @@
 module cpu_tracer (
-    input               clk,
-    input               srstn,
-    input               xrstn,
-    input               valid,
-    input [        1:0] misa_mxl,
-    input               len_64,
-    input [  `XLEN-1:0] pc,
-    input [  `XLEN-1:0] epc,
-    input [       31:0] inst,
-    input [        1:0] prv,
-    input               rd_wr,
-    input [        4:0] rd_addr,
-    input [  `XLEN-1:0] rd_data,
-    input               csr_wr,
-    input [       11:0] csr_waddr,
-    input [  `XLEN-1:0] csr_wdata,
-    input [  `XLEN-1:0] mem_addr,
-    input               mem_req,
-    input               mem_wr,
-    input [`XLEN/8-1:0] mem_byte,
-    input [  `XLEN-1:0] mem_rdata,
-    input [  `XLEN-1:0] mem_wdata,
-    input               trap_en,
-    input [  `XLEN-1:0] mcause,
-    input [  `XLEN-1:0] mtval,
-    input               halted
+    input                clk,
+    input                srstn,
+    input                xrstn,
+    input                valid,
+    input  [       63:0] cycle,
+    input  [        1:0] misa_mxl,
+    input                len_64,
+    input  [  `XLEN-1:0] pc,
+    input  [  `XLEN-1:0] epc,
+    input  [       31:0] inst,
+    input  [        1:0] prv,
+    input                rd_wr,
+    input  [        4:0] rd_addr,
+    input  [  `XLEN-1:0] rd_data,
+    input                csr_wr,
+    input  [       11:0] csr_waddr,
+    input  [  `XLEN-1:0] csr_wdata,
+    input  [  `XLEN-1:0] mem_addr,
+    input                mem_req,
+    input                mem_wr,
+    input  [`XLEN/8-1:0] mem_byte,
+    input  [  `XLEN-1:0] mem_rdata,
+    input  [  `XLEN-1:0] mem_wdata,
+    input                trap_en,
+    input  [  `XLEN-1:0] mcause,
+    input  [  `XLEN-1:0] mtval,
+    input                halted,
+    output               pkg_valid,
+    output [      255:0] pkg
 );
 
+
+assign pkg_valid = valid || trap_en;
+assign pkg       = ~trap_en ? mem_req ? mem_wr ? {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0],  mem_addr[63:0], mem_wdata[63:0]}:
+                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0],  mem_addr[63:0], mem_rdata[63:0]}:
+                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0], csr_wdata[63:0],   rd_data[63:0]}:
+                                                 {1'b1, prv[1:0], misa_mxl[1], cycle[27:0], epc[63:0],      32'b0,    mcause[63:0],     mtval[63:0]};
+                                           
+
+`ifdef CPULOG
 integer cpu_tracer_file;
 logic   halted_dly;
 logic   srstn_dly;
@@ -148,5 +160,6 @@ always_ff @(posedge clk) begin
         end
     end
 end
+`endif
 
 endmodule

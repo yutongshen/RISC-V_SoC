@@ -31,10 +31,13 @@ ISA           := $(patsubst %.dump,,$(ISA))
 .PHONY: all
 
 ${bld_dir}:
-	mkdir -p $(bld_dir)
+	mkdir -p $(bld_dir);
+	# ln -s /home/nfs_home/fred2/sim_tmp $(bld_dir);
+	# ln -s sim_tmp/cpu_tracer.log $(bld_dir);
+	# ln -s sim_tmp/top.fsdb $(bld_dir);
 
 $(syn_dir):
-	mkdir -p $(syn_dir)
+	mkdir -p $(syn_dir);
 
 verdi.f: | ${bld_dir}
 	@make merge;
@@ -105,7 +108,7 @@ sim: all | ${bld_dir}
 	else \
 	    make -C $(bld_dir)/prog isa=${isa}; \
 	    cd $(bld_dir); \
-	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +define+FAKE_UART +define+MAX_CYCLE=1000000000 +nclinedebug; \
+	    ncverilog -sv -f verdi.f +prog_path=prog +prog=prog$(prog) +isa=${isa} +define+MAX_CYCLE=1000000000 +nclinedebug; \
 	fi;
 
 axi: | ${bld_dir}

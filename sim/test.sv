@@ -129,50 +129,14 @@ always @(posedge simend) begin
     $finish;
 end
 
-initial begin
-    // wait (u_cpu_wrap.u_intc.u_plic.int_en[0] != 32'b0);
-    // #(`CLK_PRIOD * 5);
-    // force u_cpu_wrap.u_intc.ints  = -32'b1;
-    // force u_cpu_wrap.u_plic.int_en[0] = 32'h55555555;
-    // force u_cpu_wrap.u_plic.int_prior[0]  = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[1]  = 32'h1;
-    // force u_cpu_wrap.u_plic.int_prior[2]  = 32'h2;
-    // force u_cpu_wrap.u_plic.int_prior[3]  = 32'h3;
-    // force u_cpu_wrap.u_plic.int_prior[4]  = 32'h4;
-    // force u_cpu_wrap.u_plic.int_prior[5]  = 32'h5;
-    // force u_cpu_wrap.u_plic.int_prior[6]  = 32'h6;
-    // force u_cpu_wrap.u_plic.int_prior[7]  = 32'h7;
-    // force u_cpu_wrap.u_plic.int_prior[8]  = 32'h8;
-    // force u_cpu_wrap.u_plic.int_prior[9]  = 32'h9;
-    // force u_cpu_wrap.u_plic.int_prior[10] = 32'h9;
-    // force u_cpu_wrap.u_plic.int_prior[11] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[12] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[13] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[14] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[15] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[16] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[17] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[18] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[19] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[20] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[21] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[22] = 32'hA;
-    // force u_cpu_wrap.u_plic.int_prior[23] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[24] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[25] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[26] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[27] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[28] = 32'hA;
-    // force u_cpu_wrap.u_plic.int_prior[29] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[30] = 32'h0;
-    // force u_cpu_wrap.u_plic.int_prior[31] = 32'h0;
-    // wait (u_cpu_wrap.u_cpu_top.id2exe_wfi === 1'b1);
-    // #1;
-    // #(`CLK_PRIOD * 5)
-    // force u_cpu_wrap.u_cpu_top.msip = 1'b1;
-    // #(`CLK_PRIOD * 10)
-    // release u_cpu_wrap.u_cpu_top.msip;
-end
+// initial begin
+//     #(`CLK_PRIOD * 57995);
+//     force u_cpu_wrap.u_cpu_top.u_sru.mie_meie = 1'b1;
+//     force u_cpu_wrap.u_cpu_top.u_sru.mip_meip = 1'b1;
+//     #(`CLK_PRIOD * 10);
+//     release u_cpu_wrap.u_cpu_top.u_sru.mie_meie;
+//     release u_cpu_wrap.u_cpu_top.u_sru.mip_meip;
+// end
 
 // brom initial
 `ifndef BROM
@@ -210,6 +174,8 @@ initial begin
     for (i = 0; i < `SRAM_SIZE; i = i + 1) begin
         {sram_byte3[i], sram_byte2[i], sram_byte1[i], sram_byte0[i]} = 32'hdeaddead;
     end
+    {sram_byte3[0], sram_byte2[0], sram_byte1[0], sram_byte0[0]} = 32'h00100293; // li t0, 1
+    {sram_byte3[1], sram_byte2[1], sram_byte1[1], sram_byte0[1]} = 32'h928202fe; // slli  t0,t0,0x1f; jalr t0
     $readmemh({prog_path, "/sram_0.hex"}, sram_byte0);
     $readmemh({prog_path, "/sram_1.hex"}, sram_byte1);
     $readmemh({prog_path, "/sram_2.hex"}, sram_byte2);
@@ -220,7 +186,7 @@ initial begin
 
     // Fill DRAM
     for (i = 0; i < 2**25; i = i + 1) begin
-        `DDR_DATA(i) = 32'hdeaddead;
+        `DDR_DATA(i) = 32'h00000000;
     end
     $readmemh({prog_path, "/ddr_0.hex"}, u_ddr.mem_byte0);
     $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
@@ -250,10 +216,9 @@ end
 initial begin
     integer i;
     // 0x7fff_ffff = 2147483647
-    // #14350000000;
-    for (i = 0; i < 8; i = i + 1)
-        #2000000000;
-    #1000000000;
+    // for (i = 0; i < 8; i = i + 1)
+    //     #2000000000;
+    // #1000000000;
     $fsdbDumpfile("top.fsdb");
     $fsdbDumpvars(0, test, "+struct", "+mda");
 end

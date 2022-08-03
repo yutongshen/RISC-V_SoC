@@ -72,7 +72,11 @@ module cpu_top (
     input                                    dbg_exec,
     input        [       `IM_DATA_LEN - 1:0] dbg_inst,
     input                                    attach,
-    output logic                             halted
+    output logic                             halted,
+
+    // CPU tracer
+    output logic                             trace_pkg_valid,
+    output logic [                    255:0] trace_pkg
 );
 
 logic                             srstn_sync;
@@ -483,6 +487,7 @@ logic                             mr2wb_attach;
 logic [              `XLEN - 1:0] wb_rd_data;
 logic                             wb_rd_wr;
 logic                             wb_inst_valid;
+logic [                     63:0] wb_mcycle;
 logic                             wb_wfi;
 
 // Forward
@@ -968,22 +973,20 @@ mdu u_mdu(
 assign exe_rd_data = ({`XLEN{ id2exe_mdu_sel}} & exe_mdu_out) |
                      ({`XLEN{~id2exe_mdu_sel}} & exe_alu_out);
 
-assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_sret       = id2exe_sret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
-assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~exe_trap_en & ~stall_wfi;
+assign exe_pmu_csr_wr = id2exe_pmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_fpu_csr_wr = id2exe_fpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_dbg_csr_wr = id2exe_dbg_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_mmu_csr_wr = id2exe_mmu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_mpu_csr_wr = id2exe_mpu_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_sru_csr_wr = id2exe_sru_csr_wr & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_sret       = id2exe_sret       & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
+assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~exe_irq_en & ~exe_trap_en & ~stall_wfi;
 
 assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
-assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall ||
-                        ((id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
-                          id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
-                          id2exe_sret || id2exe_mret) && ~stall_wfi);
+assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall || mr_pipe_restart ||
+                        exe2ma_mem_req || ma2mr_mem_req;
 
 sru u_sru (
     .clk              ( clk_wfi           ),
@@ -1494,6 +1497,7 @@ pmu u_pmu (
     .misa_mxl   ( exe_misa_mxl      ),
     .prv        ( exe_prv           ),
     .mtime      ( systime           ),
+    .mcycle     ( wb_mcycle         ),
     
     .csr_rd_chk ( id2exe_csr_rd     ),
     .csr_wr_chk ( id2exe_pmu_csr_wr ),
@@ -1505,13 +1509,13 @@ pmu u_pmu (
     .csr_ill    ( exe_pmu_csr_ill   )
 );
 
-`ifdef CPULOG
 // Tracer
 cpu_tracer u_cpu_tracer (
     .clk       ( clk_wfi         ),
     .srstn     ( srstn_sync      ),
     .xrstn     ( xrstn_sync      ),
     .valid     ( wb_inst_valid   ),
+    .cycle     ( wb_mcycle       ),
     .misa_mxl  ( exe_misa_mxl    ),
     .len_64    ( mr2wb_len_64    ),
     .pc        ( mr2wb_pc        ),
@@ -1533,8 +1537,9 @@ cpu_tracer u_cpu_tracer (
     .trap_en   ( mr2wb_trap_en   ),
     .mcause    ( mr2wb_cause     ),
     .mtval     ( mr2wb_tval      ),
-    .halted    ( halted          )
+    .halted    ( halted          ),
+    .pkg_valid ( trace_pkg_valid ),
+    .pkg       ( trace_pkg       )
 );
-`endif
 
 endmodule

@@ -174,9 +174,11 @@ initial begin
 */    
     j = 0;
     forever begin
+        #111300000;
         // AXI_AP test
         // APSEL AXI_AP sel
-        axi_ap_test_addr = 32'h8000_0000;
+        // axi_ap_test_addr = 32'h8000_0000;
+        axi_ap_test_addr = 32'h0400_2000;
         jtag_w_ir(5'ha);
         do begin
             jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
@@ -202,67 +204,29 @@ initial begin
         // AXI_AP TAR
         jtag_w_ir(5'hb);
         do begin
+            jtag_rw_dr(35, {32'h1a, 2'h0, 1'b0});
+        end while (rdata[2:0] == `RESP_WAIT);
+        jtag_w_ir(5'hb);
+        do begin
             jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
         end while (rdata[2:0] == `RESP_WAIT);
         jtag_w_ir(5'hb);
-        for (i = 0; i < 'h20; i = i + 1) begin
-            jtag_w_ir(5'hb);
-            do begin
-                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-            end while (rdata[2:0] == `RESP_WAIT);
-            jtag_w_ir(5'ha);
-            do begin
-                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-            end while (rdata[2:0] == `RESP_WAIT);
-            if (rdata[34:3] != (i << 24 | i << 16 | i << 8 | i))
-                $display("[JTAG_MDL] there are some error !!! (%08x)", rdata[34:3]);
-            // $display("[JTAG_MDL] AXI read [%08x] = %08x", axi_ap_test_addr + 4 * i, rdata[34:3]);
-        end
-
+        do begin
+            jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
+        end while (rdata[2:0] == `RESP_WAIT);
         jtag_w_ir(5'ha);
         do begin
-            jtag_rw_dr(35, {{8'h2, 16'b0, 4'h0, 4'b0}, 2'h2, 1'b0});
+            jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
         end while (rdata[2:0] == `RESP_WAIT);
-        // AXI_AP CSW 32-bit and Auto-incr addr
-        jtag_w_ir(5'hb);
-        do begin
-            jtag_rw_dr(35, {32'h12, 2'h0, 1'b0});
-        end while (rdata[2:0] == `RESP_WAIT);
-        // AXI_AP TAR
-        jtag_w_ir(5'hb);
-        do begin
-            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-        end while (rdata[2:0] == `RESP_WAIT);
-        jtag_w_ir(5'hb);
-        for (i = 'h1f; i >= 0; i = i - 1) begin
-            axi_ap_test_data = i << 24 | i << 16 | i << 8 | i;
-            do begin
-                jtag_rw_dr(35, {axi_ap_test_data, 2'h3, 1'b0});
-            end while (rdata[2:0] == `RESP_WAIT);
-            // $display("[JTAG_MDL] AXI write [%08x] = %08x", axi_ap_test_addr + 4 * i, axi_ap_test_data);
-        end
-        // AXI_AP TAR
-        jtag_w_ir(5'hb);
-        do begin
-            jtag_rw_dr(35, {axi_ap_test_addr, 2'h1, 1'b0});
-        end while (rdata[2:0] == `RESP_WAIT);
-        jtag_w_ir(5'hb);
-        for (i = 'h1f; i >= 0; i = i - 1) begin
-            jtag_w_ir(5'hb);
-            do begin
-                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-            end while (rdata[2:0] == `RESP_WAIT);
-            jtag_w_ir(5'ha);
-            do begin
-                jtag_rw_dr(35, {32'h0, 2'h3, 1'b1});
-            end while (rdata[2:0] == `RESP_WAIT);
-            if (rdata[34:3] != (i << 24 | i << 16 | i << 8 | i))
-                $display("[JTAG_MDL] there are some error !!! (%08x)", rdata[34:3]);
-            // $display("[JTAG_MDL] AXI read [%08x] = %08x", axi_ap_test_addr + 4 * i, rdata[34:3]);
-        end
+        // $display("[JTAG_MDL] AXI read sector [%08x]", axi_ap_test_addr);
+        jtag_w_ir(5'h10);
+        jtag_rd_dbuf;
+        jtag_w_ir(5'h11);
+        jtag_rd_rbuf;
         j = j + 1;
-        if (j % 10 == 0) 
+        if (j % 500 == 0) 
             $display("[JTAG_MDL] %d times", j);
+        $finish;
     end
 /*
 
@@ -523,11 +487,11 @@ jtag_tms(1'b0); // Shift-DR
 for (i = 0; i < 2*64 - 1; i = i + 1) begin
     rdata[31:0] = {tdo, rdata[31:1]};
     if (i % 2 == 1)
-        $display("rbuf[0x%2x] = 0x%1x", i / 2, rdata[31:30]);
+        // $display("rbuf[0x%2x] = 0x%1x", i / 2, rdata[31:30]);
     jtag_tdi(1'b0);
 end
 rdata[31:0] = {tdo, rdata[31:1]};
-$display("rbuf[0x%2x] = 0x%1x", i / 2, rdata[31:30]);
+// $display("rbuf[0x%2x] = 0x%1x", i / 2, rdata[31:30]);
 jtag_tms_tdi(1'b1, 1'b0); // Exit1-DR
 jtag_tms(1'b1); // Update-DR
 jtag_tms(1'b0); // Run-Test or Idle

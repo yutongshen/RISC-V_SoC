@@ -11,6 +11,7 @@ module pmu (
     input        [      1:0] misa_mxl,
     input        [      1:0] prv,
     input        [     63:0] mtime,
+    output logic [     63:0] mcycle,
     
     // CSR interface
     input                    csr_rd_chk, // EXE-stage
@@ -27,7 +28,7 @@ module pmu (
 logic [`XLEN-1:0] scounteren;
 logic [`XLEN-1:0] mcounteren;
 logic [`XLEN-1:0] mhartid;
-logic [     63:0] mcycle;
+// logic [     63:0] mcycle;
 logic [     63:0] minstret;
 
 assign csr_ill = (misa_mxl == `MISA_MXL_XLEN_64 && (csr_rd_chk || csr_wr_chk) &&

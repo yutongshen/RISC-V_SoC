@@ -280,6 +280,9 @@ logic                dbg_exec;
 logic                dbg_halted;
 logic                dbg_attach;
 
+logic                cpu_trace_pkg_valid;
+logic [      255: 0] cpu_trace_pkg;
+
 
 `AXI_INTF_DEF(immu, 10)
 `AXI_INTF_DEF(dmmu, 10)
@@ -295,7 +298,7 @@ apb_intf ext_dbg_apb();
 apb_intf dbg_apb();
 apb_intf core_apb();
 apb_intf cfgreg_apb();
-apb_intf cpustatreg_apb();
+apb_intf dbgmon_apb();
 apb_intf intc_apb();
 apb_intf peri_apb();
 apb_intf dap_apb();
@@ -385,7 +388,11 @@ cpu_top u_cpu_top (
     .dbg_exec            ( dbg_exec               ),
     .dbg_inst            ( dbg_inst               ),
     .attach              ( dbg_attach             ),
-    .halted              ( dbg_halted             )
+    .halted              ( dbg_halted             ),
+
+    // CPU tracer
+    .trace_pkg_valid     ( cpu_trace_pkg_valid    ),
+    .trace_pkg           ( cpu_trace_pkg          )
 );
 
 mmu u_immu (
@@ -621,10 +628,10 @@ l1c u_l1dc (
 );
 
 core_apb_conn u_core_apb_conn (
-    .core_apb       ( core_apb.slave        ),
-    .cfgreg_apb     ( cfgreg_apb.master     ),
-    .cpustatreg_apb ( cpustatreg_apb.master ),
-    .intc_apb       ( intc_apb.master       )
+    .core_apb   ( core_apb.slave    ),
+    .cfgreg_apb ( cfgreg_apb.master ),
+    .dbgmon_apb ( dbgmon_apb.master ),
+    .intc_apb   ( intc_apb.master   )
 );
 
 cfgreg u_cfgreg (
@@ -637,13 +644,17 @@ cfgreg u_cfgreg (
     .core_rstn    ( core_rstn        )
 );
 
-cpustatreg u_cpustatreg (
-    .clk          ( clk                  ),
-    .rstn         ( rstn                 ),
-    .apb_intf     ( cpustatreg_apb.slave ),
+dbgmon u_dbgmon (
+    .clk          ( clk                 ),
+    .rstn         ( rstn                ),
+    .srstn        ( core_rstn           ),
+    .apb_intf     ( dbgmon_apb.slave    ),
 
-    .pc           ( dbg_pc               ),
-    .gpr          ( dbg_gpr_all          )
+    .pc           ( dbg_pc              ),
+    .gpr          ( dbg_gpr_all         ),
+
+    .pkg_valid    ( cpu_trace_pkg_valid ),
+    .pkg          ( cpu_trace_pkg       )
 );
 
 rgu u_rgu (

@@ -2,8 +2,9 @@
 #define pmacfg1   0x3c1
 #define pmacfg2   0x3c2
 #define pmacfg3   0x3c3
+#define pmaaddr14 0x3de
 #define pmaaddr15 0x3df
-#define ENABLE_CACHE
+// #define ENABLE_CACHE
 // #define ENABLE_UART_IRQ
 
 .section .text
@@ -63,11 +64,21 @@ init_system:
     csrr t0, misa;
     bltz t0, rv64;
 #ifdef ENABLE_CACHE
-    # set DDR cacheable
-    li t0, 0x1a000000;
+    # set SYSRAM cacheable
+    li t0, 0x1a0000;
     csrw pmacfg3, t0;
     lw t0, sysram_base;
     lw t1, sysram_size;
+    addi t1, t1, -1;
+    srli t1, t1, 1;
+    or t0, t0, t1;
+    srli t0, t0, 2;
+    csrw pmaaddr14, t0;
+    # set DDR cacheable
+    li t0, 0x1a000000;
+    csrs pmacfg3, t0;
+    lw t0, ddr_base;
+    lw t1, ddr_size;
     addi t1, t1, -1;
     srli t1, t1, 1;
     or t0, t0, t1;
@@ -78,11 +89,21 @@ init_system:
     j goto_main;
 rv64:
 #ifdef ENABLE_CACHE
-    # set DDR cacheable
-    li t0, 0x1a00000000000000;
+    # set SYSRAM cacheable
+    li t0, 0x1a000000000000;
     csrw pmacfg2, t0;
     ld t0, sysram_base;
     ld t1, sysram_size;
+    addi t1, t1, -1;
+    srli t1, t1, 1;
+    or t0, t0, t1;
+    srli t0, t0, 2;
+    csrw pmaaddr14, t0;
+    # set DDR cacheable
+    li t0, 0x1a00000000000000;
+    csrs pmacfg2, t0;
+    ld t0, ddr_base;
+    ld t1, ddr_size;
     addi t1, t1, -1;
     srli t1, t1, 1;
     or t0, t0, t1;
@@ -112,16 +133,14 @@ fb_end:
     ret;
 
 
-#ifndef JUMP_DDR
 .align 3
 sysram_base:
   .dword 0x00020000
 sysram_size:
   .dword 0x00020000
-#else
+
 .align 3
-sysram_base:
+ddr_base:
   .dword 0x80000000
-sysram_size:
+ddr_size:
   .dword 0x80000000
-#endif

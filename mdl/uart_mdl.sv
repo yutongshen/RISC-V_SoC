@@ -118,8 +118,8 @@ initial begin
         end
 `endif
         $write("%c", rxdata);
-        fifo[rx_ptr[3:0]] = rxdata;
-        rx_ptr  = rx_ptr + 1;
+        // fifo[rx_ptr[3:0]] = rxdata;
+        // rx_ptr  = rx_ptr + 1;
     end
 end
 

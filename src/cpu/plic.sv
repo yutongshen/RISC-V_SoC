@@ -241,7 +241,7 @@ end
 always_ff @(posedge clk or negedge rstn) begin: reg_int_type
     integer i;
     if (~rstn) begin
-        int_type <= `INT_NUM'b0;
+        int_type <= {`INT_NUM{1'b1}};
     end
     else if (apb_wr) begin
         for (i = 0; i < `INT_NUM; i = i + 32) begin

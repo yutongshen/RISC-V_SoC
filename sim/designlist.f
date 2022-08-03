@@ -31,13 +31,14 @@
 ../src/cpu/xmon.sv
 ../src/cpu/l1c.sv
 ../src/cpu/cfgreg.sv
-../src/cpu/cpustatreg.sv
+../src/cpu/dbgmon.sv
 ../src/cpu/intc.sv
 ../src/cpu/clint.sv
 ../src/cpu/plic.sv
 ../src/cpu/dbgapb.sv
 ../src/cpu/util.sv
 ../src/cpu/peri.sv
+../src/cpu/cpu_tracer.sv
 ../src/peri/systimer.sv
 ../src/peri/uart.sv
 ../src/peri/spi_core.sv
@@ -73,5 +74,6 @@
 ../src/mem/sram32x64.sv
 ../src/mem/sram64x22.sv
 ../src/mem/sram64x128.sv
+../src/mem/sram128x64.sv
 +incdir+../include
 +incdir+../rom

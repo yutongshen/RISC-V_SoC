@@ -12,6 +12,7 @@ __U32 main(void) {
     __FILE __file;
     __file.bpb = &__bpb;
 
+    *PLIC_INT_TYPE_32P = -1;
     __uart_init();
     __puts("[BROM] UART init done");
 #ifndef FAKE_SD

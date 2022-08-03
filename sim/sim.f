@@ -1,5 +1,4 @@
 ../sim/test.sv
-../mdl/cpu_tracer.sv
 ../mdl/uart_mdl.sv
 ../mdl/spi_mdl.sv
 ../mdl/jtag_mdl.sv
