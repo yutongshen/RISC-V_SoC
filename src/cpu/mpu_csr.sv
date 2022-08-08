@@ -35,7 +35,9 @@ module mpu_csr (
     input                    csr_wr,
     input        [     11:0] csr_waddr,
     input        [     11:0] csr_raddr,
-    input        [`XLEN-1:0] csr_wdata,
+    // input        [`XLEN-1:0] csr_wdata,
+    input        [`XLEN-1:0] csr_sdata,
+    input        [`XLEN-1:0] csr_cdata,
     output logic [`XLEN-1:0] csr_rdata
 
 );
@@ -94,21 +96,23 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMPCFG0_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i]) begin
-                pmpcfg_l[i] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i] <= `CSR_WDATA(pmpcfg_l[i], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i] <= `CSR_WDATA(pmpcfg_a[i], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i] <= `CSR_WDATA(pmpcfg_x[i], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i] <= `CSR_WDATA(pmpcfg_w[i], (i*8)+`PMPCFG_W_BIT)&
+                               `CSR_WDATA(pmpcfg_r[i], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i] <= `CSR_WDATA(pmpcfg_r[i], (i*8)+`PMPCFG_R_BIT);
             end
         end
 `ifndef RV32
         for (i = 4; i < 8; i = i + 1) begin
             if (~pmpcfg_l[i] && misa_mxl == `MISA_MXL_XLEN_64) begin
-                pmpcfg_l[i] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i] <= `CSR_WDATA(pmpcfg_l[i], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i] <= `CSR_WDATA(pmpcfg_a[i], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i] <= `CSR_WDATA(pmpcfg_x[i], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i] <= `CSR_WDATA(pmpcfg_w[i], (i*8)+`PMPCFG_W_BIT)&
+                               `CSR_WDATA(pmpcfg_r[i], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i] <= `CSR_WDATA(pmpcfg_r[i], (i*8)+`PMPCFG_R_BIT);
             end
         end
 `endif
@@ -116,32 +120,35 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMPCFG1_ADDR && misa_mxl == `MISA_MXL_XLEN_32) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+4]) begin
-                pmpcfg_l[i+4] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i+4] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i+4] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i+4] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i+4] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i+4] <= `CSR_WDATA(pmpcfg_l[i+4], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i+4] <= `CSR_WDATA(pmpcfg_a[i+4], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i+4] <= `CSR_WDATA(pmpcfg_x[i+4], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i+4] <= `CSR_WDATA(pmpcfg_w[i+4], (i*8)+`PMPCFG_W_BIT)&
+                                 `CSR_WDATA(pmpcfg_r[i+4], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i+4] <= `CSR_WDATA(pmpcfg_r[i+4], (i*8)+`PMPCFG_R_BIT);
             end
         end
     end
     else if (csr_wr && csr_waddr == `CSR_PMPCFG2_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+8]) begin
-                pmpcfg_l[i+8] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i+8] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i+8] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i+8] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i+8] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i+8] <= `CSR_WDATA(pmpcfg_l[i+8], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i+8] <= `CSR_WDATA(pmpcfg_a[i+8], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i+8] <= `CSR_WDATA(pmpcfg_x[i+8], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i+8] <= `CSR_WDATA(pmpcfg_w[i+8], (i*8)+`PMPCFG_W_BIT)&
+                                 `CSR_WDATA(pmpcfg_r[i+8], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i+8] <= `CSR_WDATA(pmpcfg_r[i+8], (i*8)+`PMPCFG_R_BIT);
             end
         end
 `ifndef RV32
         for (i = 4; i < 8; i = i + 1) begin
             if (~pmpcfg_l[i+8] && misa_mxl == `MISA_MXL_XLEN_64) begin
-                pmpcfg_l[i+8] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i+8] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i+8] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i+8] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i+8] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i+8] <= `CSR_WDATA(pmpcfg_l[i+8], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i+8] <= `CSR_WDATA(pmpcfg_a[i+8], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i+8] <= `CSR_WDATA(pmpcfg_x[i+8], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i+8] <= `CSR_WDATA(pmpcfg_w[i+8], (i*8)+`PMPCFG_W_BIT)&
+                                 `CSR_WDATA(pmpcfg_r[i+8], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i+8] <= `CSR_WDATA(pmpcfg_r[i+8], (i*8)+`PMPCFG_R_BIT);
             end
         end
 `endif
@@ -149,11 +156,12 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMPCFG3_ADDR && misa_mxl == `MISA_MXL_XLEN_32) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmpcfg_l[i+12]) begin
-                pmpcfg_l[i+12] <= csr_wdata[(i*8)+`PMPCFG_L_BIT];
-                pmpcfg_a[i+12] <= csr_wdata[(i*8)+`PMPCFG_A_BIT];
-                pmpcfg_x[i+12] <= csr_wdata[(i*8)+`PMPCFG_X_BIT];
-                pmpcfg_w[i+12] <= csr_wdata[(i*8)+`PMPCFG_W_BIT] & csr_wdata[(i*8)+`PMPCFG_R_BIT]; // if R=0 => W=0
-                pmpcfg_r[i+12] <= csr_wdata[(i*8)+`PMPCFG_R_BIT];
+                pmpcfg_l[i+12] <= `CSR_WDATA(pmpcfg_l[i+12], (i*8)+`PMPCFG_L_BIT);
+                pmpcfg_a[i+12] <= `CSR_WDATA(pmpcfg_a[i+12], (i*8)+`PMPCFG_A_BIT);
+                pmpcfg_x[i+12] <= `CSR_WDATA(pmpcfg_x[i+12], (i*8)+`PMPCFG_X_BIT);
+                pmpcfg_w[i+12] <= `CSR_WDATA(pmpcfg_w[i+12], (i*8)+`PMPCFG_W_BIT)&
+                                  `CSR_WDATA(pmpcfg_r[i+12], (i*8)+`PMPCFG_R_BIT); // if R=0 => W=0
+                pmpcfg_r[i+12] <= `CSR_WDATA(pmpcfg_r[i+12], (i*8)+`PMPCFG_R_BIT);
             end
         end
     end
@@ -170,11 +178,13 @@ always_ff @(posedge clk or negedge rstn) begin
         for (i = 0; i < 15; i = i + 1) begin
             if (csr_wr && csr_waddr == CSR_PMPADDR_ADDR[i] &&
                 !pmpcfg_l[i] && !(pmpcfg_l[i+1] && pmpcfg_a[i+1] == `PMPCFG_A_TOR)) begin
-                pmpaddr[i] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
+                pmpaddr[i] <= `CSR_WDATA(pmpaddr[i], `XLEN-1:0) &
+                              ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
             end
         end
         if (csr_wr && csr_waddr == CSR_PMPADDR_ADDR[15] && !pmpcfg_l[15]) begin
-            pmpaddr[15] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
+            pmpaddr[15] <= `CSR_WDATA(pmpaddr[15], `XLEN-1:0) &
+                           ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
         end
     end
 end
@@ -239,19 +249,19 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMACFG0_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i]) begin
-                pmacfg_l[i] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i] <= `CSR_WDATA(pmacfg_l[i], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i] <= `CSR_WDATA(pmacfg_a[i], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i] <= `CSR_WDATA(pmacfg_c[i], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i] <= `CSR_WDATA(pmacfg_e[i], (i*8)+`PMACFG_E_BIT);
             end
         end
 `ifndef RV32
         for (i = 4; i < 8; i = i + 1) begin
             if (~pmacfg_l[i] && misa_mxl == `MISA_MXL_XLEN_64) begin
-                pmacfg_l[i] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i] <= `CSR_WDATA(pmacfg_l[i], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i] <= `CSR_WDATA(pmacfg_a[i], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i] <= `CSR_WDATA(pmacfg_c[i], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i] <= `CSR_WDATA(pmacfg_e[i], (i*8)+`PMACFG_E_BIT);
             end
         end
 `endif
@@ -259,29 +269,29 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMACFG1_ADDR && misa_mxl == `MISA_MXL_XLEN_32) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+4]) begin
-                pmacfg_l[i+4] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i+4] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i+4] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i+4] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i+4] <= `CSR_WDATA(pmacfg_l[i+4], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i+4] <= `CSR_WDATA(pmacfg_a[i+4], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i+4] <= `CSR_WDATA(pmacfg_c[i+4], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i+4] <= `CSR_WDATA(pmacfg_e[i+4], (i*8)+`PMACFG_E_BIT);
             end
         end
     end
     else if (csr_wr && csr_waddr == `CSR_PMACFG2_ADDR) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+8]) begin
-                pmacfg_l[i+8] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i+8] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i+8] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i+8] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i+8] <= `CSR_WDATA(pmacfg_l[i+8], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i+8] <= `CSR_WDATA(pmacfg_a[i+8], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i+8] <= `CSR_WDATA(pmacfg_c[i+8], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i+8] <= `CSR_WDATA(pmacfg_e[i+8], (i*8)+`PMACFG_E_BIT);
             end
         end
 `ifndef RV32
         for (i = 4; i < 8; i = i + 1) begin
             if (~pmacfg_l[i+8] && misa_mxl == `MISA_MXL_XLEN_64) begin
-                pmacfg_l[i+8] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i+8] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i+8] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i+8] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i+8] <= `CSR_WDATA(pmacfg_l[i+8], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i+8] <= `CSR_WDATA(pmacfg_a[i+8], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i+8] <= `CSR_WDATA(pmacfg_c[i+8], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i+8] <= `CSR_WDATA(pmacfg_e[i+8], (i*8)+`PMACFG_E_BIT);
             end
         end
 `endif
@@ -289,10 +299,10 @@ always_ff @(posedge clk or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_PMACFG3_ADDR && misa_mxl == `MISA_MXL_XLEN_32) begin
         for (i = 0; i < 4; i = i + 1) begin
             if (~pmacfg_l[i+12]) begin
-                pmacfg_l[i+12] <= csr_wdata[(i*8)+`PMACFG_L_BIT];
-                pmacfg_a[i+12] <= csr_wdata[(i*8)+`PMACFG_A_BIT];
-                pmacfg_c[i+12] <= csr_wdata[(i*8)+`PMACFG_C_BIT];
-                pmacfg_e[i+12] <= csr_wdata[(i*8)+`PMACFG_E_BIT];
+                pmacfg_l[i+12] <= `CSR_WDATA(pmacfg_l[i+12], (i*8)+`PMACFG_L_BIT);
+                pmacfg_a[i+12] <= `CSR_WDATA(pmacfg_a[i+12], (i*8)+`PMACFG_A_BIT);
+                pmacfg_c[i+12] <= `CSR_WDATA(pmacfg_c[i+12], (i*8)+`PMACFG_C_BIT);
+                pmacfg_e[i+12] <= `CSR_WDATA(pmacfg_e[i+12], (i*8)+`PMACFG_E_BIT);
             end
         end
     end
@@ -311,11 +321,13 @@ always_ff @(posedge clk or negedge rstn) begin
         for (i = 0; i < 15; i = i + 1) begin
             if (csr_wr && csr_waddr == CSR_PMAADDR_ADDR[i] &&
                 !pmacfg_l[i] && !(pmacfg_l[i+1] && pmacfg_a[i+1] == `PMACFG_A_TOR)) begin
-                pmaaddr[i] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
+                pmaaddr[i] <= `CSR_WDATA(pmaaddr[i], `XLEN-1:0) &
+                              ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
             end
         end
         if (csr_wr && csr_waddr == CSR_PMAADDR_ADDR[15] && !pmacfg_l[15]) begin
-            pmaaddr[15] <= csr_wdata & ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
+            pmaaddr[15] <= `CSR_WDATA(pmaaddr[15], `XLEN-1:0) &
+                           ((`XLEN'b1 << (`PADDR_LEN-2)) - `XLEN'b1);
         end
     end
 end

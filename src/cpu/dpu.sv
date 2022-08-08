@@ -66,7 +66,7 @@ logic  [                `XLEN-1:0] amo_mem_rdata;
 logic  [                `XLEN-1:0] amo_mem_wdata;
 
 
-assign dmem_req_done = dmem_req_latch & ~dmem_busy;
+assign dmem_req_done = dmem_req_latch & ~amo_wr & ~dmem_busy;
 
 assign dmem_req      = (req_i & ~misaligned & ~dmem_busy) | (amo_wr & ~dmem_busy & ~|dmem_bad);
 assign dmem_addr     = amo_wr ? addr_latch : addr_i;

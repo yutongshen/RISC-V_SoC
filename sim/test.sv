@@ -176,6 +176,8 @@ initial begin
     end
     {sram_byte3[0], sram_byte2[0], sram_byte1[0], sram_byte0[0]} = 32'h00100293; // li t0, 1
     {sram_byte3[1], sram_byte2[1], sram_byte1[1], sram_byte0[1]} = 32'h928202fe; // slli  t0,t0,0x1f; jalr t0
+    // {sram_byte3[0], sram_byte2[0], sram_byte1[0], sram_byte0[0]} = 32'h800002b7; // lui t0, 0x80000
+    // {sram_byte3[1], sram_byte2[1], sram_byte1[1], sram_byte0[1]} = 32'h00009282; // jalr t0
     $readmemh({prog_path, "/sram_0.hex"}, sram_byte0);
     $readmemh({prog_path, "/sram_1.hex"}, sram_byte1);
     $readmemh({prog_path, "/sram_2.hex"}, sram_byte2);
@@ -192,6 +194,10 @@ initial begin
     $readmemh({prog_path, "/ddr_1.hex"}, u_ddr.mem_byte1);
     $readmemh({prog_path, "/ddr_2.hex"}, u_ddr.mem_byte2);
     $readmemh({prog_path, "/ddr_3.hex"}, u_ddr.mem_byte3);
+    $display("DDR[%08x] = %08x", 0, `DDR_DATA(0));
+    $display("DDR[%08x] = %08x", 1, `DDR_DATA(1));
+    $display("DDR[%08x] = %08x", 2, `DDR_DATA(2));
+    $display("DDR[%08x] = %08x", 3, `DDR_DATA(3));
 
     // Fill DRAM
     flash_bin = $fopen({prog_path, "/riscv_disk"}, "rb");

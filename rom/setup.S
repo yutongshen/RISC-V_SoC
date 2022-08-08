@@ -4,7 +4,7 @@
 #define pmacfg3   0x3c3
 #define pmaaddr14 0x3de
 #define pmaaddr15 0x3df
-// #define ENABLE_CACHE
+#define ENABLE_CACHE
 // #define ENABLE_UART_IRQ
 
 .section .text

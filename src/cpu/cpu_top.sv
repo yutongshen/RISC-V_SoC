@@ -148,6 +148,7 @@ logic [                     11:0] id_csr_addr;
 logic                             id_amo_64;
 logic                             id_len_64;
 logic [              `XLEN - 1:0] id_imm;
+logic [              `XLEN - 1:0] id_mem_addr;
 
 logic [                      1:0] id_prv_req;
 logic                             id_ill_inst;
@@ -221,6 +222,7 @@ logic [              `XLEN - 1:0] id2exe_csr_rdata;
 logic                             id2exe_amo_64;
 logic                             id2exe_len_64;
 logic [              `XLEN - 1:0] id2exe_imm;
+logic [              `XLEN - 1:0] id2exe_mem_addr;
 
 logic                             id2exe_rs1_rd;
 logic                             id2exe_rs2_rd;
@@ -276,6 +278,7 @@ logic                             id2exe_ext_csr_wr;
 logic [              `XLEN - 1:0] id2exe_ext_csr_wdata;
 
 // EXE stage
+logic                             exe_inst_valid;
 logic                             exe_alu_zero;
 logic                             exe_branch_match;
 logic                             exe_jump_fault;
@@ -316,6 +319,7 @@ logic [                      1:0] exe_misa_mxl;
 logic                             exe_misa_a_ext;
 logic                             exe_misa_c_ext;
 logic                             exe_misa_m_ext;
+logic                             exe_touch_satp;
 logic                             exe_satp_upd;
 logic                             exe_misa_upd;
 logic                             exe_inst_misaligned;
@@ -507,7 +511,11 @@ resetn_synchronizer u_sync_xrstn (
 );
 
 assign stall_wfi  = (exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event;
-assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid, exe2ma_inst_valid, ma2mr_inst_valid, mr2wb_inst_valid};
+assign inst_valid = ~6'b0;
+// assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid,
+//                      exe2ma_inst_valid | exe2ma_trap_en,
+//                      ma2mr_inst_valid  | ma2mr_trap_en,
+//                      mr2wb_inst_valid  | mr2wb_trap_en};
 
 clkmnt u_clkmnt (
     .clk_free ( clk          ),
@@ -722,6 +730,12 @@ idu u_idu (
     .dbg_csr_wr          ( dbg_csr_wr             )
 );
 
+agu u_agu (
+    .base   ( id_rs1_data ),
+    .offset ( id_imm      ),
+    .out    ( id_mem_addr ) 
+);
+
 assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
 
@@ -781,6 +795,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         id2exe_amo_64              <= 1'b0;
         id2exe_len_64              <= 1'b0;
         id2exe_imm                 <= `XLEN'b0;
+        id2exe_mem_addr            <= `XLEN'b0;
         id2exe_rs1_rd              <= 1'b0;
         id2exe_rs2_rd              <= 1'b0;
         id2exe_mdu_sel             <= 1'b0;
@@ -847,6 +862,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_amo_64              <= id_amo_64;
             id2exe_len_64              <= id_len_64;
             id2exe_imm                 <= id_imm;
+            id2exe_mem_addr            <= id_mem_addr;
             id2exe_rs1_rd              <= id_rs1_rd;
             id2exe_rs2_rd              <= id_rs2_rd;
             id2exe_mdu_sel             <= id_mdu_sel;
@@ -985,8 +1001,8 @@ assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~ex
 assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
-assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall || mr_pipe_restart ||
-                        exe2ma_mem_req || ma2mr_mem_req;
+assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall ||
+                        ma_pipe_restart || mr_pipe_restart || exe2ma_mem_req || ma2mr_mem_req;
 
 sru u_sru (
     .clk              ( clk_wfi           ),
@@ -1037,7 +1053,7 @@ sru u_sru (
     .csr_wr           ( exe_sru_csr_wr    ),
     .csr_waddr        ( id2exe_csr_waddr  ),
     .csr_raddr        ( id_csr_addr       ),
-    .csr_wdata        ( exe_csr_wdata     ),
+    // .csr_wdata        ( exe_csr_wdata     ),
     .csr_sdata        ( exe_csr_sdata     ),
     .csr_cdata        ( exe_csr_cdata     ),
     .csr_rdata        ( id_sru_csr_rdata  )
@@ -1057,7 +1073,9 @@ mmu_csr u_mmu_csr (
     .csr_wr    ( exe_mmu_csr_wr   ),
     .csr_waddr ( id2exe_csr_waddr ),
     .csr_raddr ( id_csr_addr      ),
-    .csr_wdata ( exe_csr_wdata    ),
+    // .csr_wdata ( exe_csr_wdata    ),
+    .csr_sdata ( exe_csr_sdata    ),
+    .csr_cdata ( exe_csr_cdata    ),
     .csr_rdata ( id_mmu_csr_rdata )
 );
 
@@ -1074,17 +1092,26 @@ mpu_csr u_mpu_csr (
     .csr_wr    ( exe_mpu_csr_wr   ),
     .csr_waddr ( id2exe_csr_waddr ),
     .csr_raddr ( id_csr_addr      ),
-    .csr_wdata ( exe_csr_wdata    ),
+    // .csr_wdata ( exe_csr_wdata    ),
+    .csr_sdata ( exe_csr_sdata    ),
+    .csr_cdata ( exe_csr_cdata    ),
     .csr_rdata ( id_mpu_csr_rdata )
 
 );
-assign exe_satp_upd = (id2exe_mmu_csr_wr | id2exe_csr_rd) & ~ma_pipe_restart &
+
+assign exe_touch_satp = (id2exe_mmu_csr_wr | id2exe_csr_rd) & ~ma_pipe_restart &
+                        ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
+assign exe_satp_upd =  id2exe_mmu_csr_wr & ~ma_pipe_restart &
                       ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_SATP_ADDR;
 assign exe_misa_upd =  id2exe_sru_csr_wr & ~ma_pipe_restart &
                       ~exe_csr_hazard & ~stall_wfi && id2exe_csr_waddr == `CSR_MISA_ADDR;
 
+assign exe_inst_valid = id2exe_inst_valid &&
+                        ~ma_pipe_restart && ~mr_pipe_restart &&
+                        ~exe_hazard && ~stall_wfi;
+
 tpu u_tpu (
-    .inst_valid          ( id2exe_inst_valid & ~exe_hazard & ~stall_wfi),
+    .inst_valid          ( exe_inst_valid              ),
     .inst                ( id2exe_inst                 ),
     .exe_pc              ( id2exe_pc                   ),
     .wb_pc               ( mr2wb_pc                    ),
@@ -1092,7 +1119,7 @@ tpu u_tpu (
     .inst_badaddr        ( id2exe_inst_badaddr         ),
     .prv_cur             ( exe_prv                     ),
     .prv_req             ( id2exe_prv_req              ),
-    .satp_upd            ( exe_satp_upd                ),
+    .touch_satp          ( exe_touch_satp              ),
     .tsr                 ( exe_mstatus_tsr             ),
     .tvm                 ( exe_mstatus_tvm             ),
     .sret                ( id2exe_sret                 ),
@@ -1504,7 +1531,9 @@ pmu u_pmu (
     .csr_wr     ( exe_pmu_csr_wr    ),
     .csr_raddr  ( id_csr_addr       ),
     .csr_waddr  ( id2exe_csr_waddr  ),
-    .csr_wdata  ( exe_csr_wdata     ),
+    // .csr_wdata  ( exe_csr_wdata     ),
+    .csr_sdata  ( exe_csr_sdata     ),
+    .csr_cdata  ( exe_csr_cdata     ),
     .csr_rdata  ( id_pmu_csr_rdata  ),
     .csr_ill    ( exe_pmu_csr_ill   )
 );

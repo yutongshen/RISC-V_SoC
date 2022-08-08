@@ -11,6 +11,7 @@
 ../src/cpu/btb.sv
 ../src/cpu/idu.sv
 ../src/cpu/dec.sv
+../src/cpu/agu.sv
 ../src/cpu/rfu.sv
 ../src/cpu/csr.sv
 ../src/cpu/csr_alu.sv

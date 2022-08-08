@@ -9,7 +9,7 @@ module tpu (
     input        [`IM_ADDR_LEN-1:0] inst_badaddr,
     input        [             1:0] prv_cur,
     input        [             1:0] prv_req,
-    input                           satp_upd,
+    input                           touch_satp,
     input                           tvm,
     input                           tsr,
     input                           sret,
@@ -59,7 +59,7 @@ logic wb_trap_en;
 assign trap_inst_misaligned       = inst_misaligned;
 assign trap_inst_access_fault     = inst_xes_fault;
 assign trap_ill_inst              = ill_inst || csr_ill || prv_cur < prv_req ||
-                                    ((satp_upd || tlb_flush_req) && tvm && prv_cur < `PRV_M) ||
+                                    ((touch_satp || tlb_flush_req) && tvm && prv_cur < `PRV_M) ||
                                     (sret && tsr && prv_cur < `PRV_M);
 assign trap_inst_addr_break_point = 1'b0;
 assign trap_ldst_addr_break_point = 1'b0;

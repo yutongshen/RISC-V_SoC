@@ -1,4 +1,5 @@
 `include "cpu_define.h"
+`include "csr_define.h"
 
 // 0x106 SRW scounteren Supervisor counter enable.
 // 0x306 MRW mcounteren Machine counter enable.
@@ -19,7 +20,9 @@ module pmu (
     input                    csr_wr,
     input        [     11:0] csr_waddr,
     input        [     11:0] csr_raddr,
-    input        [`XLEN-1:0] csr_wdata,
+    // input        [`XLEN-1:0] csr_wdata,
+    input        [`XLEN-1:0] csr_sdata,
+    input        [`XLEN-1:0] csr_cdata,
     output logic [`XLEN-1:0] csr_rdata,
     output logic             csr_ill
 );
@@ -39,27 +42,39 @@ assign csr_ill = (misa_mxl == `MISA_MXL_XLEN_64 && (csr_rd_chk || csr_wr_chk) &&
                  ~scounteren[csr_waddr[4:0]]);
 
 always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn)                                            scounteren        <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_SCOUNTEREN_ADDR) scounteren[0+:32] <= csr_wdata[0+:32];
+    if (~rstn)
+        scounteren <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_SCOUNTEREN_ADDR)
+        scounteren[0+:32] <= `CSR_WDATA(scounteren[0+:32], 0+:32);
 end
 
 always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn)                                            mcounteren        <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_MCOUNTEREN_ADDR) mcounteren[0+:32] <= csr_wdata[0+:32];
+    if (~rstn)
+        mcounteren <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_MCOUNTEREN_ADDR)
+        mcounteren[0+:32] <= `CSR_WDATA(mcounteren[0+:32], 0+:32);
 end
 
 always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn)                                         mcycle            <= 64'b0;
-    else if (csr_wr && csr_waddr == `CSR_MCYCLE_ADDR)  mcycle[ 0+:`XLEN] <= csr_wdata;
-    else if (csr_wr && csr_waddr == `CSR_MCYCLEH_ADDR) mcycle[32+:   32] <= csr_wdata;
-    else                                               mcycle            <= mcycle + 64'b1;
+    if (~rstn)
+        mcycle            <= 64'b0;
+    else if (csr_wr && csr_waddr == `CSR_MCYCLE_ADDR)
+        mcycle[ 0+:`XLEN] <= `CSR_WDATA(mcycle[0+:`XLEN], 0+:`XLEN);
+    else if (csr_wr && csr_waddr == `CSR_MCYCLEH_ADDR)
+        mcycle[32+:   32] <= `CSR_WDATA(mcycle[32+:32], 0+:32);
+    else
+        mcycle            <= mcycle + 64'b1;
 end
 
 always_ff @(posedge clk_free or negedge rstn) begin
-    if (~rstn)                                           minstret            <= 64'b0;
-    else if (csr_wr && csr_waddr == `CSR_MINSTRET_ADDR)  minstret[ 0+:`XLEN] <= csr_wdata;
-    else if (csr_wr && csr_waddr == `CSR_MINSTRETH_ADDR) minstret[32+:   32] <= csr_wdata;
-    else                                                 minstret            <= minstret + {63'b0, inst_valid};
+    if (~rstn)
+        minstret            <= 64'b0;
+    else if (csr_wr && csr_waddr == `CSR_MINSTRET_ADDR)
+        minstret[ 0+:`XLEN] <= `CSR_WDATA(minstret[ 0+:`XLEN], 0+:`XLEN);
+    else if (csr_wr && csr_waddr == `CSR_MINSTRETH_ADDR)
+        minstret[32+:   32] <= `CSR_WDATA(minstret[32+:   32], 32+:32);
+    else
+        minstret            <= minstret + {63'b0, inst_valid};
 end
 
 always_ff @(posedge clk_free or negedge rstn) begin

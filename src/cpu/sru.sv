@@ -36,6 +36,7 @@
 // 0x344 MRW mip Machine interrupt pending.
 
 `include "cpu_define.h"
+`include "csr_define.h"
 
 module sru (
     input                           clk,
@@ -86,7 +87,7 @@ module sru (
     input                           csr_wr,
     input        [            11:0] csr_waddr,
     input        [            11:0] csr_raddr,
-    input        [       `XLEN-1:0] csr_wdata,
+    // input        [       `XLEN-1:0] csr_wdata,
     input        [       `XLEN-1:0] csr_sdata,
     input        [       `XLEN-1:0] csr_cdata,
     output logic [       `XLEN-1:0] csr_rdata
@@ -260,13 +261,17 @@ always_ff @(posedge clk or negedge srstn) begin
 end
 
 always_ff @(posedge clk or negedge srstn) begin
-    if (~srstn)                                       stvec <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_STVEC_ADDR) stvec <= (~`XLEN'h2  & csr_wdata);
+    if (~srstn) 
+        stvec <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_STVEC_ADDR)
+        stvec <= `CSR_WDATA(stvec, `XLEN-1:0) & ~`XLEN'h2;
 end
 
 always_ff @(posedge clk or negedge srstn) begin
-    if (~srstn)                                          sscratch <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_SSCRATCH_ADDR) sscratch <= csr_wdata;
+    if (~srstn)
+        sscratch <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_SSCRATCH_ADDR)
+        sscratch <= `CSR_WDATA(sscratch, `XLEN-1:0);
 end
 
 always_ff @(posedge clk or negedge srstn) begin
@@ -280,7 +285,7 @@ always_ff @(posedge clk or negedge srstn) begin
         sepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_SEPC_ADDR) begin
-        sepc <= (~`XLEN'h1  & csr_wdata);
+        sepc <= `CSR_WDATA(sepc, `XLEN-1:0) & ~`XLEN'h1;
     end
 end
 
@@ -312,8 +317,9 @@ always_ff @(posedge clk or negedge srstn) begin
                                                   `MCAUSE_CODE_WIDTH'b1;
     end
     else if (csr_wr && csr_waddr == `CSR_SCAUSE_ADDR) begin
-        scause_int  <= misa_mxl == 2'h1 ? csr_wdata[31] : csr_wdata[`XLEN-1];
-        scause_code <= csr_wdata[0+:`MCAUSE_CODE_WIDTH];
+        scause_int  <= misa_mxl == 2'h1 ? `CSR_WDATA(scause_int, 31):
+                                          `CSR_WDATA(scause_int, `XLEN-1);
+        scause_code <= `CSR_WDATA(scause_code, 0+:`MCAUSE_CODE_WIDTH);
     end
 end
 
@@ -327,7 +333,9 @@ always_ff @(posedge clk or negedge srstn) begin
     else if (ints_s_mode) begin
         stval <= `XLEN'b0;
     end
-    else if (csr_wr && csr_waddr == `CSR_STVAL_ADDR) stval <= csr_wdata;
+    else if (csr_wr && csr_waddr == `CSR_STVAL_ADDR)begin
+        stval <= `CSR_WDATA(stval, `XLEN-1: 0);
+    end
 end
 
 assign mstatus_low = {mstatus_sd, 8'b0, mstatus_tsr, /*mstatus_tw*/1'b0, mstatus_tvm,
@@ -413,29 +421,29 @@ always_ff @(posedge clk or negedge srstn) begin
         mstatus_mpie <= 1'b1;
     end
     else if (csr_wr && csr_waddr == `CSR_SSTATUS_ADDR) begin
-        mstatus_sie  <= csr_wdata[`MSTATUS_SIE_BIT  ];
-        mstatus_spie <= csr_wdata[`MSTATUS_SPIE_BIT ];
-        mstatus_spp  <= csr_wdata[`MSTATUS_SPP_BIT  ];
-        mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
-        // mstatus_xs   <= csr_wdata[`MSTATUS_XS_BIT   ];
-        mstatus_sum  <= csr_wdata[`MSTATUS_SUM_BIT  ];
-        mstatus_mxr  <= csr_wdata[`MSTATUS_MXR_BIT  ];
+        mstatus_sie  <= `CSR_WDATA(mstatus_sie , `MSTATUS_SIE_BIT );
+        mstatus_spie <= `CSR_WDATA(mstatus_spie, `MSTATUS_SPIE_BIT);
+        mstatus_spp  <= `CSR_WDATA(mstatus_spp , `MSTATUS_SPP_BIT );
+        mstatus_fs   <= `CSR_WDATA(mstatus_fs  , `MSTATUS_FS_BIT  );
+        // mstatus_xs   <= `CSR_WDATA(mstatus_xs  , `MSTATUS_XS_BIT );
+        mstatus_sum  <= `CSR_WDATA(mstatus_sum , `MSTATUS_SUM_BIT );
+        mstatus_mxr  <= `CSR_WDATA(mstatus_mxr , `MSTATUS_MXR_BIT );
     end
     else if (csr_wr && csr_waddr == `CSR_MSTATUS_ADDR) begin
-        mstatus_sie  <= csr_wdata[`MSTATUS_SIE_BIT  ];
-        mstatus_mie  <= csr_wdata[`MSTATUS_MIE_BIT  ];
-        mstatus_spie <= csr_wdata[`MSTATUS_SPIE_BIT ];
-        mstatus_mpie <= csr_wdata[`MSTATUS_MPIE_BIT ];
-        mstatus_spp  <= csr_wdata[`MSTATUS_SPP_BIT  ];
-        mstatus_mpp  <= csr_wdata[`MSTATUS_MPP_BIT  ];
-        mstatus_fs   <= csr_wdata[`MSTATUS_FS_BIT   ];
-        // mstatus_xs   <= csr_wdata[`MSTATUS_XS_BIT   ];
-        mstatus_mprv <= csr_wdata[`MSTATUS_MPRV_BIT ];
-        mstatus_sum  <= csr_wdata[`MSTATUS_SUM_BIT  ];
-        mstatus_mxr  <= csr_wdata[`MSTATUS_MXR_BIT  ];
-        mstatus_tvm  <= csr_wdata[`MSTATUS_TVM_BIT  ];
-        mstatus_tw   <= csr_wdata[`MSTATUS_TW_BIT   ];
-        mstatus_tsr  <= csr_wdata[`MSTATUS_TSR_BIT  ];
+        mstatus_sie  <= `CSR_WDATA(mstatus_sie , `MSTATUS_SIE_BIT );
+        mstatus_mie  <= `CSR_WDATA(mstatus_mie , `MSTATUS_MIE_BIT );
+        mstatus_spie <= `CSR_WDATA(mstatus_spie, `MSTATUS_SPIE_BIT);
+        mstatus_mpie <= `CSR_WDATA(mstatus_mpie, `MSTATUS_MPIE_BIT);
+        mstatus_spp  <= `CSR_WDATA(mstatus_spp , `MSTATUS_SPP_BIT );
+        mstatus_mpp  <= `CSR_WDATA(mstatus_mpp , `MSTATUS_MPP_BIT );
+        mstatus_fs   <= `CSR_WDATA(mstatus_fs  , `MSTATUS_FS_BIT  );
+        mstatus_xs   <= `CSR_WDATA(mstatus_xs  , `MSTATUS_XS_BIT  );
+        mstatus_mprv <= `CSR_WDATA(mstatus_mprv, `MSTATUS_MPRV_BIT);
+        mstatus_sum  <= `CSR_WDATA(mstatus_sum , `MSTATUS_SUM_BIT );
+        mstatus_mxr  <= `CSR_WDATA(mstatus_mxr , `MSTATUS_MXR_BIT );
+        mstatus_tvm  <= `CSR_WDATA(mstatus_tvm , `MSTATUS_TVM_BIT );
+        mstatus_tw   <= `CSR_WDATA(mstatus_tw  , `MSTATUS_TW_BIT  );
+        mstatus_tsr  <= `CSR_WDATA(mstatus_tsr , `MSTATUS_TSR_BIT );
     end
 end
 
@@ -455,10 +463,12 @@ assign warm_rst_trigger =
                           1'b0;
 `else
                           csr_wr && csr_waddr == `CSR_MISA_ADDR && 
-                          ((misa_mxl == 2'h1 && csr_wdata[31:30] != 2'h1) || (misa_mxl == 2'h2 && csr_wdata[63:62] != 2'h2));
+                          ((misa_mxl == 2'h1 && `CSR_WDATA(misa_mxl, 31:30) != 2'h1)||
+                           (misa_mxl == 2'h2 && `CSR_WDATA(misa_mxl, 63:62) != 2'h2));
 `endif
 
-assign nxt_misa_mxl = ({2{misa_mxl == 2'h1}} & csr_wdata[31:30]) | ({2{misa_mxl == 2'h2}} & csr_wdata[63:62]);
+assign nxt_misa_mxl = ({2{misa_mxl == 2'h1}} & `CSR_WDATA(misa_mxl, 31:30))|
+                      ({2{misa_mxl == 2'h2}} & `CSR_WDATA(misa_mxl, 63:62));
 
 always_ff @(posedge clk or negedge xrstn) begin
     if (~xrstn) begin
@@ -477,8 +487,8 @@ always_ff @(posedge clk or negedge xrstn) begin
                       nxt_misa_mxl == 2'h2 ? 2'h2:
                                              misa_mxl;
 `endif
-        misa_c_ext <= misaligned ? misa_c_ext : csr_wdata["c" - "a"];
-        misa_m_ext <= csr_wdata["m" - "a"];
+        misa_c_ext <= misaligned ? misa_c_ext : `CSR_WDATA(misa_c_ext, "c" - "a");
+        misa_m_ext <= `CSR_WDATA(misa_m_ext, "m" - "a");
     end
 end
 
@@ -496,12 +506,12 @@ always_ff @(posedge clk or negedge srstn) begin
         medeleg_stpgfault   <= 1'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_MEDELEG_ADDR) begin
-        medeleg_imisalign   <= csr_wdata[`CAUSE_MISALIGNED_FETCH      ];
-        medeleg_bp          <= csr_wdata[`CAUSE_BREAKPOINT            ];
-        medeleg_uecall      <= csr_wdata[`CAUSE_USER_ECALL            ];
-        medeleg_instpgfault <= csr_wdata[`CAUSE_INSTRUCTION_PAGE_FAULT];
-        medeleg_ldpgfault   <= csr_wdata[`CAUSE_LOAD_PAGE_FAULT       ];
-        medeleg_stpgfault   <= csr_wdata[`CAUSE_STORE_PAGE_FAULT      ];
+        medeleg_imisalign   <= `CSR_WDATA(medeleg_imisalign  , `CAUSE_MISALIGNED_FETCH      );
+        medeleg_bp          <= `CSR_WDATA(medeleg_bp         , `CAUSE_BREAKPOINT            );
+        medeleg_uecall      <= `CSR_WDATA(medeleg_uecall     , `CAUSE_USER_ECALL            );
+        medeleg_instpgfault <= `CSR_WDATA(medeleg_instpgfault, `CAUSE_INSTRUCTION_PAGE_FAULT);
+        medeleg_ldpgfault   <= `CSR_WDATA(medeleg_ldpgfault  , `CAUSE_LOAD_PAGE_FAULT       );
+        medeleg_stpgfault   <= `CSR_WDATA(medeleg_stpgfault  , `CAUSE_STORE_PAGE_FAULT      );
     end
 end
 
@@ -514,9 +524,9 @@ always_ff @(posedge clk or negedge srstn) begin
         mideleg_seip <= 1'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_MIDELEG_ADDR) begin
-        mideleg_ssip <= csr_wdata[1];
-        mideleg_stip <= csr_wdata[5];
-        mideleg_seip <= csr_wdata[9];
+        mideleg_ssip <= `CSR_WDATA(mideleg_ssip, 1);
+        mideleg_stip <= `CSR_WDATA(mideleg_stip, 5);
+        mideleg_seip <= `CSR_WDATA(mideleg_seip, 9);
     end
 end
 
@@ -535,28 +545,32 @@ always_ff @(posedge clk or negedge srstn) begin
         mie_meie <= 1'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_SIE_ADDR) begin
-        mie_ssie <= csr_wdata[1];
-        mie_stie <= csr_wdata[5];
-        mie_seie <= csr_wdata[9];
+        mie_ssie <= `CSR_WDATA(mie_ssie, 1);
+        mie_stie <= `CSR_WDATA(mie_stie, 5);
+        mie_seie <= `CSR_WDATA(mie_seie, 9);
     end
     else if (csr_wr && csr_waddr == `CSR_MIE_ADDR) begin
-        mie_ssie <= csr_wdata[ 1];
-        mie_msie <= csr_wdata[ 3];
-        mie_stie <= csr_wdata[ 5];
-        mie_mtie <= csr_wdata[ 7];
-        mie_seie <= csr_wdata[ 9];
-        mie_meie <= csr_wdata[11];
+        mie_ssie <= `CSR_WDATA(mie_ssie,  1);
+        mie_msie <= `CSR_WDATA(mie_msie,  3);
+        mie_stie <= `CSR_WDATA(mie_stie,  5);
+        mie_mtie <= `CSR_WDATA(mie_mtie,  7);
+        mie_seie <= `CSR_WDATA(mie_seie,  9);
+        mie_meie <= `CSR_WDATA(mie_meie, 11);
     end
 end
 
 always_ff @(posedge clk or negedge srstn) begin
-    if (~srstn)                                      mtvec <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_MTVEC_ADDR) mtvec <= (~`XLEN'h2  & csr_wdata);
+    if (~srstn)
+        mtvec <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_MTVEC_ADDR)
+        mtvec <= `CSR_WDATA(mtvec, `XLEN-1:0) & ~`XLEN'h2;
 end
 
 always_ff @(posedge clk or negedge srstn) begin
-    if (~srstn)                                          mscratch <= `XLEN'b0;
-    else if (csr_wr && csr_waddr == `CSR_MSCRATCH_ADDR) mscratch <= csr_wdata;
+    if (~srstn)
+        mscratch <= `XLEN'b0;
+    else if (csr_wr && csr_waddr == `CSR_MSCRATCH_ADDR)
+        mscratch <= `CSR_WDATA(mscratch, `XLEN-1:0);
 end
 
 always_ff @(posedge clk or negedge srstn) begin
@@ -570,7 +584,7 @@ always_ff @(posedge clk or negedge srstn) begin
         mepc <= trap_epc;
     end
     else if (csr_wr && csr_waddr == `CSR_MEPC_ADDR) begin
-        mepc <= (~`XLEN'h1  & csr_wdata);
+        mepc <= `CSR_WDATA(mepc, `XLEN-1:0) & ~`XLEN'h1;
     end
 end
 
@@ -602,8 +616,9 @@ always_ff @(posedge clk or negedge srstn) begin
                                                   `MCAUSE_CODE_WIDTH'd1;
     end
     else if (csr_wr && csr_waddr == `CSR_MCAUSE_ADDR) begin
-        mcause_int  <= misa_mxl == 2'h1 ? csr_wdata[31] : csr_wdata[`XLEN-1];
-        mcause_code <= csr_wdata[0+:`MCAUSE_CODE_WIDTH];
+        mcause_int  <= misa_mxl == 2'h1 ? `CSR_WDATA(mcause_int, 31):
+                                          `CSR_WDATA(mcause_int, `XLEN-1);
+        mcause_code <= `CSR_WDATA(mcause_code, 0+:`MCAUSE_CODE_WIDTH);
     end
 end
 
@@ -618,7 +633,7 @@ always_ff @(posedge clk or negedge srstn) begin
         mtval <= `XLEN'b0;
     end
     else if (csr_wr && csr_waddr == `CSR_MTVAL_ADDR) begin
-        mtval <= csr_wdata;
+        mtval <= `CSR_WDATA(mtval, `XLEN-1:0);
     end
 end
 
@@ -660,12 +675,12 @@ always_ff @(posedge clk or negedge srstn) begin
     end
     else if (~sleep) begin
         if (csr_wr && csr_waddr == `CSR_SIP_ADDR)  begin
-            mip_ssip    <= csr_wdata[1]/* & mideleg_ssip*/;
+            mip_ssip    <= (mip_ssip    | csr_sdata[1]) & ~csr_cdata[1];
             mip_seip_sw <= (mip_seip_sw | csr_sdata[9]) & ~csr_cdata[9];
         end
         else if (csr_wr && csr_waddr == `CSR_MIP_ADDR) begin
-            mip_ssip    <= csr_wdata[1];
-            mip_stip    <= csr_wdata[5];
+            mip_ssip    <= (mip_ssip    | csr_sdata[1]) & ~csr_cdata[1];
+            mip_stip    <= (mip_stip    | csr_sdata[5]) & ~csr_cdata[5];
             mip_seip_sw <= (mip_seip_sw | csr_sdata[9]) & ~csr_cdata[9];
         end
     end
