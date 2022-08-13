@@ -88,3 +88,19 @@ fill_block:
   j fill_block;
 fb_end:
   ret;
+
+.section .text
+.align 2
+.globl test_func
+test_func:
+  li s4, 0;
+  li a2, 0x400;
+1:
+  mv a3, a0;
+  divu a0, a0, a2;
+  addiw s4, s4, 1;
+  bgeu a0, a2, 1b;
+  remu a4, a3, a2;
+
+  mv a0, a3;
+  ret;

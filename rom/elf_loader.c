@@ -25,12 +25,14 @@ void *__elf_loader_reloc(__FILE *file, __U64 relocate) {
         __fseek(file, sizeof(__PHDR64) * i + elf.e_phoff, __SEEK_BEG);
         __fread(file, &prog_header, sizeof(__PHDR64) * phnum_max);
         for (j = 0; j < phnum_max; ++j) {
-            __fseek(file, prog_header[j].p_offset, __SEEK_BEG);
-            __fread(file, (void *) (prog_header[j].p_paddr + relocate), prog_header[j].p_filesz);
+            if (prog_header[j].p_paddr + relocate >= 0x2000) {
+                __fseek(file, prog_header[j].p_offset, __SEEK_BEG);
+                __fread(file, (void *) (prog_header[j].p_paddr + relocate), prog_header[j].p_filesz);
 
-            if (prog_header[j].p_filesz < prog_header[j].p_memsz) {
-                __dma_memfill((__U8P) (prog_header[j].p_paddr + relocate + prog_header[j].p_filesz), 0,
-                              prog_header[j].p_memsz - prog_header[j].p_filesz);
+                if (prog_header[j].p_filesz < prog_header[j].p_memsz) {
+                    __dma_memfill((__U8P) (prog_header[j].p_paddr + relocate + prog_header[j].p_filesz), 0,
+                                  prog_header[j].p_memsz - prog_header[j].p_filesz);
+                }
             }
         }
         i += phnum_max;

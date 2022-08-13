@@ -1,0 +1,268 @@
+(158340039 cycles) [S] ffffffe00048c8d0:----0421 c.addi s0,8
+  s0        ffffffe007711b28
+(158340040 cycles) [S] ffffffe00048c8d2:----8d2a c.mv s10,a0
+  s10       ffffffe002b3dc13
+(158340041 cycles) [S] ffffffe00048c8d4:----8cda c.mv s9,s6
+  s9        ffffffe0005cb912
+(158340042 cycles) [S] ffffffe00048c8d6:e80795e3 bnez a5,ffffffe00048c760
+(158340043 cycles) [S] ffffffe00048c8da:----bde9 c.j ffffffe00048c7b4
+(158340068 cycles) [S] ffffffe00048c7b4:412d093b subw s2,s10,s2
+  s2        0000000000000007
+(158340069 cycles) [S] ffffffe00048c7b8:00098663 beqz s3,ffffffe00048c7c4
+(158340070 cycles) [S] ffffffe00048c7bc:1e9d7763 bgeu s10,s1,ffffffe00048c9aa
+(158340109 cycles) [S] ffffffe00048c7c0:000d0023 sb zero,0(s10)
+  STORE MEM[ffffffe002b3dc13]: 00000000 00000000
+(158340111 cycles) [S] ffffffe00048c7c4:----60aa c.ldsp ra,136(sp)
+  LOAD  MEM[ffffffe007711ae8]: ffffffe0 0048cb5a
+  ra        ffffffe00048cb5a
+(158340112 cycles) [S] ffffffe00048c7c6:----640a c.ldsp s0,128(sp)
+  LOAD  MEM[ffffffe007711ae0]: ffffffe0 02b50200
+  s0        ffffffe002b50200
+(158340113 cycles) [S] ffffffe00048c7c8:----74e6 c.ldsp s1,120(sp)
+  LOAD  MEM[ffffffe007711ad8]: 00000000 00000000
+  s1        0000000000000000
+(158340114 cycles) [S] ffffffe00048c7ca:----79a6 c.ldsp s3,104(sp)
+  LOAD  MEM[ffffffe007711ac8]: 00000000 00000000
+  s3        0000000000000000
+(158340115 cycles) [S] ffffffe00048c7cc:----7a06 c.ldsp s4,96(sp)
+  LOAD  MEM[ffffffe007711ac0]: ffffffe0 005828c8
+  s4        ffffffe0005828c8
+(158340116 cycles) [S] ffffffe00048c7ce:----6ae6 c.ldsp s5,88(sp)
+  LOAD  MEM[ffffffe007711ab8]: 00000000 00000000
+  s5        0000000000000000
+(158340117 cycles) [S] ffffffe00048c7d0:----6b46 c.ldsp s6,80(sp)
+  LOAD  MEM[ffffffe007711ab0]: 00000000 00000000
+  s6        0000000000000000
+(158340143 cycles) [S] ffffffe00048c7d2:----6ba6 c.ldsp s7,72(sp)
+  LOAD  MEM[ffffffe007711aa8]: 00000000 03bb0000
+  s7        0000000003bb0000
+(158340144 cycles) [S] ffffffe00048c7d4:----6c06 c.ldsp s8,64(sp)
+  LOAD  MEM[ffffffe007711aa0]: ffffffe0 02b41008
+  s8        ffffffe002b41008
+(158340145 cycles) [S] ffffffe00048c7d6:----7ce2 c.ldsp s9,56(sp)
+  LOAD  MEM[ffffffe007711a98]: ffffffe0 0065edd0
+  s9        ffffffe00065edd0
+(158340146 cycles) [S] ffffffe00048c7d8:----7d42 c.ldsp s10,48(sp)
+  LOAD  MEM[ffffffe007711a90]: ffffffe0 02b50218
+  s10       ffffffe002b50218
+(158340147 cycles) [S] ffffffe00048c7da:----7da2 c.ldsp s11,40(sp)
+  LOAD  MEM[ffffffe007711a88]: 00000000 00000000
+  s11       0000000000000000
+(158340148 cycles) [S] ffffffe00048c7dc:----854a c.mv a0,s2
+  a0        0000000000000007
+(158340149 cycles) [S] ffffffe00048c7de:----7946 c.ldsp s2,112(sp)
+  LOAD  MEM[ffffffe007711ad0]: ffffffe0 02b41000
+  s2        ffffffe002b41000
+(158340150 cycles) [S] ffffffe00048c7e0:----6149 c.addi16sp sp,144
+  sp        ffffffe007711af0
+(158340151 cycles) [S] ffffffe00048c7e2:----8082 c.jr ra
+(158340231 cycles) [S] ffffffe00048cb5a:----60e2 c.ldsp ra,24(sp)
+  LOAD  MEM[ffffffe007711b08]: ffffffe0 00391b8a
+  ra        ffffffe000391b8a
+(158340232 cycles) [S] ffffffe00048cb5c:----6161 c.addi16sp sp,80
+  sp        ffffffe007711b40
+(158340234 cycles) [S] ffffffe00048cb5e:----8082 c.jr ra
+(158340284 cycles) [S] ffffffe000391b8a:1e892783 lw a5,488(s2)
+  LOAD  MEM[ffffffe002b411e8]: 00000000 00000001
+  a5        0000000000000001
+(158340287 cycles) [S] ffffffe000391b8e:----e7c9 c.bnez a5,ffffffe000391c18
+(158340334 cycles) [S] ffffffe000391c18:----7048 c.ld a0,160(s0)
+  LOAD  MEM[ffffffe002b502a0]: ffffffe0 0790cc80
+  a0        ffffffe00790cc80
+(158340335 cycles) [S] ffffffe000391c1a:20000593 li a1,512
+  a1        0000000000000200
+(158340336 cycles) [S] ffffffe000391c1e:ffe13097 auipc ra,0xffe13
+  ra        ffffffe0001a4c1e
+(158340337 cycles) [S] ffffffe000391c22:bf4080e7 jalr ra,-1036(ra)
+  ra        ffffffe000391c26
+(158340462 cycles) [S] ffffffe0001a4812:5a452783 lw a5,1444(a0)
+  LOAD  MEM[ffffffe00790d224]: 00000000 00000200
+  a5        0000000000000200
+(158340480 cycles) [S] ffffffe0001a4816:5cb51623 sh a1,1484(a0)
+  STORE MEM[ffffffe00790d24c]: 00000200 00000000
+(158340481 cycles) [S] ffffffe0001a481a:0005871b sext.w a4,a1
+  a4        0000000000000200
+(158340482 cycles) [S] ffffffe0001a481e:00b7f563 bgeu a5,a1,ffffffe0001a4828
+(158340483 cycles) [S] ffffffe0001a4828:5ac52703 lw a4,1452(a0)
+  LOAD  MEM[ffffffe00790d22c]: 00000000 00000200
+  a4        0000000000000200
+(158340486 cycles) [S] ffffffe0001a482c:00f77463 bgeu a4,a5,ffffffe0001a4834
+(158340493 cycles) [S] ffffffe0001a4834:----8082 c.jr ra
+(158340541 cycles) [S] ffffffe000391c26:----bfa5 c.j ffffffe000391b9e
+(158340565 cycles) [S] ffffffe000391b9e:----681c c.ld a5,16(s0)
+  LOAD  MEM[ffffffe002b50210]: ffffffe0 02b3dc00
+  a5        ffffffe002b3dc00
+(158340586 cycles) [S] ffffffe000391ba0:0577b823 sd s7,80(a5)
+  STORE MEM[ffffffe002b3dc50]: 00000000 03bb0000
+(158340587 cycles) [S] ffffffe000391ba4:00093783 ld a5,0(s2)
+  LOAD  MEM[ffffffe002b41000]: ffffffe0 02a66000
+  a5        ffffffe002a66000
+(158340612 cycles) [S] ffffffe000391ba8:2207a783 lw a5,544(a5)
+  LOAD  MEM[ffffffe002a66220]: 00000000 00000030
+  a5        0000000000000030
+(158340615 cycles) [S] ffffffe000391bac:----83f9 c.srli a5,0x1e
+  a5        0000000000000000
+(158340616 cycles) [S] ffffffe000391bae:----8b85 c.andi a5,0x1
+  a5        0000000000000000
+(158340617 cycles) [S] ffffffe000391bb0:----e3a9 c.bnez a5,ffffffe000391bf2
+(158340618 cycles) [S] ffffffe000391bb2:1e892783 lw a5,488(s2)
+  LOAD  MEM[ffffffe002b411e8]: 00000000 00000001
+  a5        0000000000000001
+(158340621 cycles) [S] ffffffe000391bb6:----ef85 c.bnez a5,ffffffe000391bee
+(158340665 cycles) [S] ffffffe000391bee:----8aa2 c.mv s5,s0
+  s5        ffffffe002b50200
+(158340687 cycles) [S] ffffffe000391bf0:----bd41 c.j ffffffe000391a80
+(158340738 cycles) [S] ffffffe000391a80:----60e6 c.ldsp ra,88(sp)
+  LOAD  MEM[ffffffe007711b98]: ffffffe0 00392458
+  ra        ffffffe000392458
+(158340739 cycles) [S] ffffffe000391a82:----6446 c.ldsp s0,80(sp)
+  LOAD  MEM[ffffffe007711b90]: ffffffe0 0050ea60
+  s0        ffffffe00050ea60
+(158340761 cycles) [S] ffffffe000391a84:----64a6 c.ldsp s1,72(sp)
+  LOAD  MEM[ffffffe007711b88]: ffffffe0 02b41000
+  s1        ffffffe002b41000
+(158340762 cycles) [S] ffffffe000391a86:----6906 c.ldsp s2,64(sp)
+  LOAD  MEM[ffffffe007711b80]: 00000000 00000000
+  s2        0000000000000000
+(158340784 cycles) [S] ffffffe000391a88:----79e2 c.ldsp s3,56(sp)
+  LOAD  MEM[ffffffe007711b78]: ffffffff ffffffff
+  s3        ffffffffffffffff
+(158340785 cycles) [S] ffffffe000391a8a:----7a42 c.ldsp s4,48(sp)
+  LOAD  MEM[ffffffe007711b70]: 00000000 0000ffff
+  s4        000000000000ffff
+(158340807 cycles) [S] ffffffe000391a8c:----7b02 c.ldsp s6,32(sp)
+  LOAD  MEM[ffffffe007711b60]: ffffffe0 02b4127c
+  s6        ffffffe002b4127c
+(158340829 cycles) [S] ffffffe000391a8e:----6be2 c.ldsp s7,24(sp)
+  LOAD  MEM[ffffffe007711b58]: ffffffe0 0050d780
+  s7        ffffffe00050d780
+(158340830 cycles) [S] ffffffe000391a90:----6c42 c.ldsp s8,16(sp)
+  LOAD  MEM[ffffffe007711b50]: 00000000 00400000
+  s8        0000000000400000
+(158340857 cycles) [S] ffffffe000391a92:----6ca2 c.ldsp s9,8(sp)
+  LOAD  MEM[ffffffe007711b48]: ffffffe0 07bcec80
+  s9        ffffffe007bcec80
+(158340858 cycles) [S] ffffffe000391a94:----6d02 c.ldsp s10,0(sp)
+  LOAD  MEM[ffffffe007711b40]: 00000000 00000000
+  s10       0000000000000000
+(158340859 cycles) [S] ffffffe000391a96:----8556 c.mv a0,s5
+  a0        ffffffe002b50200
+(158340860 cycles) [S] ffffffe000391a98:----7aa2 c.ldsp s5,40(sp)
+  LOAD  MEM[ffffffe007711b68]: 00000200 07e50007
+  s5        0000020007e50007
+(158340861 cycles) [S] ffffffe000391a9a:----6125 c.addi16sp sp,96
+  sp        ffffffe007711ba0
+(158340862 cycles) [S] ffffffe000391a9c:----8082 c.jr ra
+(158340888 cycles) [S] ffffffe000392458:----77fd c.lui a5,0xffffffff
+  a5        fffffffffffff000
+(158340889 cycles) [S] ffffffe00039245a:----842a c.mv s0,a0
+  s0        ffffffe002b50200
+(158340890 cycles) [S] ffffffe00039245c:06a7e863 bltu a5,a0,ffffffe0003924cc
+(158340911 cycles) [S] ffffffe000392460:----691c c.ld a5,16(a0)
+  LOAD  MEM[ffffffe002b50210]: ffffffe0 02b3dc00
+  a5        ffffffe002b3dc00
+(158340912 cycles) [S] ffffffe000392462:----4605 c.li a2,1
+  a2        0000000000000001
+(158340913 cycles) [S] ffffffe000392464:----4729 c.li a4,10
+  a4        000000000000000a
+(158340936 cycles) [S] ffffffe000392466:----6ba8 c.ld a0,80(a5)
+  LOAD  MEM[ffffffe002b3dc50]: 00000000 03bb0000
+  a0        0000000003bb0000
+(158340937 cycles) [S] ffffffe000392468:----868a c.mv a3,sp
+  a3        ffffffe007711ba0
+(158340938 cycles) [S] ffffffe00039246a:20000593 li a1,512
+  a1        0000000000000200
+(158340939 cycles) [S] ffffffe00039246e:ffe33097 auipc ra,0xffe33
+  ra        ffffffe0001c546e
+(158340940 cycles) [S] ffffffe000392472:6f4080e7 jalr ra,1780(ra)
+  ra        ffffffe000392476
+(158340989 cycles) [S] ffffffe0001c5b62:----711d c.addi16sp sp,-96
+  sp        ffffffe007711b40
+(158341009 cycles) [S] ffffffe0001c5b64:----e0ca c.sdsp s2,64(sp)
+  STORE MEM[ffffffe007711b80]: 00000000 00000000
+(158341028 cycles) [S] ffffffe0001c5b66:----fc4e c.sdsp s3,56(sp)
+  STORE MEM[ffffffe007711b78]: ffffffff ffffffff
+(158341047 cycles) [S] ffffffe0001c5b68:----ec86 c.sdsp ra,88(sp)
+  STORE MEM[ffffffe007711b98]: ffffffe0 00392476
+(158341066 cycles) [S] ffffffe0001c5b6a:----e8a2 c.sdsp s0,80(sp)
+  STORE MEM[ffffffe007711b90]: ffffffe0 02b50200
+(158341085 cycles) [S] ffffffe0001c5b6c:----e4a6 c.sdsp s1,72(sp)
+  STORE MEM[ffffffe007711b88]: ffffffe0 02b41000
+(158341104 cycles) [S] ffffffe0001c5b6e:----f852 c.sdsp s4,48(sp)
+  STORE MEM[ffffffe007711b70]: 00000000 0000ffff
+(158341123 cycles) [S] ffffffe0001c5b70:----f456 c.sdsp s5,40(sp)
+  STORE MEM[ffffffe007711b68]: 00000200 07e50007
+(158341141 cycles) [S] ffffffe0001c5b72:00010c23 sb zero,24(sp)
+  STORE MEM[ffffffe007711b58]: 00000000 00000000
+(158341142 cycles) [S] ffffffe0001c5b76:----8936 c.mv s2,a3
+  s2        ffffffe007711ba0
+(158341143 cycles) [S] ffffffe0001c5b78:----89ba c.mv s3,a4
+  s3        000000000000000a
+(158341144 cycles) [S] ffffffe0001c5b7a:----cde9 c.beqz a1,ffffffe0001c5c54
+(158341145 cycles) [S] ffffffe0001c5b7c:----c979 c.beqz a0,ffffffe0001c5c52
+(158341146 cycles) [S] ffffffe0001c5b7e:02061a13 slli s4,a2,0x20
+  s4        0000000100000000
+(158341147 cycles) [S] ffffffe0001c5b82:020a5a13 srli s4,s4,0x20
+  s4        0000000000000001
+(158341148 cycles) [S] ffffffe0001c5b86:002a1793 slli a5,s4,0x2
+  a5        0000000000000004
+(158341149 cycles) [S] ffffffe0001c5b8a:00451717 auipc a4,0x451
+  a4        ffffffe000616b8a
+(158341172 cycles) [S] ffffffe0001c5b8e:9c670713 addi a4,a4,-1594
+  a4        ffffffe000616550
+(158341173 cycles) [S] ffffffe0001c5b92:----973e c.add a4,a5
+  a4        ffffffe000616554
+(158341174 cycles) [S] ffffffe0001c5b94:0205d793 srli a5,a1,0x20
+  a5        0000000000000000
+(158341242 cycles) [S] ffffffe0001c5b98:00076803 lwu a6,0(a4)
+  LOAD  MEM[ffffffe000616554]: 00000000 00000400
+  a6        0000000000000400
+(158341243 cycles) [S] ffffffe0001c5b9c:----4401 c.li s0,0
+  s0        0000000000000000
+(158341244 cycles) [S] ffffffe0001c5b9e:----cf89 c.beqz a5,ffffffe0001c5bb8
+(158341245 cycles) [S] ffffffe0001c5bb8:02055793 srli a5,a0,0x20
+  a5        0000000000000000
+(158341246 cycles) [S] ffffffe0001c5bbc:----fbfd c.bnez a5,ffffffe0001c5bb2
+(158341247 cycles) [S] ffffffe0001c5bbe:02a587b3 mul a5,a1,a0
+  a5        0000000776000000
+(158341248 cycles) [S] ffffffe0001c5bc2:1107e563 bltu a5,a6,ffffffe0001c5ccc
+(158341249 cycles) [S] ffffffe0001c5bc6:----88be c.mv a7,a5
+  a7        0000000776000000
+(158341258 cycles) [S] ffffffe0001c5bc8:0307d7b3 divu a5,a5,a6
+  a5        0000000001dd8000
+(158341259 cycles) [S] ffffffe0001c5bcc:----2405 c.addiw s0,1
+  s0        0000000000000001
+(158341272 cycles) [S] ffffffe0001c5bce:ff07fce3 bgeu a5,a6,ffffffe0001c5bc6
+(158341276 cycles) [S] ffffffe0001c5bc6:----88be c.mv a7,a5
+  a7        0000000001dd8000
+(158341281 cycles) [S] ffffffe0001c5bc8:0307d7b3 divu a5,a5,a6
+  a5        0000000000000000
+(158341282 cycles) [S] ffffffe0001c5bcc:----2405 c.addiw s0,1
+  s0        0000000000000002
+(158341283 cycles) [S] ffffffe0001c5bce:ff07fce3 bgeu a5,a6,ffffffe0001c5bc6
+(158341289 cycles) [S] ffffffe0001c5bd2:0308f8b3 remu a7,a7,a6
+  a7        0000000000000000
+(158341290 cycles) [S] ffffffe0001c5bd6:----2881 c.addiw s1,0
+  s1        0000000000000000
+(158341291 cycles) [S] ffffffe0001c5bd8:0027981b slliw a6,a5,0x2
+  a6        0000000000000000
+(158341292 cycles) [S] ffffffe0001c5bdc:00f8083b addw a6,a6,a5
+  a6        0000000000000000
+(158341308 cycles) [S] ffffffe0001c5be0:0018181b slliw a6,a6,0x1
+  a6        0000000000000000
+(158341309 cycles) [S] ffffffe0001c5be4:3e700713 li a4,999
+  a4        00000000000003e7
+(158341310 cycles) [S] ffffffe0001c5be8:00078a9b sext.w s5,a5
+  s5        0000000000000000
+(158341311 cycles) [S] ffffffe0001c5bec:0d076c63 bltu a4,a6,ffffffe0001c5cc4
+(158341332 cycles) [S] ffffffe0001c5bf0:----4481 c.li s1,0
+  s1        0000000000000000
+(158341333 cycles) [S] ffffffe0001c5bf2:0028131b slliw t1,a6,0x2
+  t1        0000000000000000
+(158341334 cycles) [S] ffffffe0001c5bf6:0103083b addw a6,t1,a6
+  a6        0000000000000000
+(158341335 cycles) [S] ffffffe0001c5bfa:0018181b slliw a6,a6,0x1
+  a6        0000000000000000
+(158341336 cycles) [S] ffffffe0001c5bfe:----2485 c.addiw s1,1
+  s1        0000000000000001
+(158341357 cycles) [S] ffffffe0001c5c00:ff0779e3 bgeu a4,a6,ffffffe0001c5bf2

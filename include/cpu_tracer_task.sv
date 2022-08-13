@@ -477,6 +477,8 @@ case (opcode_16)
                 else                     $sformat(result, "c.addi %s,%0d", regs_name(rd), $signed(imm_ci_li));
             end
             FUNCT3_C1_JAL : begin
+                rs1     = inst[ 11: 7];
+                rd      = inst[ 11: 7];
                 case (misa_mxl)
                     `MISA_MXL_XLEN_32: $sformat(result, "c.jal %08x", pc + imm_cj);
                     `MISA_MXL_XLEN_64: $sformat(result, "c.addiw %s,%0d", regs_name(rd), $signed(imm_ci_li));
@@ -490,8 +492,8 @@ case (opcode_16)
             FUNCT3_C1_LUI : begin
                 rs1     = inst[ 11: 7];
                 rd      = inst[ 11: 7];
-                if (rd_addr == `GPR_SP_ADDR) $sformat(result, "c.addi16sp %s,%0d", regs_name(REG_SP), $signed(imm_ci_addi16sp));
-                else                         $sformat(result, "c.lui %s,0x%0x", regs_name(rd), imm_ci_lui >> 12 & 20'hfffff);
+                if (rd == REG_SP) $sformat(result, "c.addi16sp %s,%0d", regs_name(REG_SP), $signed(imm_ci_addi16sp));
+                else              $sformat(result, "c.lui %s,0x%0x", regs_name(rd), imm_ci_lui >> 12 & 20'hfffff);
             end
             FUNCT3_C1_OP  : begin
                 case (funct2_16_op_imm)

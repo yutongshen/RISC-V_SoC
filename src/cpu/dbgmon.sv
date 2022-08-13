@@ -49,6 +49,10 @@ end
 always_ff @(posedge clk or negedge srstn) begin: reg_stop_trace
     if (~srstn)        stop_trace <= 1'b0;
     else if (stop_hit) stop_trace <= 1'b1;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable &&
+             apb_intf.paddr[12:0] == `DBGMON_STOP_TRACE) begin
+        stop_trace <= apb_intf.pwdata[0];
+    end
 end
 
 sram128x64 u_sram_0 (
@@ -174,6 +178,7 @@ always_comb begin: comb_prdata_t
         `DBGMON_X31 + 13'h4: prdata_t = gpr[31][63:32];
         `DBGMON_BP  + 13'h0: prdata_t = breakpoint[31: 0];
         `DBGMON_BP  + 13'h4: prdata_t = breakpoint[63:32];
+        `DBGMON_STOP_TRACE:  prdata_t = {31'b0, stop_trace};
     endcase
 end
 

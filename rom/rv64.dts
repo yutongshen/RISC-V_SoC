@@ -145,7 +145,7 @@
     chosen {
         riscv,kernel-start = <0x0 0x80200000>;
         riscv,kernel-end   = <0x0 0x87000000>;
-        bootargs = "root=/dev/srda console=ttySIF0";
+        bootargs = "root=/dev/srda rw console=ttySIF0";
         stdout-path = "uart0@10001000";
         linux,platform = <0x00000600>;
     };

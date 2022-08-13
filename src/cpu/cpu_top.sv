@@ -148,7 +148,6 @@ logic [                     11:0] id_csr_addr;
 logic                             id_amo_64;
 logic                             id_len_64;
 logic [              `XLEN - 1:0] id_imm;
-logic [              `XLEN - 1:0] id_mem_addr;
 
 logic [                      1:0] id_prv_req;
 logic                             id_ill_inst;
@@ -222,7 +221,6 @@ logic [              `XLEN - 1:0] id2exe_csr_rdata;
 logic                             id2exe_amo_64;
 logic                             id2exe_len_64;
 logic [              `XLEN - 1:0] id2exe_imm;
-logic [              `XLEN - 1:0] id2exe_mem_addr;
 
 logic                             id2exe_rs1_rd;
 logic                             id2exe_rs2_rd;
@@ -511,11 +509,11 @@ resetn_synchronizer u_sync_xrstn (
 );
 
 assign stall_wfi  = (exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event;
-assign inst_valid = ~6'b0;
-// assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid,
-//                      exe2ma_inst_valid | exe2ma_trap_en,
-//                      ma2mr_inst_valid  | ma2mr_trap_en,
-//                      mr2wb_inst_valid  | mr2wb_trap_en};
+// assign inst_valid = ~6'b0;
+assign inst_valid = {1'b1, if2id_inst_valid, id2exe_inst_valid,
+                     exe2ma_inst_valid | exe2ma_trap_en,
+                     ma2mr_inst_valid  | ma2mr_trap_en,
+                     mr2wb_inst_valid  | mr2wb_trap_en};
 
 clkmnt u_clkmnt (
     .clk_free ( clk          ),
@@ -730,12 +728,6 @@ idu u_idu (
     .dbg_csr_wr          ( dbg_csr_wr             )
 );
 
-agu u_agu (
-    .base   ( id_rs1_data ),
-    .offset ( id_imm      ),
-    .out    ( id_mem_addr ) 
-);
-
 assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
 
@@ -795,7 +787,6 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         id2exe_amo_64              <= 1'b0;
         id2exe_len_64              <= 1'b0;
         id2exe_imm                 <= `XLEN'b0;
-        id2exe_mem_addr            <= `XLEN'b0;
         id2exe_rs1_rd              <= 1'b0;
         id2exe_rs2_rd              <= 1'b0;
         id2exe_mdu_sel             <= 1'b0;
@@ -862,17 +853,16 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_amo_64              <= id_amo_64;
             id2exe_len_64              <= id_len_64;
             id2exe_imm                 <= id_imm;
-            id2exe_mem_addr            <= id_mem_addr;
             id2exe_rs1_rd              <= id_rs1_rd;
             id2exe_rs2_rd              <= id_rs2_rd;
-            id2exe_mdu_sel             <= id_mdu_sel;
+            id2exe_mdu_sel             <= ~id_flush & ~id_jump_fault & id_mdu_sel;
             id2exe_mdu_op              <= id_mdu_op;
             id2exe_alu_op              <= id_alu_op;
             id2exe_rs1_zero_sel        <= id_rs1_zero_sel;
             id2exe_rs2_imm_sel         <= id_rs2_imm_sel;
             id2exe_pc_imm_sel          <= id_pc_imm_sel;
-            id2exe_jump_alu            <= ~id_flush & ~id_jump_fault &id_jump_alu;
-            id2exe_branch              <= ~id_flush & ~id_jump_fault &id_branch;
+            id2exe_jump_alu            <= ~id_flush & ~id_jump_fault & id_jump_alu;
+            id2exe_branch              <= ~id_flush & ~id_jump_fault & id_branch;
             id2exe_branch_zcmp         <= id_branch_zcmp;
             id2exe_csr_op              <= id_csr_op;
             id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;

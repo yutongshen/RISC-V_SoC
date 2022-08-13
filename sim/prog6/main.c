@@ -6,6 +6,8 @@
 #define CAUSE_SEIP     ( 9)
 #define CAUSE_MEIP     (11)
 
+extern int test_func(long long);
+
 void plic_init() {
     // Set UART and SPI interrupt priority
     PLIC_INT_PRIOR_32P[1] = 1;
@@ -48,6 +50,14 @@ int main(void) {
     /* TM_INFO="Into main function" */
 
     int len = 21;
+
+    /* TM_INFO="Test Start" */
+    unsigned long long tmp;
+    tmp = 0x0000000776000000;
+    /* TM_INFO="value = %d", tmp */
+    tmp = test_func(tmp);
+    /* TM_INFO="value = %d", tmp */
+    /* TN_INFO="Test Done" */
 
     plic_init();
     irq_init();
