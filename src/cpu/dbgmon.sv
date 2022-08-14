@@ -37,7 +37,9 @@ always_ff @(posedge clk or negedge rstn) begin: reg_bp
     end
 end
 
-assign stop_hit        = (breakpoint == pkg[160+:64]) && !pkg[255] && pkg_valid;
+assign stop_hit        = pkg_valid && (((breakpoint == pkg[160+:64]) && !pkg[255])/* ||
+                                       ((64'hffffffe00002a110 == pkg[160+:64]) && pkg[255]) ||
+                                       ((64'hffffffe00002a114 == pkg[160+:64]) && pkg[255])*/);
 assign trace_sram_we   = pkg_valid && ~stop_trace;
 assign trace_sram_addr = ({7{stop_trace}} & apb_intf.paddr[11:5]) + trace_ptr;
 

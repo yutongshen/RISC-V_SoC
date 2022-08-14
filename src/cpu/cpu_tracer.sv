@@ -137,21 +137,21 @@ always_ff @(posedge clk) begin
         else begin
             str = "";
             case (mcause)
-                `CAUSE_MISALIGNED_FETCH      : str = "InstructionAddressMisaligned"; 
-                `CAUSE_INSTRUCTION_ACCESS    : str = "InstructionAccessFault";
-                `CAUSE_ILLEGAL_INSTRUCTION   : str = "IllegalInstruction";
-                `CAUSE_BREAKPOINT            : str = "Breakpoint";
-                `CAUSE_MISALIGNED_LOAD       : str = "LoadAddressMisaligned";
-                `CAUSE_LOAD_ACCESS           : str = "LoadAccessFault";
-                `CAUSE_MISALIGNED_STORE      : str = "StoreAddressMisaligned";
-                `CAUSE_STORE_ACCESS          : str = "StoreAccessFault";
-                `CAUSE_USER_ECALL            : str = "UserEcall";
-                `CAUSE_SUPERVISOR_ECALL      : str = "SupervisorEcall";
-                `CAUSE_HYPERVISOR_ECALL      : str = "HypervisorEcall";
-                `CAUSE_MACHINE_ECALL         : str = "MachineEcall";
-                `CAUSE_INSTRUCTION_PAGE_FAULT: str = "InstructionPageFault";
-                `CAUSE_LOAD_PAGE_FAULT       : str = "LoadPageFault";
-                `CAUSE_STORE_PAGE_FAULT      : str = "StorePageFault";
+                `XLEN`CAUSE_MISALIGNED_FETCH      : str = "InstructionAddressMisaligned"; 
+                `XLEN`CAUSE_INSTRUCTION_ACCESS    : str = "InstructionAccessFault";
+                `XLEN`CAUSE_ILLEGAL_INSTRUCTION   : str = "IllegalInstruction";
+                `XLEN`CAUSE_BREAKPOINT            : str = "Breakpoint";
+                `XLEN`CAUSE_MISALIGNED_LOAD       : str = "LoadAddressMisaligned";
+                `XLEN`CAUSE_LOAD_ACCESS           : str = "LoadAccessFault";
+                `XLEN`CAUSE_MISALIGNED_STORE      : str = "StoreAddressMisaligned";
+                `XLEN`CAUSE_STORE_ACCESS          : str = "StoreAccessFault";
+                `XLEN`CAUSE_USER_ECALL            : str = "UserEcall";
+                `XLEN`CAUSE_SUPERVISOR_ECALL      : str = "SupervisorEcall";
+                `XLEN`CAUSE_HYPERVISOR_ECALL      : str = "HypervisorEcall";
+                `XLEN`CAUSE_MACHINE_ECALL         : str = "MachineEcall";
+                `XLEN`CAUSE_INSTRUCTION_PAGE_FAULT: str = "InstructionPageFault";
+                `XLEN`CAUSE_LOAD_PAGE_FAULT       : str = "LoadPageFault";
+                `XLEN`CAUSE_STORE_PAGE_FAULT      : str = "StorePageFault";
                 default:
                     $sformat(str, "Unknown exception #%0d", mcause);
             endcase

@@ -130,10 +130,10 @@ always @(posedge simend) begin
 end
 
 // initial begin
-//     #(`CLK_PRIOD * 57995);
+//     #(`CLK_PRIOD * 22715);
 //     force u_cpu_wrap.u_cpu_top.u_sru.mie_meie = 1'b1;
 //     force u_cpu_wrap.u_cpu_top.u_sru.mip_meip = 1'b1;
-//     #(`CLK_PRIOD * 10);
+//     #(`CLK_PRIOD * 40);
 //     release u_cpu_wrap.u_cpu_top.u_sru.mie_meie;
 //     release u_cpu_wrap.u_cpu_top.u_sru.mip_meip;
 // end

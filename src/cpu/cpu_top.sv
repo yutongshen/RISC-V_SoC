@@ -413,6 +413,7 @@ logic [              `XLEN - 1:0] ma2mr_rd_data;
 logic [              `XLEN - 1:0] ma2mr_pc2rd;
 logic [       `DM_ADDR_LEN - 1:0] ma2mr_mem_addr;
 logic [       `DM_DATA_LEN - 1:0] ma2mr_mem_wdata;
+logic                             ma2mr_mem_req_wo_flush;
 logic                             ma2mr_mem_req;
 logic                             ma2mr_mem_wr;
 logic                             ma2mr_csr_wr;
@@ -937,12 +938,12 @@ assign exe_mem_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || m
                         (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
                         ma_pipe_restart || exe2ma_amo;
 assign exe_gpr_hazard = exe_mem_hazard || (id2exe_mdu_sel && ~exe_mdu_okay);
-assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req) &&
+assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req_wo_flush /*|| mr_dpu_hazard*/) &&
                         (id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
                          id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
                          id2exe_sret       || id2exe_mret       || id2exe_ill_inst);
 
-assign exe_hazard = exe_gpr_hazard | exe_csr_hazard;
+assign exe_hazard = exe_gpr_hazard || exe_csr_hazard;
 
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
@@ -1339,6 +1340,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         ma2mr_pc2rd               <= `XLEN'b0;
         ma2mr_mem_addr            <= `DM_ADDR_LEN'b0;
         ma2mr_mem_wdata           <= `DM_DATA_LEN'b0;
+        ma2mr_mem_req_wo_flush    <= 1'b0;
         ma2mr_mem_req             <= 1'b0;
         ma2mr_mem_wr              <= 1'b0;
         ma2mr_csr_wr              <= 1'b0;
@@ -1380,6 +1382,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
 `endif
             ma2mr_mem_addr            <= ma_dpu_addr;
             ma2mr_mem_wdata           <= dmem_wdata;
+            ma2mr_mem_req_wo_flush    <= exe2ma_mem_req;
             ma2mr_mem_req             <= ~ma_flush & exe2ma_mem_req;
             ma2mr_mem_wr              <= ~ma_flush & exe2ma_mem_wr;
             ma2mr_csr_wr              <= exe2ma_csr_wr;

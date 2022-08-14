@@ -349,21 +349,21 @@
 `define MSTATUS_64_SD_BIT 63+:1
 `define MSTATUS_32_SD_BIT 31+:1
 
-`define CAUSE_MISALIGNED_FETCH       `XLEN'h0
-`define CAUSE_INSTRUCTION_ACCESS     `XLEN'h1
-`define CAUSE_ILLEGAL_INSTRUCTION    `XLEN'h2
-`define CAUSE_BREAKPOINT             `XLEN'h3
-`define CAUSE_MISALIGNED_LOAD        `XLEN'h4
-`define CAUSE_LOAD_ACCESS            `XLEN'h5
-`define CAUSE_MISALIGNED_STORE       `XLEN'h6
-`define CAUSE_STORE_ACCESS           `XLEN'h7
-`define CAUSE_USER_ECALL             `XLEN'h8
-`define CAUSE_SUPERVISOR_ECALL       `XLEN'h9
-`define CAUSE_HYPERVISOR_ECALL       `XLEN'ha
-`define CAUSE_MACHINE_ECALL          `XLEN'hb
-`define CAUSE_INSTRUCTION_PAGE_FAULT `XLEN'hc
-`define CAUSE_LOAD_PAGE_FAULT        `XLEN'hd
-`define CAUSE_STORE_PAGE_FAULT       `XLEN'hf
+`define CAUSE_MISALIGNED_FETCH       'h0
+`define CAUSE_INSTRUCTION_ACCESS     'h1
+`define CAUSE_ILLEGAL_INSTRUCTION    'h2
+`define CAUSE_BREAKPOINT             'h3
+`define CAUSE_MISALIGNED_LOAD        'h4
+`define CAUSE_LOAD_ACCESS            'h5
+`define CAUSE_MISALIGNED_STORE       'h6
+`define CAUSE_STORE_ACCESS           'h7
+`define CAUSE_USER_ECALL             'h8
+`define CAUSE_SUPERVISOR_ECALL       'h9
+`define CAUSE_HYPERVISOR_ECALL       'ha
+`define CAUSE_MACHINE_ECALL          'hb
+`define CAUSE_INSTRUCTION_PAGE_FAULT 'hc
+`define CAUSE_LOAD_PAGE_FAULT        'hd
+`define CAUSE_STORE_PAGE_FAULT       'hf
 
 `define MIP_SSIP_BIT  1
 `define MIP_MSIP_BIT  3
