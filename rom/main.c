@@ -23,11 +23,6 @@ __U32 main(void) {
     __fat_bpb_init(&__bpb);
 
     if (*CFGREG_RSVREG0_32P == 0) {
-        // load bbl
-        __puts("[BROM] load bbl");
-        __fopen(&__file, "boot.bin");
-        __elf_loader(&__file);
-
         // load rootfs
         __puts("[BROM] load rootfs");
         __fopen(&__file, "riscv.fs");
@@ -35,6 +30,11 @@ __U32 main(void) {
 
         *CFGREG_RSVREG0_32P = 0xcafecafe;
     }
+
+    // load bbl
+    __puts("[BROM] load bbl");
+    __fopen(&__file, "boot.bin");
+    __elf_loader(&__file);
 
     // load linux
     __puts("[BROM] load vmlinux");

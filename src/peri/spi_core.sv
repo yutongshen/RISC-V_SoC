@@ -29,6 +29,10 @@ logic [15:0] dma_rxbuff;
 logic        dma_txreq;
 logic        dma_txe;
 logic [15:0] dma_txbuff;
+logic        spi_irq;
+logic        dma_irq;
+
+assign irq_out = spi_irq | dma_irq;
 
 spi_core_apb_conn u_spi_core_apb_conn (
     .spi_core_apb ( s_apb_intf     ),
@@ -69,6 +73,8 @@ dma u_dma (
     .dma_txreq  ( dma_txreq     ),
     .dma_txe    ( dma_txe       ),
     .dma_txbuff ( dma_txbuff    ),
+    
+    .irq_out    ( dma_irq       ),
                                
     .m_axi_intf ( m_axi_intf    ),
     .s_apb_intf ( dma_apb.slave )

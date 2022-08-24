@@ -3,14 +3,19 @@
 #include "util.h"
 #include "spi.h"
 
-inline void __dma_cfg(__U32 src, __U32 dest, __U32 len,
+inline void __dma_cfg(__U32 src, __U32 dest, __U32 len, __U8 spi_bypass,
                       __U8 src_btype, __U8 dest_btype,
                       __U8 src_size,  __U8 dest_size) {
     *DMA_SRC_32P  = src;
     *DMA_DEST_32P = dest;
     *DMA_LEN_32P  = len;
     
-    *DMA_CON_32P  = dest_size << 10 | src_size << 8 | dest_btype << 6 | src_btype << 4 | 1;
+    *DMA_CON_32P  = dest_size  << 10 |
+                    src_size   <<  8 |
+                    dest_btype <<  6 |
+                    src_btype  <<  4 |
+                    spi_bypass <<  1 |
+                    1;
 }
 
 inline __U32 __dma_busy() {
@@ -18,6 +23,8 @@ inline __U32 __dma_busy() {
 }
 
 __U8 __spi_init(__U32 __br) {
+    *DMA_IE_32P  = 0;
+    *DMA_IC_32P  = 1;
     *SPI_CR1_32P = 0;
     *SPI_CR1_32P = (          1  << __SPI_CR1_SPE_BIT     )|
                    (          1  << __SPI_CR1_MSTR_BIT    )|

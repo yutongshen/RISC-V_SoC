@@ -108,7 +108,7 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr1
         spi_cr1_cpha     <= 1'b0;
         spi_cr1_cpol     <= 1'b0;
         spi_cr1_mstr     <= 1'b1;
-        spi_cr1_br       <= 2'b0;
+        spi_cr1_br       <= 3'b0;
         spi_cr1_spe      <= 1'b0;
         spi_cr1_lsbfirst <= 1'b0;
         spi_cr1_ssi      <= 1'b0;

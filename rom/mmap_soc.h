@@ -138,6 +138,18 @@
 #define DMA_CON (DMA_BASE + 0x0C)
 #define DMA_CON_32P ((UINT32P) (DMA_BASE + 0x0C))
 #define DMA_CON_64P ((UINT64P) (DMA_BASE + 0x0C))
+#define DMA_IE (DMA_BASE + 0x10)
+#define DMA_IE_32P ((UINT32P) (DMA_BASE + 0x10))
+#define DMA_IE_64P ((UINT64P) (DMA_BASE + 0x10))
+#define DMA_IP (DMA_BASE + 0x14)
+#define DMA_IP_32P ((UINT32P) (DMA_BASE + 0x14))
+#define DMA_IP_64P ((UINT64P) (DMA_BASE + 0x14))
+#define DMA_IC (DMA_BASE + 0x18)
+#define DMA_IC_32P ((UINT32P) (DMA_BASE + 0x18))
+#define DMA_IC_64P ((UINT64P) (DMA_BASE + 0x18))
+#define DMA_WDT_CNT (DMA_BASE + 0x1C)
+#define DMA_WDT_CNT_32P ((UINT32P) (DMA_BASE + 0x1C))
+#define DMA_WDT_CNT_64P ((UINT64P) (DMA_BASE + 0x1C))
 
 // ==============================
 //  DDR_BASE
