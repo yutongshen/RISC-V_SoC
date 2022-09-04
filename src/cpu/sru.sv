@@ -95,6 +95,8 @@ module sru (
 
 logic                          trap_m_mode;
 logic                          trap_s_mode;
+logic                          ints_m_mode_pre;
+logic                          ints_s_mode_pre;
 logic                          ints_m_mode;
 logic                          ints_s_mode;
 logic [      `IM_ADDR_LEN-1:0] vec_offset;
@@ -187,36 +189,39 @@ logic [             `XLEN-1:0] ints_m_en;
 logic [             `XLEN-1:0] ints_s_en;
 
 assign ints_en     = mie & mip;
-assign ints_m_en   = mie & mip & ~mideleg;
-assign ints_s_en   = mie & mip &  mideleg;
+assign ints_m_en   = ints_en & ~mideleg;
+assign ints_s_en   = ints_en &  mideleg;
 
 assign wakeup      = |ints_en;
 assign irq_trigger = ~trap_en && (ints_m_mode || ints_s_mode);
 assign ret_epc     = sret ? sepc : mepc;
 assign eret_en     = ~trap_en && (sret || mret);
 
-assign trap_m_mode = ~trap_s_mode;
-assign trap_s_mode = prv <= `PRV_S && |(medeleg & (`XLEN'b1 << trap_cause[`XLEN-2:0]));
-assign ints_m_mode = ((prv == `PRV_M && mstatus_mie) || prv < `PRV_M) && ~int_mask && |(~mideleg & mip & mie);
-assign ints_s_mode = ((prv == `PRV_S && mstatus_sie) || prv < `PRV_S) && ~int_mask && |( mideleg & mip & mie) && !ints_m_mode;
+assign trap_m_mode     = ~trap_s_mode;
+assign trap_s_mode     = prv <= `PRV_S && |(medeleg & (`XLEN'b1 << trap_cause[`XLEN-2:0]));
+assign ints_m_mode_pre = ((prv == `PRV_M && mstatus_mie) || prv < `PRV_M) && |ints_m_en;
+assign ints_s_mode_pre = ((prv == `PRV_S && mstatus_sie) || prv < `PRV_S) && |ints_s_en && !ints_m_mode_pre;
+assign ints_m_mode     = ints_m_mode_pre && ~int_mask;
+assign ints_s_mode     = ints_s_mode_pre && ~int_mask;
 
-assign trap_vec    = ((trap_en ? (trap_m_mode ? mtvec : stvec):
-                                 (ints_m_mode ? mtvec : stvec)) & ~`IM_ADDR_LEN'h3) + vec_offset;
+assign trap_vec    = ((trap_en ?  (trap_m_mode     ? mtvec : stvec):
+                                 ((ints_m_mode_pre ? mtvec : stvec) + vec_offset)) &
+                     ~`IM_ADDR_LEN'h3);
 
-assign vec_offset  = trap_en     ? `IM_ADDR_LEN'd0:
-                     ints_s_mode ? ints_s_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                                   ints_s_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                                   ints_s_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                                   ints_s_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                                   ints_s_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                                   /*ints_s_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
-                     ints_m_mode ? ints_m_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   ints_m_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   ints_m_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   ints_m_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   ints_m_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   /*ints_m_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
-                                   `IM_ADDR_LEN'd0;
+assign vec_offset  = /*trap_en     ? `IM_ADDR_LEN'd0:*/
+                     ints_s_mode_pre ?     ints_s_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                           ints_s_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                           ints_s_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                           ints_s_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                           ints_s_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                                           /*ints_s_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{stvec[0]}}:
+                     /*ints_m_mode_pre ?*/ ints_m_en[`MIP_MEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                           ints_m_en[`MIP_MSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                           ints_m_en[`MIP_MTIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_MTIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                           ints_m_en[`MIP_SEIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SEIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                           ints_m_en[`MIP_SSIP_BIT]      ? (`IM_ADDR_LEN'd`MIP_SSIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}}:
+                                           /*ints_m_en[`MIP_STIP_BIT] ? */ (`IM_ADDR_LEN'd`MIP_STIP_BIT << 2) & {`IM_ADDR_LEN{mtvec[0]}};
+                                           /*`IM_ADDR_LEN'd0;*/
 
 
 assign cause       = trap_en     ? trap_cause : 

@@ -228,7 +228,7 @@ always @(posedge aclk) begin
                 endcase
             end while (s_wlast !== 1'b1);
             s_wready = 1'b0;
-            repeat($random() % 50) @(posedge aclk);
+            repeat($random() % 0) @(posedge aclk);
             s_bresp  = awburst_err ? `RESP_SLVERR :
                                      `RESP_OKAY;
             s_bvalid = 1'b1;
@@ -290,7 +290,7 @@ always @(posedge aclk) begin
                                                        (arlen != 8'b111) && (arlen != 8'b1111));
             if (arburst_err) err_msg("Detect illigal burst");
             for (i = 0; i <= arlen; i = i + 1) begin
-                repeat($random() % 50) @(posedge aclk);
+                repeat($random() % 0) @(posedge aclk);
                 case (arburst)
                     `BURST_FIXED: raddr = araddr;
                     `BURST_INCR:  raddr = (araddr + (i << arsize));

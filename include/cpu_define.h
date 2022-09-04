@@ -24,6 +24,7 @@
 
 `define MDU_OP_LEN 4
 `define ALU_OP_LEN 4
+`define BPU_OP_LEN 2
 `define CSR_OP_LEN 2
 `define AMO_OP_LEN 4
 

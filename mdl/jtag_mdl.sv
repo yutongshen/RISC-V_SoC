@@ -171,7 +171,6 @@ initial begin
     do begin
         jtag_rw_dr(35, {32'h44444444, 2'h3, 1'b1});
     end while (rdata[2:0] == `RESP_WAIT);
-*/    
     j = 0;
     forever begin
         #111300000;
@@ -228,7 +227,6 @@ initial begin
             $display("[JTAG_MDL] %d times", j);
         $finish;
     end
-/*
 
     // AXI_AP test
     // APSEL AXI_AP sel

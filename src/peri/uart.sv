@@ -185,7 +185,7 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        div <= 1000000000/30/115200; // baurd rate = 115200
+        div <= 1000000000/22/115200; // baurd rate = 115200
     end
     else if (apb_wr && s_apb_intf.paddr[11:0] == `UART_DIV) begin
         div <= s_apb_intf.pwdata[15:0];

@@ -20,11 +20,12 @@ module tlb (
     input                               tlb_flush_all_vaddr,
     input                               tlb_flush_all_asid,
     input        [         `XLEN - 1:0] tlb_flush_vaddr,
-    input        [         `XLEN - 1:0] tlb_flush_asid
+    input        [         `XLEN - 1:0] tlb_flush_asid,
 
+    output       [`TLB_IDX_WIDTH - 1:0] idx
 );
 
-logic [      `TLB_IDX_WIDTH-1:0] idx;
+// logic [      `TLB_IDX_WIDTH-1:0] idx;
 logic [          `TLB_DEPTH-1:0] valid   [`TLB_WAY_NUM];
 logic [                     2:0] spg_bit [`TLB_WAY_NUM][`TLB_DEPTH];
 logic [$clog2(`TLB_WAY_NUM)-1:0] order   [`TLB_WAY_NUM][`TLB_DEPTH];
@@ -189,23 +190,56 @@ generate
                               tag_latch[ 0+:9] & {9{~spg_latch[g][0]}}}));
 `endif
 
-        sram32x31 u_tag_array (
-            .CK ( clk            ),
-            .CS ( cs             ),
-            .WE ( we & victim[g] ),
-            .A  ( idx            ),
-            .DI ( tag_in         ),
-            .DO ( tag_out        )
-        );
+        // sram32x31 u_tag_array (
+        //     .CK ( clk                               ),
+        //     .CS ( cs                                ),
+        //     .WE ( we & victim[g]                    ),
+        //     .A  ( {{(5-`TLB_IDX_WIDTH){1'b0}}, idx} ),
+        //     .DI ( tag_in                            ),
+        //     .DO ( tag_out                           )
+        // );
 
-        sram32x64 u_pte_array (
-            .CK ( clk            ),
-            .CS ( cs             ),
-            .WE ( we & victim[g] ),
-            .A  ( idx            ),
-            .DI ( pte_in         ),
-            .DO ( pte_out_arr[g] )
-        );
+        // sram32x64 u_pte_array (
+        //     .CK ( clk                               ),
+        //     .CS ( cs                                ),
+        //     .WE ( we & victim[g]                    ),
+        //     .A  ( {{(5-`TLB_IDX_WIDTH){1'b0}}, idx} ),
+        //     .DI ( pte_in                            ),
+        //     .DO ( pte_out_arr[g]                    )
+        // );
+
+        logic [`TLB_TAG_WIDTH-1:0] tag_array [`TLB_DEPTH];
+        logic [`TLB_PTE_WIDTH-1:0] pte_array [`TLB_DEPTH];
+
+        always_ff @(posedge clk or negedge rstn) begin
+            integer i;
+            if (~rstn)
+                for (i = 0; i < `TLB_DEPTH; i = i + 1)
+                    tag_array[i] <= {`TLB_TAG_WIDTH{1'b0}};
+            else if (cs & we & victim[g])
+                tag_array[idx] <= tag_in;
+        end
+
+        always_ff @(posedge clk or negedge rstn) begin
+            if (~rstn) tag_out <= {`TLB_TAG_WIDTH{1'b0}};
+            else       tag_out <= tag_array[idx];
+        end
+
+        always_ff @(posedge clk or negedge rstn) begin
+            integer i;
+            if (~rstn)
+                for (i = 0; i < `TLB_DEPTH; i = i + 1)
+                    pte_array[i] <= {`TLB_PTE_WIDTH{1'b0}};
+            else if (cs & we & victim[g])
+                pte_array[idx] <= pte_in;
+        end
+
+        always_ff @(posedge clk or negedge rstn) begin
+            if (~rstn) pte_out_arr[g] <= {`TLB_PTE_WIDTH{1'b0}};
+            else       pte_out_arr[g] <= pte_array[idx];
+        end
+
+
     end
 endgenerate
 

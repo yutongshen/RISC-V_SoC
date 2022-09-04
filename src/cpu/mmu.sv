@@ -532,7 +532,7 @@ always_ff @(posedge clk or negedge rstn) begin
             last_pte_r     <= tlb_pte_r;
             last_pte_v     <= tlb_pte_v;
         end
-        else if (cur_state ==STATE_PTE   && leaf && ~pg_fault_pte) begin
+        else if (cur_state == STATE_PTE   && leaf && ~pg_fault_pte) begin
 `ifdef RV32
             last_vpn[19:0] <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}};
 `else
@@ -577,8 +577,58 @@ tlb u_tlb(
     .tlb_flush_all_vaddr ( tlb_flush_all_vaddr ),
     .tlb_flush_all_asid  ( tlb_flush_all_asid  ),
     .tlb_flush_vaddr     ( tlb_flush_vaddr     ),
-    .tlb_flush_asid      ( tlb_flush_asid      )
+    .tlb_flush_asid      ( tlb_flush_asid      ),
 
+    .idx                 ( tlb_idx             )
 );
+
+logic [              31:0] total_cnt;
+logic [              31:0] req_cnt [`TLB_DEPTH];
+logic [              31:0] hit_cnt [`TLB_DEPTH];
+logic [`TLB_IDX_WIDTH-1:0] idx_dly;
+logic                      req_dly;
+logic                      ovf;
+
+assign ovf = &total_cnt;
+
+always_ff @(posedge clk or negedge rstn) begin: reg_req_dly
+    if (~rstn) req_dly <= 1'b0;
+    else       req_dly <= va_valid & va_en;
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_idx_dly
+    if (~rstn) idx_dly <= {`TLB_IDX_WIDTH{1'b0}};
+    else       idx_dly <= tlb_idx;
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_total_cnt
+    if (~rstn) total_cnt <= 32'b0;
+    else       total_cnt <= (total_cnt >> ovf) + {31'b0, req_dly};
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_req_cnt
+    integer i;
+    if (~rstn) begin
+        for (i = 0; i < `TLB_DEPTH; i = i + 1)
+            req_cnt[i] <= 32'b0;
+    end
+    else begin
+        for (i = 0; i < `TLB_DEPTH; i = i + 1)
+            req_cnt[i] <= (req_cnt[i] >> ovf) + {31'b0, (i == idx_dly && req_dly)};
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_hit_cnt
+    integer i;
+    if (~rstn) begin
+        for (i = 0; i < `TLB_DEPTH; i = i + 1)
+            hit_cnt[i] <= 32'b0;
+    end
+    else begin
+        for (i = 0; i < `TLB_DEPTH; i = i + 1)
+            hit_cnt[i] <= (hit_cnt[i] >> ovf) + {31'b0, (i == idx_dly && req_dly && tlb_hit)};
+    end
+end
+
 
 endmodule

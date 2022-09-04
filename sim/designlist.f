@@ -16,6 +16,7 @@
 ../src/cpu/csr.sv
 ../src/cpu/csr_alu.sv
 ../src/cpu/sru.sv
+../src/cpu/bpu.sv
 ../src/cpu/alu.sv
 ../src/cpu/mdu.sv
 ../src/cpu/mul.sv

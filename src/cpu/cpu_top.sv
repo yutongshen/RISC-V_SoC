@@ -172,6 +172,7 @@ logic                             id_rs2_imm_sel;
 logic                             id_pc_imm_sel;
 logic                             id_branch;
 logic                             id_branch_zcmp;
+logic [        `BPU_OP_LEN - 1:0] id_bpu_op;
 logic [        `CSR_OP_LEN - 1:0] id_csr_op;
 logic                             id_uimm_rs1_sel;
 logic                             id_pc_alu_sel;
@@ -233,6 +234,7 @@ logic                             id2exe_pc_imm_sel;
 logic                             id2exe_jump_alu;
 logic                             id2exe_branch;
 logic                             id2exe_branch_zcmp;
+logic [        `BPU_OP_LEN - 1:0] id2exe_bpu_op;
 logic [        `CSR_OP_LEN - 1:0] id2exe_csr_op;
 logic                             id2exe_uimm_rs1_sel;
 logic                             id2exe_csr_rd;
@@ -280,6 +282,9 @@ logic                             exe_inst_valid;
 logic                             exe_alu_zero;
 logic                             exe_branch_match;
 logic                             exe_jump_fault;
+logic                             exe_branch;
+logic                             exe_bpu_en;
+logic [       `IM_ADDR_LEN - 1:0] exe_bpu_pc;
 logic [              `XLEN - 1:0] exe_pc_imm;
 logic [              `XLEN - 1:0] exe_pc_add_4;
 logic [              `XLEN - 1:0] exe_rs1_data;
@@ -528,7 +533,7 @@ clkmnt u_clkmnt (
 hzu u_hzu (
     .inst_valid      ( inst_valid      ),
     .pc_jump_en      ( if_pc_jump_en   ),
-    .pc_alu_en       ( if_pc_alu_en    ),
+    .pc_alu_en       ( exe_bpu_en      ),
     .irq_en          ( exe_irq_en      ),
     .trap_en         ( exe_trap_en     ),
     .eret_en         ( exe_eret_en     ),
@@ -573,8 +578,8 @@ ifu u_ifu (
     .ret_epc         ( ret_epc                      ),
     .pc_jump_en      ( if_pc_jump_en                ),
     .pc_jump         ( if_pc_jump                   ),
-    .pc_alu_en       ( if_pc_alu_en                 ),
-    .pc_alu          ( if_pc_alu                    ),
+    .pc_alu_en       ( exe_bpu_en                   ),
+    .pc_alu          ( exe_bpu_pc                   ),
     .pipe_restart_en ( mr_pipe_restart              ),
     .pipe_restart    ( ma2mr_pc2rd                  ),
     .id_jump_fault   ( id_jump_fault                ),
@@ -602,7 +607,7 @@ ifu u_ifu (
     .dbg_inst        ( dbg_inst                     )
 );
 
-assign exe_branch_match = id2exe_branch & ~exe_hazard & (id2exe_branch_zcmp == exe_alu_zero);
+assign exe_branch_match = id2exe_branch & ~exe_mem_hazard & (id2exe_branch_zcmp == exe_alu_zero);
 
 assign if_pc_jump_en = id_jump & ~if2id_stall_flag & ~if2id_jump_token & if2id_inst_valid;
 assign if_pc_jump    = id_imm + if2id_pc;
@@ -695,6 +700,7 @@ idu u_idu (
     .pc_imm_sel          ( id_pc_imm_sel          ),
     .branch              ( id_branch              ),
     .branch_zcmp         ( id_branch_zcmp         ),
+    .bpu_op              ( id_bpu_op              ),
     .csr_op              ( id_csr_op              ),
     .uimm_rs1_sel        ( id_uimm_rs1_sel        ),
     .csr_rd              ( id_csr_rd              ),
@@ -799,6 +805,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
         id2exe_jump_alu            <= 1'b0;
         id2exe_branch              <= 1'b0;
         id2exe_branch_zcmp         <= 1'b0;
+        id2exe_bpu_op              <= `BPU_OP_LEN'b0;
         id2exe_csr_op              <= `CSR_OP_LEN'b0;
         id2exe_uimm_rs1_sel        <= 1'b0;
         id2exe_csr_rd              <= 1'b0;
@@ -865,6 +872,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_jump_alu            <= ~id_flush & ~id_jump_fault & id_jump_alu;
             id2exe_branch              <= ~id_flush & ~id_jump_fault & id_branch;
             id2exe_branch_zcmp         <= id_branch_zcmp;
+            id2exe_bpu_op              <= id_bpu_op;
             id2exe_csr_op              <= id_csr_op;
             id2exe_uimm_rs1_sel        <= id_uimm_rs1_sel;
             id2exe_csr_rd              <= ~id_flush & ~id_jump_fault & id_csr_rd;
@@ -938,7 +946,7 @@ assign exe_mem_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || m
                         (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
                         ma_pipe_restart || exe2ma_amo;
 assign exe_gpr_hazard = exe_mem_hazard || (id2exe_mdu_sel && ~exe_mdu_okay);
-assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req_wo_flush /*|| mr_dpu_hazard*/) &&
+assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req_wo_flush) &&
                         (id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
                          id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
                          id2exe_sret       || id2exe_mret       || id2exe_ill_inst);
@@ -954,6 +962,21 @@ assign exe_alu_src1 = id2exe_rs1_zero_sel ? exe_rs1_data : `XLEN'b0;
 assign exe_alu_src2 = id2exe_rs2_imm_sel  ? exe_rs2_data : id2exe_imm;
 
 assign exe_mdu_sel  = id2exe_mdu_sel && ~exe_mem_hazard;
+
+assign exe_branch   = id2exe_branch & ~exe_hazard;
+
+bpu u_bpu(
+    .bpu_op  ( id2exe_bpu_op      ),
+    .jump    ( id2exe_jump_alu    ),
+    .branch  ( exe_branch         ),
+    .cmp_flag( id2exe_branch_zcmp ),
+    .src1    ( exe_rs1_data       ),
+    .src2    ( exe_rs2_data       ),
+    .pc      ( id2exe_pc          ),
+    .imm     ( id2exe_imm         ),
+    .valid   ( exe_bpu_en         ),
+    .out     ( exe_bpu_pc         )
+);
 
 alu u_alu (
    .alu_op    ( id2exe_alu_op ),
@@ -971,8 +994,8 @@ mdu u_mdu(
     .trig   ( exe_mdu_sel     ),
     .mdu_op ( id2exe_mdu_op   ),
     .flush  ( exe_flush_force ),
-    .src1   ( exe_alu_src1    ),
-    .src2   ( exe_alu_src2    ),
+    .src1   ( exe_rs1_data    ),
+    .src2   ( exe_rs2_data    ),
     .out    ( exe_mdu_out     ),
     .okay   ( exe_mdu_okay    )
 );
@@ -993,7 +1016,8 @@ assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
 
 assign exe_int_mask   = exe_hazard || ~id2exe_inst_valid || ma_stall ||
-                        ma_pipe_restart || mr_pipe_restart || exe2ma_mem_req || ma2mr_mem_req;
+                        ma_pipe_restart || mr_pipe_restart ||
+                        exe2ma_mem_req || ma2mr_mem_req_wo_flush;
 
 sru u_sru (
     .clk              ( clk_wfi           ),
@@ -1229,8 +1253,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             exe2ma_pc2rd               <= exe_pc2rd;
             exe2ma_rs1_data            <= exe_rs1_data;
             exe2ma_rs2_data            <= exe_rs2_data;
-            exe2ma_csr_wr              <= ~exe_flush & ~exe_jump_fault & ~exe_irq_en & ~((exe2ma_wfi | ma2mr_wfi | mr2wb_wfi) & ~wakeup_event) &
-                                           (exe_pmu_csr_wr|
+            exe2ma_csr_wr              <=  (exe_pmu_csr_wr|
                                             exe_fpu_csr_wr|
                                             exe_dbg_csr_wr|
                                             exe_mmu_csr_wr|

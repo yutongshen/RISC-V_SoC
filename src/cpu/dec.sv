@@ -43,6 +43,7 @@ module dec (
     output logic                             pc_imm_sel,
     output logic                             branch,
     output logic                             branch_zcmp,
+    output logic [        `BPU_OP_LEN - 1:0] bpu_op,
     output logic [        `CSR_OP_LEN - 1:0] csr_op,
     output logic                             uimm_rs1_sel,
     output logic                             csr_rd,
@@ -68,6 +69,7 @@ module dec (
 );
 
 `include "alu_op.sv"
+`include "bpu_op.sv"
 `include "mdu_op.sv"
 `include "csr_op.sv"
 `include "amo_op.sv"
@@ -153,6 +155,7 @@ always_comb begin
     pc_imm_sel          = 1'b0;
     branch              = 1'b0;
     branch_zcmp         = 1'b0;
+    bpu_op              = `BPU_OP_LEN'b0;
     pc_alu_sel          = 1'b0;
     amo                 = 1'b0;
     amo_op              = `AMO_OP_LEN'b0;
@@ -1027,27 +1030,33 @@ always_comb begin
                         case (funct3)
                             FUNCT3_BEQ : begin
                                 alu_op       = ALU_SUB;
+                                bpu_op       = BPU_EQ;
                                 branch_zcmp  = 1'b1;
                             end
                             FUNCT3_BNE : begin
                                 alu_op       = ALU_SUB;
+                                bpu_op       = BPU_EQ;
                                 branch_zcmp  = 1'b0;
                             end
                             FUNCT3_BLT : begin
                                 alu_op       = ALU_SLT;
-                                branch_zcmp  = 1'b0;
+                                bpu_op       = BPU_LT;
+                                branch_zcmp  = 1'b1;
                             end
                             FUNCT3_BGE : begin
                                 alu_op       = ALU_SLT;
-                                branch_zcmp  = 1'b1;
+                                bpu_op       = BPU_LT;
+                                branch_zcmp  = 1'b0;
                             end
                             FUNCT3_BLTU: begin
                                 alu_op       = ALU_SLTU;
-                                branch_zcmp  = 1'b0;
+                                bpu_op       = BPU_LTU;
+                                branch_zcmp  = 1'b1;
                             end
                             FUNCT3_BGEU: begin
                                 alu_op       = ALU_SLTU;
-                                branch_zcmp  = 1'b1;
+                                bpu_op       = BPU_LTU;
+                                branch_zcmp  = 1'b0;
                             end
                             default    : begin
                                 ill_inst     = 1'b1;

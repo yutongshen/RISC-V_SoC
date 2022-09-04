@@ -129,14 +129,17 @@ always @(posedge simend) begin
     $finish;
 end
 
-// initial begin
-//     #(`CLK_PRIOD * 22715);
-//     force u_cpu_wrap.u_cpu_top.u_sru.mie_meie = 1'b1;
-//     force u_cpu_wrap.u_cpu_top.u_sru.mip_meip = 1'b1;
-//     #(`CLK_PRIOD * 40);
-//     release u_cpu_wrap.u_cpu_top.u_sru.mie_meie;
-//     release u_cpu_wrap.u_cpu_top.u_sru.mip_meip;
-// end
+initial begin
+    // #(`CLK_PRIOD * 50630);
+    // force u_cpu_wrap.u_cpu_top.u_sru.mie_meie = 1'b1;
+    // force u_cpu_wrap.u_cpu_top.u_sru.mip_meip = 1'b1;
+    // #(`CLK_PRIOD * 72);
+    // // force u_cpu_wrap.u_cpu_top.u_sru.int_mask = 1'b0;
+    // #(`CLK_PRIOD * 1);
+    // release u_cpu_wrap.u_cpu_top.u_sru.mie_meie;
+    // release u_cpu_wrap.u_cpu_top.u_sru.mip_meip;
+    // // release u_cpu_wrap.u_cpu_top.u_sru.int_mask;
+end
 
 // brom initial
 `ifndef BROM

@@ -32,12 +32,12 @@ logic [        6:0] src1_clz;
 logic [        6:0] src2_clz;
 
 logic [        6:0] sft_bit;
-logic [        4:0] sft_bit_div4;
-logic [        4:0] cnt;
-logic [        4:0] nxt_cnt;
+logic [        5:0] sft_bit_div2;
+logic [        5:0] cnt;
+logic [        5:0] nxt_cnt;
 logic               skip;
 
-`define NBIT_DIV 4
+`define NBIT_DIV 2
 logic [    `XLEN-1:0] dividend     [`NBIT_DIV];
 logic [    `XLEN-1:0] nxt_dividend [`NBIT_DIV];
 logic [`NBIT_DIV-1:0] res;
@@ -77,11 +77,11 @@ clz_64 u_src2_clz (
 
 assign sft_bit      = 7'd`XLEN - 7'b1 - src2_clz + src1_clz;
 `ifdef RV32
-assign sft_bit_div4 = {1'b0, sft_bit[5:2]};
-assign nxt_cnt      = 5'd7 - sft_bit_div4;
+assign sft_bit_div2 = {1'b0, sft_bit[5:1]};
+assign nxt_cnt      = 6'd15 - sft_bit_div2;
 `else
-assign sft_bit_div4 = sft_bit[6:2];
-assign nxt_cnt      = 5'd15 - sft_bit_div4;
+assign sft_bit_div2 = sft_bit[6:1];
+assign nxt_cnt      = 6'd31 - sft_bit_div2;
 `endif
 
 
@@ -138,7 +138,7 @@ always_ff @(posedge clk or negedge rstn) begin
                                  ({`XLEN{src1_pos < src2_pos         }} &  src1);
         end
         else if (cur_state == STATE_IDLE) begin
-            out            <= src1_pos << {sft_bit_div4, 2'b0};
+            out            <= src1_pos << {sft_bit_div2, 1'b0};
             src2_pos_latch <= src2_pos;
             neg1_latch     <= neg1;
             neg2_latch     <= neg2;
@@ -155,14 +155,14 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        cnt <= 5'b0;
+        cnt <= 6'b0;
     end
     else begin
         if (cur_state == STATE_IDLE) begin
             cnt <= nxt_cnt;
         end
         else begin
-            cnt <= |cnt ? cnt - 5'b1 : cnt;
+            cnt <= |cnt ? cnt - 6'b1 : cnt;
         end
     end
 end
