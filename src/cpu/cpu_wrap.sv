@@ -275,7 +275,7 @@ logic                dbg_csr_rd;
 logic                dbg_csr_wr;
 logic [`XLEN - 1: 0] dbg_csr_rdata;
 logic [`XLEN - 1: 0] dbg_pc;
-logic [       31: 0] dbg_inst;
+logic [       31: 0] dbg_insn;
 logic                dbg_exec;
 logic                dbg_halted;
 logic                dbg_attach;
@@ -354,7 +354,7 @@ cpu_top u_cpu_top (
     .meip                ( meip                   ),
     .seip                ( seip                   ),
 
-    // inst interface
+    // insn interface
     .imem_en             ( imem_en                ),
     .imem_addr           ( imem_addr              ),
     .imem_rdata          ( imem_rdata             ),
@@ -386,7 +386,7 @@ cpu_top u_cpu_top (
     .dbg_csr_out         ( dbg_csr_rdata          ),
     .dbg_pc_out          ( dbg_pc                 ),
     .dbg_exec            ( dbg_exec               ),
-    .dbg_inst            ( dbg_inst               ),
+    .dbg_insn            ( dbg_insn               ),
     .attach              ( dbg_attach             ),
     .halted              ( dbg_halted             ),
 
@@ -896,7 +896,7 @@ dbgapb u_dbgapb (
     .csr_wr    ( dbg_csr_wr    ),
     .csr_in    ( dbg_csr_rdata ),
     .pc        ( dbg_pc        ),
-    .inst_out  ( dbg_inst      ),
+    .insn_out  ( dbg_insn      ),
     .exec      ( dbg_exec      ),
     .halted    ( dbg_halted    ),
     .attach    ( dbg_attach    )

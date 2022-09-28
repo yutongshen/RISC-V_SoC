@@ -8,7 +8,7 @@ module pmu (
     input                    clk_free,
     input                    rstn,
     input        [`XLEN-1:0] cpu_id,
-    input                    inst_valid,
+    input                    insn_valid,
     input        [      1:0] misa_mxl,
     input        [      1:0] prv,
     input        [     63:0] mtime,
@@ -74,7 +74,7 @@ always_ff @(posedge clk_free or negedge rstn) begin
     else if (csr_wr && csr_waddr == `CSR_MINSTRETH_ADDR)
         minstret[32+:   32] <= `CSR_WDATA(minstret[32+:   32], 32+:32);
     else
-        minstret            <= minstret + {63'b0, inst_valid};
+        minstret            <= minstret + {63'b0, insn_valid};
 end
 
 always_ff @(posedge clk_free or negedge rstn) begin

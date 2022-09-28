@@ -24,7 +24,7 @@ module ifu (
     output logic                      exe_jump_fault,
     output logic                      jump_token,
 
-    // Inst Memory
+    // Insn Memory
     output logic                      imem_req,
     output logic [`IM_ADDR_LEN - 1:0] imem_addr,
     input        [       `XLEN - 1:0] imem_rdata,
@@ -34,8 +34,8 @@ module ifu (
     input        [`IM_ADDR_LEN - 1:0] id_pc,
     input        [`IM_ADDR_LEN - 1:0] exe_pc,
     output logic [`IM_ADDR_LEN - 1:0] pc,
-    output logic [`IM_DATA_LEN - 1:0] inst,
-    output logic                      inst_valid,
+    output logic [`IM_DATA_LEN - 1:0] insn,
+    output logic                      insn_valid,
     output logic [`IM_ADDR_LEN - 1:0] misaligned_epc,
     output logic                      misaligned,
     output logic                      page_fault,
@@ -45,7 +45,7 @@ module ifu (
     input                             stall,
     input                             attach,
     input                             dbg_exec,
-    input        [`IM_DATA_LEN - 1:0] dbg_inst
+    input        [`IM_DATA_LEN - 1:0] dbg_insn
 );
 
 logic                      jump_in_id;
@@ -55,9 +55,9 @@ logic                      jump;
 logic [`IM_ADDR_LEN - 1:0] jump_addr;
 logic [`IM_ADDR_LEN - 1:0] jump_addr_post;
 logic [`IM_ADDR_LEN - 1:0] pc_nxt;
-logic [`IM_ADDR_LEN - 1:0] inst_len;
-logic                      inst_latch_valid;
-logic [`IM_DATA_LEN - 1:0] inst_latch;
+logic [`IM_ADDR_LEN - 1:0] insn_len;
+logic                      insn_latch_valid;
+logic [`IM_DATA_LEN - 1:0] insn_latch;
 logic [               1:0] bad_latch;
 logic                      imem_req_latch;
 logic                      ifu_req_tmp;
@@ -65,7 +65,7 @@ logic                      misaligned_tmp;
 
 logic                      pfu_pop;
 logic [  `IM_ADDR_LEN-1:0] pfu_pc;
-logic [  `IM_DATA_LEN-1:0] pfu_inst;
+logic [  `IM_DATA_LEN-1:0] pfu_insn;
 logic [               1:0] pfu_bad;
 logic [  `IM_ADDR_LEN-1:0] pfu_badaddr;
 logic                      pfu_empty;
@@ -118,11 +118,11 @@ assign misaligned_tmp = jump_addr[1] && ~misa_c_ext;
 
 assign pfu_pop        = ~stall & ~attach;
 
-assign inst_valid     = attach ? dbg_exec :
+assign insn_valid     = attach ? dbg_exec :
                                  (pfu_pop && ~pfu_empty) || misaligned;
 
-assign inst           = attach ? dbg_inst:
-                                 pfu_inst;
+assign insn           = attach ? dbg_insn:
+                                 pfu_insn;
 
 assign pc             = pfu_pc;
 
@@ -139,12 +139,12 @@ pfu u_pfu (
     .pop           ( pfu_pop                     ),
     .jump_token    ( jump_token                  ),
     .pc            ( pfu_pc                      ),
-    .inst          ( pfu_inst                    ),
+    .insn          ( pfu_insn                    ),
     .bad           ( pfu_bad                     ),
     .badaddr       ( pfu_badaddr                 ),
     .empty         ( pfu_empty                   ),
 
-    // Inst Memory
+    // insn Memory
     .imem_req      ( imem_req                    ),
     .imem_addr     ( imem_addr                   ),
     .imem_rdata    ( imem_rdata                  ),

@@ -23,8 +23,8 @@ parameter[1:0] STATE_IDLE = 2'h0,
 
 always_ff @(posedge clk or negedge rstn) begin: reg_src
     if (~rstn) begin
-        src1_ext <= 2*`XLEN'b0;
-        src2_ext <= 2*`XLEN'b0;
+        src1_ext <= {2*`XLEN{1'b0}};
+        src2_ext <= {2*`XLEN{1'b0}};
     end
     else if (trig) begin
         src1_ext <= {{`XLEN{signed1 & src1[`XLEN-1]}}, src1};

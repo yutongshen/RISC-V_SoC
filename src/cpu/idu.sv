@@ -3,21 +3,21 @@
 module idu (
     input                                    clk,
     input                                    rstn,
-    input        [       `IM_DATA_LEN - 1:0] inst,
-    input                                    inst_valid,
+    input        [       `IM_DATA_LEN - 1:0] insn,
+    input                                    insn_valid,
     input        [       `IM_ADDR_LEN - 1:0] pc,
     input                                    rd_wr_i,
     input        [                      4:0] rd_addr_i,
     input        [              `XLEN - 1:0] rd_data,
     output       [                      4:0] rd_addr_o,
+    output logic [              `XLEN - 1:0] rs1_data,
+    output logic [              `XLEN - 1:0] rs2_data,
+
     output logic [                      4:0] rs1_addr,
     output logic [                      4:0] rs2_addr,
     output logic [                     11:0] csr_addr,
-    output logic [              `XLEN - 1:0] rs1_data,
-    output logic [              `XLEN - 1:0] rs2_data,
     output logic                             amo_64_o,
     output logic                             len_64_o,
-    input                                    len_64_i,
     output logic [              `XLEN - 1:0] imm,
 
     // Extension flag
@@ -28,7 +28,7 @@ module idu (
 
     // Control
     output logic [                      1:0] prv_req,
-    output logic                             ill_inst,
+    output logic                             ill_insn,
     output logic                             fence,
     output logic                             fence_i,
     output logic                             ecall,
@@ -73,7 +73,7 @@ module idu (
     // WB stage
     output logic                             mem_cal_sel,
     output logic                             rd_wr_o,
-    
+
     input                                    halted,
     output logic [              `XLEN - 1:0] dbg_gpr_all [32],
     input        [                     11:0] dbg_addr,
@@ -93,22 +93,10 @@ logic [`XLEN-1:0] rs2_data_pre;
 logic [`XLEN-1:0] rd_data_post;
 */
 
-assign csr_addr  = (halted && (dbg_csr_rd || dbg_csr_wr)) ? dbg_addr : inst[31:20];
+assign csr_addr  = (halted && (dbg_csr_rd || dbg_csr_wr)) ? dbg_addr : insn[31:20];
 
 assign csr_rd    = csr_rd_tmp || (halted && dbg_csr_rd);
 assign csr_wr    = csr_wr_tmp || (halted && dbg_csr_wr);
-
-/*
-`ifdef RV32
-assign rs1_data     = rs1_data_pre;
-assign rs2_data     = rs2_data_pre;
-assign rd_data_post = rd_data;
-`else
-assign rs1_data     = rs1_data_pre;
-assign rs2_data     = rs2_data_pre;
-assign rd_data_post = len_64_i ? rd_data      : {{32{rd_data     [31]}}, rd_data     [31:0]};
-`endif
-*/
 
 rfu u_rfu (
     .clk          ( clk           ),
@@ -130,8 +118,8 @@ rfu u_rfu (
 );
 
 dec u_dec (
-    .inst                ( inst                ),
-    .inst_valid          ( inst_valid          ),
+    .insn                ( insn                ),
+    .insn_valid          ( insn_valid          ),
 
     // Extension
     .misa_mxl            ( misa_mxl            ),
@@ -149,7 +137,7 @@ dec u_dec (
 
     // Control
     .prv_req             ( prv_req             ),
-    .ill_inst            ( ill_inst            ),
+    .ill_insn            ( ill_insn            ),
     .fence               ( fence               ),
     .fence_i             ( fence_i             ),
     .ecall               ( ecall               ),

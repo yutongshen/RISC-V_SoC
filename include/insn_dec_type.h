@@ -1,9 +1,20 @@
 `ifndef __INSN_DEC__
 `define __INSN_DEC__
+`include "cpu_define.h"
+
 typedef struct packed {
+    // Data
+    logic [                      4:0] rs1_addr;
+    logic [                      4:0] rs2_addr;
+    logic [                      4:0] rd_addr;
+    logic [                     11:0] csr_addr;
+    logic                             amo_64;
+    logic                             len_64;
+    logic [              `XLEN - 1:0] imm;
+
     // Control
     logic [                      1:0] prv_req;
-    logic                             ill_inst;
+    logic                             ill_insn;
     logic                             fence;
     logic                             fence_i;
     logic                             ecall;
@@ -47,6 +58,6 @@ typedef struct packed {
 
     // WB stage
     logic                             mem_cal_sel;
-    logic                             reg_wr;
-} insn_dec ;
+    logic                             rd_wr;
+} insn_dec_t ;
 `endif

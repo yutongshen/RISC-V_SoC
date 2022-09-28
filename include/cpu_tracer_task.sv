@@ -318,9 +318,9 @@ return str;
 
 endfunction
 
-function string inst_dec;
+function string insn_dis;
 input [31:0] pc;
-input [31:0] inst;
+input [31:0] insn;
 input [ 1:0] misa_mxl;
 
 string result;
@@ -404,94 +404,94 @@ logic [       3: 0] pred;
 logic [       3: 0] succ;
 logic [       5: 0] shamt;
 
-rs1      = inst[19:15];
-rs2      = inst[24:20];
-rd       = inst[11: 7];
-csr_addr = inst[31:20];
+rs1      = insn[19:15];
+rs2      = insn[24:20];
+rd       = insn[11: 7];
+csr_addr = insn[31:20];
 
-imm_i     = {{(`XLEN-11){inst[31]}}, inst[30:25], inst[24:21], inst[20]};
-imm_s     = {{(`XLEN-11){inst[31]}}, inst[30:25], inst[11:8],  inst[7]};
-imm_b     = {{(`XLEN-12){inst[31]}}, inst[7],     inst[30:25], inst[11:8], 1'b0};
-imm_u     = {{(`XLEN-31){inst[31]}}, inst[30:20], inst[19:12], 12'b0};
-imm_j     = {{(`XLEN-20){inst[31]}}, inst[19:12], inst[20],    inst[30:25], inst[24:21], 1'b0};
+imm_i     = {{(`XLEN-11){insn[31]}}, insn[30:25], insn[24:21], insn[20]};
+imm_s     = {{(`XLEN-11){insn[31]}}, insn[30:25], insn[11:8],  insn[7]};
+imm_b     = {{(`XLEN-12){insn[31]}}, insn[7],     insn[30:25], insn[11:8], 1'b0};
+imm_u     = {{(`XLEN-31){insn[31]}}, insn[30:20], insn[19:12], 12'b0};
+imm_j     = {{(`XLEN-20){insn[31]}}, insn[19:12], insn[20],    insn[30:25], insn[24:21], 1'b0};
 
-imm_ci_lwsp     = {{(`XLEN-8){1'b0}},      inst[3:2], inst[12], inst[6:4], 2'b0};
-imm_ci_ldsp     = {{(`XLEN-9){1'b0}},      inst[4:2], inst[12], inst[6:5], 3'b0};
-imm_ci_li       = {{(`XLEN-5){inst[12]}},  inst[6:2]};
-imm_ci_lui      = {{(`XLEN-17){inst[12]}}, inst[6:2], 12'b0};
-imm_ci_addi16sp = {{(`XLEN-9){inst[12]}},  inst[4:3], inst[5], inst[2], inst[6], 4'b0};
-imm_css         = {{(`XLEN-8){1'b0}},      inst[8:7], inst[12:9], 2'b0};
-imm_css64       = {{(`XLEN-9){1'b0}},      inst[9:7], inst[12:10], 3'b0};
-imm_ciw         = {{(`XLEN-10){1'b0}},     inst[10:7], inst[12:11], inst[5], inst[6], 2'b0};
-imm_cl          = {{(`XLEN-7){1'b0}},      inst[5], inst[12:10], inst[6], 2'b0};
-imm_cl64        = {{(`XLEN-8){1'b0}},      inst[6], inst[5], inst[12:10], 3'b0};
-imm_cs          = {{(`XLEN-7){1'b0}},      inst[5], inst[12:10], inst[6], 2'b0};
-imm_cb          = {{(`XLEN-8){inst[12]}},  inst[6:5], inst[2], inst[11:10], inst[4:3], 1'b0};
-imm_cj          = {{(`XLEN-11){inst[12]}}, inst[8], inst[10:9], inst[6], inst[7], inst[2], inst[11], inst[5:3], 1'b0};
+imm_ci_lwsp     = {{(`XLEN-8){1'b0}},      insn[3:2], insn[12], insn[6:4], 2'b0};
+imm_ci_ldsp     = {{(`XLEN-9){1'b0}},      insn[4:2], insn[12], insn[6:5], 3'b0};
+imm_ci_li       = {{(`XLEN-5){insn[12]}},  insn[6:2]};
+imm_ci_lui      = {{(`XLEN-17){insn[12]}}, insn[6:2], 12'b0};
+imm_ci_addi16sp = {{(`XLEN-9){insn[12]}},  insn[4:3], insn[5], insn[2], insn[6], 4'b0};
+imm_css         = {{(`XLEN-8){1'b0}},      insn[8:7], insn[12:9], 2'b0};
+imm_css64       = {{(`XLEN-9){1'b0}},      insn[9:7], insn[12:10], 3'b0};
+imm_ciw         = {{(`XLEN-10){1'b0}},     insn[10:7], insn[12:11], insn[5], insn[6], 2'b0};
+imm_cl          = {{(`XLEN-7){1'b0}},      insn[5], insn[12:10], insn[6], 2'b0};
+imm_cl64        = {{(`XLEN-8){1'b0}},      insn[6], insn[5], insn[12:10], 3'b0};
+imm_cs          = {{(`XLEN-7){1'b0}},      insn[5], insn[12:10], insn[6], 2'b0};
+imm_cb          = {{(`XLEN-8){insn[12]}},  insn[6:5], insn[2], insn[11:10], insn[4:3], 1'b0};
+imm_cj          = {{(`XLEN-11){insn[12]}}, insn[8], insn[10:9], insn[6], insn[7], insn[2], insn[11], insn[5:3], 1'b0};
 
-funct3           = inst[14:12];
-funct5           = inst[31:27];
-funct7           = inst[31:25];
+funct3           = insn[14:12];
+funct5           = insn[31:27];
+funct7           = insn[31:25];
 
-aq               = inst[26];
-rl               = inst[25];
+aq               = insn[26];
+rl               = insn[25];
 
-funct3_16        = inst[15:13];
-funct2_16_op_imm = inst[11:10];
-funct2_16_op     = inst[ 6: 5];
+funct3_16        = insn[15:13];
+funct2_16_op_imm = insn[11:10];
+funct2_16_op     = insn[ 6: 5];
 
-opcode_16 = inst[1:0];
-opcode_32 = inst[6:2];
+opcode_16 = insn[1:0];
+opcode_32 = insn[6:2];
 
-pred   = inst[27:24];
-succ   = inst[23:20];
+pred   = insn[27:24];
+succ   = insn[23:20];
 
-shamt  = inst[25:20];
+shamt  = insn[25:20];
 
-result = "unknown inst";
+result = "unknown insn";
 case (opcode_16)
     OP16_C0: begin
-        rs1            = {2'b1, inst[ 9: 7]};
-        rs2            = {2'b1, inst[ 4: 2]};
-        rd             = {2'b1, inst[ 4: 2]};
+        rs1            = {2'b1, insn[ 9: 7]};
+        rs2            = {2'b1, insn[ 4: 2]};
+        rd             = {2'b1, insn[ 4: 2]};
         case (funct3_16)
             FUNCT3_C0_ADDI4SPN: $sformat(result, "c.addi4spn %s,%s,%0d", regs_name(rd), regs_name(REG_SP), $signed(imm_ciw));
-            FUNCT3_C0_FLD     : return "illigal inst";
+            FUNCT3_C0_FLD     : return "illigal insn";
             FUNCT3_C0_LW      : $sformat(result, "c.lw %s,%0d(%s)", regs_name(rd), $signed(imm_cl), regs_name(rs1));
             FUNCT3_C0_FLW     : $sformat(result, "c.ld %s,%0d(%s)", regs_name(rd), $signed(imm_cl64), regs_name(rs1));
-            FUNCT3_C0_FSD     : return "illigal inst";
+            FUNCT3_C0_FSD     : return "illigal insn";
             FUNCT3_C0_SW      : $sformat(result, "c.sw %s,%0d(%s)", regs_name(rs2), $signed(imm_cs), regs_name(rs1));
             FUNCT3_C0_FSW     : $sformat(result, "c.sd %s,%0d(%s)", regs_name(rs2), $signed(imm_cl64), regs_name(rs1));
-            default           : return "illigal inst";
+            default           : return "illigal insn";
         endcase
     end
     OP16_C1: begin
-        rs1            = {2'b1, inst[ 9: 7]};
-        rs2            = {2'b1, inst[ 4: 2]};
-        rd             = {2'b1, inst[ 9: 7]};
+        rs1            = {2'b1, insn[ 9: 7]};
+        rs2            = {2'b1, insn[ 4: 2]};
+        rd             = {2'b1, insn[ 9: 7]};
         case (funct3_16)
             FUNCT3_C1_ADDI: begin
-                rs1     = inst[ 11: 7];
-                rd      = inst[ 11: 7];
+                rs1     = insn[ 11: 7];
+                rd      = insn[ 11: 7];
                 if (~|rd && ~|imm_ci_li) $sformat(result, "c.nop");
                 else                     $sformat(result, "c.addi %s,%0d", regs_name(rd), $signed(imm_ci_li));
             end
             FUNCT3_C1_JAL : begin
-                rs1     = inst[ 11: 7];
-                rd      = inst[ 11: 7];
+                rs1     = insn[ 11: 7];
+                rd      = insn[ 11: 7];
                 case (misa_mxl)
                     `MISA_MXL_XLEN_32: $sformat(result, "c.jal %08x", pc + imm_cj);
                     `MISA_MXL_XLEN_64: $sformat(result, "c.addiw %s,%0d", regs_name(rd), $signed(imm_ci_li));
-                    default          : return "illigal inst";
+                    default          : return "illigal insn";
                 endcase
             end
             FUNCT3_C1_LI  : begin
-                rd      = inst[ 11: 7];
+                rd      = insn[ 11: 7];
                 $sformat(result, "c.li %s,%0d", regs_name(rd), $signed(imm_ci_li));
             end
             FUNCT3_C1_LUI : begin
-                rs1     = inst[ 11: 7];
-                rd      = inst[ 11: 7];
+                rs1     = insn[ 11: 7];
+                rd      = insn[ 11: 7];
                 if (rd == REG_SP) $sformat(result, "c.addi16sp %s,%0d", regs_name(REG_SP), $signed(imm_ci_addi16sp));
                 else              $sformat(result, "c.lui %s,0x%0x", regs_name(rd), imm_ci_lui >> 12 & 20'hfffff);
             end
@@ -501,49 +501,49 @@ case (opcode_16)
                     FUNCT2_OP_IMM_C_SRAI: $sformat(result, "c.srai %s,0x%0x", regs_name(rd), imm_ci_li[4:0]);
                     FUNCT2_OP_IMM_C_ANDI: $sformat(result, "c.andi %s,0x%0x", regs_name(rd), imm_ci_li);
                     FUNCT2_OP_IMM_C_OP  : begin
-                        if (inst[12] == 1'b0) begin
+                        if (insn[12] == 1'b0) begin
                             case (funct2_16_op)
                                 FUNCT2_OP_C_SUB: $sformat(result, "c.sub %s,%s", regs_name(rd), regs_name(rs2));
                                 FUNCT2_OP_C_XOR: $sformat(result, "c.xor %s,%s", regs_name(rd), regs_name(rs2));
                                 FUNCT2_OP_C_OR : $sformat(result, "c.or %s,%s", regs_name(rd), regs_name(rs2));
                                 FUNCT2_OP_C_AND: $sformat(result, "c.and %s,%s", regs_name(rd), regs_name(rs2));
-                                default        : return "illigal inst";
+                                default        : return "illigal insn";
                             endcase
                         end
                         else begin
                             case (funct2_16_op)
                                 FUNCT2_OP_C_SUBW: $sformat(result, "c.subw %s,%s", regs_name(rd), regs_name(rs2));
                                 FUNCT2_OP_C_ADDW: $sformat(result, "c.addw %s,%s", regs_name(rd), regs_name(rs2));
-                                default         : return "illigal inst";
+                                default         : return "illigal insn";
                             endcase
                         end
                     end
-                    default             : return "illigal inst";
+                    default             : return "illigal insn";
                 endcase
             end
             FUNCT3_C1_J   : $sformat(result, "c.j %08x", pc + imm_cj & -32'b1);
             FUNCT3_C1_BEQZ: $sformat(result, "c.beqz %s,%08x", regs_name(rs1), pc + imm_cb & -32'b1);
             FUNCT3_C1_BNEZ: $sformat(result, "c.bnez %s,%08x", regs_name(rs1), pc + imm_cb & -32'b1);
-            default       : return "illigal inst";
+            default       : return "illigal insn";
         endcase
     end
     OP16_C2: begin
-        rs1            = {inst[11: 7]};
-        rs2            = {inst[ 6: 2]};
-        rd             = {inst[11: 7]};
+        rs1            = {insn[11: 7]};
+        rs2            = {insn[ 6: 2]};
+        rd             = {insn[11: 7]};
         case (funct3_16)
             FUNCT3_C2_SLLI : $sformat(result, "c.slli %s,0x%0x", regs_name(rd), imm_ci_li[4:0]);
-            FUNCT3_C2_FLDSP: return "illigal inst";
+            FUNCT3_C2_FLDSP: return "illigal insn";
             FUNCT3_C2_LWSP : $sformat(result, "c.lwsp %s,%0d(%s)", regs_name(rd), $signed(imm_ci_lwsp), regs_name(REG_SP));
             FUNCT3_C2_FLWSP: begin
                 case (misa_mxl)
-                    `MISA_MXL_XLEN_32: return "illigal inst";
+                    `MISA_MXL_XLEN_32: return "illigal insn";
                     `MISA_MXL_XLEN_64: $sformat(result, "c.ldsp %s,%0d(%s)", regs_name(rd), $signed(imm_ci_ldsp), regs_name(REG_SP));
-                    default          : return "illigal inst";
+                    default          : return "illigal insn";
                 endcase
             end
             FUNCT3_C2_OP   : begin
-                if (~inst[12]) begin
+                if (~insn[12]) begin
                     if (rs2 == REG_ZERO) $sformat(result, "c.jr %s", regs_name(rs1));
                     else                 $sformat(result, "c.mv %s,%s", regs_name(rd), regs_name(rs2));
                 end
@@ -555,16 +555,16 @@ case (opcode_16)
                     else $sformat(result, "c.add %s,%s", regs_name(rd), regs_name(rs2));
                 end
             end
-            FUNCT3_C2_FSDSP: return "illigal inst";
+            FUNCT3_C2_FSDSP: return "illigal insn";
             FUNCT3_C2_SWSP : $sformat(result, "c.swsp %s,%0d(%s)", regs_name(rs2), $signed(imm_css), regs_name(REG_SP));
             FUNCT3_C2_FSWSP: begin
                 case (misa_mxl)
-                    `MISA_MXL_XLEN_32: return "illigal inst";
+                    `MISA_MXL_XLEN_32: return "illigal insn";
                     `MISA_MXL_XLEN_64: $sformat(result, "c.sdsp %s,%0d(%s)", regs_name(rs2), $signed(imm_css64), regs_name(REG_SP));
-                    default          : return "illigal inst";
+                    default          : return "illigal insn";
                 endcase
             end
-            default        : return "illigal inst";
+            default        : return "illigal insn";
         endcase
     end
     default: begin
@@ -578,7 +578,7 @@ case (opcode_16)
                     FUNCT3_LHU: $sformat(result, "lhu %s,%0d(%s)", regs_name(rd), $signed(imm_i), regs_name(rs1));
                     FUNCT3_LWU: $sformat(result, "lwu %s,%0d(%s)", regs_name(rd), $signed(imm_i), regs_name(rs1));
                     FUNCT3_LD : $sformat(result, "ld %s,%0d(%s)",  regs_name(rd), $signed(imm_i), regs_name(rs1));
-                    default   : return "illigal inst";
+                    default   : return "illigal insn";
                 endcase
             end
             OP_LOAD_FP  : begin
@@ -586,7 +586,7 @@ case (opcode_16)
             OP_CUST_0   : begin
             end
             OP_MISC_MEM : begin
-                case ({funct3, inst[11:7], inst[19:15], inst[31:28]})
+                case ({funct3, insn[11:7], insn[19:15], insn[31:28]})
                     {FUNCT3_FENCE  , 5'b0, 5'b0, 4'b0}: begin
                         if (pred != 4'hf | succ != 4'hf)
                             $sformat(result, "fence %s,%s", fence_flag(pred), fence_flag(succ));
@@ -594,13 +594,13 @@ case (opcode_16)
                             $sformat(result, "fence");
                     end
                     {FUNCT3_FENCE_I, 5'b0, 5'b0, 4'b0}: begin
-                        if (inst[27:20] == 8'b0) begin
+                        if (insn[27:20] == 8'b0) begin
                             $sformat(result, "fence.i");
                         end
-                        else return "illigal inst";
+                        else return "illigal insn";
                     end
                     default       : begin
-                        return "illigal inst";
+                        return "illigal insn";
                     end
                 endcase
             end
@@ -640,7 +640,7 @@ case (opcode_16)
                                 $sformat(result, "slli %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
                             end
                             default         : begin
-                                return "illigal inst";
+                                return "illigal insn";
                             end
                         endcase
                     end
@@ -648,11 +648,11 @@ case (opcode_16)
                         case (funct7[6:1])
                             FUNCT7_SRLI[6:1]: $sformat(result, "srli %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
                             FUNCT7_SRAI[6:1]: $sformat(result, "srai %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
-                            default         : return "illigal inst";
+                            default         : return "illigal insn";
                         endcase
                     end
                     default     : begin
-                        return "illigal inst";
+                        return "illigal insn";
                     end
                 endcase
             end
@@ -670,17 +670,17 @@ case (opcode_16)
                     FUNCT3_SLLI : begin
                         case (funct7[6:1])
                             FUNCT7_SLLI[6:1]: $sformat(result, "slliw %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
-                            default         : return "illigal inst";
+                            default         : return "illigal insn";
                         endcase
                     end
                     FUNCT3_SRLI : begin
                         case (funct7[6:1])
                             FUNCT7_SRLI[6:1]: $sformat(result, "srliw %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
                             FUNCT7_SRAI[6:1]: $sformat(result, "sraiw %s,%s,0x%0x", regs_name(rd), regs_name(rs1), shamt);
-                            default         : return "illigal inst";
+                            default         : return "illigal insn";
                         endcase
                     end
-                    default     : return "illigal inst";
+                    default     : return "illigal insn";
                 endcase
             end
             OP_STORE    : begin
@@ -689,7 +689,7 @@ case (opcode_16)
                     FUNCT3_SH: $sformat(result, "sh %s,%0d(%s)", regs_name(rs2), $signed(imm_s), regs_name(rs1));
                     FUNCT3_SW: $sformat(result, "sw %s,%0d(%s)", regs_name(rs2), $signed(imm_s), regs_name(rs1));
                     FUNCT3_SD: $sformat(result, "sd %s,%0d(%s)", regs_name(rs2), $signed(imm_s), regs_name(rs1));
-                    default  : return "illigal inst";
+                    default  : return "illigal insn";
                 endcase
             end
             OP_STORE_FP : begin
@@ -709,7 +709,7 @@ case (opcode_16)
                     FUNCT5_AMOMAX : $sformat(result, "amomax%0s%0s%0s %s,%s,(%s)",  (funct3==3'b10)?".w":".d", aq?".aq":"", rl?".rl":"", regs_name(rd), regs_name(rs2), regs_name(rs1));
                     FUNCT5_AMOMINU: $sformat(result, "amominu%0s%0s%0s %s,%s,(%s)", (funct3==3'b10)?".w":".d", aq?".aq":"", rl?".rl":"", regs_name(rd), regs_name(rs2), regs_name(rs1));
                     FUNCT5_AMOMAXU: $sformat(result, "amomaxu%0s%0s%0s %s,%s,(%s)", (funct3==3'b10)?".w":".d", aq?".aq":"", rl?".rl":"", regs_name(rd), regs_name(rs2), regs_name(rs1));
-                    default       : return "illigal inst";
+                    default       : return "illigal insn";
                 endcase
             end
             OP_OP       : begin
@@ -724,14 +724,14 @@ case (opcode_16)
                             FUNCT3_SRL : $sformat(result, "srl %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_OR  : $sformat(result, "or %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_AND : $sformat(result, "and %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default    : return "illigal inst";
+                            default    : return "illigal insn";
                         endcase
                     end
                     FUNCT7_OP1: begin
                         case (funct3)
                             FUNCT3_ADD : $sformat(result, "sub %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_SRL : $sformat(result, "sra %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default    : return "illigal inst";
+                            default    : return "illigal insn";
                         endcase
                     end
                     FUNCT7_MULDIV: begin
@@ -744,10 +744,10 @@ case (opcode_16)
                             FUNCT3_DIVU  : $sformat(result, "divu %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_REM   : $sformat(result, "rem %s,%s,%s",    regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_REMU  : $sformat(result, "remu %s,%s,%s",   regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default      : return "illigal inst";
+                            default      : return "illigal insn";
                         endcase
                     end
-                    default    : return "illigal inst";
+                    default    : return "illigal insn";
                 endcase
             end
             OP_LUI      : begin
@@ -760,14 +760,14 @@ case (opcode_16)
                             FUNCT3_ADD : $sformat(result, "addw %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_SLL : $sformat(result, "sllw %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_SRL : $sformat(result, "srlw %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default    : return "illigal inst";
+                            default    : return "illigal insn";
                         endcase
                     end
                     FUNCT7_OP1   : begin
                         case (funct3)
                             FUNCT3_ADD : $sformat(result, "subw %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_SRL : $sformat(result, "sraw %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default    : return "illigal inst";
+                            default    : return "illigal insn";
                         endcase
                     end
                     FUNCT7_MULDIV: begin
@@ -777,10 +777,10 @@ case (opcode_16)
                             FUNCT3_DIVU  : $sformat(result, "divuw %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_REM   : $sformat(result, "remw %s,%s,%s",  regs_name(rd), regs_name(rs1), regs_name(rs2));
                             FUNCT3_REMU  : $sformat(result, "remuw %s,%s,%s", regs_name(rd), regs_name(rs1), regs_name(rs2));
-                            default      : return "illigal inst";
+                            default      : return "illigal insn";
                         endcase
                     end
-                    default      : return "illigal inst";
+                    default      : return "illigal insn";
                 endcase
             end
             OP_MADD     : begin
@@ -832,7 +832,7 @@ case (opcode_16)
                         $sformat(result, "bgeu %s,%s,%08x", regs_name(rs1), regs_name(rs2), pc + imm_b & -32'b1);
                     end
                     default    : begin
-                        return "illigal inst";
+                        return "illigal insn";
                     end
                 endcase
             end
@@ -865,8 +865,8 @@ case (opcode_16)
                             else
                                 $sformat(result, "sfence.vma %s,%s", regs_name(rs1), regs_name(rs2));
                         end
-                        else if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
-                            case (inst[31:20])
+                        else if ({insn[11:7], insn[19:15]} == {5'b0, 5'b0}) begin
+                            case (insn[31:20])
                                 FUNCT12_ECALL: begin
                                     $sformat(result, "ecall");
                                 end
@@ -883,12 +883,12 @@ case (opcode_16)
                                     $sformat(result, "mret");
                                 end
                                 default       : begin
-                                    return "illigal inst";
+                                    return "illigal insn";
                                 end
                             endcase
                         end
                         else begin
-                            return "illigal inst";
+                            return "illigal insn";
                         end
                     end
                     FUNCT3_CSRRW : begin
@@ -930,14 +930,14 @@ case (opcode_16)
                             $sformat(result, "csrci %s,%0d", csr_name(csr_addr), rs1);
                     end
                     default       : begin
-                        return "illigal inst";
+                        return "illigal insn";
                     end
                 endcase
             end
             OP_CUST_3   : begin
             end
             default     : begin
-                return "illigal inst";
+                return "illigal insn";
             end
         endcase
     end

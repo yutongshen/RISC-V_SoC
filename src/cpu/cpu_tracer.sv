@@ -8,7 +8,7 @@ module cpu_tracer (
     input                len_64,
     input  [  `XLEN-1:0] pc,
     input  [  `XLEN-1:0] epc,
-    input  [       31:0] inst,
+    input  [       31:0] insn,
     input  [        1:0] prv,
     input                rd_wr,
     input  [        4:0] rd_addr,
@@ -32,9 +32,9 @@ module cpu_tracer (
 
 
 assign pkg_valid = valid || trap_en;
-assign pkg       = ~trap_en ? mem_req ? mem_wr ? {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0],  mem_addr[63:0], mem_wdata[63:0]}:
-                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0],  mem_addr[63:0], mem_rdata[63:0]}:
-                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], inst[31:0], csr_wdata[63:0],   rd_data[63:0]}:
+assign pkg       = ~trap_en ? mem_req ? mem_wr ? {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_wdata[63:0]}:
+                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_rdata[63:0]}:
+                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0], csr_wdata[63:0],   rd_data[63:0]}:
                                                  {1'b1, prv[1:0], misa_mxl[1], cycle[27:0], epc[63:0],      32'b0,    mcause[63:0],     mtval[63:0]};
                                            
 
@@ -86,9 +86,9 @@ always_ff @(posedge clk) begin
         $fwrite(cpu_tracer_file, "(%0d ns) %0s[%s]", $time, halted ? "[DBG]" : "", str);
         if (misa_mxl[1]) $fwrite(cpu_tracer_file, " %016x:", pc);
         else             $fwrite(cpu_tracer_file, " %08x:", pc[31:0]);
-        if (inst[1:0] == 2'b11) $fwrite(cpu_tracer_file, "%08x", inst);
-        else                    $fwrite(cpu_tracer_file, "----%04x", inst[15:0]);
-        $fwrite(cpu_tracer_file, " %s\n", inst_dec(pc, inst, misa_mxl));
+        if (insn[1:0] == 2'b11) $fwrite(cpu_tracer_file, "%08x", insn);
+        else                    $fwrite(cpu_tracer_file, "----%04x", insn[15:0]);
+        $fwrite(cpu_tracer_file, " %s\n", insn_dis(pc, insn, misa_mxl));
     end
     if (valid & mem_req & ~mem_wr) begin
         str = "";

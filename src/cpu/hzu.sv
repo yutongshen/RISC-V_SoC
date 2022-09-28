@@ -1,5 +1,5 @@
 module hzu (
-    input  [5:0] inst_valid,
+    input  [5:0] insn_valid,
     input        pc_jump_en,
     input        pc_alu_en,
     input        irq_en,
@@ -45,9 +45,9 @@ assign {if_flush_force, id_flush_force, exe_flush_force, ma_flush_force, mr_flus
 // assign {wb_flush, mr_flush, ma_flush, exe_flush, id_flush, if_flush} = flush_all | flush_jump_all | flush_force_all;
 // assign {wb_flush_force, mr_flush_force, ma_flush_force, exe_flush_force, id_flush_force, if_flush_force} = flush_force_all;
 
-assign stall_all = (~({4'b0, dpu_hazard, 1'b0} + (inst_valid | 6'h2)) & (inst_valid | 6'h2))|
-                   (~({2'b0, exe_hazard, 3'b0} + inst_valid) & inst_valid)|
-                   (~({1'b0,  id_hazard, 4'b0} + inst_valid) & inst_valid);
+assign stall_all = (~({4'b0, dpu_hazard, 1'b0} + (insn_valid | 6'h2)) & (insn_valid | 6'h2))|
+                   (~({2'b0, exe_hazard, 3'b0} + insn_valid) & insn_valid)|
+                   (~({1'b0,  id_hazard, 4'b0} + insn_valid) & insn_valid);
 
 // assign stall_all = dpu_hazard ? 6'b111110:
 //                    exe_hazard ? 6'b111000:

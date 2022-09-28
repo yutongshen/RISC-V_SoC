@@ -1,8 +1,8 @@
 `include "cpu_define.h"
 
 module dec (
-    input        [       `IM_DATA_LEN - 1:0] inst,
-    input                                    inst_valid,
+    input        [       `IM_DATA_LEN - 1:0] insn,
+    input                                    insn_valid,
 
     // Extension flag
     input        [                      1:0] misa_mxl,
@@ -21,7 +21,7 @@ module dec (
 
     // Control
     output logic [                      1:0] prv_req,
-    output logic                             ill_inst,
+    output logic                             ill_insn,
     output logic                             fence,
     output logic                             fence_i,
     output logic                             ecall,
@@ -96,25 +96,25 @@ logic [`XLEN - 1:0] imm_cs;
 logic [`XLEN - 1:0] imm_cb;
 logic [`XLEN - 1:0] imm_cj;
 
-assign imm_i     = {{(`XLEN-11){inst[31]}}, inst[30:25], inst[24:21], inst[20]};
-assign imm_s     = {{(`XLEN-11){inst[31]}}, inst[30:25], inst[11:8],  inst[7]};
-assign imm_b     = {{(`XLEN-12){inst[31]}}, inst[7],     inst[30:25], inst[11:8], 1'b0};
-assign imm_u     = {{(`XLEN-31){inst[31]}}, inst[30:20], inst[19:12], 12'b0};
-assign imm_j     = {{(`XLEN-20){inst[31]}}, inst[19:12], inst[20],    inst[30:25], inst[24:21], 1'b0};
+assign imm_i     = {{(`XLEN-11){insn[31]}}, insn[30:25], insn[24:21], insn[20]};
+assign imm_s     = {{(`XLEN-11){insn[31]}}, insn[30:25], insn[11:8],  insn[7]};
+assign imm_b     = {{(`XLEN-12){insn[31]}}, insn[7],     insn[30:25], insn[11:8], 1'b0};
+assign imm_u     = {{(`XLEN-31){insn[31]}}, insn[30:20], insn[19:12], 12'b0};
+assign imm_j     = {{(`XLEN-20){insn[31]}}, insn[19:12], insn[20],    insn[30:25], insn[24:21], 1'b0};
 
-assign imm_ci_lwsp     = {{(`XLEN-8){1'b0}},      inst[3:2], inst[12], inst[6:4], 2'b0};
-assign imm_ci_ldsp     = {{(`XLEN-9){1'b0}},      inst[4:2], inst[12], inst[6:5], 3'b0};
-assign imm_ci_li       = {{(`XLEN-5){inst[12]}},  inst[6:2]};
-assign imm_ci_lui      = {{(`XLEN-17){inst[12]}}, inst[6:2], 12'b0};
-assign imm_ci_addi16sp = {{(`XLEN-9){inst[12]}},  inst[4:3], inst[5], inst[2], inst[6], 4'b0};
-assign imm_css         = {{(`XLEN-8){1'b0}},      inst[8:7], inst[12:9], 2'b0};
-assign imm_css64       = {{(`XLEN-9){1'b0}},      inst[9:7], inst[12:10], 3'b0};
-assign imm_ciw         = {{(`XLEN-10){1'b0}},     inst[10:7], inst[12:11], inst[5], inst[6], 2'b0};
-assign imm_cl          = {{(`XLEN-7){1'b0}},      inst[5], inst[12:10], inst[6], 2'b0};
-assign imm_cl64        = {{(`XLEN-8){1'b0}},      inst[6], inst[5], inst[12:10], 3'b0};
-assign imm_cs          = {{(`XLEN-7){1'b0}},      inst[5], inst[12:10], inst[6], 2'b0};
-assign imm_cb          = {{(`XLEN-8){inst[12]}},  inst[6:5], inst[2], inst[11:10], inst[4:3], 1'b0};
-assign imm_cj          = {{(`XLEN-11){inst[12]}}, inst[8], inst[10:9], inst[6], inst[7], inst[2], inst[11], inst[5:3], 1'b0};
+assign imm_ci_lwsp     = {{(`XLEN-8){1'b0}},      insn[3:2], insn[12], insn[6:4], 2'b0};
+assign imm_ci_ldsp     = {{(`XLEN-9){1'b0}},      insn[4:2], insn[12], insn[6:5], 3'b0};
+assign imm_ci_li       = {{(`XLEN-5){insn[12]}},  insn[6:2]};
+assign imm_ci_lui      = {{(`XLEN-17){insn[12]}}, insn[6:2], 12'b0};
+assign imm_ci_addi16sp = {{(`XLEN-9){insn[12]}},  insn[4:3], insn[5], insn[2], insn[6], 4'b0};
+assign imm_css         = {{(`XLEN-8){1'b0}},      insn[8:7], insn[12:9], 2'b0};
+assign imm_css64       = {{(`XLEN-9){1'b0}},      insn[9:7], insn[12:10], 3'b0};
+assign imm_ciw         = {{(`XLEN-10){1'b0}},     insn[10:7], insn[12:11], insn[5], insn[6], 2'b0};
+assign imm_cl          = {{(`XLEN-7){1'b0}},      insn[5], insn[12:10], insn[6], 2'b0};
+assign imm_cl64        = {{(`XLEN-8){1'b0}},      insn[6], insn[5], insn[12:10], 3'b0};
+assign imm_cs          = {{(`XLEN-7){1'b0}},      insn[5], insn[12:10], insn[6], 2'b0};
+assign imm_cb          = {{(`XLEN-8){insn[12]}},  insn[6:5], insn[2], insn[11:10], insn[4:3], 1'b0};
+assign imm_cj          = {{(`XLEN-11){insn[12]}}, insn[8], insn[10:9], insn[6], insn[7], insn[2], insn[11], insn[5:3], 1'b0};
 
 logic [        2: 0] funct3;
 logic [        4: 0] funct5;
@@ -124,28 +124,28 @@ logic [       15:13] funct3_16;
 logic [       15:13] funct2_16_op_imm;
 logic [       15:13] funct2_16_op;
 
-assign funct3           = inst[14:12];
-assign funct5           = inst[31:27];
-assign funct7           = inst[31:25];
+assign funct3           = insn[14:12];
+assign funct5           = insn[31:27];
+assign funct7           = insn[31:25];
 
-assign funct3_16        = inst[15:13];
-assign funct2_16_op_imm = inst[11:10];
-assign funct2_16_op     = inst[ 6: 5];
+assign funct3_16        = insn[15:13];
+assign funct2_16_op_imm = insn[11:10];
+assign funct2_16_op     = insn[ 6: 5];
 
 logic [        6: 2] opcode_32;
 logic [        1: 0] opcode_16;
 
-assign opcode_16 = inst[1:0];
-assign opcode_32 = inst[6:2];
+assign opcode_16 = insn[1:0];
+assign opcode_32 = insn[6:2];
 
 always_comb begin
     amo_64              = 1'b0;
     len_64              = misa_mxl[1];
     rs1_rd              = 1'b0;
     rs2_rd              = 1'b0;
-    rs1_addr            = inst[19:15];
-    rs2_addr            = inst[24:20];
-    rd_addr             = inst[11: 7];
+    rs1_addr            = insn[19:15];
+    rs2_addr            = insn[24:20];
+    rd_addr             = insn[11: 7];
     imm                 = `XLEN'b0;
     mdu_sel             = 1'b0;
     mdu_op              = `MDU_OP_LEN'b0;
@@ -180,19 +180,19 @@ always_comb begin
     csr_rd              = 1'b0;
     csr_wr              = 1'b0;
     csr_alu_sel         = 1'b0;
-    ill_inst            = 1'b0;
+    ill_insn            = 1'b0;
     prv_req             = 2'b0;
     tlb_flush_req       = 1'b0;
     tlb_flush_all_vaddr = 1'b0;
     tlb_flush_all_asid  = 1'b0;
-    if (inst_valid) begin
+    if (insn_valid) begin
         case (opcode_16)
             OP16_C0: begin
                 rs1_rd       = 1'b1;
-                rs1_addr     = {2'b1, inst[ 9: 7]};
-                rs2_addr     = {2'b1, inst[ 4: 2]};
-                rd_addr      = {2'b1, inst[ 4: 2]};
-                ill_inst     = ~misa_c_ext;
+                rs1_addr     = {2'b1, insn[ 9: 7]};
+                rs2_addr     = {2'b1, insn[ 4: 2]};
+                rd_addr      = {2'b1, insn[ 4: 2]};
+                ill_insn     = ~misa_c_ext;
                 case (funct3_16)
                     FUNCT3_C0_ADDI4SPN: begin
                         rs1_addr     = `GPR_SP_ADDR;
@@ -205,10 +205,10 @@ always_comb begin
                         mem_cal_sel  = 1'b0;
                         reg_wr       = |rd_addr;
                         alu_op       = ALU_ADD;
-                        ill_inst     = ill_inst | ~|imm;
+                        ill_insn     = ill_insn | ~|imm;
                     end
                     FUNCT3_C0_FLD     : begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                     FUNCT3_C0_LW      : begin
                         imm          = imm_cl;
@@ -227,7 +227,7 @@ always_comb begin
                         case (misa_mxl)
                             `MISA_MXL_XLEN_32: begin
 `endif
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
 `ifndef RV32
                             end
                             `MISA_MXL_XLEN_64: begin
@@ -242,12 +242,12 @@ always_comb begin
                                 mem_byte     = 8'hff;
                                 mem_sign_ext = 1'b1;
                             end
-                            default          : ill_inst     = 1'b1;
+                            default          : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
                     FUNCT3_C0_FSD     : begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                     FUNCT3_C0_SW      : begin
                         rs2_rd       = 1'b1;
@@ -265,7 +265,7 @@ always_comb begin
                         case (misa_mxl)
                             `MISA_MXL_XLEN_32: begin
 `endif
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
 `ifndef RV32
                             end
                             `MISA_MXL_XLEN_64: begin
@@ -279,24 +279,24 @@ always_comb begin
                                 reg_wr       = 1'b0;
                                 mem_byte     = 8'hff;
                             end
-                            default          : ill_inst     = 1'b1;
+                            default          : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
                     default           : begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                 endcase
             end
             OP16_C1: begin
                 rs1_rd       = 1'b1;
-                rs1_addr     = {2'b1, inst[ 9: 7]};
-                rs2_addr     = {2'b1, inst[ 4: 2]};
-                rd_addr      = {2'b1, inst[ 9: 7]};
+                rs1_addr     = {2'b1, insn[ 9: 7]};
+                rs2_addr     = {2'b1, insn[ 4: 2]};
+                rd_addr      = {2'b1, insn[ 9: 7]};
                 case (funct3_16)
                     FUNCT3_C1_ADDI: begin
-                        rs1_addr     = inst[ 11: 7];
-                        rd_addr      = inst[ 11: 7];
+                        rs1_addr     = insn[ 11: 7];
+                        rd_addr      = insn[ 11: 7];
                         imm          = imm_ci_li;
                         rs1_zero_sel = 1'b1;
                         rs2_imm_sel  = 1'b0;
@@ -328,8 +328,8 @@ always_comb begin
 `ifndef RV32
                             end
                             `MISA_MXL_XLEN_64: begin
-                                rs1_addr     = inst[ 11: 7];
-                                rd_addr      = inst[ 11: 7];
+                                rs1_addr     = insn[ 11: 7];
+                                rd_addr      = insn[ 11: 7];
                                 len_64       = 1'b0;
                                 rs1_rd       = 1'b1;
                                 imm          = imm_ci_li;
@@ -342,13 +342,13 @@ always_comb begin
                                 reg_wr       = |rd_addr;
                                 alu_op       = ALU_ADD;
                             end
-                            default          : ill_inst     = 1'b1;
+                            default          : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
                     FUNCT3_C1_LI  : begin
                         rs1_addr     = `GPR_ZERO_ADDR;
-                        rd_addr      = inst[ 11: 7];
+                        rd_addr      = insn[ 11: 7];
                         imm          = imm_ci_li;
                         rs1_zero_sel = 1'b1;
                         rs2_imm_sel  = 1'b0;
@@ -360,8 +360,8 @@ always_comb begin
                         alu_op       = ALU_ADD;
                     end
                     FUNCT3_C1_LUI : begin
-                        rs1_addr     = inst[ 11: 7];
-                        rd_addr      = inst[ 11: 7];
+                        rs1_addr     = insn[ 11: 7];
+                        rd_addr      = insn[ 11: 7];
                         alu_op       = ALU_ADD;
                         rs2_imm_sel  = 1'b0;
                         pc_alu_sel   = 1'b0;
@@ -392,11 +392,11 @@ always_comb begin
                         case (funct2_16_op_imm)
                             FUNCT2_OP_IMM_C_SRLI: begin
                                 alu_op       = ALU_SRL;
-                                ill_inst     = ill_inst | (inst[12] & ~misa_mxl[1]);
+                                ill_insn     = ill_insn | (insn[12] & ~misa_mxl[1]);
                             end
                             FUNCT2_OP_IMM_C_SRAI: begin
                                 alu_op       = ALU_SRA;
-                                ill_inst     = ill_inst | (inst[12] & ~misa_mxl[1]);
+                                ill_insn     = ill_insn | (insn[12] & ~misa_mxl[1]);
                             end
                             FUNCT2_OP_IMM_C_ANDI: begin
                                 alu_op       = ALU_AND;
@@ -404,7 +404,7 @@ always_comb begin
                             FUNCT2_OP_IMM_C_OP  : begin
                                 rs2_rd       = 1'b1;
                                 rs2_imm_sel  = 1'b1;
-                                if (inst[12] == 1'b0) begin
+                                if (insn[12] == 1'b0) begin
                                     case (funct2_16_op)
                                         FUNCT2_OP_C_SUB: begin
                                             alu_op       = ALU_SUB;
@@ -419,7 +419,7 @@ always_comb begin
                                             alu_op       = ALU_AND;
                                         end
                                         default        : begin
-                                            ill_inst     = 1'b1;
+                                            ill_insn     = 1'b1;
                                         end
                                     endcase
                                 end
@@ -435,7 +435,7 @@ always_comb begin
                                         end
                                         default        : begin
 `endif
-                                            ill_inst     = 1'b1;
+                                            ill_insn     = 1'b1;
 `ifndef RV32
                                         end
                                     endcase
@@ -443,7 +443,7 @@ always_comb begin
                                 end
                             end
                             default             : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
@@ -489,15 +489,15 @@ always_comb begin
                         branch_zcmp  = 1'b0;
                     end
                     default       : begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                 endcase
             end
             OP16_C2: begin
                 rs1_rd       = 1'b1;
-                rs1_addr     = inst[11: 7];
-                rs2_addr     = inst[ 6: 2];
-                rd_addr      = inst[11: 7];
+                rs1_addr     = insn[11: 7];
+                rs2_addr     = insn[ 6: 2];
+                rd_addr      = insn[11: 7];
                 case (funct3_16)
                     FUNCT3_C2_SLLI : begin
                         imm          = imm_ci_li;
@@ -509,10 +509,10 @@ always_comb begin
                         mem_cal_sel  = 1'b0;
                         reg_wr       = |rd_addr;
                         alu_op       = ALU_SLL;
-                        ill_inst     = ill_inst | (inst[12] & ~misa_mxl[1]);
+                        ill_insn     = ill_insn | (insn[12] & ~misa_mxl[1]);
                     end
                     FUNCT3_C2_FLDSP: begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                     FUNCT3_C2_LWSP : begin
                         rs1_addr     = `GPR_SP_ADDR;
@@ -526,14 +526,14 @@ always_comb begin
                         mem_cal_sel  = 1'b1;
                         mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
                         mem_sign_ext = 1'b1;
-                        ill_inst     = ill_inst | ~|rd_addr;
+                        ill_insn     = ill_insn | ~|rd_addr;
                     end
                     FUNCT3_C2_FLWSP: begin // RV32: FLWSP     RV64: LDSP
 `ifndef RV32
                         case (misa_mxl)
                             `MISA_MXL_XLEN_32: begin
 `endif
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
 `ifndef RV32
                             end
                             `MISA_MXL_XLEN_64: begin
@@ -548,14 +548,14 @@ always_comb begin
                                 mem_cal_sel  = 1'b1;
                                 mem_byte     = 8'hff;
                                 mem_sign_ext = 1'b1;
-                                ill_inst     = ill_inst | ~|rd_addr;
+                                ill_insn     = ill_insn | ~|rd_addr;
                             end
-                            default          : ill_inst     = 1'b1;
+                            default          : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
                     FUNCT3_C2_OP   : begin
-                        if (~inst[12]) begin
+                        if (~insn[12]) begin
                             if (rs2_addr == `GPR_ZERO_ADDR) begin
                                 rd_addr      = `GPR_ZERO_ADDR;
                                 imm          = `XLEN'b0;
@@ -569,7 +569,7 @@ always_comb begin
                                 mem_cal_sel  = 1'b0;
                                 reg_wr       = |rd_addr;
                                 jump_alu     = 1'b1;
-                                ill_inst     = ill_inst | ~|rs1_addr;
+                                ill_insn     = ill_insn | ~|rs1_addr;
                             end
                             else begin
                                 rs2_rd       = 1'b1;
@@ -622,7 +622,7 @@ always_comb begin
                         end
                     end
                     FUNCT3_C2_FSDSP: begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                     FUNCT3_C2_SWSP : begin
                         rs2_rd       = 1'b1;
@@ -641,7 +641,7 @@ always_comb begin
                         case (misa_mxl)
                             `MISA_MXL_XLEN_32: begin
 `endif
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
 `ifndef RV32
                             end
                             `MISA_MXL_XLEN_64: begin
@@ -656,19 +656,19 @@ always_comb begin
                                 reg_wr       = 1'b0;
                                 mem_byte     = 8'hff;
                             end
-                            default          : ill_inst     = 1'b1;
+                            default          : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
                     default        : begin
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
                     end
                 endcase
             end
             default: begin
-                rs1_addr            = inst[19:15];
-                rs2_addr            = inst[24:20];
-                rd_addr             = inst[11: 7];
+                rs1_addr            = insn[19:15];
+                rs2_addr            = insn[24:20];
+                rd_addr             = insn[11: 7];
                 case (opcode_32)
                     OP_LOAD     : begin
                         rs1_rd       = 1'b1;
@@ -705,23 +705,23 @@ always_comb begin
                             FUNCT3_LWU: begin
                                 mem_byte     = {{((`DM_DATA_LEN/8) - 4){1'b0}}, 4'b1111};
                                 mem_sign_ext = 1'b0;
-                                ill_inst     = ill_inst | ~misa_mxl[1];
+                                ill_insn     = ill_insn | ~misa_mxl[1];
                             end
                             FUNCT3_LD : begin
                                 mem_byte     = 8'hff;
                                 mem_sign_ext = 1'b1;
-                                ill_inst     = ill_inst | ~misa_mxl[1];
+                                ill_insn     = ill_insn | ~misa_mxl[1];
                             end
 `endif
                             default   : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
-                    OP_LOAD_FP  : ill_inst     = 1'b1;
-                    OP_CUST_0   : ill_inst     = 1'b1;
+                    OP_LOAD_FP  : ill_insn     = 1'b1;
+                    OP_CUST_0   : ill_insn     = 1'b1;
                     OP_MISC_MEM : begin
-                        case ({funct3, inst[11:7], inst[19:15], inst[31:28]})
+                        case ({funct3, insn[11:7], insn[19:15], insn[31:28]})
                             {FUNCT3_FENCE  , 5'b0, 5'b0, 4'b0}: begin
                                 mem_req      = 1'b0;
                                 mem_wr       = 1'b0;
@@ -729,17 +729,17 @@ always_comb begin
                                 fence        = 1'b1;
                             end
                             {FUNCT3_FENCE_I, 5'b0, 5'b0, 4'b0}: begin
-                                if (inst[27:20] == 8'b0) begin
+                                if (insn[27:20] == 8'b0) begin
                                     mem_req      = 1'b0;
                                     mem_wr       = 1'b0;
                                     reg_wr       = 1'b0;
                                     fence_i      = 1'b1;
                                     pc_imm_sel   = 1'b0;
                                 end
-                                else ill_inst     = 1'b1;
+                                else ill_insn     = 1'b1;
                             end
                             default       : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
@@ -761,21 +761,21 @@ always_comb begin
                             FUNCT3_ORI  : alu_op       = ALU_OR;
                             FUNCT3_ANDI : alu_op       = ALU_AND;
                             FUNCT3_SLLI : begin
-                                ill_inst     = ill_inst | (inst[25] & ~misa_mxl[1]);
+                                ill_insn     = ill_insn | (insn[25] & ~misa_mxl[1]);
                                 case (funct7[6:1])
                                     FUNCT7_SLLI[6:1]: alu_op       = ALU_SLL;
-                                    default         : ill_inst     = 1'b1;
+                                    default         : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT3_SRLI : begin
-                                ill_inst     = ill_inst | (inst[25] & ~misa_mxl[1]);
+                                ill_insn     = ill_insn | (insn[25] & ~misa_mxl[1]);
                                 case (funct7[6:1])
                                     FUNCT7_SRLI[6:1]: alu_op       = ALU_SRL;
                                     FUNCT7_SRAI[6:1]: alu_op       = ALU_SRA;
-                                    default         : ill_inst     = 1'b1;
+                                    default         : ill_insn     = 1'b1;
                                 endcase
                             end
-                            default     : ill_inst     = 1'b1;
+                            default     : ill_insn     = 1'b1;
                         endcase
                     end
                     OP_AUIPC    : begin
@@ -791,7 +791,7 @@ always_comb begin
                     end
                     OP_OP_IMM_32: begin
 `ifdef RV32
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
 `else
                         len_64       = 1'b0;
                         rs1_rd       = 1'b1;
@@ -803,25 +803,25 @@ always_comb begin
                         mem_wr       = 1'b0;
                         mem_cal_sel  = 1'b0;
                         reg_wr       = |rd_addr;
-                        ill_inst     = ill_inst | ~misa_mxl[1];
+                        ill_insn     = ill_insn | ~misa_mxl[1];
                         case (funct3)
                             FUNCT3_ADDI : alu_op       = ALU_ADD;
                             FUNCT3_SLLI : begin
-                                ill_inst     = ill_inst | inst[25];
+                                ill_insn     = ill_insn | insn[25];
                                 case (funct7[6:1])
                                     FUNCT7_SLLI[6:1]: alu_op       = ALU_SLL;
-                                    default         : ill_inst     = 1'b1;
+                                    default         : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT3_SRLI : begin
-                                ill_inst     = ill_inst | inst[25];
+                                ill_insn     = ill_insn | insn[25];
                                 case (funct7[6:1])
                                     FUNCT7_SRLI[6:1]: alu_op       = ALU_SRL;
                                     FUNCT7_SRAI[6:1]: alu_op       = ALU_SRA;
-                                    default         : ill_inst     = 1'b1;
+                                    default         : ill_insn     = 1'b1;
                                 endcase
                             end
-                            default     : ill_inst     = 1'b1;
+                            default     : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
@@ -848,16 +848,16 @@ always_comb begin
 `ifndef RV32
                             FUNCT3_SD: begin
                                 mem_byte     = 8'hff;
-                                ill_inst     = ill_inst | ~misa_mxl[1];
+                                ill_insn     = ill_insn | ~misa_mxl[1];
                             end
 `endif
                             default  : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
-                    OP_STORE_FP : ill_inst     = 1'b1;
-                    OP_CUST_1   : ill_inst     = 1'b1;
+                    OP_STORE_FP : ill_insn     = 1'b1;
+                    OP_CUST_1   : ill_insn     = 1'b1;
                     OP_AMO      : begin
                         amo_64       = funct3 == 3'b011;
                         amo          = 1'b1;
@@ -875,18 +875,18 @@ always_comb begin
                         mem_sign_ext = 1'b1;
 `ifdef RV32
                         mem_byte     = {{((`DM_DATA_LEN >> 3) - 4){1'b0}}, 4'b1111};
-                        ill_inst     = ill_inst | ~misa_a_ext | (funct3 != 3'b010);
+                        ill_insn     = ill_insn | ~misa_a_ext | (funct3 != 3'b010);
 `else
                         mem_byte     = ({8{funct3 == 3'b010}} & 8'h0f)|
                                        ({8{funct3 == 3'b011}} & 8'hff);
-                        ill_inst     = ill_inst | ~misa_a_ext | (funct3 != 3'b010 && funct3 != 3'b011) |
+                        ill_insn     = ill_insn | ~misa_a_ext | (funct3 != 3'b010 && funct3 != 3'b011) |
                                                                 (funct3 == 3'b011 && ~misa_mxl[1]);
 `endif
                         case (funct5)
                             FUNCT5_LR     : begin 
                                 amo          = 1'b0;
                                 rs2_rd       = 1'b0;
-                                ill_inst     = ill_inst || rs2_addr != `GPR_ZERO_ADDR;
+                                ill_insn     = ill_insn || rs2_addr != `GPR_ZERO_ADDR;
                             end
                             FUNCT5_SC     : begin
                                 amo          = 1'b0;
@@ -901,7 +901,7 @@ always_comb begin
                             FUNCT5_AMOMAX : amo_op       = AMO_MAX;
                             FUNCT5_AMOMINU: amo_op       = AMO_MINU;
                             FUNCT5_AMOMAXU: amo_op       = AMO_MAXU;
-                            default       : ill_inst     = 1'b1;
+                            default       : ill_insn     = 1'b1;
                         endcase
                     end
                     OP_OP       : begin
@@ -925,19 +925,19 @@ always_comb begin
                                     FUNCT3_SRL : alu_op       = ALU_SRL;
                                     FUNCT3_OR  : alu_op       = ALU_OR;
                                     FUNCT3_AND : alu_op       = ALU_AND;
-                                    default    : ill_inst     = 1'b1;
+                                    default    : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT7_OP1   : begin
                                 case (funct3)
                                     FUNCT3_ADD : alu_op       = ALU_SUB;
                                     FUNCT3_SRL : alu_op       = ALU_SRA;
-                                    default    : ill_inst     = 1'b1;
+                                    default    : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT7_MULDIV: begin
                                 mdu_sel             = 1'b1;
-                                ill_inst            = ill_inst | ~misa_m_ext;
+                                ill_insn            = ill_insn | ~misa_m_ext;
                                 case (funct3)
                                     FUNCT3_MUL   : mdu_op   = MDU_MUL;
                                     FUNCT3_MULH  : mdu_op   = MDU_MULH;
@@ -947,10 +947,10 @@ always_comb begin
                                     FUNCT3_DIVU  : mdu_op   = MDU_DIVU;
                                     FUNCT3_REM   : mdu_op   = MDU_REM;
                                     FUNCT3_REMU  : mdu_op   = MDU_REMU;
-                                    default      : ill_inst = 1'b1;
+                                    default      : ill_insn = 1'b1;
                                 endcase
                             end
-                            default      : ill_inst     = 1'b1;
+                            default      : ill_insn     = 1'b1;
                         endcase
                     end
                     OP_LUI      : begin
@@ -966,7 +966,7 @@ always_comb begin
                     end
                     OP_OP_32    : begin
 `ifdef RV32
-                        ill_inst     = 1'b1;
+                        ill_insn     = 1'b1;
 `else
                         len_64       = 1'b0;
                         rs1_rd       = 1'b1;
@@ -978,45 +978,45 @@ always_comb begin
                         mem_wr       = 1'b0;
                         mem_cal_sel  = 1'b0;
                         reg_wr       = |rd_addr;
-                        ill_inst     = ill_inst | ~misa_mxl[1];
+                        ill_insn     = ill_insn | ~misa_mxl[1];
                         case (funct7)
                             FUNCT7_OP0   : begin
                                 case (funct3)
                                     FUNCT3_ADD : alu_op       = ALU_ADD;
                                     FUNCT3_SLL : alu_op       = ALU_SLL;
                                     FUNCT3_SRL : alu_op       = ALU_SRL;
-                                    default    : ill_inst     = 1'b1;
+                                    default    : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT7_OP1   : begin
                                 case (funct3)
                                     FUNCT3_ADD : alu_op       = ALU_SUB;
                                     FUNCT3_SRL : alu_op       = ALU_SRA;
-                                    default    : ill_inst     = 1'b1;
+                                    default    : ill_insn     = 1'b1;
                                 endcase
                             end
                             FUNCT7_MULDIV: begin
                                 mdu_sel             = 1'b1;
-                                ill_inst            = ill_inst | ~misa_m_ext;
+                                ill_insn            = ill_insn | ~misa_m_ext;
                                 case (funct3)
                                     FUNCT3_MUL : mdu_op   = MDU_MUL;
                                     FUNCT3_DIV : mdu_op   = MDU_DIV;
                                     FUNCT3_DIVU: mdu_op   = MDU_DIVU;
                                     FUNCT3_REM : mdu_op   = MDU_REM;
                                     FUNCT3_REMU: mdu_op   = MDU_REMU;
-                                    default    : ill_inst = 1'b1;
+                                    default    : ill_insn = 1'b1;
                                 endcase
                             end
-                            default      : ill_inst     = 1'b1;
+                            default      : ill_insn     = 1'b1;
                         endcase
 `endif
                     end
-                    OP_MADD     : ill_inst     = 1'b1;
-                    OP_MSUB     : ill_inst     = 1'b1;
-                    OP_NMSUB    : ill_inst     = 1'b1;
-                    OP_NMADD    : ill_inst     = 1'b1;
-                    OP_OP_FP    : ill_inst     = 1'b1;
-                    OP_CUST_2   : ill_inst     = 1'b1;
+                    OP_MADD     : ill_insn     = 1'b1;
+                    OP_MSUB     : ill_insn     = 1'b1;
+                    OP_NMSUB    : ill_insn     = 1'b1;
+                    OP_NMADD    : ill_insn     = 1'b1;
+                    OP_OP_FP    : ill_insn     = 1'b1;
+                    OP_CUST_2   : ill_insn     = 1'b1;
                     OP_BRANCH   : begin
                         rs1_rd       = 1'b1;
                         rs2_rd       = 1'b1;
@@ -1059,7 +1059,7 @@ always_comb begin
                                 branch_zcmp  = 1'b0;
                             end
                             default    : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
@@ -1096,12 +1096,12 @@ always_comb begin
                                     rs1_rd       = 1'b1;
                                     rs2_rd       = 1'b1;
                                     tlb_flush_req       = 1'b1;
-                                    tlb_flush_all_vaddr = ~|inst[19:15];
-                                    tlb_flush_all_asid  = ~|inst[24:20];
+                                    tlb_flush_all_vaddr = ~|insn[19:15];
+                                    tlb_flush_all_asid  = ~|insn[24:20];
                                     pc_imm_sel   = 1'b0;
                                 end
-                                else if ({inst[11:7], inst[19:15]} == {5'b0, 5'b0}) begin
-                                    case (inst[31:20])
+                                else if ({insn[11:7], insn[19:15]} == {5'b0, 5'b0}) begin
+                                    case (insn[31:20])
                                         FUNCT12_ECALL: begin
                                             mem_req      = 1'b0;
                                             mem_wr       = 1'b0;
@@ -1119,19 +1119,19 @@ always_comb begin
                                         end
                                         FUNCT12_SRET  : begin
                                             sret         = 1'b1;
-                                            prv_req      = inst[29:28];
+                                            prv_req      = insn[29:28];
                                         end
                                         FUNCT12_MRET  : begin
                                             mret         = 1'b1;
-                                            prv_req      = inst[29:28];
+                                            prv_req      = insn[29:28];
                                         end
                                         default       : begin
-                                            ill_inst     = 1'b1;
+                                            ill_insn     = 1'b1;
                                         end
                                     endcase
                                 end
                                 else begin
-                                    ill_inst     = 1'b1;
+                                    ill_insn     = 1'b1;
                                 end
                             end
                             FUNCT3_CSRRW : begin
@@ -1146,8 +1146,8 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = 1'b1;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             FUNCT3_CSRRS : begin
                                 rs1_rd       = 1'b1;
@@ -1161,8 +1161,8 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = |rs1_addr;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             FUNCT3_CSRRC : begin
                                 rs1_rd       = 1'b1;
@@ -1176,8 +1176,8 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = |rs1_addr;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             FUNCT3_CSRRWI: begin
                                 imm          = imm_i;
@@ -1190,8 +1190,8 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = 1'b1;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             FUNCT3_CSRRSI: begin
                                 imm          = imm_i;
@@ -1204,8 +1204,8 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = |rs1_addr;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             FUNCT3_CSRRCI: begin
                                 imm          = imm_i;
@@ -1218,16 +1218,16 @@ always_comb begin
                                 csr_rd       = |rd_addr;
                                 csr_wr       = |rs1_addr;
                                 csr_alu_sel  = 1'b1;
-                                prv_req      = inst[29:28];
-                                ill_inst     = ill_inst | (csr_wr && inst[31:28] == 4'hc);
+                                prv_req      = insn[29:28];
+                                ill_insn     = ill_insn | (csr_wr && insn[31:28] == 4'hc);
                             end
                             default       : begin
-                                ill_inst     = 1'b1;
+                                ill_insn     = 1'b1;
                             end
                         endcase
                     end
-                    OP_CUST_3   : ill_inst = 1'b1;
-                    default     : ill_inst = 1'b1;
+                    OP_CUST_3   : ill_insn = 1'b1;
+                    default     : ill_insn = 1'b1;
                 endcase
             end
         endcase

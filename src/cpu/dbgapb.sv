@@ -15,15 +15,15 @@ module dbgapb (
     output logic                csr_wr,
     input        [`XLEN - 1: 0] csr_in,
     input        [`XLEN - 1: 0] pc,
-    output logic [       31: 0] inst_out,
+    output logic [       31: 0] insn_out,
     output logic                exec,
     input                       halted,
     output logic                attach
 );
 
 logic               dbg_en;
-logic [       31:0] dbg_inst;
-logic               dbg_inst_wr;
+logic [       31:0] dbg_insn;
+logic               dbg_insn_wr;
 logic [`XLEN - 1:0] dbg_wdata;
 logic               dbg_wdata_wr;
 logic [`XLEN - 1:0] dbg_rdata;
@@ -36,7 +36,7 @@ logic               rdata_sel;
 logic               pc_rd;
 
 logic               nxt_attach;
-logic [       31:0] nxt_inst_out;
+logic [       31:0] nxt_insn_out;
 logic               nxt_exec;
 logic               nxt_rdata_sel;
 logic               nxt_pc_rd;
@@ -82,7 +82,7 @@ assign wdata_out = wdata_reg;
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
         attach     <= 1'b0;
-        inst_out   <= 32'b0;
+        insn_out   <= 32'b0;
         exec       <= 1'b0;
         rdata_sel  <= 1'b0;
         pc_rd      <= 1'b0;
@@ -92,9 +92,9 @@ always_ff @(posedge clk or negedge rstn) begin
         gpr_wr     <= 1'b0;
         csr_wr     <= 1'b0;
     end
-    else if (dbg_inst_wr) begin
+    else if (dbg_insn_wr) begin
         attach     <= nxt_attach;
-        inst_out   <= nxt_inst_out;
+        insn_out   <= nxt_insn_out;
         exec       <= nxt_exec;
         rdata_sel  <= nxt_rdata_sel;
         pc_rd      <= nxt_pc_rd;
@@ -116,7 +116,7 @@ end
 
 always_comb begin
     nxt_attach    = attach;
-    nxt_inst_out  = inst_out;
+    nxt_insn_out  = insn_out;
     nxt_exec      = 1'b0;
     nxt_rdata_sel = rdata_sel;
     nxt_pc_rd     = 1'b0;
@@ -125,7 +125,7 @@ always_comb begin
     nxt_csr_rd    = 1'b0;
     nxt_gpr_wr    = 1'b0;
     nxt_csr_wr    = 1'b0;
-    case (dbg_inst[11:0])
+    case (dbg_insn[11:0])
         `INST_ATTACH: begin
             nxt_attach    = 1'b1;
         end
@@ -133,7 +133,7 @@ always_comb begin
             nxt_attach    = 1'b0;
         end
         `INST_INSTREG_WR: begin
-            nxt_inst_out  = wdata_reg[31:0];
+            nxt_insn_out  = wdata_reg[31:0];
         end
         `INST_EXECUTE: begin
             nxt_exec      = 1'b1;
@@ -147,20 +147,20 @@ always_comb begin
         end
         `INST_GPR_RD: begin
             nxt_rdata_sel = 1'b0;
-            nxt_addr_out  = {4'b0, dbg_inst[23:16]};
+            nxt_addr_out  = {4'b0, dbg_insn[23:16]};
             nxt_gpr_rd    = 1'b1;
         end
         `INST_CSR_RD: begin
             nxt_rdata_sel = 1'b0;
-            nxt_addr_out  = dbg_inst[27:16];
+            nxt_addr_out  = dbg_insn[27:16];
             nxt_csr_rd    = 1'b1;
         end
         `INST_GPR_WR: begin
-            nxt_addr_out  = {7'b0, dbg_inst[20:16]};
+            nxt_addr_out  = {7'b0, dbg_insn[20:16]};
             nxt_gpr_wr    = 1'b1;
         end
         `INST_CSR_WR: begin
-            nxt_addr_out  = dbg_inst[27:16];
+            nxt_addr_out  = dbg_insn[27:16];
             nxt_csr_wr    = 1'b1;
         end
     endcase
@@ -183,22 +183,22 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        dbg_inst <= 32'b0;
+        dbg_insn <= 32'b0;
     end
     else if (dbgapb_wr && apb_intf.paddr[11:0] == `DBGAPB_INST) begin
-        dbg_inst <= apb_intf.pwdata;
+        dbg_insn <= apb_intf.pwdata;
     end
 end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        dbg_inst_wr <= 1'b0;
+        dbg_insn_wr <= 1'b0;
     end
     else if (dbgapb_wr && apb_intf.paddr[11:0] == `DBGAPB_INST_WR) begin
-        dbg_inst_wr <= 1'b1;
+        dbg_insn_wr <= 1'b1;
     end
     else begin
-        dbg_inst_wr <= 1'b0;
+        dbg_insn_wr <= 1'b0;
     end
 end
 
@@ -234,8 +234,8 @@ always_comb begin
     prdata_t = 32'b0;
     case (apb_intf.paddr[11:0])
         `DBGAPB_DBG_EN  : prdata_t = {31'b0, dbg_en};
-        `DBGAPB_INST    : prdata_t = dbg_inst;
-        `DBGAPB_INST_WR : prdata_t = {31'b0, dbg_inst_wr};
+        `DBGAPB_INST    : prdata_t = dbg_insn;
+        `DBGAPB_INST_WR : prdata_t = {31'b0, dbg_insn_wr};
         `DBGAPB_WDATA_L : prdata_t = dbg_wdata[ 0+:32];
 `ifndef RV32
         `DBGAPB_WDATA_H : prdata_t = dbg_wdata[32+:32];
@@ -261,7 +261,7 @@ always_comb begin
     nxt_ready_cnt = 10'b0;
     case (apb_intf.paddr[11:0])
         `DBGAPB_INST_WR: begin
-            case (dbg_inst[11:0])
+            case (dbg_insn[11:0])
                 `INST_EXECUTE   : nxt_ready_cnt = 10'h5;
                 `INST_STATUS_RD : nxt_ready_cnt = 10'h1;
                 `INST_PC_RD     : nxt_ready_cnt = 10'h1;

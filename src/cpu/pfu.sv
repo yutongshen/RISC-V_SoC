@@ -11,11 +11,11 @@ module pfu (
     output logic                    jump_token,
     output logic [`IM_ADDR_LEN-1:0] pc,
     output logic [`IM_ADDR_LEN-1:0] badaddr,
-    output logic [`IM_DATA_LEN-1:0] inst,
+    output logic [`IM_DATA_LEN-1:0] insn,
     output logic [             1:0] bad,
     output logic                    empty,
 
-    // Inst Memory
+    // Insn Memory
     output logic                    imem_req,
     output logic [`IM_ADDR_LEN-1:0] imem_addr,
     input        [       `XLEN-1:0] imem_rdata,
@@ -43,14 +43,14 @@ logic [                   2:0] rptr;
 logic                          fifo_wr;
 logic                          fifo_rd;
 logic [                   3:0] _ndata;
-logic [      `IM_ADDR_LEN-1:0] inst_len;
+logic [      `IM_ADDR_LEN-1:0] insn_len;
 logic                          imem_req_latch;
 logic [      `IM_ADDR_LEN-1:0] imem_addr_pre;
 logic                          jump_latch;
 logic [      `IM_ADDR_LEN-1:0] btb_pred;
 logic                          btb_token;
 
-assign inst    = ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd0}} & {imem_rdata[31:16] & {16{imem_rdata[1:0] == 2'b11}}, imem_rdata[15:0]}) |
+assign insn    = ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd0}} & {imem_rdata[31:16] & {16{imem_rdata[1:0] == 2'b11}}, imem_rdata[15:0]}) |
                  ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd1}} & {16'b0, imem_rdata[(`XLEN-16)+:16]}) |
 `ifndef RV32
                  ({`IM_DATA_LEN{_ndata == 4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd2}} & {imem_rdata[(`XLEN-16)+:16] & {16{imem_rdata[(`XLEN-32)+:2] == 2'b11}}, imem_rdata[(`XLEN-32)+:16]}) |
@@ -66,7 +66,7 @@ assign bad     = ({2{_ndata >= 4'd`PFU_FIFO_DEPTH}}        & imem_bad) |
 assign badaddr = ({`IM_ADDR_LEN{_ndata >= 4'd`PFU_FIFO_DEPTH}} & pc) |
                  ({`IM_ADDR_LEN{_ndata <  4'd`PFU_FIFO_DEPTH}} & (|flag_fifo[{rptr, 1'b0}+:2] ? pc : pc + `IM_ADDR_LEN'h2));
 
-assign inst_len = inst[1:0] == 3'b11 ? `IM_ADDR_LEN'h4 : `IM_ADDR_LEN'h2;
+assign insn_len = insn[1:0] == 3'b11 ? `IM_ADDR_LEN'h4 : `IM_ADDR_LEN'h2;
 
 assign fifo_wr = imem_req_latch && ~imem_busy;
 assign fifo_rd = pop && ~empty;
@@ -108,8 +108,8 @@ always_ff @(posedge clk) begin
 `endif
         else begin
             wptr   <= wptr   + ({3{fifo_wr}} & 3'd`XLEN_DIV_16);
-            rptr   <= rptr   + ({3{fifo_rd}} & inst_len[3:1]);
-            _ndata <= _ndata + ({3{fifo_rd}} & inst_len[3:1]) - ({3{fifo_wr}} & 3'd`XLEN_DIV_16);
+            rptr   <= rptr   + ({3{fifo_rd}} & insn_len[3:1]);
+            _ndata <= _ndata + ({3{fifo_rd}} & insn_len[3:1]) - ({3{fifo_wr}} & 3'd`XLEN_DIV_16);
         end
     end
 end
@@ -126,7 +126,7 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 assign empty    = ~((_ndata <= (4'd`PFU_FIFO_DEPTH - 4'd2)) ||
-                    (_ndata <= (4'd`PFU_FIFO_DEPTH - 4'd1) && inst[1:0] != 3'b11) ||
+                    (_ndata <= (4'd`PFU_FIFO_DEPTH - 4'd1) && insn[1:0] != 3'b11) ||
                     (_ndata <= (4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd2) && fifo_wr) ||
                     (_ndata <= (4'd`PFU_FIFO_DEPTH + 4'd`XLEN_DIV_16 - 4'd1) && fifo_wr && imem_rdata[(`XLEN-16)+:2] != 3'b11));
 assign imem_req =  ((_ndata >= (4'd`XLEN_DIV_16 * 2)) || (_ndata >= 4'd`XLEN_DIV_16 && ~imem_req_latch)) && ~imem_busy;
@@ -194,7 +194,7 @@ always_ff @(posedge clk) begin
         pc <= jump_addr;
     end
     else if (fifo_rd) begin
-        pc <= ~btb_token ? pc + inst_len:
+        pc <= ~btb_token ? pc + insn_len:
                            btb_pred;
     end
 end
