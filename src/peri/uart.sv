@@ -212,6 +212,7 @@ always_comb begin
         `UART_IP    : prdata_t = {29'b0, perror_ip, rxwm_ip, txwm_ip};
         `UART_IC    : prdata_t = {29'b0, perror_ip, rxwm_ip, txwm_ip};
         `UART_DIV   : prdata_t = {16'b0, div};
+        `UART_LCR   : prdata_t = {26'b0, lcr, 3'b0};
     endcase
 end
 
