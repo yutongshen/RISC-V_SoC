@@ -1,0 +1,590 @@
+
+*** Running vivado
+    with args -log soc_axi_apb_bridge_0_0.vds -m64 -product Vivado -mode batch -messageDb vivado.pb -notrace -source soc_axi_apb_bridge_0_0.tcl
+
+
+****** Vivado v2018.3 (64-bit)
+  **** SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+  **** IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+    ** Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+source soc_axi_apb_bridge_0_0.tcl -notrace
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'.
+WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1'.)
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'.
+Command: synth_design -top soc_axi_apb_bridge_0_0 -part xc7z020clg400-1 -mode out_of_context
+Starting synth_design
+Attempting to get a license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: [Common 17-349] Got license for feature 'Synthesis' and/or device 'xc7z020'
+INFO: Launching helper process for spawning children vivado processes
+INFO: Helper process launched with PID 38142 
+---------------------------------------------------------------------------------
+Starting RTL Elaboration : Time (s): cpu = 00:00:02 ; elapsed = 00:00:12 . Memory (MB): peak = 1425.164 ; gain = 67.023 ; free physical = 132 ; free virtual = 6438
+---------------------------------------------------------------------------------
+INFO: [Synth 8-638] synthesizing module 'soc_axi_apb_bridge_0_0' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/synth/soc_axi_apb_bridge_0_0.vhd:95]
+	Parameter C_FAMILY bound to: zynq - type: string 
+	Parameter C_INSTANCE bound to: axi_apb_bridge_inst - type: string 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_APB_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_APB_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_APB_NUM_SLAVES bound to: 1 - type: integer 
+	Parameter C_M_APB_PROTOCOL bound to: apb4 - type: string 
+	Parameter C_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_HIGHADDR bound to: 64'b0000000000000000000000000000000001100000000000000000111111111111 
+	Parameter C_S_AXI_RNG2_BASEADDR bound to: 64'b0000000000000000000000000000000000010000000000000000000000000000 
+	Parameter C_S_AXI_RNG2_HIGHADDR bound to: 64'b0000000000000000000000000000000000011111111111111111111111111111 
+	Parameter C_S_AXI_RNG3_BASEADDR bound to: 64'b0000000000000000000000000000000000100000000000000000000000000000 
+	Parameter C_S_AXI_RNG3_HIGHADDR bound to: 64'b0000000000000000000000000000000000101111111111111111111111111111 
+	Parameter C_S_AXI_RNG4_BASEADDR bound to: 64'b0000000000000000000000000000000000110000000000000000000000000000 
+	Parameter C_S_AXI_RNG4_HIGHADDR bound to: 64'b0000000000000000000000000000000000111111111111111111111111111111 
+	Parameter C_S_AXI_RNG5_BASEADDR bound to: 64'b0000000000000000000000000000000001000000000000000000000000000000 
+	Parameter C_S_AXI_RNG5_HIGHADDR bound to: 64'b0000000000000000000000000000000001001111111111111111111111111111 
+	Parameter C_S_AXI_RNG6_BASEADDR bound to: 64'b0000000000000000000000000000000001010000000000000000000000000000 
+	Parameter C_S_AXI_RNG6_HIGHADDR bound to: 64'b0000000000000000000000000000000001011111111111111111111111111111 
+	Parameter C_S_AXI_RNG7_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_S_AXI_RNG7_HIGHADDR bound to: 64'b0000000000000000000000000000000001101111111111111111111111111111 
+	Parameter C_S_AXI_RNG8_BASEADDR bound to: 64'b0000000000000000000000000000000001110000000000000000000000000000 
+	Parameter C_S_AXI_RNG8_HIGHADDR bound to: 64'b0000000000000000000000000000000001111111111111111111111111111111 
+	Parameter C_S_AXI_RNG9_BASEADDR bound to: 64'b0000000000000000000000000000000010000000000000000000000000000000 
+	Parameter C_S_AXI_RNG9_HIGHADDR bound to: 64'b0000000000000000000000000000000010001111111111111111111111111111 
+	Parameter C_S_AXI_RNG10_BASEADDR bound to: 64'b0000000000000000000000000000000010010000000000000000000000000000 
+	Parameter C_S_AXI_RNG10_HIGHADDR bound to: 64'b0000000000000000000000000000000010011111111111111111111111111111 
+	Parameter C_S_AXI_RNG11_BASEADDR bound to: 64'b0000000000000000000000000000000010100000000000000000000000000000 
+	Parameter C_S_AXI_RNG11_HIGHADDR bound to: 64'b0000000000000000000000000000000010101111111111111111111111111111 
+	Parameter C_S_AXI_RNG12_BASEADDR bound to: 64'b0000000000000000000000000000000010110000000000000000000000000000 
+	Parameter C_S_AXI_RNG12_HIGHADDR bound to: 64'b0000000000000000000000000000000010111111111111111111111111111111 
+	Parameter C_S_AXI_RNG13_BASEADDR bound to: 64'b0000000000000000000000000000000011000000000000000000000000000000 
+	Parameter C_S_AXI_RNG13_HIGHADDR bound to: 64'b0000000000000000000000000000000011001111111111111111111111111111 
+	Parameter C_S_AXI_RNG14_BASEADDR bound to: 64'b0000000000000000000000000000000011010000000000000000000000000000 
+	Parameter C_S_AXI_RNG14_HIGHADDR bound to: 64'b0000000000000000000000000000000011011111111111111111111111111111 
+	Parameter C_S_AXI_RNG15_BASEADDR bound to: 64'b0000000000000000000000000000000011100000000000000000000000000000 
+	Parameter C_S_AXI_RNG15_HIGHADDR bound to: 64'b0000000000000000000000000000000011101111111111111111111111111111 
+	Parameter C_S_AXI_RNG16_BASEADDR bound to: 64'b0000000000000000000000000000000011110000000000000000000000000000 
+	Parameter C_S_AXI_RNG16_HIGHADDR bound to: 64'b0000000000000000000000000000000011111111111111111111111111111111 
+	Parameter C_DPHASE_TIMEOUT bound to: 0 - type: integer 
+INFO: [Synth 8-3491] module 'axi_apb_bridge' declared at '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:7175' bound to instance 'U0' of component 'axi_apb_bridge' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/synth/soc_axi_apb_bridge_0_0.vhd:238]
+INFO: [Synth 8-638] synthesizing module 'axi_apb_bridge' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:7284]
+	Parameter C_FAMILY bound to: zynq - type: string 
+	Parameter C_INSTANCE bound to: axi_apb_bridge_inst - type: string 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_APB_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_APB_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_APB_NUM_SLAVES bound to: 1 - type: integer 
+	Parameter C_M_APB_PROTOCOL bound to: apb4 - type: string 
+	Parameter C_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_HIGHADDR bound to: 64'b0000000000000000000000000000000001100000000000000000111111111111 
+	Parameter C_S_AXI_RNG2_BASEADDR bound to: 64'b0000000000000000000000000000000000010000000000000000000000000000 
+	Parameter C_S_AXI_RNG2_HIGHADDR bound to: 64'b0000000000000000000000000000000000011111111111111111111111111111 
+	Parameter C_S_AXI_RNG3_BASEADDR bound to: 64'b0000000000000000000000000000000000100000000000000000000000000000 
+	Parameter C_S_AXI_RNG3_HIGHADDR bound to: 64'b0000000000000000000000000000000000101111111111111111111111111111 
+	Parameter C_S_AXI_RNG4_BASEADDR bound to: 64'b0000000000000000000000000000000000110000000000000000000000000000 
+	Parameter C_S_AXI_RNG4_HIGHADDR bound to: 64'b0000000000000000000000000000000000111111111111111111111111111111 
+	Parameter C_S_AXI_RNG5_BASEADDR bound to: 64'b0000000000000000000000000000000001000000000000000000000000000000 
+	Parameter C_S_AXI_RNG5_HIGHADDR bound to: 64'b0000000000000000000000000000000001001111111111111111111111111111 
+	Parameter C_S_AXI_RNG6_BASEADDR bound to: 64'b0000000000000000000000000000000001010000000000000000000000000000 
+	Parameter C_S_AXI_RNG6_HIGHADDR bound to: 64'b0000000000000000000000000000000001011111111111111111111111111111 
+	Parameter C_S_AXI_RNG7_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_S_AXI_RNG7_HIGHADDR bound to: 64'b0000000000000000000000000000000001101111111111111111111111111111 
+	Parameter C_S_AXI_RNG8_BASEADDR bound to: 64'b0000000000000000000000000000000001110000000000000000000000000000 
+	Parameter C_S_AXI_RNG8_HIGHADDR bound to: 64'b0000000000000000000000000000000001111111111111111111111111111111 
+	Parameter C_S_AXI_RNG9_BASEADDR bound to: 64'b0000000000000000000000000000000010000000000000000000000000000000 
+	Parameter C_S_AXI_RNG9_HIGHADDR bound to: 64'b0000000000000000000000000000000010001111111111111111111111111111 
+	Parameter C_S_AXI_RNG10_BASEADDR bound to: 64'b0000000000000000000000000000000010010000000000000000000000000000 
+	Parameter C_S_AXI_RNG10_HIGHADDR bound to: 64'b0000000000000000000000000000000010011111111111111111111111111111 
+	Parameter C_S_AXI_RNG11_BASEADDR bound to: 64'b0000000000000000000000000000000010100000000000000000000000000000 
+	Parameter C_S_AXI_RNG11_HIGHADDR bound to: 64'b0000000000000000000000000000000010101111111111111111111111111111 
+	Parameter C_S_AXI_RNG12_BASEADDR bound to: 64'b0000000000000000000000000000000010110000000000000000000000000000 
+	Parameter C_S_AXI_RNG12_HIGHADDR bound to: 64'b0000000000000000000000000000000010111111111111111111111111111111 
+	Parameter C_S_AXI_RNG13_BASEADDR bound to: 64'b0000000000000000000000000000000011000000000000000000000000000000 
+	Parameter C_S_AXI_RNG13_HIGHADDR bound to: 64'b0000000000000000000000000000000011001111111111111111111111111111 
+	Parameter C_S_AXI_RNG14_BASEADDR bound to: 64'b0000000000000000000000000000000011010000000000000000000000000000 
+	Parameter C_S_AXI_RNG14_HIGHADDR bound to: 64'b0000000000000000000000000000000011011111111111111111111111111111 
+	Parameter C_S_AXI_RNG15_BASEADDR bound to: 64'b0000000000000000000000000000000011100000000000000000000000000000 
+	Parameter C_S_AXI_RNG15_HIGHADDR bound to: 64'b0000000000000000000000000000000011101111111111111111111111111111 
+	Parameter C_S_AXI_RNG16_BASEADDR bound to: 64'b0000000000000000000000000000000011110000000000000000000000000000 
+	Parameter C_S_AXI_RNG16_HIGHADDR bound to: 64'b0000000000000000000000000000000011111111111111111111111111111111 
+	Parameter C_DPHASE_TIMEOUT bound to: 0 - type: integer 
+INFO: [Synth 8-638] synthesizing module 'psel_decoder' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:564]
+	Parameter C_FAMILY bound to: zynq - type: string 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_APB_NUM_SLAVES bound to: 1 - type: integer 
+	Parameter C_S_AXI_RNG1_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_S_AXI_RNG1_HIGHADDR bound to: 64'b0000000000000000000000000000000001100000000000000000111111111111 
+	Parameter C_S_AXI_RNG2_BASEADDR bound to: 64'b0000000000000000000000000000000000010000000000000000000000000000 
+	Parameter C_S_AXI_RNG2_HIGHADDR bound to: 64'b0000000000000000000000000000000000011111111111111111111111111111 
+	Parameter C_S_AXI_RNG3_BASEADDR bound to: 64'b0000000000000000000000000000000000100000000000000000000000000000 
+	Parameter C_S_AXI_RNG3_HIGHADDR bound to: 64'b0000000000000000000000000000000000101111111111111111111111111111 
+	Parameter C_S_AXI_RNG4_BASEADDR bound to: 64'b0000000000000000000000000000000000110000000000000000000000000000 
+	Parameter C_S_AXI_RNG4_HIGHADDR bound to: 64'b0000000000000000000000000000000000111111111111111111111111111111 
+	Parameter C_S_AXI_RNG5_BASEADDR bound to: 64'b0000000000000000000000000000000001000000000000000000000000000000 
+	Parameter C_S_AXI_RNG5_HIGHADDR bound to: 64'b0000000000000000000000000000000001001111111111111111111111111111 
+	Parameter C_S_AXI_RNG6_BASEADDR bound to: 64'b0000000000000000000000000000000001010000000000000000000000000000 
+	Parameter C_S_AXI_RNG6_HIGHADDR bound to: 64'b0000000000000000000000000000000001011111111111111111111111111111 
+	Parameter C_S_AXI_RNG7_BASEADDR bound to: 64'b0000000000000000000000000000000001100000000000000000000000000000 
+	Parameter C_S_AXI_RNG7_HIGHADDR bound to: 64'b0000000000000000000000000000000001101111111111111111111111111111 
+	Parameter C_S_AXI_RNG8_BASEADDR bound to: 64'b0000000000000000000000000000000001110000000000000000000000000000 
+	Parameter C_S_AXI_RNG8_HIGHADDR bound to: 64'b0000000000000000000000000000000001111111111111111111111111111111 
+	Parameter C_S_AXI_RNG9_BASEADDR bound to: 64'b0000000000000000000000000000000010000000000000000000000000000000 
+	Parameter C_S_AXI_RNG9_HIGHADDR bound to: 64'b0000000000000000000000000000000010001111111111111111111111111111 
+	Parameter C_S_AXI_RNG10_BASEADDR bound to: 64'b0000000000000000000000000000000010010000000000000000000000000000 
+	Parameter C_S_AXI_RNG10_HIGHADDR bound to: 64'b0000000000000000000000000000000010011111111111111111111111111111 
+	Parameter C_S_AXI_RNG11_BASEADDR bound to: 64'b0000000000000000000000000000000010100000000000000000000000000000 
+	Parameter C_S_AXI_RNG11_HIGHADDR bound to: 64'b0000000000000000000000000000000010101111111111111111111111111111 
+	Parameter C_S_AXI_RNG12_BASEADDR bound to: 64'b0000000000000000000000000000000010110000000000000000000000000000 
+	Parameter C_S_AXI_RNG12_HIGHADDR bound to: 64'b0000000000000000000000000000000010111111111111111111111111111111 
+	Parameter C_S_AXI_RNG13_BASEADDR bound to: 64'b0000000000000000000000000000000011000000000000000000000000000000 
+	Parameter C_S_AXI_RNG13_HIGHADDR bound to: 64'b0000000000000000000000000000000011001111111111111111111111111111 
+	Parameter C_S_AXI_RNG14_BASEADDR bound to: 64'b0000000000000000000000000000000011010000000000000000000000000000 
+	Parameter C_S_AXI_RNG14_HIGHADDR bound to: 64'b0000000000000000000000000000000011011111111111111111111111111111 
+	Parameter C_S_AXI_RNG15_BASEADDR bound to: 64'b0000000000000000000000000000000011100000000000000000000000000000 
+	Parameter C_S_AXI_RNG15_HIGHADDR bound to: 64'b0000000000000000000000000000000011101111111111111111111111111111 
+	Parameter C_S_AXI_RNG16_BASEADDR bound to: 64'b0000000000000000000000000000000011110000000000000000000000000000 
+	Parameter C_S_AXI_RNG16_HIGHADDR bound to: 64'b0000000000000000000000000000000011111111111111111111111111111111 
+INFO: [Synth 8-256] done synthesizing module 'psel_decoder' (1#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:564]
+INFO: [Synth 8-638] synthesizing module 'multiplexor' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:4148]
+	Parameter C_M_APB_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_APB_NUM_SLAVES bound to: 1 - type: integer 
+INFO: [Synth 8-256] done synthesizing module 'multiplexor' (2#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:4148]
+INFO: [Synth 8-638] synthesizing module 'axilite_sif' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:6098]
+	Parameter C_FAMILY bound to: zynq - type: string 
+	Parameter C_S_AXI_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_DPHASE_TIMEOUT bound to: 0 - type: integer 
+	Parameter C_M_APB_PROTOCOL bound to: apb4 - type: string 
+INFO: [Synth 8-226] default block is never used [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:6346]
+INFO: [Synth 8-256] done synthesizing module 'axilite_sif' (3#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:6098]
+INFO: [Synth 8-638] synthesizing module 'apb_mif' [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:6674]
+	Parameter C_M_APB_ADDR_WIDTH bound to: 32 - type: integer 
+	Parameter C_M_APB_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_S_AXI_DATA_WIDTH bound to: 32 - type: integer 
+	Parameter C_APB_NUM_SLAVES bound to: 1 - type: integer 
+	Parameter C_M_APB_PROTOCOL bound to: apb4 - type: string 
+INFO: [Synth 8-256] done synthesizing module 'apb_mif' (4#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:6674]
+INFO: [Synth 8-256] done synthesizing module 'axi_apb_bridge' (5#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ipshared/2f3b/hdl/axi_apb_bridge_v3_0_vh_rfs.vhd:7284]
+INFO: [Synth 8-256] done synthesizing module 'soc_axi_apb_bridge_0_0' (6#1) [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/synth/soc_axi_apb_bridge_0_0.vhd:95]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[31]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[30]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[29]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[28]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[27]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[26]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[25]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[24]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[23]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[22]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[21]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[20]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[19]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[18]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[17]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[16]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[15]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[14]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[13]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[12]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[11]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[10]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[9]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[8]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[7]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[6]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[5]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[4]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[3]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[2]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[1]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA2[0]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[31]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[30]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[29]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[28]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[27]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[26]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[25]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[24]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[23]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[22]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[21]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[20]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[19]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[18]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[17]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[16]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[15]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[14]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[13]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[12]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[11]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[10]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[9]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[8]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[7]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[6]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[5]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[4]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[3]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[2]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[1]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA3[0]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[31]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[30]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[29]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[28]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[27]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[26]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[25]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[24]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[23]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[22]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[21]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[20]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[19]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[18]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[17]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[16]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[15]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[14]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[13]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[12]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[11]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[10]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[9]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[8]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[7]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[6]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[5]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[4]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[3]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[2]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[1]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA4[0]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA5[31]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA5[30]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA5[29]
+WARNING: [Synth 8-3331] design multiplexor has unconnected port M_APB_PRDATA5[28]
+INFO: [Common 17-14] Message 'Synth 8-3331' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:04 ; elapsed = 00:00:18 . Memory (MB): peak = 1471.914 ; gain = 113.773 ; free physical = 156 ; free virtual = 6386
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:04 ; elapsed = 00:00:19 . Memory (MB): peak = 1471.914 ; gain = 113.773 ; free physical = 156 ; free virtual = 6386
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 1 : Time (s): cpu = 00:00:04 ; elapsed = 00:00:19 . Memory (MB): peak = 1471.914 ; gain = 113.773 ; free physical = 156 ; free virtual = 6386
+---------------------------------------------------------------------------------
+INFO: [Device 21-403] Loading part xc7z020clg400-1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+
+Processing XDC Constraints
+Initializing timing engine
+Parsing XDC File [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0_ooc.xdc] for cell 'U0'
+Finished Parsing XDC File [/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0_ooc.xdc] for cell 'U0'
+Parsing XDC File [/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1/dont_touch.xdc]
+Finished Parsing XDC File [/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1/dont_touch.xdc]
+Completed Processing XDC Constraints
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1793.914 ; gain = 0.000 ; free physical = 121 ; free virtual = 5933
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1793.914 ; gain = 0.000 ; free physical = 121 ; free virtual = 5933
+Constraint Validation Runtime : Time (s): cpu = 00:00:00.02 ; elapsed = 00:00:00.10 . Memory (MB): peak = 1793.914 ; gain = 0.000 ; free physical = 122 ; free virtual = 5934
+---------------------------------------------------------------------------------
+Finished Constraint Validation : Time (s): cpu = 00:00:14 ; elapsed = 00:01:03 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 215 ; free virtual = 6028
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Loading Part and Timing Information
+---------------------------------------------------------------------------------
+Loading part: xc7z020clg400-1
+---------------------------------------------------------------------------------
+Finished Loading Part and Timing Information : Time (s): cpu = 00:00:14 ; elapsed = 00:01:03 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 215 ; free virtual = 6028
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Applying 'set_property' XDC Constraints
+---------------------------------------------------------------------------------
+Applied set_property DONT_TOUCH = true for U0. (constraint file  /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1/dont_touch.xdc, line 9).
+---------------------------------------------------------------------------------
+Finished applying 'set_property' XDC Constraints : Time (s): cpu = 00:00:14 ; elapsed = 00:01:03 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 217 ; free virtual = 6030
+---------------------------------------------------------------------------------
+INFO: [Synth 8-802] inferred FSM for state register 'axi_wr_rd_cs_reg' in module 'axilite_sif'
+INFO: [Synth 8-5544] ROM "axi_wr_rd_ns" won't be mapped to Block RAM because address size (1) smaller than threshold (5)
+INFO: [Synth 8-5544] ROM "axi_wr_rd_ns" won't be mapped to Block RAM because address size (1) smaller than threshold (5)
+INFO: [Synth 8-802] inferred FSM for state register 'apb_wr_rd_cs_reg' in module 'apb_mif'
+INFO: [Synth 8-5544] ROM "apb_wr_rd_ns" won't be mapped to Block RAM because address size (2) smaller than threshold (5)
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                axi_idle |                              000 |                              000
+               read_wait |                              001 |                              110
+                    read |                              010 |                              101
+                 rd_resp |                              011 |                              111
+              write_wait |                              100 |                              011
+            write_w_wait |                              101 |                              010
+                   write |                              110 |                              001
+                 wr_resp |                              111 |                              100
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'axi_wr_rd_cs_reg' using encoding 'sequential' in module 'axilite_sif'
+---------------------------------------------------------------------------------------------------
+                   State |                     New Encoding |                Previous Encoding 
+---------------------------------------------------------------------------------------------------
+                apb_idle |                              001 |                               00
+               apb_setup |                              010 |                               01
+              apb_access |                              100 |                               10
+---------------------------------------------------------------------------------------------------
+INFO: [Synth 8-3354] encoded FSM with state register 'apb_wr_rd_cs_reg' using encoding 'one-hot' in module 'apb_mif'
+---------------------------------------------------------------------------------
+Finished RTL Optimization Phase 2 : Time (s): cpu = 00:00:15 ; elapsed = 00:01:04 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 213 ; free virtual = 6044
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start RTL Component Statistics 
+---------------------------------------------------------------------------------
+Detailed RTL Component Info : 
++---Registers : 
+	               32 Bit    Registers := 4     
+	                4 Bit    Registers := 1     
+	                3 Bit    Registers := 2     
+	                1 Bit    Registers := 10    
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 7     
+	   3 Input     32 Bit        Muxes := 1     
+	   2 Input      4 Bit        Muxes := 1     
+	   8 Input      3 Bit        Muxes := 1     
+	   2 Input      3 Bit        Muxes := 7     
+	   2 Input      1 Bit        Muxes := 13    
+	   8 Input      1 Bit        Muxes := 9     
+	   3 Input      1 Bit        Muxes := 5     
+---------------------------------------------------------------------------------
+Finished RTL Component Statistics 
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start RTL Hierarchical Component Statistics 
+---------------------------------------------------------------------------------
+Hierarchical RTL Component report 
+Module multiplexor 
+Detailed RTL Component Info : 
++---Registers : 
+	                1 Bit    Registers := 1     
+Module axilite_sif 
+Detailed RTL Component Info : 
++---Registers : 
+	               32 Bit    Registers := 2     
+	                3 Bit    Registers := 1     
+	                1 Bit    Registers := 7     
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 4     
+	   8 Input      3 Bit        Muxes := 1     
+	   2 Input      3 Bit        Muxes := 6     
+	   2 Input      1 Bit        Muxes := 7     
+	   8 Input      1 Bit        Muxes := 9     
+Module apb_mif 
+Detailed RTL Component Info : 
++---Registers : 
+	               32 Bit    Registers := 2     
+	                4 Bit    Registers := 1     
+	                3 Bit    Registers := 1     
+	                1 Bit    Registers := 2     
++---Muxes : 
+	   2 Input     32 Bit        Muxes := 3     
+	   3 Input     32 Bit        Muxes := 1     
+	   2 Input      4 Bit        Muxes := 1     
+	   2 Input      3 Bit        Muxes := 1     
+	   2 Input      1 Bit        Muxes := 6     
+	   3 Input      1 Bit        Muxes := 5     
+---------------------------------------------------------------------------------
+Finished RTL Hierarchical Component Statistics
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Part Resource Summary
+---------------------------------------------------------------------------------
+Part Resources:
+DSPs: 220 (col length:60)
+BRAMs: 280 (col length: RAMB18 60 RAMB36 30)
+---------------------------------------------------------------------------------
+Finished Part Resource Summary
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Cross Boundary and Area Optimization
+---------------------------------------------------------------------------------
+Warning: Parallel synthesis criteria is not met 
+---------------------------------------------------------------------------------
+Finished Cross Boundary and Area Optimization : Time (s): cpu = 00:00:16 ; elapsed = 00:01:06 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 155 ; free virtual = 6009
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Applying XDC Timing Constraints
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Applying XDC Timing Constraints : Time (s): cpu = 00:00:23 ; elapsed = 00:01:27 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 152 ; free virtual = 5830
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Timing Optimization
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Timing Optimization : Time (s): cpu = 00:00:23 ; elapsed = 00:01:30 . Memory (MB): peak = 1793.914 ; gain = 435.773 ; free physical = 122 ; free virtual = 5793
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Technology Mapping
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Technology Mapping : Time (s): cpu = 00:00:23 ; elapsed = 00:01:31 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 116 ; free virtual = 5774
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Flattening Before IO Insertion
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Final Netlist Cleanup
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished IO Insertion : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 137 ; free virtual = 5764
+---------------------------------------------------------------------------------
+
+Report Check Netlist: 
++------+------------------+-------+---------+-------+------------------+
+|      |Item              |Errors |Warnings |Status |Description       |
++------+------------------+-------+---------+-------+------------------+
+|1     |multi_driven_nets |      0|        0|Passed |Multi driven nets |
++------+------------------+-------+---------+-------+------------------+
+---------------------------------------------------------------------------------
+Start Renaming Generated Instances
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Instances : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 137 ; free virtual = 5764
+---------------------------------------------------------------------------------
+
+Report RTL Partitions: 
++-+--------------+------------+----------+
+| |RTL Partition |Replication |Instances |
++-+--------------+------------+----------+
++-+--------------+------------+----------+
+---------------------------------------------------------------------------------
+Start Rebuilding User Hierarchy
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Rebuilding User Hierarchy : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 144 ; free virtual = 5771
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Ports
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Ports : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 144 ; free virtual = 5771
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Handling Custom Attributes
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Handling Custom Attributes : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 144 ; free virtual = 5771
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Renaming Generated Nets
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Finished Renaming Generated Nets : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 144 ; free virtual = 5771
+---------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
+Start Writing Synthesis Report
+---------------------------------------------------------------------------------
+
+Report BlackBoxes: 
++-+--------------+----------+
+| |BlackBox name |Instances |
++-+--------------+----------+
++-+--------------+----------+
+
+Report Cell Usage: 
++------+-----+------+
+|      |Cell |Count |
++------+-----+------+
+|1     |LUT1 |     1|
+|2     |LUT2 |    39|
+|3     |LUT3 |    38|
+|4     |LUT4 |    37|
+|5     |LUT5 |    41|
+|6     |LUT6 |    14|
+|7     |FDRE |   153|
+|8     |FDSE |     1|
++------+-----+------+
+
+Report Instance Areas: 
++------+----------------------------+---------------+------+
+|      |Instance                    |Module         |Cells |
++------+----------------------------+---------------+------+
+|1     |top                         |               |   324|
+|2     |  U0                        |axi_apb_bridge |   324|
+|3     |    APB_MASTER_IF_MODULE    |apb_mif        |    84|
+|4     |    AXILITE_SLAVE_IF_MODULE |axilite_sif    |   239|
+|5     |    MULTIPLEXOR_MODULE      |multiplexor    |     1|
++------+----------------------------+---------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.922 ; gain = 443.781 ; free physical = 143 ; free virtual = 5771
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 480 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:00:16 ; elapsed = 00:00:56 . Memory (MB): peak = 1801.922 ; gain = 121.781 ; free physical = 174 ; free virtual = 5802
+Synthesis Optimization Complete : Time (s): cpu = 00:00:24 ; elapsed = 00:01:33 . Memory (MB): peak = 1801.930 ; gain = 443.781 ; free physical = 174 ; free virtual = 5802
+INFO: [Project 1-571] Translating synthesized netlist
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1801.930 ; gain = 0.000 ; free physical = 134 ; free virtual = 5721
+INFO: [Project 1-111] Unisim Transformation Summary:
+No Unisim elements were transformed.
+
+INFO: [Common 17-83] Releasing license: Synthesis
+34 Infos, 101 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:00:26 ; elapsed = 00:01:39 . Memory (MB): peak = 1801.930 ; gain = 443.789 ; free physical = 167 ; free virtual = 5753
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1801.930 ; gain = 0.000 ; free physical = 167 ; free virtual = 5753
+WARNING: [Constraints 18-5210] No constraints selected for write.
+Resolution: This message can indicate that there are no constraints for the design, or it can indicate that the used_in flags are set such that the constraints are ignored. This later case is used when running synth_design to not write synthesis constraints to the resulting checkpoint. Instead, project constraints are read when the synthesized design is opened.
+INFO: [Common 17-1381] The checkpoint '/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1/soc_axi_apb_bridge_0_0.dcp' has been generated.
+INFO: [Coretcl 2-1648] Added synthesis output to IP cache for IP soc_axi_apb_bridge_0_0, cache-ID = fe41b732c04157eb
+INFO: [Coretcl 2-1174] Renamed 4 cell refs.
+Netlist sorting complete. Time (s): cpu = 00:00:00 ; elapsed = 00:00:00 . Memory (MB): peak = 1825.934 ; gain = 0.000 ; free physical = 137 ; free virtual = 5724
+WARNING: [Constraints 18-5210] No constraints selected for write.
+Resolution: This message can indicate that there are no constraints for the design, or it can indicate that the used_in flags are set such that the constraints are ignored. This later case is used when running synth_design to not write synthesis constraints to the resulting checkpoint. Instead, project constraints are read when the synthesized design is opened.
+INFO: [Common 17-1381] The checkpoint '/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_axi_apb_bridge_0_0_synth_1/soc_axi_apb_bridge_0_0.dcp' has been generated.
+INFO: [runtcl-4] Executing : report_utilization -file soc_axi_apb_bridge_0_0_utilization_synth.rpt -pb soc_axi_apb_bridge_0_0_utilization_synth.pb
+INFO: [Common 17-206] Exiting Vivado at Wed Mar 29 01:28:15 2023...

@@ -1,0 +1,95 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Wed Mar 29 00:35:56 2023
+# Process ID: 30762
+# Current directory: /home/yutong/RISC-V_SoC/vivado
+# Command line: vivado
+# Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
+# Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
+#-----------------------------------------------------------
+start_gui
+create_project cpu_wrap /home/yutong/RISC-V_SoC/vivado/cpu_wrap -part xc7z020clg400-1
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1704] No user IP repositories specified
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'.
+create_project: Time (s): cpu = 00:00:11 ; elapsed = 00:00:19 . Memory (MB): peak = 6389.758 ; gain = 24.102 ; free physical = 116 ; free virtual = 8471
+add_files -norecurse /home/yutong/RISC-V_SoC/src/cpu_wrap_nodef.all.sv
+update_compile_order -fileset sources_1
+WARNING: [IP_Flow 19-3899] Cannot get the environment domain name variable for the component vendor name. Setting the vendor name to 'user.org'.
+ipx::package_project -root_dir /home/yutong/RISC-V_SoC -vendor user.org -library user -taxonomy /UserIP
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-5107] Inferred bus interface 'ddr_m' of definition 'xilinx.com:interface:aximm:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'ext_s' of definition 'xilinx.com:interface:aximm:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'rstn' of definition 'xilinx.com:signal:reset:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-5107] Inferred bus interface 'clk' of definition 'xilinx.com:signal:clock:1.0' (from Xilinx Repository).
+INFO: [IP_Flow 19-4728] Bus Interface 'rstn': Added interface parameter 'POLARITY' with value 'ACTIVE_LOW'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_BUSIF' with value 'ddr_m'.
+INFO: [IP_Flow 19-4728] Bus Interface 'clk': Added interface parameter 'ASSOCIATED_RESET' with value 'rstn'.
+INFO: [IP_Flow 19-2181] Payment Required is not set for this core.
+INFO: [IP_Flow 19-2187] The Product Guide file is missing.
+ipx::add_bus_interface dbgapb [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:apb_rtl:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:apb:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+ipx::add_port_map PSLVERR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pslverr [ipx::get_port_maps PSLVERR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PADDR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_paddr [ipx::get_port_maps PADDR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PREADY [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pready [ipx::get_port_maps PREADY -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PENABLE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_penable [ipx::get_port_maps PENABLE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PPROT [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pprot [ipx::get_port_maps PPROT -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PWRITE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pwrite [ipx::get_port_maps PWRITE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PRDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_prdata [ipx::get_port_maps PRDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PWDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pwdata [ipx::get_port_maps PWDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PSEL [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_psel [ipx::get_port_maps PSEL -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PSTRB [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pstrb [ipx::get_port_maps PSTRB -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+set_property name dbg_apb_s [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+ipx::add_bus_interface uart [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:uart_rtl:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:uart:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property interface_mode master [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+ipx::add_port_map TxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property physical_name uart_tx [ipx::get_port_maps TxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
+ipx::add_port_map RxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property physical_name uart_rx [ipx::get_port_maps RxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
+ipx::add_bus_interface jtag [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:jtag_rtl:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:jtag:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+ipx::add_port_map TDI [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tdi [ipx::get_port_maps TDI -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TMS [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tms [ipx::get_port_maps TMS -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TCK [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tck [ipx::get_port_maps TCK -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TDO [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tdo [ipx::get_port_maps TDO -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_bus_interface rmii [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:rmii_rtl:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:rmii:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property interface_mode master [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+ipx::add_port_map TXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_txd [ipx::get_port_maps TXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map CRS_DV [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_crsdv [ipx::get_port_maps CRS_DV -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map TX_EN [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_txen [ipx::get_port_maps TX_EN -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map RXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_rxd [ipx::get_port_maps RXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+set_property core_revision 2 [ipx::current_core]
+ipx::create_xgui_files [ipx::current_core]
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC [current_project]
+update_ip_catalog
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'.
+WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivado/cpu_wrap'.)

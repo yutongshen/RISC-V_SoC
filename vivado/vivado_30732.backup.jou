@@ -1,0 +1,77 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Wed Mar 29 00:35:56 2023
+# Process ID: 30762
+# Current directory: /home/yutong/RISC-V_SoC/vivado
+# Command line: vivado
+# Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
+# Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
+#-----------------------------------------------------------
+start_gui
+create_project cpu_wrap /home/yutong/RISC-V_SoC/vivado/cpu_wrap -part xc7z020clg400-1
+add_files -norecurse /home/yutong/RISC-V_SoC/src/cpu_wrap_nodef.all.sv
+update_compile_order -fileset sources_1
+ipx::package_project -root_dir /home/yutong/RISC-V_SoC -vendor user.org -library user -taxonomy /UserIP
+ipx::add_bus_interface dbgapb [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:apb_rtl:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:apb:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+ipx::add_port_map PSLVERR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pslverr [ipx::get_port_maps PSLVERR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PADDR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_paddr [ipx::get_port_maps PADDR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PREADY [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pready [ipx::get_port_maps PREADY -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PENABLE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_penable [ipx::get_port_maps PENABLE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PPROT [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pprot [ipx::get_port_maps PPROT -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PWRITE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pwrite [ipx::get_port_maps PWRITE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PRDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_prdata [ipx::get_port_maps PRDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PWDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pwdata [ipx::get_port_maps PWDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PSEL [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_psel [ipx::get_port_maps PSEL -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+ipx::add_port_map PSTRB [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+set_property physical_name dbg_pstrb [ipx::get_port_maps PSTRB -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
+set_property name dbg_apb_s [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
+ipx::add_bus_interface uart [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:uart_rtl:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:uart:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property interface_mode master [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+ipx::add_port_map TxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property physical_name uart_tx [ipx::get_port_maps TxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
+ipx::add_port_map RxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
+set_property physical_name uart_rx [ipx::get_port_maps RxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
+ipx::add_bus_interface jtag [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:jtag_rtl:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:jtag:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+ipx::add_port_map TDI [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tdi [ipx::get_port_maps TDI -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TMS [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tms [ipx::get_port_maps TMS -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TCK [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tck [ipx::get_port_maps TCK -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_port_map TDO [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
+set_property physical_name tdo [ipx::get_port_maps TDO -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
+ipx::add_bus_interface rmii [ipx::current_core]
+set_property abstraction_type_vlnv xilinx.com:interface:rmii_rtl:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property bus_type_vlnv xilinx.com:interface:rmii:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property interface_mode master [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+ipx::add_port_map TXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_txd [ipx::get_port_maps TXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map CRS_DV [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_crsdv [ipx::get_port_maps CRS_DV -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map TX_EN [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_txen [ipx::get_port_maps TX_EN -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+ipx::add_port_map RXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
+set_property physical_name rmii_rxd [ipx::get_port_maps RXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
+set_property core_revision 2 [ipx::current_core]
+ipx::create_xgui_files [ipx::current_core]
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC [current_project]
+update_ip_catalog
