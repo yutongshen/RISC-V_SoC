@@ -13,9 +13,11 @@
 #define CPHA_BIT       ( 0)
 #define CPOL_BIT       ( 1)
 #define MSTR_BIT       ( 2)
+#define BR_BIT         ( 3)
 #define SPE_BIT        ( 6)
 #define LSBFIRST_BIT   ( 7)
 #define DFF_BIT        (11)
+#define DEL_BIT        (16)
 
 #define DMA_TYPE_FIXED 0
 #define DMA_TYPE_INCR  1
@@ -86,10 +88,12 @@ void spi_init(int cpha, int cpol, int lsb, int dff) {
     *SPI_CR1_32P = 0;
     *SPI_CR1_32P = (        0x1  << SPE_BIT     )|
                    (        0x1  << MSTR_BIT    )|
+                   (        0x1  << BR_BIT      )|
                    ((dff  & 0x1) << DFF_BIT     )|
                    ((lsb  & 0x1) << LSBFIRST_BIT)|
                    ((cpol & 0x1) << CPOL_BIT    )|
-                   ((cpha & 0x1) << CPHA_BIT    );
+                   ((cpha & 0x1) << CPHA_BIT    )|
+                   (        0x1  << DEL_BIT     );
 }
 
 void spi_halt() {
@@ -106,12 +110,12 @@ int spi_readwritebyte(int byte) {
 
 void __dma_cfg(__U32 src, __U32 dest, __U32 len,
                       __U8 src_btype, __U8 dest_btype,
-                      __U8 src_size,  __U8 dest_size) {
+                      __U8 src_size,  __U8 dest_size, __U8 spi_bypass) {
     *DMA_SRC_32P  = src;
     *DMA_DEST_32P = dest;
     *DMA_LEN_32P  = len;
     
-    *DMA_CON_32P  = dest_size << 10 | src_size << 8 | dest_btype << 6 | src_btype << 4 | 1;
+    *DMA_CON_32P  = dest_size << 10 | src_size << 8 | dest_btype << 6 | src_btype << 4 | !!spi_bypass < 1 | 1;
 }
 
 __U32 __dma_busy() {
@@ -129,8 +133,16 @@ __U32 __dma_busy() {
     __dma_cfg((__U32) (__BUFF2__), (__U32) (__BUFF1__),  \
               (__U32) (__LEN__),                         \
               DMA_TYPE_INCR, DMA_TYPE_INCR,              \
-              DMA_SIZE_WORD, DMA_SIZE_WORD);             \
+              DMA_SIZE_WORD, DMA_SIZE_WORD, 1);          \
     while (__dma_busy());                                \
+} while(0)
+
+#define __dma_memcpy_spi(__BUFF1__, __BUFF2__, __LEN__) do { \
+    __dma_cfg((__U32) (__BUFF2__), (__U32) (__BUFF1__),      \
+              (__U32) (__LEN__),                             \
+              DMA_TYPE_INCR, DMA_TYPE_INCR,                  \
+              DMA_SIZE_WORD, DMA_SIZE_WORD, 0);              \
+    while (__dma_busy());                                    \
 } while(0)
 
 int main() {
@@ -146,7 +158,8 @@ int main() {
     /* TM_INFO="SPI test" */
     // *SPI_CR2_32P &= ~(1 << 2);
     /* TM_INFO="SPI_DMA test" */
-    __dma_memcpy(0x30003, 0x1, 0x200);
+    spi_init(0, 0, 0, 1);
+    __dma_memcpy_spi(0x30003, 0x1, 0x5);
     for (int i = 0; i <= 0xf; ++i) {
         /* TM_INFO="Set SPI CPHA: %c, CPOL: %c, LSBFIRST: %c, DFF: %c", (i&0x8)?'1':'0', (i&0x4)?'1':'0', (i&0x2)?'1':'0', (i&0x1)?'1':'0' */
         spi_init(!!(i&0x8), !!(i&0x4), !!(i&0x2), !!(i&0x1));

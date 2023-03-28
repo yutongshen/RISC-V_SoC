@@ -23,6 +23,7 @@ module spi_core(
 apb_intf spi_apb();
 apb_intf dma_apb();
 
+logic        spi_dff;
 logic        dma_rxreq;
 logic        dma_rxne;
 logic [15:0] dma_rxbuff;
@@ -59,6 +60,8 @@ spi u_spi (
     .dma_txe    ( dma_txe       ),
     .dma_txbuff ( dma_txbuff    ),
 
+    .spi_dff    ( spi_dff       ),
+
     // Interrupt
     .irq_out    ( spi_irq       )
 );
@@ -67,6 +70,8 @@ dma u_dma (
     .clk        ( clk           ),
     .rstn       ( rstn          ),
                                
+    .spi_dff    ( spi_dff       ),
+
     .dma_rxreq  ( dma_rxreq     ),
     .dma_rxne   ( dma_rxne      ),
     .dma_rxbuff ( dma_rxbuff    ),

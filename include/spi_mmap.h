@@ -1,7 +1,7 @@
 `ifndef __SPI_MMAP__
 `define __SPI_MMAP__
 
-// SPI_BASE
+// MAC_BASE
 
 `define SPI_CR1 12'h00
 `define SPI_CR2 12'h04

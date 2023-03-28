@@ -7,6 +7,8 @@ module dma (
     input               clk,
     input               rstn,
 
+    input               spi_dff,
+
     output logic        dma_rxreq,
     input               dma_rxne,
     input        [15:0] dma_rxbuff,
@@ -185,44 +187,43 @@ assign s_apb_intf.pready  = 1'b1;
 assign s_apb_intf.pslverr = 1'b0;
 
 // =========== Data transfer ===========
-logic [31:0] dest_burst_byte;
-logic [31:0] src_burst_byte;
-logic [31:0] dest_addr;
-logic [31:0] src_addr;
-logic [31:0] dest_len_cnt;
-logic [31:0] dest_cnt;
-logic [ 7:0] dest_len;
-logic [31:0] src_len_cnt;
-logic [31:0] src_cnt;
-logic [ 7:0] src_len;
-logic [31:0] int_rcnt;
-logic [31:0] int_wcnt;
-logic        awvalid;
-logic [ 3:0] wstrb;
-logic [ 2:0] wburst_cnt;
-logic        wvalid;
-logic        arvalid;
+logic [             31:0] dest_burst_byte;
+logic [             31:0] src_burst_byte;
+logic [             31:0] dest_addr;
+logic [             31:0] src_addr;
+logic [             31:0] dest_len_cnt;
+logic [             31:0] dest_cnt;
+logic [              7:0] dest_len;
+logic [             31:0] src_len_cnt;
+logic [             31:0] src_cnt;
+logic [              7:0] src_len;
+logic [             31:0] int_rcnt;
+logic [             31:0] int_wcnt;
+logic                     awvalid;
+logic [              2:0] wburst_cnt;
+logic                     wvalid;
+logic                     arvalid;
 
-logic        fifo_push_pre;
-logic [ 1:0] fifo_wsize_pre;
-logic [31:0] fifo_wdata_pre;
-logic        fifo_full_pre;
-logic [ 6:0] fifo_cnt_pre;
+logic                     fifo_push_pre;
+logic [              1:0] fifo_wsize_pre;
+logic [             31:0] fifo_wdata_pre;
+logic                     fifo_full_pre;
+logic [`DMA_FIFO_DEPTH:0] fifo_cnt_pre;
 
-logic        fifo_push_int;
-logic [ 1:0] fifo_wsize_int;
-logic [31:0] fifo_wdata_int;
-logic        fifo_full_int;
-logic [ 6:0] fifo_cnt_int;
-logic        fifo_pop_int;
-logic [ 1:0] fifo_rsize_int;
-logic [31:0] fifo_rdata_int;
-logic        fifo_empty_int;
+logic                     fifo_push_int;
+logic [              1:0] fifo_wsize_int;
+logic [             31:0] fifo_wdata_int;
+logic                     fifo_full_int;
+logic [`DMA_FIFO_DEPTH:0] fifo_cnt_int;
+logic                     fifo_pop_int;
+logic [              1:0] fifo_rsize_int;
+logic [             31:0] fifo_rdata_int;
+logic                     fifo_empty_int;
 
-logic        fifo_pop_post;
-logic [ 1:0] fifo_rsize_post;
-logic [31:0] fifo_rdata_post;
-logic        fifo_empty_post;
+logic                     fifo_pop_post;
+logic [              1:0] fifo_rsize_post;
+logic [             31:0] fifo_rdata_post;
+logic                     fifo_empty_post;
 
 assign fifo_wsize_pre = ({2{dma_con_src_size == SIZE_BYTE }} & 2'h0)|
                         ({2{dma_con_src_size == SIZE_HWORD}} & ((32'h1 - {31'b0, src_addr[0]}) < src_cnt ?
@@ -231,8 +232,8 @@ assign fifo_wsize_pre = ({2{dma_con_src_size == SIZE_BYTE }} & 2'h0)|
                         ({2{dma_con_src_size == SIZE_WORD }} & ((32'h3 - {30'b0, src_addr[1:0]}) < src_cnt ?
                                                                 (2'h3 - src_addr[1:0]):
                                                                 (src_cnt[1:0] - 2'h1)));
-assign fifo_rsize_post = dma_con_dest_type == TYPE_CONST ? |fifo_cnt_int[6:2] ? 2'h3 :
-                                                                                (fifo_cnt_int[1:0] - 2'h1) :
+assign fifo_rsize_post = dma_con_dest_type == TYPE_CONST ?
+                         |fifo_cnt_int[`DMA_FIFO_DEPTH:2] ? 2'h3 : (fifo_cnt_int[1:0] - 2'h1) :
                          (({2{dma_con_dest_size == SIZE_BYTE }} & 2'h0)|
                           ({2{dma_con_dest_size == SIZE_HWORD}} & ((32'h1 - {31'b0, dest_addr[0]}) < dest_cnt ?
                                                                    (2'h1 - {1'b0, dest_addr[0]}):
@@ -256,17 +257,24 @@ assign dma_done   = ((dma_con_dest_type == TYPE_CONST && ~dma_con_en && dma_busy
                      (m_axi_intf.bvalid && m_axi_intf.bready)) && ~|dest_cnt;
 
 // SPI mode
-assign fifo_wsize_int = dma_con_bypass ? |fifo_cnt_pre[6:2] ? 2'h3 : (fifo_cnt_pre[1:0] - 2'h1) : 2'h0;
-assign fifo_rsize_int = dma_con_bypass ? |fifo_cnt_pre[6:2] ? 2'h3 : (fifo_cnt_pre[1:0] - 2'h1) : 2'h0;
+assign fifo_wsize_int = dma_con_bypass ? |fifo_cnt_pre[`DMA_FIFO_DEPTH:2] ? 2'h3 : (fifo_cnt_pre[1:0] - 2'h1) :
+                        spi_dff & |int_wcnt[31:1] ? 2'h1 : 2'h0;
+assign fifo_rsize_int = dma_con_bypass ? |fifo_cnt_pre[`DMA_FIFO_DEPTH:2] ? 2'h3 : (fifo_cnt_pre[1:0] - 2'h1) :
+                        spi_dff & |fifo_cnt_pre[`DMA_FIFO_DEPTH:1] ? 2'h1 : 2'h0;
 assign fifo_push_int  = (dma_con_bypass && dma_busy &&  ~fifo_full_int && ~fifo_empty_int) || dma_rxreq;
 assign fifo_pop_int   = (dma_con_bypass && dma_busy &&  ~fifo_full_int && ~fifo_empty_int) || dma_txreq;
-assign fifo_wdata_int = ~dma_con_bypass ? {16'b0, dma_rxbuff} : fifo_rdata_int;
+assign fifo_wdata_int =  dma_con_bypass                  ? fifo_rdata_int:
+                        ~spi_dff                         ? {16'b0, dma_rxbuff}:
+                                                           {16'b0, dma_rxbuff[7:0], dma_rxbuff[15:8]};
 assign dma_txreq = dma_busy && ~dma_con_en && ~dma_con_err && dma_txe  &&
                    |int_rcnt && ~dma_con_bypass && ~fifo_empty_int;
 assign dma_rxreq = dma_busy && ~dma_con_en && ~dma_con_err && dma_rxne &&
                    |int_wcnt && ~dma_con_bypass && ~fifo_full_int;
 
-assign dma_txbuff = {8'b0, fifo_rdata_int[7:0]};
+assign dma_txbuff[15:8] = fifo_rdata_int[7:0];
+assign dma_txbuff[ 7:0] = ~spi_dff                         ? fifo_rdata_int[ 7:0] :
+                          |fifo_cnt_pre[`DMA_FIFO_DEPTH:1] ? fifo_rdata_int[15:8] :
+                                                             8'hff;
 
 // AXI mode
 assign m_axi_intf.awid    = 9'b0;
@@ -277,7 +285,7 @@ assign m_axi_intf.awlen   = {24'b0, dest_len} < dest_len_cnt ? dest_len : (dest_
 assign m_axi_intf.awlock  = 2'b0;
 assign m_axi_intf.awcache = 4'b0;
 assign m_axi_intf.awprot  = 3'b0;
-assign m_axi_intf.awvalid = awvalid && ({25'b0, fifo_cnt_int} >= dest_burst_byte || ~|int_wcnt);
+assign m_axi_intf.awvalid = awvalid && ({{(31-`DMA_FIFO_DEPTH){1'b0}}, fifo_cnt_int} >= dest_burst_byte || ~|int_wcnt);
 assign m_axi_intf.wid     = 9'b0;
 assign m_axi_intf.wstrb   = (4'b1 << ({1'b0, fifo_rsize_post} + 3'b1)) - 4'b1 << dest_addr[1:0];
 assign m_axi_intf.wdata   = fifo_rdata_post << {dest_addr[1:0], 3'b0};
@@ -292,7 +300,7 @@ assign m_axi_intf.arlen   = {24'b0, src_len} < src_len_cnt ? src_len : (src_len_
 assign m_axi_intf.arlock  = 2'b0;
 assign m_axi_intf.arcache = 4'b0;
 assign m_axi_intf.arprot  = 3'b0;
-assign m_axi_intf.arvalid = arvalid && ({25'b0, fifo_cnt_pre} <= (`DMA_FIFO_SIZE - src_burst_byte));
+assign m_axi_intf.arvalid = arvalid && ({{(31-`DMA_FIFO_DEPTH){1'b0}}, fifo_cnt_pre} <= (`DMA_FIFO_SIZE - src_burst_byte));
 assign m_axi_intf.rready  = ~fifo_full_pre;
 
 always_ff @(posedge clk or negedge rstn) begin: reg_src_addr

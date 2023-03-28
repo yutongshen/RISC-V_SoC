@@ -8,6 +8,7 @@
 #define __SPI_CR1_SPE_BIT        ( 6)
 #define __SPI_CR1_LSBFIRST_BIT   ( 7)
 #define __SPI_CR1_DFF_BIT        (11)
+#define __SPI_CR1_DEL_BIT        (16)
 #define __SPI_CR2_SSOE           ( 2)
 
 #define __CS_DISABLE() do { *SPI_CR2_32P &= ~(1 << __SPI_CR2_SSOE); } while (0);

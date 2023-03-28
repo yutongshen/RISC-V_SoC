@@ -234,6 +234,139 @@ end
 `endif
 `endif
 
+
+// mac test
+logic       rmii_refclk;
+logic       rmii_crsdv;
+logic [1:0] rmii_rxd;
+
+initial begin
+    rmii_refclk = 1'b0;
+    forever rmii_refclk = #(10) ~rmii_refclk;
+end
+
+// initial begin
+//     integer i;
+//     wait (rstn === 1'b1);
+//     repeat (20) @(posedge clk);
+// 
+//     for (i = 1; i <= 10; i = i + 1) begin
+//         test.u_mac.u_tx_ram.memory[i-1] = {i[7:0], i[7:0], i[7:0], i[7:0]};
+//     end
+// 
+//     force test.u_mac.tx_len_cnt  = 11'h25;
+//     force test.u_mac.tx_ram_wlen = test.u_mac.tx_len_cnt[10:2] + |test.u_mac.tx_len_cnt[1:0];
+//     #1;
+//     release test.u_mac.tx_ram_wlen;
+//     release test.u_mac.tx_len_cnt;
+// end
+
+initial begin
+    integer i;
+    rmii_crsdv = 1'b0;
+    rmii_rxd   = 2'b0;
+
+    wait (test.u_cpu_wrap.u_peri.u_mac.rx_en === 1'b1);
+
+    #2;
+    repeat(30) #20;
+
+    // round 1
+    rmii_crsdv = 1'b1;
+    rmii_rxd   = 2'b0;
+    repeat(1) #20;
+    rmii_rxd   = 2'h1;
+    repeat(31) #20;
+    rmii_rxd   = 2'h3;
+    repeat(1) #20;
+
+    for (i = 0; i < 701; i = i + 1) begin
+        rmii_rxd = i[1:0];
+        #20;
+        rmii_rxd = i[3:2];
+        #20;
+        rmii_rxd = i[5:4];
+        #20;
+        rmii_rxd = i[7:6];
+        #20;
+    end
+    rmii_crsdv = 1'b0;
+    repeat(100) #20;
+
+    // round 2
+    rmii_crsdv = 1'b1;
+    rmii_rxd   = 2'b0;
+    repeat(1) #20;
+    rmii_rxd   = 2'h1;
+    repeat(31) #20;
+    rmii_rxd   = 2'h3;
+    repeat(1) #20;
+
+    for (i = 0; i < 1402; i = i + 1) begin
+        rmii_rxd = i[1:0];
+        #20;
+        rmii_rxd = i[3:2];
+        #20;
+    end
+    rmii_crsdv = 1'b0;
+    repeat(50000) #20;
+
+    // round 3
+    rmii_crsdv = 1'b1;
+    rmii_rxd   = 2'b0;
+    repeat(1) #20;
+    rmii_rxd   = 2'h1;
+    repeat(31) #20;
+    rmii_rxd   = 2'h3;
+    repeat(1) #20;
+
+    for (i = 0; i < 1270; i = i + 1) begin
+        rmii_rxd = i[1:0];
+        #20;
+        rmii_rxd = i[3:2];
+        #20;
+    end
+    rmii_crsdv = 1'b0;
+    repeat(100) #20;
+
+    // round 4
+    rmii_crsdv = 1'b1;
+    rmii_rxd   = 2'b0;
+    repeat(1) #20;
+    rmii_rxd   = 2'h1;
+    repeat(31) #20;
+    rmii_rxd   = 2'h3;
+    repeat(1) #20;
+
+    for (i = 0; i < 4; i = i + 1) begin
+        rmii_rxd = i[1:0];
+        #20;
+        rmii_rxd = i[3:2];
+        #20;
+    end
+    rmii_crsdv = 1'b0;
+    repeat(100) #20;
+
+    // round 5
+    rmii_crsdv = 1'b1;
+    rmii_rxd   = 2'b0;
+    repeat(1) #20;
+    rmii_rxd   = 2'h1;
+    repeat(31) #20;
+    rmii_rxd   = 2'h3;
+    repeat(1) #20;
+
+    for (i = 0; i < 1; i = i + 1) begin
+        rmii_rxd = i[1:0];
+        #20;
+        rmii_rxd = i[3:2];
+        #20;
+    end
+    rmii_crsdv = 1'b0;
+    repeat(100) #20;
+    // $finish;
+end
+
 cpu_wrap u_cpu_wrap (
     .clk         ( clk           ),
     .clk_32k     ( clk_32k       ),
@@ -264,6 +397,13 @@ cpu_wrap u_cpu_wrap (
     .nss         ( spi_nss       ),
     .mosi        ( spi_mosi      ),
     .miso        ( spi_miso      ),
+
+    // RMII interface
+    .rmii_refclk ( rmii_refclk   ),
+    .rmii_crsdv  ( rmii_crsdv    ),
+    .rmii_rxd    ( rmii_rxd      ),
+    .rmii_txen   (               ),
+    .rmii_txd    (               ),
 
     // JTAG interface
     .tck         ( jtag_tck      ),

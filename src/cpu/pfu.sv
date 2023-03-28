@@ -66,7 +66,7 @@ assign bad     = ({2{_ndata >= 4'd`PFU_FIFO_DEPTH}}        & imem_bad) |
 assign badaddr = ({`IM_ADDR_LEN{_ndata >= 4'd`PFU_FIFO_DEPTH}} & pc) |
                  ({`IM_ADDR_LEN{_ndata <  4'd`PFU_FIFO_DEPTH}} & (|flag_fifo[{rptr, 1'b0}+:2] ? pc : pc + `IM_ADDR_LEN'h2));
 
-assign insn_len = insn[1:0] == 3'b11 ? `IM_ADDR_LEN'h4 : `IM_ADDR_LEN'h2;
+assign insn_len = insn[1:0] == 2'b11 ? `IM_ADDR_LEN'h4 : `IM_ADDR_LEN'h2;
 
 assign fifo_wr = imem_req_latch && ~imem_busy;
 assign fifo_rd = pop && ~empty;

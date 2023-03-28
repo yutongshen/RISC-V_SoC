@@ -22,18 +22,28 @@ module peri (
     // SPI DMA interface
     axi_intf.master   m_dma_axi_intf,
 
+    // RMII interface
+    input             rmii_refclk,
+    input             rmii_crsdv,
+    input    [ 1: 0]  rmii_rxd,
+    output            rmii_txen,
+    output   [ 1: 0]  rmii_txd,
+
     // IRQ
     output            uart_irq,
-    output            spi_irq
+    output            spi_irq,
+    output            mac_irq
 );
 
 apb_intf uart_apb();
 apb_intf spi_apb();
+apb_intf mac_apb();
 
 peri_apb_conn u_peri_apb_conn (
     .peri_apb ( s_apb_intf      ),
     .uart_apb ( uart_apb.master ),
-    .spi_apb  ( spi_apb.master  )
+    .spi_apb  ( spi_apb.master  ),
+    .mac_apb  ( mac_apb.master  )
 );
 
 uart u_uart(
@@ -63,6 +73,22 @@ spi_core u_spi_core (
 
     // Interrupt
     .irq_out    ( spi_irq        )
+);
+
+mac u_mac (
+    .clk         ( clk           ),
+    .rstn        ( rstn          ),
+    .s_apb_intf  ( mac_apb.slave ),
+
+    // RMII interface
+    .rmii_refclk ( rmii_refclk   ),
+    .rmii_crsdv  ( rmii_crsdv    ),
+    .rmii_rxd    ( rmii_rxd      ),
+    .rmii_txen   ( rmii_txen     ),
+    .rmii_txd    ( rmii_txd      ),
+
+    // Interrupt 
+    .irq_out     ( mac_irq       )
 );
 
 endmodule

@@ -109,6 +109,13 @@ module cpu_wrap (
     output                 mosi,
     input                  miso,
 
+    // RMII interface
+    input                  rmii_refclk,
+    input                  rmii_crsdv,
+    input         [ 1: 0]  rmii_rxd,
+    output                 rmii_txen,
+    output        [ 1: 0]  rmii_txd,
+
     // JTAG interface
     input                  tck,
     input                  tms,
@@ -264,6 +271,7 @@ logic          m1_snp_ready;
 
 logic          uart_irq;
 logic          spi_irq;
+logic          mac_irq;
 
 logic [`XLEN - 1: 0] dbg_gpr_all [32];
 logic [       11: 0] dbg_addr;
@@ -846,7 +854,8 @@ sram u_sram (
 );
 
 assign ints = {
-    29'b0,
+    28'b0,
+    mac_irq,
     spi_irq,
     uart_irq,
     1'b0 // reserve
@@ -916,8 +925,15 @@ peri u_peri (
     .miso           ( miso           ),
     .m_dma_axi_intf ( dma_axi.master ),
 
+    .rmii_refclk    ( rmii_refclk    ),
+    .rmii_crsdv     ( rmii_crsdv     ),
+    .rmii_rxd       ( rmii_rxd       ),
+    .rmii_txen      ( rmii_txen      ),
+    .rmii_txd       ( rmii_txd       ),
+
     .uart_irq       ( uart_irq       ),
-    .spi_irq        ( spi_irq        )
+    .spi_irq        ( spi_irq        ),
+    .mac_irq        ( mac_irq        )
 );
 
 assign trstn = 1'b1;

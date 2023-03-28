@@ -26,7 +26,8 @@ __U8 __spi_init(__U32 __br) {
     *DMA_IE_32P  = 0;
     *DMA_IC_32P  = 1;
     *SPI_CR1_32P = 0;
-    *SPI_CR1_32P = (          1  << __SPI_CR1_SPE_BIT     )|
+    *SPI_CR1_32P = /*(      !__br  << __SPI_CR1_DEL_BIT     )|*/
+                   (          1  << __SPI_CR1_SPE_BIT     )|
                    (          1  << __SPI_CR1_MSTR_BIT    )|
                    ((__br & 0x7) << __SPI_CR1_BR_BIT      )|
                    (          0  << __SPI_CR1_DFF_BIT     )|
@@ -156,7 +157,7 @@ __U8 __sd_init(__U8P __sd_type) {
     }
 
     // Set baud rate high speed
-    __spi_init(2);
+    __spi_init(0);
 
     // Disable CRC
     r1 = __sd_sendcmd(__CMD59, 0, 0x95);

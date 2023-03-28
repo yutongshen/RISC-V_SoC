@@ -46,6 +46,9 @@
 ../src/peri/spi_core.sv
 ../src/peri/spi.sv
 ../src/peri/dma.sv
+../src/peri/mac.sv
+../src/peri/mac_afifo.sv
+../src/peri/mac_rmii_intf.sv
 ../src/dbg/dap.sv
 ../src/dbg/jtag_dp.sv
 ../src/dbg/apb_ap.sv
@@ -77,5 +80,6 @@
 ../src/mem/sram64x22.sv
 ../src/mem/sram64x128.sv
 ../src/mem/sram128x64.sv
+../src/mem/sram512x32.sv
 +incdir+../include
 +incdir+../rom

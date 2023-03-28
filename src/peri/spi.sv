@@ -23,6 +23,8 @@ module spi (
     output logic        dma_txe,
     input        [15:0] dma_txbuff,
 
+    output logic        spi_dff,
+
     // Interrupt
     output logic        irq_out
 );
@@ -46,8 +48,9 @@ logic [ 7:0] sclk_cnt;
 logic        sclk_cnt_rst;
 logic        sclk_cnt_zero;
 logic        sclk_cnt_half;
-logic [ 3:0] sft_cnt;
+logic [ 4:0] sft_cnt;
 logic        sft_cnt_zero;
+logic        sft_cnt_start;
 logic [15:0] sft_data_reg1;
 logic [15:0] sft_data_reg2;
 logic        sft_en1;
@@ -70,6 +73,7 @@ logic        spi_cr1_crcnext;
 logic        spi_cr1_crcen;
 logic        spi_cr1_bidioe;
 logic        spi_cr1_bidimode;
+logic        spi_cr1_del;
 logic [31:0] spi_cr2;
 logic        spi_cr2_rxdmaen;
 logic        spi_cr2_txdmaen;
@@ -89,6 +93,7 @@ logic        spi_sr_bsy;
 logic        tx_pop;
 logic        rx_pop;
 logic        rx_pop_latch;
+logic        rx_pop_tmp_latch;
 logic [15:0] spi_tx_buff;
 logic [15:0] spi_rx_buff;
 logic [31:0] prdata_t;
@@ -98,7 +103,8 @@ logic [31:0] prdata_t;
 assign apb_wr = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
 assign apb_rd = ~s_apb_intf.penable && s_apb_intf.psel && ~s_apb_intf.pwrite;
 
-assign spi_cr1 = {16'b0, spi_cr1_bidimode, spi_cr1_bidioe, spi_cr1_crcen, spi_cr1_crcnext,
+assign spi_cr1 = {15'b0, spi_cr1_del,
+                         spi_cr1_bidimode, spi_cr1_bidioe, spi_cr1_crcen, spi_cr1_crcnext,
                          spi_cr1_dff, spi_cr1_rxonly, spi_cr1_ssm, spi_cr1_ssi,
                          spi_cr1_lsbfirst, spi_cr1_spe, spi_cr1_br, spi_cr1_mstr,
                          spi_cr1_cpol, spi_cr1_cpha};
@@ -119,6 +125,7 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr1
         spi_cr1_crcen    <= 1'b0;
         spi_cr1_bidioe   <= 1'b0;
         spi_cr1_bidimode <= 1'b0;
+        spi_cr1_del      <= 1'b0;
     end
     else if (apb_wr && s_apb_intf.paddr[11:0] == `SPI_CR1) begin
         spi_cr1_cpha     <= s_apb_intf.pwdata[0];
@@ -135,9 +142,11 @@ always_ff @(posedge clk or negedge rstn) begin: reg_spi_cr1
         // spi_cr1_crcen    <= ~spi_cr1_spe ? s_apb_intf.pwdata[13] : spi_cr1_crcen;
         // spi_cr1_bidioe   <= s_apb_intf.pwdata[14];
         // spi_cr1_bidimode <= s_apb_intf.pwdata[15];
+        spi_cr1_del      <= ~spi_cr1_spe ? s_apb_intf.pwdata[16] : spi_cr1_del;
     end
 end
 
+assign spi_dff = spi_cr1_dff;
 assign spi_cr2 = {24'b0, spi_cr2_txeie, spi_cr2_rxneie, spi_cr2_errie,
                   2'b0,  spi_cr2_ssoe, spi_cr2_txdmaen, spi_cr2_rxdmaen};
 
@@ -162,6 +171,7 @@ end
 
 assign dma_rxne = spi_sr_rxne;
 assign dma_txe  = spi_sr_txe;
+
 assign spi_sr = {24'b0, spi_sr_bsy, spi_sr_ovr,    spi_sr_modf, spi_sr_crcerr,
                         spi_sr_udr, spi_sr_chside, spi_sr_rxne, spi_sr_txe};
 
@@ -225,12 +235,14 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: sft_data2_ctrl
     if (~rstn) begin
-        sft_en2_latch <= 1'b0;
-        rx_pop_latch  <= 1'b0;
+        sft_en2_latch     <= 1'b0;
+        rx_pop_latch      <= 1'b0;
+        rx_pop_tmp_latch  <= 1'b0;
     end
     else begin
-        sft_en2_latch <= sft_en2;
-        rx_pop_latch  <= rx_pop;
+        sft_en2_latch     <= sft_en2;
+        rx_pop_latch      <= (rx_pop && ~sft_en2) || rx_pop_tmp_latch;
+        rx_pop_tmp_latch  <= rx_pop && sft_en2;
     end
 end
 
@@ -335,18 +347,22 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: data_shift_cnt
     if (~rstn) begin
-        sft_cnt <= 4'b0;
+        sft_cnt <= 5'b0;
     end
     else begin
         if (tx_pop)
-            sft_cnt <= spi_cr1_dff ? 4'hf : 4'h7;
+            sft_cnt <= (spi_cr1_dff ? 5'hf : 5'h7) + {4'b0, spi_cr1_del};
         else if (sclk_cnt_zero && cur_state == STATE_DATA)
-            sft_cnt <= ~sft_cnt_zero ? sft_cnt - 4'b1 : 4'b0;
+            sft_cnt <= ~sft_cnt_zero ? sft_cnt - 5'b1 : 4'b0;
     end
 end
 
 always_comb begin: sft_cnt_zero_comb
     sft_cnt_zero = ~|sft_cnt;
+end
+
+always_comb begin: sft_cnt_start_comb
+    sft_cnt_start = spi_cr1_dff ? sft_cnt[4] : sft_cnt[3];
 end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_sclk_o
@@ -375,8 +391,7 @@ always_comb begin: nxt_state_comb
     case (cur_state)
         STATE_OFF:   nxt_state = spi_cr1_spe ? STATE_IDLE : STATE_OFF;
         STATE_IDLE:  nxt_state = ~spi_cr1_spe                 ? STATE_OFF :
-                                 sclk_cnt_zero && ~spi_sr_txe ? ~spi_cr1_cpha ? STATE_START:
-                                                                                STATE_START:
+                                 sclk_cnt_zero && ~spi_sr_txe ? STATE_START:
                                                                 STATE_IDLE;
         STATE_START: nxt_state = sclk_cnt_half ? STATE_DATA : STATE_START;
         STATE_DATA:  nxt_state = sclk_cnt_zero && sft_cnt_zero ? ~spi_sr_txe ? ~spi_cr1_cpha ? STATE_IDLE:
@@ -407,15 +422,15 @@ always_comb begin: ctrl_signal
         end
         STATE_START: begin
             sclk_cnt_rst = sclk_cnt_half;
-            sft_en2      = ~spi_cr1_cpha && sclk_cnt_half;
+            // sft_en2      = spi_cr1_cpha && sclk_cnt_half;
         end
         STATE_DATA:  begin
             tx_pop       = sclk_cnt_zero && sft_cnt_zero && ~spi_sr_txe && spi_cr1_cpha;
             rx_pop       = sclk_cnt_zero && sft_cnt_zero;
-            sft_en1      = ~spi_cr1_cpha ? sclk_cnt_half : sclk_cnt_zero;
-            sft_en2      = ~spi_cr1_cpha ? sclk_cnt_zero : sclk_cnt_half;
+            sft_en1      = (spi_cr1_cpha ? sclk_cnt_zero : sclk_cnt_half) && ~(spi_cr1_del && sft_cnt_zero);
+            sft_en2      = (spi_cr1_cpha ? sclk_cnt_zero : sclk_cnt_half) && ~(spi_cr1_del && sft_cnt_start);
             sclk_cnt_rst = sclk_cnt_zero;
-            sclk_pre     = sclk_cnt[spi_cr1_br];
+            sclk_pre     = sclk_cnt[spi_cr1_br] && ~(spi_cr1_del && sft_cnt_zero);
         end
     endcase
 end
