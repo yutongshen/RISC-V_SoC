@@ -26,7 +26,7 @@ __U8 __spi_init(__U32 __br) {
     *DMA_IE_32P  = 0;
     *DMA_IC_32P  = 1;
     *SPI_CR1_32P = 0;
-    *SPI_CR1_32P = /*(      !__br  << __SPI_CR1_DEL_BIT     )|*/
+    *SPI_CR1_32P = (      !__br  << __SPI_CR1_DEL_BIT     )|
                    (          1  << __SPI_CR1_SPE_BIT     )|
                    (          1  << __SPI_CR1_MSTR_BIT    )|
                    ((__br & 0x7) << __SPI_CR1_BR_BIT      )|
