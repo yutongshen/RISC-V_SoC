@@ -35,6 +35,9 @@
 #define CFGREG_RSVREG1 (CFGREG_BASE + 0x014)
 #define CFGREG_RSVREG1_32P ((UINT32P) (CFGREG_BASE + 0x014))
 #define CFGREG_RSVREG1_64P ((UINT64P) (CFGREG_BASE + 0x014))
+#define CFGREG_VER (CFGREG_BASE + 0x018)
+#define CFGREG_VER_32P ((UINT32P) (CFGREG_BASE + 0x018))
+#define CFGREG_VER_64P ((UINT64P) (CFGREG_BASE + 0x018))
 
 // ==============================
 //  CLINT_BASE
@@ -109,23 +112,23 @@
 //  SPI_BASE
 // ==============================
 #define SPI_BASE 0x10001000
+#define SPI_CR1 (SPI_BASE + 0x00)
+#define SPI_CR1_32P ((UINT32P) (SPI_BASE + 0x00))
+#define SPI_CR1_64P ((UINT64P) (SPI_BASE + 0x00))
+#define SPI_CR2 (SPI_BASE + 0x04)
+#define SPI_CR2_32P ((UINT32P) (SPI_BASE + 0x04))
+#define SPI_CR2_64P ((UINT64P) (SPI_BASE + 0x04))
+#define SPI_SR (SPI_BASE + 0x08)
+#define SPI_SR_32P ((UINT32P) (SPI_BASE + 0x08))
+#define SPI_SR_64P ((UINT64P) (SPI_BASE + 0x08))
+#define SPI_DR (SPI_BASE + 0x0C)
+#define SPI_DR_32P ((UINT32P) (SPI_BASE + 0x0C))
+#define SPI_DR_64P ((UINT64P) (SPI_BASE + 0x0C))
 
 // ==============================
 //  MAC_BASE
 // ==============================
 #define MAC_BASE 0x10002000
-#define SPI_CR1 (MAC_BASE + 0x00)
-#define SPI_CR1_32P ((UINT32P) (MAC_BASE + 0x00))
-#define SPI_CR1_64P ((UINT64P) (MAC_BASE + 0x00))
-#define SPI_CR2 (MAC_BASE + 0x04)
-#define SPI_CR2_32P ((UINT32P) (MAC_BASE + 0x04))
-#define SPI_CR2_64P ((UINT64P) (MAC_BASE + 0x04))
-#define SPI_SR (MAC_BASE + 0x08)
-#define SPI_SR_32P ((UINT32P) (MAC_BASE + 0x08))
-#define SPI_SR_64P ((UINT64P) (MAC_BASE + 0x08))
-#define SPI_DR (MAC_BASE + 0x0C)
-#define SPI_DR_32P ((UINT32P) (MAC_BASE + 0x0C))
-#define SPI_DR_64P ((UINT64P) (MAC_BASE + 0x0C))
 #define MAC_RESET (MAC_BASE + 0x00)
 #define MAC_RESET_32P ((UINT32P) (MAC_BASE + 0x00))
 #define MAC_RESET_64P ((UINT64P) (MAC_BASE + 0x00))

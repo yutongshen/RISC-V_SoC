@@ -101,6 +101,8 @@ logic        rxneie;
 logic        txe;
 logic        rxne;
 
+logic [31:0] debug_reg;
+
 assign apb_wr = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
 assign apb_rd = ~s_apb_intf.penable && s_apb_intf.psel && ~s_apb_intf.pwrite;
 
@@ -119,6 +121,7 @@ always_comb begin
         `MAC_IC    : prdata_t = {30'b0, rxne, txe};
         `MAC_MAC0  : prdata_t = MAC_ADDR[32:0];
         `MAC_MAC1  : prdata_t = {16'b0, MAC_ADDR[47:32]};
+        12'h38     : prdata_t = debug_reg;
     endcase
 end
 
@@ -459,5 +462,65 @@ sram512x32 u_tx_ram (
     .DI ( tx_ram_di ),
     .DO ( tx_ram_do )
 );
+
+// debug
+
+logic [31:0] sys_cnt;
+logic [31:0] debug;
+logic [31:0] debug_latch;
+logic        dbg_rst_async;
+logic        dbg_rst_d1;
+logic        dbg_rst_d2;
+logic        dbg_rst_d3;
+logic        dbg_rst_d4;
+
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) sys_cnt <= 32'b0;
+    else       sys_cnt <= ~|sys_cnt ? 32'd45454 : (sys_cnt - 32'b1);
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) dbg_rst_async <= 1'b0;
+    else       dbg_rst_async <= ~|sys_cnt ? ~dbg_rst_async : dbg_rst_async;
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+        dbg_rst_d3 <= 1'b1;
+        dbg_rst_d4 <= 1'b1;
+    end
+    else begin
+        dbg_rst_d3 <= dbg_rst_d2;
+        dbg_rst_d4 <= dbg_rst_d3;
+    end
+end
+
+always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
+    if (~rmii_rstn) begin
+        dbg_rst_d1 <= 1'b1;
+        dbg_rst_d2 <= 1'b1;
+    end
+    else begin
+        dbg_rst_d1 <= dbg_rst_async;
+        dbg_rst_d2 <= dbg_rst_d1;
+    end
+end
+
+always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
+    if (~rmii_rstn) debug <= 32'b0;
+    else            debug <= ~dbg_rst_d1 ? 32'b0 : (debug + 32'b1);
+end
+
+always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
+    if (~rmii_rstn) debug_latch <= 32'b0;
+    else            debug_latch <= (~dbg_rst_d1 && dbg_rst_d2) ? debug : debug_latch;
+end
+
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) debug_reg <= 32'b0;
+    else       debug_reg <= (~dbg_rst_d3 && dbg_rst_d4) ? debug_latch : debug_reg;
+end
+
 
 endmodule

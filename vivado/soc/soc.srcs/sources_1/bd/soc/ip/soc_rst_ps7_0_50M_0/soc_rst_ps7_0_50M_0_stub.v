@@ -1,10 +1,10 @@
 // Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-// Date        : Wed Mar 29 01:47:27 2023
+// Date        : Wed Mar 29 01:47:26 2023
 // Host        : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
-// Command     : write_verilog -force -mode synth_stub
-//               /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_rst_ps7_0_50M_0/soc_rst_ps7_0_50M_0_stub.v
+// Command     : write_verilog -force -mode synth_stub -rename_top soc_rst_ps7_0_50M_0 -prefix
+//               soc_rst_ps7_0_50M_0_ soc_rst_ps7_0_50M_0_stub.v
 // Design      : soc_rst_ps7_0_50M_0
 // Purpose     : Stub declaration of top-level module interface
 // Device      : xc7z020clg400-1

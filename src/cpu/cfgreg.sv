@@ -75,6 +75,7 @@ always_comb begin: comb_prdata_t
         `CFGREG_DDROFFSET: prdata_t = ddr_offset;
         `CFGREG_RSVREG0:   prdata_t = reserved_reg0;
         `CFGREG_RSVREG1:   prdata_t = reserved_reg1;
+        `CFGREG_VER:       prdata_t = `RISCV_VER;
     endcase
 end
 

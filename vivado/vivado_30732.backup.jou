@@ -3,75 +3,246 @@
 # SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
 # IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
 # Start of session at: Wed Mar 29 00:35:56 2023
-# Process ID: 30762
+# Process ID: 30732
 # Current directory: /home/yutong/RISC-V_SoC/vivado
 # Command line: vivado
 # Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
 # Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
 #-----------------------------------------------------------
 start_gui
-create_project cpu_wrap /home/yutong/RISC-V_SoC/vivado/cpu_wrap -part xc7z020clg400-1
-add_files -norecurse /home/yutong/RISC-V_SoC/src/cpu_wrap_nodef.all.sv
+create_project soc /home/yutong/RISC-V_SoC/vivado/soc -part xc7z020clg400-1
+create_project soc /home/yutong/RISC-V_SoC/vivado/soc -part xc7z020clg400-1
+create_bd_design "soc"
 update_compile_order -fileset sources_1
-ipx::package_project -root_dir /home/yutong/RISC-V_SoC -vendor user.org -library user -taxonomy /UserIP
-ipx::add_bus_interface dbgapb [ipx::current_core]
-set_property abstraction_type_vlnv xilinx.com:interface:apb_rtl:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property bus_type_vlnv xilinx.com:interface:apb:1.0 [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-ipx::add_port_map PSLVERR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pslverr [ipx::get_port_maps PSLVERR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PADDR [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_paddr [ipx::get_port_maps PADDR -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PREADY [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pready [ipx::get_port_maps PREADY -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PENABLE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_penable [ipx::get_port_maps PENABLE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PPROT [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pprot [ipx::get_port_maps PPROT -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PWRITE [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pwrite [ipx::get_port_maps PWRITE -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PRDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_prdata [ipx::get_port_maps PRDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PWDATA [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pwdata [ipx::get_port_maps PWDATA -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PSEL [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_psel [ipx::get_port_maps PSEL -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-ipx::add_port_map PSTRB [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-set_property physical_name dbg_pstrb [ipx::get_port_maps PSTRB -of_objects [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]]
-set_property name dbg_apb_s [ipx::get_bus_interfaces dbgapb -of_objects [ipx::current_core]]
-ipx::add_bus_interface uart [ipx::current_core]
-set_property abstraction_type_vlnv xilinx.com:interface:uart_rtl:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
-set_property bus_type_vlnv xilinx.com:interface:uart:1.0 [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
-set_property interface_mode master [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
-ipx::add_port_map TxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
-set_property physical_name uart_tx [ipx::get_port_maps TxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
-ipx::add_port_map RxD [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]
-set_property physical_name uart_rx [ipx::get_port_maps RxD -of_objects [ipx::get_bus_interfaces uart -of_objects [ipx::current_core]]]
-ipx::add_bus_interface jtag [ipx::current_core]
-set_property abstraction_type_vlnv xilinx.com:interface:jtag_rtl:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-set_property bus_type_vlnv xilinx.com:interface:jtag:2.0 [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-ipx::add_port_map TDI [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-set_property physical_name tdi [ipx::get_port_maps TDI -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
-ipx::add_port_map TMS [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-set_property physical_name tms [ipx::get_port_maps TMS -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
-ipx::add_port_map TCK [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-set_property physical_name tck [ipx::get_port_maps TCK -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
-ipx::add_port_map TDO [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]
-set_property physical_name tdo [ipx::get_port_maps TDO -of_objects [ipx::get_bus_interfaces jtag -of_objects [ipx::current_core]]]
-ipx::add_bus_interface rmii [ipx::current_core]
-set_property abstraction_type_vlnv xilinx.com:interface:rmii_rtl:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property bus_type_vlnv xilinx.com:interface:rmii:1.0 [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property interface_mode master [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-ipx::add_port_map TXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property physical_name rmii_txd [ipx::get_port_maps TXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
-ipx::add_port_map CRS_DV [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property physical_name rmii_crsdv [ipx::get_port_maps CRS_DV -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
-ipx::add_port_map TX_EN [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property physical_name rmii_txen [ipx::get_port_maps TX_EN -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
-ipx::add_port_map RXD [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]
-set_property physical_name rmii_rxd [ipx::get_port_maps RXD -of_objects [ipx::get_bus_interfaces rmii -of_objects [ipx::current_core]]]
-set_property core_revision 2 [ipx::current_core]
-ipx::create_xgui_files [ipx::current_core]
-ipx::update_checksums [ipx::current_core]
-ipx::save_core [ipx::current_core]
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0
+endgroup
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0
+endgroup
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 smartconnect_0
+endgroup
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_apb_bridge:3.0 axi_apb_bridge_0
+endgroup
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC/vivado [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  {} [current_project]
+update_ip_catalog
 set_property  ip_repo_paths  /home/yutong/RISC-V_SoC [current_project]
 update_ip_catalog
+set_property  ip_repo_paths  {} [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC/vivado [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  {} [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  {} [current_project]
+update_ip_catalog
+set_property  ip_repo_paths  /home/yutong/RISC-V_SoC [current_project]
+update_ip_catalog
+update_ip_catalog -rebuild
+startgroup
+create_bd_cell -type ip -vlnv user.org:user:cpu_wrap:1.0 cpu_wrap_0
+endgroup
+set_property location {2 519 -155} [get_bd_cells cpu_wrap_0]
+apply_bd_automation -rule xilinx.com:bd_rule:processing_system7 -config {make_external "FIXED_IO, DDR" Master "Disable" Slave "Disable" }  [get_bd_cells processing_system7_0]
+startgroup
+apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config {Clk "/processing_system7_0/FCLK_CLK0 (50 MHz)" }  [get_bd_pins axi_interconnect_0/ACLK]
+apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {Auto} Clk_slave {Auto} Clk_xbar {Auto} Master {/processing_system7_0/M_AXI_GP0} Slave {/cpu_wrap_0/ext_s} intc_ip {Auto} master_apm {0}}  [get_bd_intf_pins cpu_wrap_0/ext_s]
+endgroup
+delete_bd_objs [get_bd_intf_nets axi_interconnect_0_M00_AXI]
+set_property -dict [list CONFIG.NUM_MI {3} CONFIG.NUM_SI {1}] [get_bd_cells smartconnect_0]
+connect_bd_intf_net [get_bd_intf_pins smartconnect_0/M00_AXI] [get_bd_intf_pins cpu_wrap_0/ext_s]
+set_property -dict [list CONFIG.C_APB_NUM_SLAVES {1}] [get_bd_cells axi_apb_bridge_0]
+connect_bd_intf_net [get_bd_intf_pins axi_apb_bridge_0/APB_M] [get_bd_intf_pins cpu_wrap_0/dbg_apb_s]
+startgroup
+set_property -dict [list CONFIG.NUM_MI {2}] [get_bd_cells smartconnect_0]
+endgroup
+connect_bd_intf_net [get_bd_intf_pins smartconnect_0/M01_AXI] [get_bd_intf_pins axi_apb_bridge_0/AXI4_LITE]
+startgroup
+set_property -dict [list CONFIG.PCW_USE_S_AXI_HP0 {1}] [get_bd_cells processing_system7_0]
+endgroup
+startgroup
+set_property -dict [list CONFIG.NUM_MI {1}] [get_bd_cells axi_interconnect_0]
+endgroup
+connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/M00_AXI] [get_bd_intf_pins processing_system7_0/S_AXI_HP0]
+delete_bd_objs [get_bd_intf_nets processing_system7_0_M_AXI_GP0]
+connect_bd_intf_net -boundary_type upper [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins cpu_wrap_0/ddr_m]
+connect_bd_intf_net [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins smartconnect_0/S00_AXI]
+startgroup
+apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config {Clk "/processing_system7_0/FCLK_CLK0 (50 MHz)" }  [get_bd_pins processing_system7_0/S_AXI_HP0_ACLK]
+apply_bd_automation -rule xilinx.com:bd_rule:clkrst -config {Clk "/processing_system7_0/FCLK_CLK0 (50 MHz)" }  [get_bd_pins axi_apb_bridge_0/s_axi_aclk]
+endgroup
+regenerate_bd_layout
+regenerate_bd_layout
+connect_bd_net [get_bd_pins smartconnect_0/aresetn] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+regenerate_bd_layout
+set_property location {2 610 443} [get_bd_cells processing_system7_0]
+set_property location {3 1000 498} [get_bd_cells smartconnect_0]
+set_property location {3 933 467} [get_bd_cells smartconnect_0]
+set_property location {3 928 458} [get_bd_cells smartconnect_0]
+set_property location {4 1287 503} [get_bd_cells axi_apb_bridge_0]
+set_property location {4 1248 485} [get_bd_cells axi_apb_bridge_0]
+set_property location {4 1251 488} [get_bd_cells axi_apb_bridge_0]
+set_property location {2 541 194} [get_bd_cells rst_ps7_0_50M]
+set_property location {4 1482 369} [get_bd_cells cpu_wrap_0]
+set_property location {4 1556 482} [get_bd_cells cpu_wrap_0]
+set_property location {4 1552 513} [get_bd_cells cpu_wrap_0]
+set_property location {4 1548 536} [get_bd_cells cpu_wrap_0]
+set_property location {2 1014 224} [get_bd_cells rst_ps7_0_50M]
+set_property location {2 952 153} [get_bd_cells rst_ps7_0_50M]
+set_property location {1 566 101} [get_bd_cells axi_interconnect_0]
+set_property location {3.5 1418 92} [get_bd_cells axi_interconnect_0]
+set_property location {4 1446 219} [get_bd_cells axi_interconnect_0]
+regenerate_bd_layout
+set_property location {4 980 -129} [get_bd_cells rst_ps7_0_50M]
+set_property location {4 1518 -131} [get_bd_cells smartconnect_0]
+regenerate_bd_layout
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {45.4} CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {1} CONFIG.PCW_EN_CLK1_PORT {1}] [get_bd_cells processing_system7_0]
+endgroup
+connect_bd_net [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins cpu_wrap_0/clk_32k]
+regenerate_bd_layout -routing
+regenerate_bd_layout -routing
+regenerate_bd_layout
+regenerate_bd_layout
+regenerate_bd_layout
+regenerate_bd_layout -routing
+create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:jtag_rtl:2.0 riscv_jtag
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:rmii_rtl:1.0 riscv_rmii
+create_bd_intf_port -mode Master -vlnv xilinx.com:interface:uart_rtl:1.0 riscv_uart
+connect_bd_intf_net [get_bd_intf_ports riscv_uart] [get_bd_intf_pins cpu_wrap_0/uart]
+connect_bd_intf_net [get_bd_intf_ports riscv_rmii] [get_bd_intf_pins cpu_wrap_0/rmii]
+connect_bd_intf_net [get_bd_intf_ports riscv_jtag] [get_bd_intf_pins cpu_wrap_0/jtag]
+regenerate_bd_layout
+save_bd_design
+create_bd_port -dir O sclk_0
+create_bd_port -dir O nss_0
+create_bd_port -dir O mosi_0
+create_bd_port -dir I miso_0
+set_property location {107 592} [get_bd_ports miso_0]
+set_property location {-9 596} [get_bd_ports miso_0]
+connect_bd_net [get_bd_ports miso_0] [get_bd_pins cpu_wrap_0/miso]
+connect_bd_net [get_bd_ports sclk_0] [get_bd_pins cpu_wrap_0/mosi]
+delete_bd_objs [get_bd_nets cpu_wrap_0_mosi]
+connect_bd_net [get_bd_ports mosi_0] [get_bd_pins cpu_wrap_0/mosi]
+connect_bd_net [get_bd_ports nss_0] [get_bd_pins cpu_wrap_0/nss]
+connect_bd_net [get_bd_ports sclk_0] [get_bd_pins cpu_wrap_0/sclk]
+regenerate_bd_layout
+create_bd_port -dir I riscv_rmii_refclk
+connect_bd_net [get_bd_ports riscv_rmii_refclk] [get_bd_pins cpu_wrap_0/rmii_refclk]
+make_wrapper -files [get_files /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd] -top
+set_property range 512M [get_bd_addr_segs {processing_system7_0/Data/SEG_cpu_wrap_0_reg0}]
+assign_bd_address [get_bd_addr_segs {cpu_wrap_0/dbg_apb_s/Reg }]
+set_property range 4K [get_bd_addr_segs {processing_system7_0/Data/SEG_cpu_wrap_0_Reg}]
+assign_bd_address [get_bd_addr_segs {processing_system7_0/S_AXI_HP0/HP0_DDR_LOWOCM }]
+make_wrapper -files [get_files /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd] -top
+add_files -norecurse /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hdl/soc_wrapper.v
+add_files -fileset constrs_1 -norecurse /home/yutong/RISC-V_SoC/src/pynq-z2_v1.0.xdc
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+reset_run soc_axi_apb_bridge_0_0_synth_1
+reset_run soc_smartconnect_0_0_synth_1
+reset_run soc_processing_system7_0_0_synth_1
+reset_run soc_cpu_wrap_0_0_synth_1
+reset_run soc_rst_ps7_0_50M_0_synth_1
+reset_run synth_1
+reset_run soc_auto_pc_0_synth_1
+reset_run soc_auto_us_0_synth_1
+startgroup
+set_property -dict [list CONFIG.C_M_APB_PROTOCOL {apb4}] [get_bd_cells axi_apb_bridge_0]
+endgroup
+regenerate_bd_layout
+save_bd_design
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+open_run synth_1 -name synth_1
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+reset_run synth_1
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+reset_run synth_1
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+open_run impl_1
+add_files -fileset constrs_1 -norecurse /home/yutong/RISC-V_SoC/src/soc.sdc
+report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1
+reset_run synth_1
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+create_generated_clock -name sclk -source [get_pins {soc_i/processing_system7_0/inst/PS7_i/FCLKCLK[0]}] -divide_by 2 -add -master_clock [get_clocks clk_fpga_0] [get_ports "*sclk_0*"]
+set_input_delay -clock [get_clocks sclk] 12.0 [get_ports -filter { NAME =~  "*miso_0*" && DIRECTION == "IN" }]
+set_output_delay -clock [get_clocks sclk] 12.0 [get_ports {mosi_0 nss_0 sclk_0}]
+set_input_delay -clock [get_clocks riscv_rmii_refclk] 12.0 [list [get_ports -filter { NAME =~  "*miso_0*" && DIRECTION == "IN" }] [get_ports {riscv_rmii_crs_dv riscv_rmii_refclk riscv_rmii_rxd[0] riscv_rmii_rxd[1]}] ]
+set_output_delay -clock [get_clocks riscv_rmii_refclk] 12.0 [get_ports {riscv_rmii_tx_en riscv_rmii_txd[0] riscv_rmii_txd[1]}]
+reset_run synth_1
+set_property target_constrs_file /home/yutong/RISC-V_SoC/src/soc.sdc [current_fileset -constrset]
+save_constraints -force
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+reset_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+reset_run impl_1
+reset_run synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+set_input_delay -clock [get_clocks clk_fpga_0] 10.0 [get_ports riscv_uart_rxd]
+set_output_delay 10.0 [get_ports riscv_uart_txd]
+save_constraints
+reset_run synth_1
+reset_run impl_1
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {45}] [get_bd_cells processing_system7_0]
+endgroup
+save_bd_design
+reset_run synth_1
+reset_run soc_processing_system7_0_0_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {43}] [get_bd_cells processing_system7_0]
+endgroup
+save_bd_design
+reset_run synth_1
+reset_run soc_processing_system7_0_0_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230330/riscv.bit
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230330/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230330/riscv.tcl
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {45.4}] [get_bd_cells processing_system7_0]
+endgroup
+report_ip_status -name ip_status 
+save_bd_design
+reset_run synth_1
+reset_run soc_processing_system7_0_0_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+report_ip_status -name ip_status 

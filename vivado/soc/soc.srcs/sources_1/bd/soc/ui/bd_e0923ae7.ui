@@ -21,24 +21,24 @@ preplace inst processing_system7_0 -pg 1 -lvl 4 -y 150 -defaultsOSRD
 preplace netloc smartconnect_0_M01_AXI 1 2 1 680
 preplace netloc processing_system7_0_DDR 1 4 1 NJ
 preplace netloc cpu_wrap_0_sclk 1 4 1 NJ
-preplace netloc riscv_jtag_1 1 0 4 NJ 440 NJ 440 NJ 440 1030J
 preplace netloc axi_apb_bridge_0_APB_M 1 3 1 1010
-preplace netloc processing_system7_0_M_AXI_GP0 1 1 4 400 20 NJ 20 NJ 20 1500
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 0 5 20 10 NJ 10 NJ 10 NJ 10 1510
+preplace netloc riscv_jtag_1 1 0 4 NJ 440 NJ 440 NJ 440 1030J
+preplace netloc processing_system7_0_M_AXI_GP0 1 1 4 400 20 NJ 20 NJ 20 1490
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 0 5 20 170 NJ 170 700J 260 NJ 260 1480
 preplace netloc cpu_wrap_0_rmii 1 4 1 NJ
+preplace netloc smartconnect_0_M00_AXI 1 2 2 N 280 1030J
 preplace netloc cpu_wrap_0_uart 1 4 1 NJ
-preplace netloc smartconnect_0_M00_AXI 1 2 2 N 280 1010J
 preplace netloc cpu_wrap_0_nss 1 4 1 NJ
-preplace netloc S00_AXI_1 1 2 3 710 270 NJ 270 1480
 preplace netloc processing_system7_0_FIXED_IO 1 4 1 NJ
-preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 1 3 400 370 700 450 NJ
+preplace netloc S00_AXI_1 1 2 3 710 10 NJ 10 1500
+preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 1 3 390 380 710 450 NJ
 preplace netloc axi_interconnect_0_M00_AXI 1 3 1 N
 preplace netloc miso_0_1 1 0 4 NJ 470 NJ 470 NJ 470 NJ
-preplace netloc processing_system7_0_FCLK_CLK0 1 0 5 30 170 390 170 690 260 1020 280 1500
+preplace netloc processing_system7_0_FCLK_CLK0 1 0 5 30 370 400 370 690 270 1020 40 1480
 preplace netloc riscv_rmii_refclk_1 1 0 4 NJ 490 NJ 490 NJ 490 NJ
 preplace netloc cpu_wrap_0_mosi 1 4 1 NJ
-preplace netloc processing_system7_0_FCLK_CLK1 1 3 2 1040 290 1490
-levelinfo -pg 1 0 210 540 860 1260 1530 -top 0 -bot 550
+preplace netloc processing_system7_0_FCLK_CLK1 1 3 2 1040 270 1490
+levelinfo -pg 1 0 210 540 860 1260 1520 -top 0 -bot 550
 "
 }
 {

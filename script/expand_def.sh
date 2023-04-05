@@ -6,8 +6,16 @@ outfile=${3};
 
 incdir=();
 
+rand()
+{
+    echo $(python3 -c "from random import randint; print(randint(0, 0xffffffff))");
+}
+
 rm -f ${outfile};
 touch ${outfile};
+
+printf "\`define RISCV_VER 32'h%8x\n" $(rand) >> ${outfile};
+
 
 function get_path () {
     incfile=${1};
