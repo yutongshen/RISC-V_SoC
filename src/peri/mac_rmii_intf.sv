@@ -20,6 +20,8 @@ module mac_rmii_intf (
 );
 
 logic        crsdv_d1;
+logic        crsdv_d2;
+logic [ 1:0] rxd_d1;
 logic [31:0] rx_data;
 logic        rx_data_nz;
 logic        rx_cnt_rst;
@@ -27,16 +29,28 @@ logic [ 1:0] rx_cnt;
 logic [ 1:0] rx_byte_cnt;
 logic [ 1:0] rx_byte_cnt_latch;
 logic        rx_crs;
+logic        rx_crs_pre;
 logic        rx_sfd;
+logic        rx_buf_push;
+logic        rx_buf_valid;
+logic [31:0] rx_buf;
+
+logic        rx_crc32_ctrl;
+logic        rx_crc32_ctrl_d;
+logic        rx_crc32_flag;
+logic        rx_crc_valid;
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) begin
         crsdv_d1 <= 1'b0;
+        crsdv_d2 <= 1'b0;
         rx_data  <= 32'b0;
     end
     else begin
         crsdv_d1 <= rmii_crsdv;
-        rx_data  <= {rmii_rxd, rx_data[31:2]};
+        crsdv_d2 <= crsdv_d1;
+        rxd_d1   <= rmii_rxd;
+        rx_data  <= {rxd_d1, rx_data[31:2]};
     end
 end
 
@@ -53,25 +67,26 @@ always_ff @(posedge rmii_refclk or negedge rstn) begin
 end
 
 assign rx_data_nz = |rx_data[31:30] && |rx_data[29:28] && |rx_data[27:26] && |rx_data[25:24];
-assign rx_cnt_rst = (~rx_busy && crsdv_d1 && rx_data_nz) ||
+assign rx_cnt_rst = (~rx_busy && crsdv_d2 && rx_data_nz) ||
                     ( rx_busy && ~rx_sfd && rx_cnt[0] && rx_data[31:24] == 8'hd5);
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) rx_busy <= 1'b0;
     else begin
-        if (~rx_busy) rx_busy <= crsdv_d1 && rx_data_nz;
-        else          rx_busy <= crsdv_d1 || ~rx_cnt[0];
+        if (~rx_busy) rx_busy <= crsdv_d2 && rx_data_nz;
+        else          rx_busy <= crsdv_d2 || ~rx_cnt[0];
     end
 end
 
+assign rx_crs_pre = ~rx_busy || ~rx_cnt[0] ? crsdv_d2 : rx_crs;
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) rx_crs <= 1'b0;
-    else       rx_crs <= ~rx_busy || ~rx_cnt[0] ? crsdv_d1 : rx_crs;
+    else       rx_crs <= rx_crs_pre;
 end
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) rx_sfd <= 1'b0;
-    else       rx_sfd <= rx_sfd ? rx_busy || ~fifo_rx_wr : (rx_busy && rx_cnt[0] && rx_data[31:24] == 8'hd5);
+    else       rx_sfd <= rx_sfd ? rx_busy || ~rx_buf_push : (rx_busy && rx_cnt[0] && rx_data[31:24] == 8'hd5);
 end
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
@@ -87,16 +102,56 @@ always_ff @(posedge rmii_refclk or negedge rstn) begin
                                                                        rx_byte_cnt + {1'b0, rx_busy && rx_cnt == 2'h3};
 end
 
-assign fifo_rx_wr    = rx_sfd && rx_cnt == 2'h3 && rx_byte_cnt == 2'h3; 
-assign fifo_rx_wdata = {{1'b0, rx_byte_cnt_latch} + {2'b0, rx_busy}, rx_data};
+assign rx_buf_push   = rx_sfd && rx_cnt == 2'h3 && rx_byte_cnt == 2'h3; 
+always_ff @(posedge rmii_refclk or negedge rstn) begin
+    if (~rstn)            rx_buf_valid <= 1'b0;
+    else if (!rx_sfd)     rx_buf_valid <= 1'b0;
+    else if (rx_buf_push) rx_buf_valid <= 1'b1;
+end
+always_ff @(posedge rmii_refclk or negedge rstn) begin
+    if (~rstn)            rx_buf <= 32'b0;
+    else if (rx_buf_push) rx_buf <= rx_data;
+end
+
+assign fifo_rx_wr           = rx_buf_push && rx_buf_valid;
+assign fifo_rx_wdata[34:32] = {1'b0, rx_byte_cnt_latch} + {2'b0, rx_busy} | {3{!rx_busy && !rx_crc_valid}};
+assign fifo_rx_wdata[31: 0] = rx_buf;
+
+assign rx_crc32_ctrl = rx_sfd && rx_crs_pre;
+
+always_ff @(posedge rmii_refclk or negedge rstn) begin
+    if (~rstn) rx_crc32_ctrl_d <= 1'b0;
+    else       rx_crc32_ctrl_d <= rx_crc32_ctrl;
+end
+
+always_ff @(posedge rmii_refclk or negedge rstn) begin
+    if (~rstn) rx_crc_valid <= 1'b0;
+    else begin
+        if (!rx_crc32_ctrl && rx_crc32_ctrl_d)
+            rx_crc_valid <= rx_crc32_flag;
+    end
+end
+
+mac_crc32 u_rx_mac_crc32 (
+    .clk   ( rmii_refclk    ),
+    .rstn  ( rstn           ),
+    .ctrl  ( rx_crc32_ctrl  ),
+    .d_in  ( rx_data[31:30] ),
+    .flag  ( rx_crc32_flag  )
+);
+
+// ============= TX =============
 
 logic [5:0] tx_sfd_cnt;
 logic       tx_cnt_rst;
 logic [5:0] tx_cnt;
 logic       tx_busy;
-
-logic       nxt_txen;
-logic [1:0] nxt_txd;
+logic       tx_crc32_ctrl;
+logic [4:0] tx_crc_cnt; 
+logic [1:0] tx_crc32_out;
+                        
+logic       nxt_txen;   
+logic [1:0] nxt_txd;    
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) tx_busy <= 1'b0;
@@ -137,10 +192,31 @@ always_ff @(posedge rmii_refclk or negedge rstn) begin
         rmii_txd  <= 2'b0;
     end
     else begin
-        rmii_txen <= nxt_txen;
-        rmii_txd  <= nxt_txd;
+        rmii_txen <= nxt_txen | |tx_crc_cnt;
+        rmii_txd  <= nxt_txen ? nxt_txd : tx_crc32_out;
     end
 end
+
+always_ff @(posedge rmii_refclk or negedge rstn) begin
+    if (~rstn) begin
+        tx_crc_cnt <= 5'h10;
+    end
+    else begin
+        if (nxt_txen) tx_crc_cnt <= 5'h10;
+        else          tx_crc_cnt <= |tx_crc_cnt ? tx_crc_cnt - 5'b1 : tx_crc_cnt;
+    end
+end
+
+assign tx_crc32_ctrl = nxt_txen & tx_cnt[5];
+
+mac_crc32 u_tx_mac_crc32 (
+    .clk   ( rmii_refclk   ),
+    .rstn  ( rstn          ),
+    .ctrl  ( tx_crc32_ctrl ),
+    .d_in  ( nxt_txd       ),
+    .d_out ( tx_crc32_out  )
+);
+
 
 endmodule
 

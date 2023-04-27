@@ -2,43 +2,43 @@
    "ExpandedHierarchyInLayout":"",
    "guistr":"# # String gsaved with Nlview 6.8.11  2018-08-07 bk=1.4403 VDI=40 GEI=35 GUI=JA:9.0 TLS
 #  -string -flagsOSRD
-preplace port DDR -pg 1 -y 100 -defaultsOSRD
+preplace port DDR -pg 1 -y 120 -defaultsOSRD
 preplace port miso_0 -pg 1 -y 470 -defaultsOSRD
-preplace port riscv_uart -pg 1 -y 390 -defaultsOSRD
-preplace port riscv_rmii_refclk -pg 1 -y 490 -defaultsOSRD
-preplace port sclk_0 -pg 1 -y 430 -defaultsOSRD
-preplace port riscv_rmii -pg 1 -y 410 -defaultsOSRD
-preplace port FIXED_IO -pg 1 -y 120 -defaultsOSRD
-preplace port nss_0 -pg 1 -y 450 -defaultsOSRD
-preplace port mosi_0 -pg 1 -y 470 -defaultsOSRD
-preplace port riscv_jtag -pg 1 -y 440 -defaultsOSRD
-preplace inst rst_ps7_0_50M -pg 1 -lvl 1 -y 270 -defaultsOSRD
-preplace inst smartconnect_0 -pg 1 -lvl 2 -y 290 -defaultsOSRD
-preplace inst axi_apb_bridge_0 -pg 1 -lvl 3 -y 360 -defaultsOSRD
-preplace inst axi_interconnect_0 -pg 1 -lvl 3 -y 140 -defaultsOSRD
-preplace inst cpu_wrap_0 -pg 1 -lvl 4 -y 420 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 4 -y 150 -defaultsOSRD
-preplace netloc smartconnect_0_M01_AXI 1 2 1 680
-preplace netloc processing_system7_0_DDR 1 4 1 NJ
-preplace netloc cpu_wrap_0_sclk 1 4 1 NJ
-preplace netloc axi_apb_bridge_0_APB_M 1 3 1 1010
-preplace netloc riscv_jtag_1 1 0 4 NJ 440 NJ 440 NJ 440 1030J
-preplace netloc processing_system7_0_M_AXI_GP0 1 1 4 400 20 NJ 20 NJ 20 1490
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 0 5 20 170 NJ 170 700J 260 NJ 260 1480
-preplace netloc cpu_wrap_0_rmii 1 4 1 NJ
-preplace netloc smartconnect_0_M00_AXI 1 2 2 N 280 1030J
-preplace netloc cpu_wrap_0_uart 1 4 1 NJ
-preplace netloc cpu_wrap_0_nss 1 4 1 NJ
-preplace netloc processing_system7_0_FIXED_IO 1 4 1 NJ
-preplace netloc S00_AXI_1 1 2 3 710 10 NJ 10 1500
-preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 1 3 390 380 710 450 NJ
-preplace netloc axi_interconnect_0_M00_AXI 1 3 1 N
-preplace netloc miso_0_1 1 0 4 NJ 470 NJ 470 NJ 470 NJ
-preplace netloc processing_system7_0_FCLK_CLK0 1 0 5 30 370 400 370 690 270 1020 40 1480
-preplace netloc riscv_rmii_refclk_1 1 0 4 NJ 490 NJ 490 NJ 490 NJ
-preplace netloc cpu_wrap_0_mosi 1 4 1 NJ
-preplace netloc processing_system7_0_FCLK_CLK1 1 3 2 1040 270 1490
-levelinfo -pg 1 0 210 540 860 1260 1520 -top 0 -bot 550
+preplace port riscv_uart -pg 1 -y 420 -defaultsOSRD
+preplace port riscv_rmii_refclk -pg 1 -y 520 -defaultsOSRD
+preplace port sclk_0 -pg 1 -y 460 -defaultsOSRD
+preplace port riscv_rmii -pg 1 -y 440 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -y 140 -defaultsOSRD
+preplace port nss_0 -pg 1 -y 480 -defaultsOSRD
+preplace port mosi_0 -pg 1 -y 500 -defaultsOSRD
+preplace port riscv_jtag -pg 1 -y 420 -defaultsOSRD
+preplace inst rst_ps7_0_50M -pg 1 -lvl 2 -y 110 -defaultsOSRD
+preplace inst smartconnect_0 -pg 1 -lvl 3 -y 310 -defaultsOSRD
+preplace inst axi_apb_bridge_0 -pg 1 -lvl 4 -y 340 -defaultsOSRD
+preplace inst axi_interconnect_0 -pg 1 -lvl 4 -y 160 -defaultsOSRD
+preplace inst cpu_wrap_0 -pg 1 -lvl 5 -y 450 -defaultsOSRD
+preplace inst processing_system7_0 -pg 1 -lvl 5 -y 170 -defaultsOSRD
+preplace netloc processing_system7_0_DDR 1 5 1 NJ
+preplace netloc smartconnect_0_M01_AXI 1 3 1 N
+preplace netloc cpu_wrap_0_sclk 1 5 1 NJ
+preplace netloc riscv_jtag_1 1 0 5 NJ 420 NJ 420 440J 430 NJ 430 1080J
+preplace netloc axi_apb_bridge_0_APB_M 1 4 1 1060
+preplace netloc processing_system7_0_M_AXI_GP0 1 2 4 450 40 NJ 40 NJ 40 1540
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 1 5 60J 10 NJ 10 NJ 10 NJ 10 1550
+preplace netloc cpu_wrap_0_rmii 1 5 1 NJ
+preplace netloc smartconnect_0_M00_AXI 1 3 2 740 420 1050J
+preplace netloc cpu_wrap_0_uart 1 5 1 NJ
+preplace netloc cpu_wrap_0_nss 1 5 1 NJ
+preplace netloc processing_system7_0_FIXED_IO 1 5 1 NJ
+preplace netloc S00_AXI_1 1 3 3 750 30 NJ 30 1560
+preplace netloc rst_ps7_0_50M_peripheral_aresetn 1 2 3 440 150 750 480 NJ
+preplace netloc axi_interconnect_0_M00_AXI 1 4 1 N
+preplace netloc miso_0_1 1 0 5 NJ 470 NJ 470 NJ 470 NJ 470 1070J
+preplace netloc processing_system7_0_FCLK_CLK0 1 1 5 70 210 430 390 730 20 1070 60 1530
+preplace netloc riscv_rmii_refclk_1 1 0 5 NJ 520 NJ 520 NJ 520 NJ 520 N
+preplace netloc cpu_wrap_0_mosi 1 5 1 NJ
+preplace netloc processing_system7_0_FCLK_CLK1 1 4 2 1090 280 1530
+levelinfo -pg 1 0 40 250 590 900 1310 1580 -top 0 -bot 580
 "
 }
 {

@@ -13,6 +13,7 @@ module mul (
 
 logic [2*`XLEN-1:0] src1_ext;
 logic [2*`XLEN-1:0] src2_ext;
+logic [4*`XLEN-1:0] tmp_o;
 
 logic [        1:0] cur_state;
 logic [        1:0] nxt_state;
@@ -32,12 +33,14 @@ always_ff @(posedge clk or negedge rstn) begin: reg_src
     end
 end
 
+assign tmp_o = src1_ext * src2_ext;
+
 always_ff @(posedge clk or negedge rstn) begin: reg_out
     if (~rstn) begin
         out <= {2*`XLEN{1'b0}};
     end
     else begin
-        out <= src1_ext * src2_ext;;
+        out <= tmp_o[2*`XLEN-1:0];
     end
 end
 

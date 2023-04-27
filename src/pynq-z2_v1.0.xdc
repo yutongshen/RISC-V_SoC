@@ -40,15 +40,35 @@
 
 ##PmodA
 
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_rmii_refclk_IBUF]
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_rmii_refclk_IBUF_BUFG]
-set_property -dict {PACKAGE_PIN Y18 IOSTANDARD LVCMOS33} [get_ports riscv_rmii_tx_en]
-set_property -dict {PACKAGE_PIN Y19 IOSTANDARD LVCMOS33} [get_ports {riscv_rmii_rxd[0]}]
-set_property -dict {PACKAGE_PIN Y16 IOSTANDARD LVCMOS33} [get_ports riscv_rmii_refclk]
-set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33} [get_ports {riscv_rmii_txd[1]}]
-set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports {riscv_rmii_txd[0]}]
-set_property -dict {PACKAGE_PIN U19 IOSTANDARD LVCMOS33} [get_ports {riscv_rmii_rxd[1]}]
-set_property -dict {PACKAGE_PIN W18 IOSTANDARD LVCMOS33} [get_ports riscv_rmii_crs_dv]
+# set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_rmii_refclk_IBUF]
+# set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_rmii_refclk_IBUF_BUFG]
+# set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets soc_i/clk_wiz_0/inst/clk_in1_soc_clk_wiz_0_0]
+#[Place 30-575] Sub-optimal placement for a clock-capable IO pin and MMCM pair. If this sub optimal condition is acceptable for this design, you may use the CLOCK_DEDICATED_ROUTE constraint in the .xdc file to demote this message to a WARNING. However, the use of this override is highly discouraged. These examples can be used directly in the .xdc file to override this clock rule.
+#	< set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets soc_i/clk_wiz_0/inst/clk_in1_soc_clk_wiz_0_0] >
+#
+#	soc_i/clk_wiz_0/inst/clkin1_ibufg (IBUF.O) is locked to IOB_X1Y86
+#	 soc_i/clk_wiz_0/inst/mmcm_adv_inst (MMCME2_ADV.CLKIN1) is provisionally placed by clockplacer on MMCME2_ADV_X1Y2
+#
+#	The above error could possibly be related to other connected instances. Following is a list of
+#	all the related clock rules and their respective instances.
+#
+#	Clock Rule: rule_mmcm_bufg
+#	Status: PASS
+#	Rule Description: An MMCM driving a BUFG must be placed on the same half side (top/bottom) of the device
+#	 soc_i/clk_wiz_0/inst/mmcm_adv_inst (MMCME2_ADV.CLKFBOUT) is provisionally placed by clockplacer on MMCME2_ADV_X1Y2
+#	 and soc_i/clk_wiz_0/inst/clkf_buf (BUFG.I) is provisionally placed by clockplacer on BUFGCTRL_X0Y31
+
+
+create_clock -period 20.000 -name riscv_rmii_refclk -waveform {0.000 10.000} [get_ports -filter { NAME =~  "*riscv_rmii_refclk*" && DIRECTION == "IN" }]
+set_property -dict {PACKAGE_PIN Y18 IOSTANDARD SSTL18_I} [get_ports riscv_rmii_tx_en]
+set_property -dict {PACKAGE_PIN Y19 IOSTANDARD SSTL18_I} [get_ports {riscv_rmii_rxd[0]}]
+# set_property -dict {PACKAGE_PIN Y16 IOSTANDARD LVCMOS33} [get_ports riscv_rmii_refclk]
+set_property -dict {PACKAGE_PIN U18 IOSTANDARD SSTL18_I} [get_ports riscv_rmii_refclk]
+set_property -dict {PACKAGE_PIN Y17 IOSTANDARD SSTL18_I} [get_ports {riscv_rmii_txd[1]}]
+# set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports {riscv_rmii_txd[0]}]
+set_property -dict {PACKAGE_PIN Y16 IOSTANDARD SSTL18_I} [get_ports {riscv_rmii_txd[0]}]
+set_property -dict {PACKAGE_PIN U19 IOSTANDARD SSTL18_I} [get_ports {riscv_rmii_rxd[1]}]
+set_property -dict {PACKAGE_PIN W18 IOSTANDARD SSTL18_I} [get_ports riscv_rmii_crs_dv]
 #set_property -dict { PACKAGE_PIN Y18   IOSTANDARD LVCMOS33 } [get_ports { ja[0] }]; #IO_L17P_T2_34 Sch=ja_p[1]
 #set_property -dict { PACKAGE_PIN Y19   IOSTANDARD LVCMOS33 } [get_ports { ja[1] }]; #IO_L17N_T2_34 Sch=ja_n[1]
 #set_property -dict { PACKAGE_PIN Y16   IOSTANDARD LVCMOS33 } [get_ports { ja[2] }]; #IO_L7P_T1_34 Sch=ja_p[2]
@@ -60,12 +80,13 @@ set_property -dict {PACKAGE_PIN W18 IOSTANDARD LVCMOS33} [get_ports riscv_rmii_c
 
 ##PmodB
 
+create_clock -period 100.000 -name riscv_jtag_tck -waveform {0.000 50.000} [get_ports -filter { NAME =~  "*riscv_jtag_tck*" && DIRECTION == "IN" }]
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_jtag_tck_IBUF_BUFG]
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets riscv_jtag_tck_IBUF]
-set_property -dict {PACKAGE_PIN W14 IOSTANDARD LVCMOS33} [get_ports riscv_jtag_tck]
-set_property -dict {PACKAGE_PIN Y14 IOSTANDARD LVCMOS33} [get_ports riscv_jtag_tms]
-set_property -dict {PACKAGE_PIN T11 IOSTANDARD LVCMOS33} [get_ports riscv_jtag_tdi]
-set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33} [get_ports riscv_jtag_tdo]
+set_property -dict {PACKAGE_PIN W14 IOSTANDARD SSTL18_I} [get_ports riscv_jtag_tck]
+set_property -dict {PACKAGE_PIN Y14 IOSTANDARD SSTL18_I} [get_ports riscv_jtag_tms]
+set_property -dict {PACKAGE_PIN T11 IOSTANDARD SSTL18_I} [get_ports riscv_jtag_tdi]
+set_property -dict {PACKAGE_PIN T10 IOSTANDARD SSTL18_I} [get_ports riscv_jtag_tdo]
 #set_property -dict { PACKAGE_PIN W14   IOSTANDARD LVCMOS33 } [get_ports { jb[0] }]; #IO_L8P_T1_34 Sch=jb_p[1]
 #set_property -dict { PACKAGE_PIN Y14   IOSTANDARD LVCMOS33 } [get_ports { jb[1] }]; #IO_L8N_T1_34 Sch=jb_n[1]
 #set_property -dict { PACKAGE_PIN T11   IOSTANDARD LVCMOS33 } [get_ports { jb[2] }]; #IO_L1P_T0_34 Sch=jb_p[2]
@@ -160,6 +181,7 @@ set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33} [get_ports riscv_jtag_t
 #set_property -dict { PACKAGE_PIN W10   IOSTANDARD LVCMOS33 } [get_ports { rpio_11_r }]; #IO_L16P_T2_13 Sch=rpio_11_r
 #set_property -dict { PACKAGE_PIN B20   IOSTANDARD LVCMOS33 } [get_ports { rpio_12_r }]; #IO_L1N_T0_AD0N_35 Sch=rpio_12_r
 #set_property -dict { PACKAGE_PIN W8    IOSTANDARD LVCMOS33 } [get_ports { rpio_13_r }]; #IO_L15N_T2_DQS_13 Sch=rpio_13_r
+create_generated_clock -name sclk -source [get_pins {soc_i/processing_system7_0/inst/PS7_i/FCLKCLK[0]}] -divide_by 2 -add -master_clock clk_fpga_0 [get_ports *sclk_0*]
 set_property -dict {PACKAGE_PIN V6 IOSTANDARD LVCMOS33} [get_ports sclk_0]
 set_property -dict {PACKAGE_PIN Y6 IOSTANDARD LVCMOS33} [get_ports nss_0]
 #set_property -dict { PACKAGE_PIN B19   IOSTANDARD LVCMOS33 } [get_ports { rpio_16_r }]; #IO_L2P_T0_AD8P_35 Sch=rpio_16_r
@@ -212,4 +234,8 @@ set_property -dict {PACKAGE_PIN Y7 IOSTANDARD LVCMOS33} [get_ports riscv_uart_tx
 ##Crypto SDA
 
 #set_property -dict { PACKAGE_PIN J15   IOSTANDARD LVCMOS33 } [get_ports { crypto_sda }]; #IO_25_35 Sch=crypto_sda
+
+
+
+
 

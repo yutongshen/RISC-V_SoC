@@ -47,3 +47,4 @@ export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -fo
 report_ip_status -name ip_status 
 reset_run synth_1
 launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2

@@ -101,6 +101,9 @@ logic        rxneie;
 logic        txe;
 logic        rxne;
 
+logic        sw_rstn;
+logic [ 3:0] rst_cnt;
+
 logic [31:0] debug_reg;
 
 assign apb_wr = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
@@ -133,11 +136,22 @@ end
 assign s_apb_intf.pslverr = 1'b0;
 assign s_apb_intf.pready = 1'b1;
 
+always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) rst_cnt <= 4'b0;
+    else begin
+        if (apb_wr && s_apb_intf.paddr[11:0] == `MAC_RESET && s_apb_intf.pwdata[0])
+            rst_cnt <= 4'h1;
+        else if (|rst_cnt)
+            rst_cnt <= rst_cnt - 4'b1;
+    end
+end
+assign sw_rstn = ~|rst_cnt && rstn;
+
 assign rxne = !rx_len_fifo_empty;
 assign txe  = !tx_busy;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         txeie  <= 1'b0;
         rxneie <= 1'b0;
     end
@@ -151,9 +165,9 @@ end
 
 assign irq_out = (rxne && rxneie) || (txe && txeie);
 
-resetn_synchronizer u_sync_srstn (
+resetn_synchronizer u_sync_rstn (
     .clk        ( rmii_refclk ),
-    .rstn_async ( rstn        ),
+    .rstn_async ( sw_rstn     ),
     .rstn_sync  ( rmii_rstn   )
 );
 
@@ -180,7 +194,7 @@ mac_rmii_intf u_mac_rmii_intf (
 
 mac_afifo u_mac_afifo_rx (
     .rclk      ( clk            ),
-    .rrstn     ( rstn           ),
+    .rrstn     ( sw_rstn        ),
     .wclk      ( rmii_refclk    ),
     .wrstn     ( rmii_rstn      ),
 
@@ -196,7 +210,7 @@ mac_afifo u_mac_afifo_tx (
     .rclk      ( rmii_refclk        ),
     .rrstn     ( rmii_rstn          ),
     .wclk      ( clk                ),
-    .wrstn     ( rstn               ),
+    .wrstn     ( sw_rstn            ),
 
     .full      ( afifo_tx_full      ),
     .nxt_full  ( afifo_tx_nxt_full  ),
@@ -213,8 +227,8 @@ mac_afifo u_mac_afifo_tx (
 assign rx_discar = apb_wr && s_apb_intf.paddr[11:0] == `MAC_RXDIS;
 assign rx_len    = {11{!rx_len_fifo_empty && rx_ram_read_busy}} & rx_len_fifo_rdata;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         rx_busy_d1 <= 1'b0;
         rx_busy_d2 <= 1'b0;
     end
@@ -224,42 +238,51 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-assign rx_busy = rx_busy_d2;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
+        rx_busy <= 1'b0;
+    end
+    else begin
+        if (rx_busy && rx_len_cnt_upd) rx_busy <= 1'b0;
+        else if (rx_busy_d2)           rx_busy <= 1'b1;
+    end
+end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_en_pre <= 1'b0;
+
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_en_pre <= 1'b0;
     else begin
         if (apb_wr && s_apb_intf.paddr[11:0] == `MAC_RXCTRL)
             rx_en_pre <= s_apb_intf.pwdata[0];
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_en <= 1'b0;
-    else       rx_en <= !rx_busy ? rx_en_pre : rx_en;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_en <= 1'b0;
+    else          rx_en <= !rx_busy ? rx_en_pre : rx_en;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)              rx_data <= 32'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn)           rx_data <= 32'b0;
     else if (rx_ram_rd_dly) rx_data <= rx_ram_do;
 end
 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (~rstn) rx_busy <= 1'b0;
-//     else       rx_busy <= !rx_en || rx_len_cnt_upd_dly ? 1'b0:
-//                           rx_ram_wr                    ? 1'b1:
-//                                                          rx_busy;
+// always_ff @(posedge clk or negedge sw_rstn) begin
+//     if (~sw_rstn) rx_busy <= 1'b0;
+//     else          rx_busy <= !rx_en || rx_len_cnt_upd_dly ? 1'b0:
+//                              rx_ram_wr                    ? 1'b1:
+//                                                             rx_busy;
 // end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_read_busy <= 1'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_read_busy <= 1'b0;
     else       rx_ram_read_busy <= rx_len_fifo_rd                          ? 1'b0:
                                    !rx_ram_read_busy && !rx_len_fifo_empty ? 1'b1:
                                                                              rx_ram_read_busy;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_rptr_tail <= 10'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_rptr_tail <= 10'b0;
     else begin
         if (!rx_ram_read_busy && !rx_len_fifo_empty)
             rx_ram_rptr_tail <= rx_ram_rptr_tail +
@@ -267,39 +290,39 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_wptr <= 10'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_wptr <= 10'b0;
     else begin
-        if (rx_len_cnt_upd && rx_ovf)
+        if (rx_len_cnt_upd && rx_ovf && rx_en)
             rx_ram_wptr <= rx_ram_wptr - {1'b0, rx_len_cnt[10:2]} - {9'b0, |rx_len_cnt[1:0]};
         else
             rx_ram_wptr <= rx_ram_wptr + {9'b0, rx_ram_wr};
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_rptr <= 10'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_rptr <= 10'b0;
     else begin
         if (rx_len_fifo_rd) rx_ram_rptr <= rx_ram_rptr_tail;
         else                rx_ram_rptr <= rx_ram_rptr + {9'b0, rx_ram_rd & ~rx_ram_wr};
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_do_valid <= 1'b0;
-    else       rx_ram_do_valid <= rx_ram_rd && !rx_ram_wr                         ? 1'b1:
-                                  apb_rd && s_apb_intf.paddr[11:0] == `MAC_RXFIFO ? 1'b0:
-                                                                                    rx_ram_do_valid;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_do_valid <= 1'b0;
+    else          rx_ram_do_valid <= rx_ram_rd && !rx_ram_wr                         ? 1'b1:
+                                     apb_rd && s_apb_intf.paddr[11:0] == `MAC_RXFIFO ? 1'b0:
+                                                                                       rx_ram_do_valid;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ram_rd_dly <= 1'b0;
-    else       rx_ram_rd_dly <= rx_ram_rd && !rx_ram_wr;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ram_rd_dly <= 1'b0;
+    else          rx_ram_rd_dly <= rx_ram_rd && !rx_ram_wr;
 end
 
 assign rx_ram_full = rx_ram_wptr[8:0] == rx_ram_rptr[8:0] && (rx_ram_wptr[9] ^ rx_ram_rptr[9]);
 assign rx_ram_rd   = !rx_ram_do_valid && rx_ram_rptr_tail != rx_ram_rptr;
-assign rx_ram_wr   = rx_en && !afifo_rx_empty && |afifo_rx_rdata[34:32];
+assign rx_ram_wr   = rx_en && !afifo_rx_empty && |afifo_rx_rdata[34:32] && !(&afifo_rx_rdata[34:32]) && !rx_ram_full;
 assign rx_ram_cs   = rx_ram_wr || rx_ram_rd;
 assign rx_ram_we   = rx_ram_wr;
 assign rx_ram_a    = rx_ram_wr ? rx_ram_wptr[8:0] : rx_ram_rptr[8:0];
@@ -314,37 +337,40 @@ sram512x32 u_rx_ram (
     .DO ( rx_ram_do )
 );
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         rx_len_cnt_upd     <= 1'b0;
         rx_len_cnt_upd_dly <= 1'b0;
     end
     else begin
-        rx_len_cnt_upd     <= !afifo_rx_empty && !afifo_rx_rdata[34];
+        rx_len_cnt_upd     <= !afifo_rx_empty && (!afifo_rx_rdata[34] || &afifo_rx_rdata[34:32]);
         rx_len_cnt_upd_dly <= rx_len_cnt_upd;
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_len_cnt <= 11'b0;
-    else       rx_len_cnt <= rx_len_cnt_upd_dly  ? 11'b0:
-                             !afifo_rx_empty     ? rx_len_cnt + {8'b0, afifo_rx_rdata[34:32]}:
-                                                   rx_len_cnt;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_len_cnt <= 11'b0;
+    else          rx_len_cnt <= rx_len_cnt_upd_dly        ? 11'b0:
+                                !afifo_rx_empty && 
+                                !(&afifo_rx_rdata[34:32]) ? rx_len_cnt + {8'b0, afifo_rx_rdata[34:32]}:
+                                                            rx_len_cnt;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) rx_ovf <= 1'b0;
-    else       rx_ovf <= rx_len_cnt_upd                                 ? 1'b0:
-                         rx_ram_wr && (rx_ram_full || rx_len_fifo_full) ? 1'b1: rx_ovf;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) rx_ovf <= 1'b0;
+    else          rx_ovf <= rx_len_cnt_upd                              ? 1'b0:
+                            !afifo_rx_empty && (rx_ram_full      ||
+                                                rx_len_fifo_full ||
+                                                &afifo_rx_rdata[34:32]) ? 1'b1: rx_ovf;
 end
 
 assign rx_len_fifo_rd    = rx_discar && !rx_len_fifo_empty;
-assign rx_len_fifo_wr    = rx_len_cnt_upd && !rx_ovf;
+assign rx_len_fifo_wr    = rx_en && rx_len_cnt_upd && !rx_ovf;
 assign rx_len_fifo_wdata = rx_len_cnt;
 
 mac_fifo u_rx_len_fifo (
     .clk   ( clk               ),
-    .rstn  ( rstn              ),
+    .rstn  ( sw_rstn           ),
 
     // Write side
     .full  ( rx_len_fifo_full  ),
@@ -361,8 +387,8 @@ mac_fifo u_rx_len_fifo (
 assign tx_done   = tx_busy && ~|tx_len_cnt && afifo_tx_empty_d2;
 assign tx_discar = !tx_busy && apb_wr && s_apb_intf.paddr[11:0] == `MAC_TXDIS;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         tx_en <= 1'b0;
     end
     else begin
@@ -371,8 +397,8 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         tx_len <= 11'b0;
     end
     else begin
@@ -384,11 +410,11 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 assign tx_ram_wr = tx_en && |tx_ram_wlen && apb_wr && s_apb_intf.paddr[11:0] == `MAC_TXFIFO;
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) tx_ram_wlen <= 9'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) tx_ram_wlen <= 9'b0;
     else begin
         if (tx_en && ~|tx_len && apb_wr && s_apb_intf.paddr[11:0] == `MAC_TXLEN)
-            tx_ram_wlen <= s_apb_intf.pwdata[10:2] + {8'b0, |s_apb_intf.pwdata[10:2]};
+            tx_ram_wlen <= s_apb_intf.pwdata[10:2] + {8'b0, |s_apb_intf.pwdata[1:0]};
         else if (tx_discar)
             tx_ram_wlen <= 9'b0;
         else
@@ -396,19 +422,19 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) tx_ram_wptr <= 9'b0;
-    else       tx_ram_wptr <= tx_discar ? tx_ram_rptr:
-                                          tx_ram_wptr + {8'b0, tx_ram_wr};
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) tx_ram_wptr <= 9'b0;
+    else          tx_ram_wptr <= tx_discar ? tx_ram_rptr:
+                                             tx_ram_wptr + {8'b0, tx_ram_wr};
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) tx_ram_rptr <= 9'b0;
-    else       tx_ram_rptr <= tx_ram_rptr + {8'b0, tx_ram_rd};
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) tx_ram_rptr <= 9'b0;
+    else          tx_ram_rptr <= tx_ram_rptr + {8'b0, tx_ram_rd};
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) tx_len_cnt <= 11'b0;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) tx_len_cnt <= 11'b0;
     else begin
         if (tx_en && ~|tx_len && apb_wr && s_apb_intf.paddr[11:0] == `MAC_TXLEN)
             tx_len_cnt <= s_apb_intf.pwdata[10:0];
@@ -420,8 +446,8 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 assign tx_len_cnt_nxt = |tx_len_cnt[10:2] ? tx_len_cnt - 11'h4 : 11'b0;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         afifo_tx_empty_d1 <= 1'b0;
         afifo_tx_empty_d2 <= 1'b0;
     end
@@ -431,11 +457,11 @@ always_ff @(posedge clk or negedge rstn) begin
     end
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) tx_busy <= 1'b0;
-    else       tx_busy <= |tx_len_cnt && ~|tx_ram_wlen && !tx_discar ? 1'b1:
-                          tx_done                                    ? 1'b0:
-                                                                       tx_busy;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) tx_busy <= 1'b0;
+    else          tx_busy <= |tx_len_cnt && ~|tx_ram_wlen && !tx_discar ? 1'b1:
+                             tx_done                                    ? 1'b0:
+                                                                          tx_busy;
 end
 
 assign afifo_tx_wdata[34:32] = |tx_len_cnt[10:2] ? 3'h4 : {1'b0, tx_len_cnt[1:0]};
@@ -444,9 +470,9 @@ assign tx_ram_rd             = ((afifo_tx_wr && |tx_len_cnt_nxt) || (!afifo_tx_w
                                (!afifo_tx_nxt_full || !(afifo_tx_full || afifo_tx_wr)) &&
                                tx_busy;
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) afifo_tx_wr <= 1'b0;
-    else       afifo_tx_wr <= tx_ram_rd;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) afifo_tx_wr <= 1'b0;
+    else          afifo_tx_wr <= tx_ram_rd;
 end
 
 assign tx_ram_cs = tx_ram_rd || tx_ram_wr;
@@ -475,18 +501,18 @@ logic        dbg_rst_d3;
 logic        dbg_rst_d4;
 
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) sys_cnt <= 32'b0;
-    else       sys_cnt <= ~|sys_cnt ? 32'd45454 : (sys_cnt - 32'b1);
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) sys_cnt <= 32'b0;
+    else          sys_cnt <= ~|sys_cnt ? 32'd45454 : (sys_cnt - 32'b1);
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) dbg_rst_async <= 1'b0;
-    else       dbg_rst_async <= ~|sys_cnt ? ~dbg_rst_async : dbg_rst_async;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) dbg_rst_async <= 1'b0;
+    else          dbg_rst_async <= ~|sys_cnt ? ~dbg_rst_async : dbg_rst_async;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) begin
         dbg_rst_d3 <= 1'b1;
         dbg_rst_d4 <= 1'b1;
     end
@@ -517,9 +543,9 @@ always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
     else            debug_latch <= (~dbg_rst_d1 && dbg_rst_d2) ? debug : debug_latch;
 end
 
-always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) debug_reg <= 32'b0;
-    else       debug_reg <= (~dbg_rst_d3 && dbg_rst_d4) ? debug_latch : debug_reg;
+always_ff @(posedge clk or negedge sw_rstn) begin
+    if (~sw_rstn) debug_reg <= 32'b0;
+    else          debug_reg <= (~dbg_rst_d3 && dbg_rst_d4) ? debug_latch : debug_reg;
 end
 
 

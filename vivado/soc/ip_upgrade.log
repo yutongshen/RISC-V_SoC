@@ -1,6 +1,192 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Wed Apr 26 22:29:56 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 12) to (Rev. 13)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Wed Apr 26 22:26:52 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 11) to (Rev. 12)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Fri Apr 14 09:11:32 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 10) to (Rev. 11)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Fri Apr 14 01:05:16 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 9) to (Rev. 10)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Sat Apr  8 01:46:55 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+CAUTION (success, with warnings) in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 8) to (Rev. 9)
+
+2. Interface Information
+------------------------
+
+Detected external interface differences while upgrading 'soc_cpu_wrap_0_0'.
+
+
+-Upgrade has removed interface 'rmii_refclk'
+
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Sat Apr  8 01:42:45 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+CAUTION (success, with warnings) in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 7) to (Rev. 8)
+
+2. Interface Information
+------------------------
+
+Detected external interface differences while upgrading 'soc_cpu_wrap_0_0'.
+
+
+-Upgrade has added interface 'rmii_refclk' (xilinx.com:signal:clock:1.0)
+
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Fri Apr  7 19:14:17 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 6) to (Rev. 7)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Thu Apr  6 01:07:05 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 5) to (Rev. 6)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
 | Date         : Thu Apr  6 00:26:25 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
 | Command      : upgrade_ip

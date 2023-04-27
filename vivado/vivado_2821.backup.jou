@@ -1,0 +1,229 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Fri Apr  7 19:12:19 2023
+# Process ID: 2821
+# Current directory: /home/yutong/RISC-V_SoC/vivado
+# Command line: vivado
+# Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
+# Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_compile_order -fileset sources_1
+report_ip_status -name ip_status 
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+startgroup
+set_property -dict [list CONFIG.JITTER_SEL {No_Jitter} CONFIG.PRIM_SOURCE {Single_ended_clock_capable_pin} CONFIG.MMCM_DIVCLK_DIVIDE {1} CONFIG.MMCM_BANDWIDTH {OPTIMIZED} CONFIG.CLKOUT1_JITTER {192.113} CONFIG.CLKOUT1_PHASE_ERROR {164.985}] [get_bd_cells clk_wiz_0]
+endgroup
+save_bd_design
+reset_run synth_1
+reset_run soc_clk_wiz_0_0_synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+report_ip_status -name ip_status 
+open_run impl_2
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230407/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230407/riscv.tcl
+delete_bd_objs [get_bd_nets clk_wiz_0_clk_out1]
+connect_bd_net [get_bd_ports riscv_rmii_refclk] [get_bd_pins cpu_wrap_0/rmii_refclk]
+delete_bd_objs [get_bd_cells clk_wiz_0]
+regenerate_bd_layout -routing
+regenerate_bd_layout -routing
+set_property location {-16 415} [get_bd_intf_ports riscv_jtag]
+set_property location {-16 434} [get_bd_intf_ports riscv_jtag]
+set_property location {-10 451} [get_bd_ports miso_0]
+set_property location {3 930 407} [get_bd_cells cpu_wrap_0]
+set_property location {-11 490} [get_bd_ports riscv_rmii_refclk]
+set_property location {-17 483} [get_bd_ports riscv_rmii_refclk]
+set_property location {-11 462} [get_bd_ports miso_0]
+report_ip_status -name ip_status 
+save_bd_design
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+report_ip_status -name ip_status 
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230407_2/riscv.tcl
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230407_2/riscv.bit
+report_timing -through  [get_nets {soc_i/cpu_wrap_0/inst/u_peri/u_mac/debug_reg[0]_i_1_n_7}] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_nets {soc_i/cpu_wrap_0/inst/u_peri/u_mac/debug_reg[0]_i_1_n_7}]}
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+report_timing -through  [get_nets {soc_i/cpu_wrap_0/inst/u_dap/u_axi_ap/u_mem_ap/tx_mem_rdata_reg[31]_1[0]}] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_nets {soc_i/cpu_wrap_0/inst/u_dap/u_axi_ap/u_mem_ap/tx_mem_rdata_reg[31]_1[0]}]}
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+reset_run impl_2
+delete_bd_objs [get_bd_nets riscv_rmii_refclk_1]
+reset_property CONFIG.CLK_DOMAIN [get_bd_pins rmii_refclk]
+reset_property CONFIG.FREQ_HZ [get_bd_pins rmii_refclk]
+startgroup
+connect_bd_net [get_bd_ports riscv_rmii_refclk] [get_bd_pins cpu_wrap_0/rmii_refclk]
+endgroup
+reset_property TYPE [get_bd_pins rmii_refclk]
+reset_property TYPE [get_bd_pins rmii_refclk]
+reset_property TYPE [get_bd_pins rmii_refclk]
+reset_property TYPE [get_bd_pins rmii_refclk]
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+set_property -dict [list CONFIG.FREQ_HZ {50000000}] [get_bd_pins cpu_wrap_0/rmii_refclk]
+regenerate_bd_layout
+save_bd_design
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+reset_run synth_1
+reset_run soc_cpu_wrap_0_0_synth_1
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230408/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230408/riscv.tcl
+set_property pulltype PULLDOWN [get_ports [list riscv_rmii_refclk]]
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230408/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230408/riscv.tcl
+save_constraints -force
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+close_design
+open_run synth_1 -name synth_1
+close_design
+open_run impl_2
+set_property pulltype PULLUP [get_ports [list riscv_rmii_refclk]]
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230409/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230409/riscv.tcl
+save_constraints
+reset_run impl_2
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+close_design
+open_run impl_2
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230409_2/riscv.tcl
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230409_2/riscv.bit
+set_property pulltype NONE [get_ports [list riscv_rmii_refclk]]
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+startgroup
+create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_wiz_0
+endgroup
+set_property -dict [list CONFIG.PRIM_IN_FREQ.VALUE_SRC USER] [get_bd_cells clk_wiz_0]
+set_property -dict [list CONFIG.PRIM_IN_FREQ {50} CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {50.000} CONFIG.CLKIN1_JITTER_PS {200.0} CONFIG.MMCM_DIVCLK_DIVIDE {1} CONFIG.MMCM_CLKFBOUT_MULT_F {20.000} CONFIG.MMCM_CLKIN1_PERIOD {20.000} CONFIG.MMCM_CLKIN2_PERIOD {10.0} CONFIG.MMCM_CLKOUT0_DIVIDE_F {20.000} CONFIG.CLKOUT1_JITTER {192.113} CONFIG.CLKOUT1_PHASE_ERROR {164.985}] [get_bd_cells clk_wiz_0]
+connect_bd_net [get_bd_pins clk_wiz_0/reset] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+delete_bd_objs [get_bd_nets riscv_rmii_refclk_1]
+connect_bd_net [get_bd_ports riscv_rmii_refclk] [get_bd_pins clk_wiz_0/clk_in1]
+connect_bd_net [get_bd_pins clk_wiz_0/locked] [get_bd_pins cpu_wrap_0/rmii_refclk]
+delete_bd_objs [get_bd_nets clk_wiz_0_locked]
+connect_bd_net [get_bd_pins clk_wiz_0/clk_out1] [get_bd_pins cpu_wrap_0/rmii_refclk]
+regenerate_bd_layout -routing
+save_constraints -force
+save_bd_design
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+startgroup
+set_property -dict [list CONFIG.RESET_TYPE {ACTIVE_LOW} CONFIG.RESET_PORT {resetn}] [get_bd_cells clk_wiz_0]
+endgroup
+connect_bd_net [get_bd_pins clk_wiz_0/resetn] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+regenerate_bd_layout -routing
+save_bd_design
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230410/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230410/riscv.tcl
+startgroup
+set_property -dict [list CONFIG.JITTER_SEL {Max_I_Jitter} CONFIG.PRIM_SOURCE {Global_buffer} CONFIG.USE_LOCKED {false} CONFIG.MMCM_DIVCLK_DIVIDE {1} CONFIG.MMCM_BANDWIDTH {LOW} CONFIG.CLKOUT1_JITTER {175.318} CONFIG.CLKOUT1_PHASE_ERROR {423.708}] [get_bd_cells clk_wiz_0]
+endgroup
+set_property location {1 150 538} [get_bd_cells clk_wiz_0]
+regenerate_bd_layout -routing
+save_bd_design
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230410_2/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230410_2/riscv.tcl
+set_property IOSTANDARD LVCMOS18 [get_ports riscv_rmii_refclk]
+save_constraints
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+delete_bd_objs [get_bd_nets clk_wiz_0_clk_out1] [get_bd_nets riscv_rmii_refclk_1] [get_bd_cells clk_wiz_0]
+connect_bd_net [get_bd_ports riscv_rmii_refclk] [get_bd_pins cpu_wrap_0/rmii_refclk]
+regenerate_bd_layout -routing
+regenerate_bd_layout -routing
+save_bd_design
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+reset_run impl_2
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+close_design
+open_run impl_2
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230411/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230411/riscv.tcl
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230411_2/riscv.tcl
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230411_2/riscv.bit
+set_property IOSTANDARD SSTL18_I [get_ports riscv_rmii_crs_dv]
+set_property IOSTANDARD LVCMOS18 [get_ports riscv_rmii_crs_dv]
+save_constraints -force
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230411_3/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230411_3/riscv.tcl
+reset_run impl_2 -prev_step 
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+reset_run impl_2 -prev_step 
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+report_ip_status -name ip_status 

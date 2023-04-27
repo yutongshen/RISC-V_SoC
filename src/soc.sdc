@@ -1,7 +1,4 @@
-create_clock -period 100.000 -name riscv_jtag_tck -waveform {0.000 50.000} [get_ports -filter { NAME =~  "*riscv_jtag_tck*" && DIRECTION == "IN" }]
-create_clock -period 20.000 -name riscv_rmii_refclk -waveform {0.000 10.000} [get_ports -filter { NAME =~  "*riscv_rmii_refclk*" && DIRECTION == "IN" }]
-create_generated_clock -name sclk -source [get_pins {soc_i/processing_system7_0/inst/PS7_i/FCLKCLK[0]}] -divide_by 2 -add -master_clock clk_fpga_0 [get_ports *sclk_0*]
-
+# set_clock_groups -asynchronous -group [get_clocks {clk_fpga_0 sclk}] -group [get_clocks clk_fpga_1] -group [get_clocks riscv_jtag_tck] -group [get_clocks -filter { NAME =~  "*rmii*" || NAME =~  "*clk_out1*" }]
 set_clock_groups -asynchronous -group [get_clocks {clk_fpga_0 sclk}] -group [get_clocks clk_fpga_1] -group [get_clocks riscv_jtag_tck] -group [get_clocks riscv_rmii_refclk]
 
 set_input_delay -clock [get_clocks riscv_jtag_tck] 60.000 [get_ports {riscv_jtag_tdi riscv_jtag_tms}]
@@ -9,9 +6,11 @@ set_output_delay -clock [get_clocks riscv_jtag_tck] 60.000 [get_ports riscv_jtag
 set_input_delay -clock [get_clocks sclk] 12.000 [get_ports miso_0]
 set_output_delay -clock [get_clocks sclk] 10.000 [get_ports {mosi_0 nss_0 sclk_0}]
 set_input_delay -clock [get_clocks riscv_rmii_refclk] 12.000 [get_ports {riscv_rmii_crs_dv {riscv_rmii_rxd[0]} {riscv_rmii_rxd[1]}}]
-set_output_delay -clock [get_clocks riscv_rmii_refclk] 5.000 [get_ports {riscv_rmii_tx_en {riscv_rmii_txd[0]} {riscv_rmii_txd[1]}}]
+set_output_delay -clock [get_clocks riscv_rmii_refclk] 12.000 [get_ports {riscv_rmii_tx_en {riscv_rmii_txd[0]} {riscv_rmii_txd[1]}}]
 set_input_delay -clock [get_clocks clk_fpga_0] 10.000 [get_ports riscv_uart_rxd]
 set_output_delay -clock [get_clocks clk_fpga_0] 10.000 [get_ports riscv_uart_txd]
+
+set_multicycle_path -setup -to [get_ports {riscv_rmii_tx_en {riscv_rmii_txd[0]} {riscv_rmii_txd[1]}}] 2
 
 # tx async
 set_data_check -setup -from [get_pins soc_i/cpu_wrap_0/inst/u_dap/u_apb_ap/u_mem_ap/rx_tog_s1_reg/D] -to [get_pins {soc_i/cpu_wrap_0/inst/u_dap/u_apb_ap/u_mem_ap/tx_mem_rdata_reg[0]/D}] -100.000 -clock [get_clocks clk_fpga_0]

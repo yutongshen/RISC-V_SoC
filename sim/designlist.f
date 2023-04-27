@@ -48,6 +48,7 @@
 ../src/peri/dma.sv
 ../src/peri/mac.sv
 ../src/peri/mac_afifo.sv
+../src/peri/mac_crc32.sv
 ../src/peri/mac_rmii_intf.sv
 ../src/dbg/dap.sv
 ../src/dbg/jtag_dp.sv

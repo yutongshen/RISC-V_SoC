@@ -1,0 +1,604 @@
+/*
+
+Xilinx Vivado v2018.3 (64-bit) [Major: 2018, Minor: 3]
+SW Build: 2405991 on Thu Dec  6 23:36:41 MST 2018
+IP Build: 2404404 on Fri Dec  7 01:43:56 MST 2018
+
+Process ID (PID): 733783
+License: Customer
+
+Current time: 	Fri Apr 14 09:09:36 CST 2023
+Time zone: 	Taipei Standard Time (Asia/Taipei)
+
+OS: Ubuntu
+OS Version: 5.19.0-38-generic
+OS Architecture: amd64
+Available processors (cores): 2
+
+Display: :0
+Screen size: 1920x1080
+Screen resolution (DPI): 96
+Available screens: 1
+Available disk space: 35 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4
+Java executable location: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	yutong
+User home directory: /home/yutong
+User working directory: /home/yutong/RISC-V_SoC/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /tools/Xilinx/Vivado
+HDI_APPROOT: /tools/Xilinx/Vivado/2018.3
+RDI_DATADIR: /tools/Xilinx/Vivado/2018.3/data
+RDI_BINDIR: /tools/Xilinx/Vivado/2018.3/bin
+
+Vivado preferences file location: /home/yutong/.Xilinx/Vivado/2018.3/vivado.xml
+Vivado preferences directory: /home/yutong/.Xilinx/Vivado/2018.3/
+Vivado layouts directory: /home/yutong/.Xilinx/Vivado/2018.3/layouts
+PlanAhead jar file location: 	/tools/Xilinx/Vivado/2018.3/lib/classes/planAhead.jar
+Vivado log file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.log
+Vivado journal file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-733783-yutong-virtual-machine
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_DSP: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_PLANAHEAD: /tools/Xilinx/Vivado/2018.3
+XILINX_SDK: /tools/Xilinx/SDK/2018.3
+XILINX_VIVADO: /tools/Xilinx/Vivado/2018.3
+XILINX_VIVADO_HLS: /tools/Xilinx/Vivado/2018.3
+
+
+GUI allocated memory:	157 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 756 MB
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+// WARNING: HEventQueue.dispatchEvent() is taking  1228 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 747 MB. GUI used memory: 44 MB. Current time: 4/14/23, 9:09:39 AM CST
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/yutong/RISC-V_SoC/vivado/soc/soc.xpr", 0); // q (Q, cp)
+// [GUI Memory]: 96 MB (+98026kb) [00:00:34]
+// [Engine Memory]: 759 MB (+644377kb) [00:00:34]
+// bx (cp):  Open Project : addNotify
+// Opening Vivado Project: /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr. Version: Vivado v2018.3 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: FILE_SET_NEW
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 853 MB. GUI used memory: 42 MB. Current time: 4/14/23, 9:09:59 AM CST
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJECT_NEW
+// [Engine Memory]: 894 MB (+101693kb) [00:00:54]
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 8995 ms. Increasing delay to 3000 ms.
+// [GUI Memory]: 106 MB (+5955kb) [00:01:09]
+// [Engine Memory]: 941 MB (+2294kb) [00:01:09]
+// WARNING: HEventQueue.dispatchEvent() is taking  19425 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1027 ms.
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// Tcl Message: INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'. 
+// HMemoryUtils.trashcanNow. Engine heap size: 970 MB. GUI used memory: 53 MB. Current time: 4/14/23, 9:10:22 AM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  2692 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1853 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2152 ms.
+// Tcl Message: open_project: Time (s): cpu = 00:00:23 ; elapsed = 00:00:39 . Memory (MB): peak = 6434.492 ; gain = 208.945 ; free physical = 2863 ; free virtual = 8433 
+// [Engine Memory]: 1,074 MB (+90127kb) [00:01:21]
+// Project name: soc; location: /home/yutong/RISC-V_SoC/vivado/soc; part: xc7z020clg400-1
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 962ms to process. Increasing delay to 3000 ms.
+// Elapsed time: 49 seconds
+dismissDialog("Open Project"); // bx (cp)
+// [Engine Memory]: 1,315 MB (+196710kb) [00:01:25]
+// WARNING: HEventQueue.dispatchEvent() is taking  1417 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1396 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2159 ms.
+// Elapsed time: 10 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator, Open Block Design]", 7, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_OPEN_BLOCK_DESIGN
+// bx (cp):  Open Block Design : addNotify
+// TclEventType: LOAD_FEATURE
+// Tcl Message: open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd} 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,072 MB. GUI used memory: 57 MB. Current time: 4/14/23, 9:10:44 AM CST
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: LOAD_FEATURE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: RSB_OPEN_DIAGRAM
+// Tcl Message: Adding cell -- xilinx.com:ip:processing_system7:5.5 - processing_system7_0 Adding cell -- xilinx.com:ip:axi_interconnect:2.1 - axi_interconnect_0 Adding cell -- xilinx.com:ip:axi_protocol_converter:2.1 - auto_pc Adding cell -- xilinx.com:ip:axi_dwidth_converter:2.1 - auto_us Adding cell -- xilinx.com:ip:smartconnect:1.0 - smartconnect_0 Adding cell -- xilinx.com:ip:axi_apb_bridge:3.0 - axi_apb_bridge_0 Adding cell -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps7_0_50M Adding cell -- user.org:user:cpu_wrap:1.0 - cpu_wrap_0 
+// Tcl Message: Successfully read diagram <soc> from BD file </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd> 
+// TclEventType: RSB_OPEN_DIAGRAM
+// TclEventType: RSB_CONNECTION_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  2974 ms.
+closeView(PAResourceOtoP.PAViews_PROJECT_SUMMARY, "Project Summary"); // v
+// TclEventType: RSB_CONNECTION_CHANGE
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// Tcl Message: open_bd_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:08 . Memory (MB): peak = 6568.484 ; gain = 106.828 ; free physical = 2704 ; free virtual = 8296 
+// [GUI Memory]: 115 MB (+3958kb) [00:01:42]
+// 'bA' command handler elapsed time: 8 seconds
+dismissDialog("Open Block Design"); // bx (cp)
+// Tcl Message: update_compile_order -fileset sources_1 
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cp): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_NO, "No"); // a (A)
+// 'cw' command handler elapsed time: 4 seconds
+dismissDialog("No Implementation Results Available"); // A (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+// Elapsed time: 19 seconds
+selectButton(PAResourceOtoP.PlanAheadTab_REFRESH_IP_CATALOG, "Refresh IP Catalog"); // h (cQ, cp)
+// TclEventType: CREATE_IP_CATALOG
+// TclEventType: IP_LOCK_CHANGE
+// Tcl Message: update_ip_catalog -rebuild -scan_changes 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories 
+// bx (cp):  Refresh IP Catalog : addNotify
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: BDCELL_LOCK_CHANGE
+// Tcl Message: INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// TclEventType: BDCELL_LOCK_CHANGE
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: IP_LOCK_CHANGE
+// TclEventType: BDCELL_LOCK_CHANGE
+// TclEventType: CREATE_IP_CATALOG
+// TclEventType: IP_SUMMARY_RESULTS
+// [Engine Memory]: 1,498 MB (+122782kb) [00:02:17]
+// Tcl Message: report_ip_status -name ip_status 
+dismissDialog("Refresh IP Catalog"); // bx (cp)
+selectButton(PAResourceItoN.IPStatusSectionPanel_UPGRADE_SELECTED, "Upgrade Selected"); // a (g, cp)
+// Run Command: PAResourceCommand.PACommandNames_UPGRADE_IP
+// TclEventType: RSB_OPEN_DIAGRAM
+// HMemoryUtils.trashcanNow. Engine heap size: 1,130 MB. GUI used memory: 62 MB. Current time: 4/14/23, 9:11:29 AM CST
+// TclEventType: RSB_OPEN_DIAGRAM
+// TclEventType: RUN_MODIFY
+// bx (cp):  Upgrade IP : addNotify
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_RESET
+// Tcl Message: upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log 
+// Tcl Message: Upgrading '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd' 
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// TclEventType: RUN_DELETE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILE_SET_DELETE
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [IP_Flow 19-3422] Upgraded soc_cpu_wrap_0_0 (cpu_wrap_v1_0 1.0) from revision 10 to revision 11 
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILESET_UPDATE_IP
+// TclEventType: IP_UPGRADE_COMPLETE
+// Tcl Message: Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>  Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ui/bd_e0923ae7.ui>  
+// Tcl Message: INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/yutong/RISC-V_SoC/vivado/soc/ip_upgrade.log'. 
+// Tcl Message: export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet 
+// aI (cp): Generate Output Products: addNotify
+selectButton("PAResourceTtoZ.UpgradeIP_IP_UPGRADE_COMPLETED_OK", "OK"); // JButton (C, I)
+selectButton(PAResourceQtoS.SimpleOutputProductDialog_CLOSE_DIALOG_UNSAVED_CHANGES_WILL, "Skip"); // a (aI)
+dismissDialog("Generate Output Products"); // aI (cp)
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cQ, cp)
+// Tcl Command: 'report_ip_status -name ip_status '
+// TclEventType: IP_SUMMARY_RESULTS
+// [GUI Memory]: 122 MB (+703kb) [00:02:31]
+// Tcl Message: report_ip_status -name ip_status  
+// bx (cp):  Report IP Status : addNotify
+dismissDialog("Report IP Status"); // bx (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cp): No Implementation Results Available: addNotify
+selectButton(RDIResource.BaseDialog_YES, "Yes"); // a (A)
+// bx (cp):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+dismissDialog("No Implementation Results Available"); // A (cp)
+// TclEventType: RUN_RESET
+// Tcl Message: reset_run synth_1 
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// f (cp): Launch Runs: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (f)
+// 'cw' command handler elapsed time: 4 seconds
+// TclEventType: RSB_SCRIPT_TASK
+dismissDialog("Launch Runs"); // f (cp)
+// bx (cp):  Generate Bitstream : addNotify
+// TclEventType: RSB_SCRIPT_TASK
+// Tcl Message: launch_runs impl_2 -to_step write_bitstream -jobs 2 
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_CLOSE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// Tcl Message: Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>  
+// Tcl Message: VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.v 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: RSB_SCRIPT_TASK
+// Tcl Message: VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/sim/soc.v VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hdl/soc_wrapper.v 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block processing_system7_0 . 
+// TclEventType: FILE_SET_CHANGE
+// HMemoryUtils.trashcanNow. Engine heap size: 1,334 MB. GUI used memory: 60 MB. Current time: 4/14/23, 9:12:09 AM CST
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0.hwh Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0_bd.tcl Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/synth/soc_smartconnect_0_0.hwdef 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block smartconnect_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_apb_bridge_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block cpu_wrap_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_ps7_0_50M . 
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_pc . 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_us . 
+// Tcl Message: Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc.hwh Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc_bd.tcl Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.hwdef 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJ_DESIGN_MODE_SET
+// TclEventType: FILE_SET_NEW
+// Tcl Message: INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_pc_0, cache-ID = b3b8e833d2139bba; cache size = 272.288 MB. INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_us_0, cache-ID = 871e248c6fa0a0e8; cache size = 272.288 MB. 
+// TclEventType: FILE_SET_NEW
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_ADD
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Fri Apr 14 09:12:19 2023] Launched soc_cpu_wrap_0_0_synth_1, synth_1... Run output will be captured here: soc_cpu_wrap_0_0_synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_cpu_wrap_0_0_synth_1/runme.log synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/synth_1/runme.log 
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Fri Apr 14 09:12:20 2023] Launched impl_2... Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log 
+// Tcl Message: launch_runs: Time (s): cpu = 00:00:33 ; elapsed = 00:00:32 . Memory (MB): peak = 6748.461 ; gain = 179.977 ; free physical = 2328 ; free virtual = 7989 
+// Elapsed time: 32 seconds
+dismissDialog("Generate Bitstream"); // bx (cp)
+// Elapsed time: 84 seconds
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cQ, cp)
+// Tcl Command: 'report_ip_status -name ip_status '
+// TclEventType: IP_SUMMARY_RESULTS
+// Tcl Message: report_ip_status -name ip_status  
+// bx (cp):  Report IP Status : addNotify
+dismissDialog("Report IP Status"); // bx (cp)
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_COMPLETED
+// WARNING: HTimer (ExpRunMgr Pending Runs Timer) is taking 815ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1851 ms.
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_STEP_COMPLETED
+// HMemoryUtils.trashcanNow. Engine heap size: 1,412 MB. GUI used memory: 76 MB. Current time: 4/14/23, 9:42:10 AM CST
+// [GUI Memory]: 134 MB (+6298kb) [00:37:22]
+// TclEventType: RUN_COMPLETED
+// ah (cp): Bitstream Generation Completed: addNotify
+// HMemoryUtils.trashcanNow. Engine heap size: 1,412 MB. GUI used memory: 75 MB. Current time: 4/14/23, 10:12:10 AM CST
+// Elapsed time: 3657 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (ah)
+// Run Command: PAResourceCommand.PACommandNames_GOTO_IMPLEMENTED_DESIGN
+// bx (cp):  Open Implemented Design : addNotify
+// Tcl Message: open_run impl_2 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,642 MB. GUI used memory: 74 MB. Current time: 4/14/23, 10:15:29 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 2,003 MB. GUI used memory: 74 MB. Current time: 4/14/23, 10:15:44 AM CST
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_CNS_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// [Engine Memory]: 2,411 MB (+878515kb) [01:06:44]
+// TclEventType: FLOORPLAN_MODIFY
+// TclEventType: DESIGN_NEW
+// HMemoryUtils.trashcanNow. Engine heap size: 2,441 MB. GUI used memory: 74 MB. Current time: 4/14/23, 10:15:57 AM CST
+// TclEventType: DESIGN_NEW
+// Xgd.load filename: /tools/Xilinx/Vivado/2018.3/data/parts/xilinx/zynq/devint/zynq/xc7z020/xc7z020.xgd; ZipEntry: xc7z020_floorplan.xgd elapsed time: 0.9s
+// Xgd.load filename: /tools/Xilinx/Vivado/2018.3/data/parts/xilinx/zynq/devint/zynq/xc7z020/xc7z020.xgd; ZipEntry: xc7z020_detail.xgd elapsed time: 4.3s
+// [Engine Memory]: 2,567 MB (+36877kb) [01:06:58]
+// Device: addNotify
+// DeviceView Instantiated
+// WARNING: HEventQueue.dispatchEvent() is taking  9825 ms.
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: INFO: [Netlist 29-17] Analyzing 5047 Unisim elements for replacement INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds INFO: [Project 1-479] Netlist was created with Vivado 2018.3 INFO: [Device 21-403] Loading part xc7z020clg400-1 INFO: [Project 1-570] Preparing netlist for logic optimization INFO: [Timing 38-478] Restoring timing data from binary archive. INFO: [Timing 38-479] Binary timing data restore complete. INFO: [Project 1-856] Restoring constraints from binary archive. INFO: [Project 1-853] Binary constraint restore complete. 
+// Tcl Message: Reading XDEF placement. Reading placer database... Reading XDEF routing. 
+// Tcl Message: Read XDEF File: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 7791.512 ; gain = 82.961 ; free physical = 2414 ; free virtual = 6929 
+// Tcl Message: Restored from archive | CPU: 6.310000 secs | Memory: 82.762009 MB | 
+// Tcl Message: Finished XDEF File Restore: Time (s): cpu = 00:00:06 ; elapsed = 00:00:06 . Memory (MB): peak = 7791.512 ; gain = 82.961 ; free physical = 2414 ; free virtual = 6929 Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 7791.512 ; gain = 0.000 ; free physical = 2420 ; free virtual = 6935 
+// Tcl Message: INFO: [Project 1-111] Unisim Transformation Summary:   A total of 130 instances were transformed.   RAM32M => RAM32M (RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMS32, RAMS32): 118 instances   RAM32X1D => RAM32X1D (RAMD32, RAMD32): 1 instances   RAM64M => RAM64M (RAMD64E, RAMD64E, RAMD64E, RAMD64E): 11 instances  
+// Tcl Message: open_run: Time (s): cpu = 00:01:15 ; elapsed = 00:01:25 . Memory (MB): peak = 7929.973 ; gain = 1166.844 ; free physical = 2284 ; free virtual = 6836 
+// RouteApi::initDelayMediator elapsed time: 1.5s
+// ExpRunCommands.openImplResults elapsed time: 88.5s
+// TclEventType: DRC_ADDED
+// Device view-level: 0.0
+// WARNING: HEventQueue.dispatchEvent() is taking  2398 ms.
+// RouteApi: Init Delay Mediator Swing Worker Finished
+// Tcl Message: INFO: [Common 17-14] Message 'Designutils 20-3303' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings. 
+// TclEventType: DRC_ADDED
+// [GUI Memory]: 153 MB (+13090kb) [01:07:06]
+// TclEventType: METHODOLOGY_ADDED
+// HMemoryUtils.trashcanNow. Engine heap size: 2,623 MB. GUI used memory: 108 MB. Current time: 4/14/23, 10:16:16 AM CST
+// TclEventType: METHODOLOGY_ADDED
+// TclEventType: POWER_UPDATED
+// [GUI Memory]: 163 MB (+2403kb) [01:07:13]
+// TclEventType: HFED_INIT_ROUTE_STORAGE_COMPLETED
+// RouteApi::loadEngineXgd elapsed time: 25.3s
+// [Engine Memory]: 2,795 MB (+104574kb) [01:07:17]
+// [GUI Memory]: 178 MB (+7364kb) [01:07:17]
+// [GUI Memory]: 188 MB (+145kb) [01:07:18]
+// [Engine Memory]: 3,126 MB (+201291kb) [01:07:19]
+// [GUI Memory]: 197 MB (+127kb) [01:07:19]
+// WARNING: HEventQueue.dispatchEvent() is taking  7983 ms.
+// TclEventType: TIMING_SUMMARY_UPDATED
+// Device view-level: 0.0
+// TclEventType: TIMING_SUMMARY_UPDATED
+// WARNING: HEventQueue.dispatchEvent() is taking  2436 ms.
+// OpenDesignTask elapsed time: 108.9s
+// 'dQ' command handler elapsed time: 109 seconds
+// [Engine Memory]: 3,627 MB (+360957kb) [01:07:25]
+// aI (cp): Feedback Request: addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  1164 ms.
+// Elapsed time: 111 seconds
+dismissDialog("Open Implemented Design"); // bx (cp)
+// HMemoryUtils.trashcanNow. Engine heap size: 3,060 MB. GUI used memory: 152 MB. Current time: 4/14/23, 10:16:35 AM CST
+selectButton(PAResourceTtoZ.TouchpointSurveyDialog_REMIND_ME_LATER, "Remind me Later"); // a (aI)
+dismissDialog("Feedback Request"); // aI (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator, Open Block Design]", 7, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_OPEN_BLOCK_DESIGN
+// bx (cp):  Open Block Design : addNotify
+// TclEventType: RSB_OPEN_DIAGRAM
+closeView(PAResourceOtoP.PAViews_PROJECT_SUMMARY, "Project Summary"); // v
+// Tcl Message: open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd} 
+dismissDialog("Open Block Design"); // bx (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+selectMenu(PAResourceItoN.MainMenuMgr_CHECKPOINT, "Checkpoint"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_IP, "IP"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenuItem(PAResourceCommand.PACommandNames_EXPORT_BITSTREAM_FILES, "Export Bitstream File..."); // af (cp)
+dismissMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+// Run Command: PAResourceCommand.PACommandNames_EXPORT_BITSTREAM_FILES
+// Elapsed time: 26 seconds
+setFileChooser("/home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv");
+// 'a' command handler elapsed time: 26 seconds
+// Tcl Message: file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv.bit 
+selectButton("PAResourceEtoH.ExportBitstreamFile_BITSTREAM_EXPORT_SUCCESSFUL_OK", "OK"); // JButton (C, I)
+selectMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+selectMenu(PAResourceItoN.MainMenuMgr_CHECKPOINT, "Checkpoint"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_IP, "IP"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_TEXT_EDITOR, "Text Editor"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenuItem(PAResourceCommand.PACommandNames_EXPORT_BD_TCL, "Export Block Design..."); // af (cp)
+dismissMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+// Run Command: PAResourceCommand.PACommandNames_EXPORT_BD_TCL
+// bx (cp): Export Block Design: addNotify
+selectButton(PAResourceEtoH.ExportRSBTclScriptDialog_SPECIFY_FILE, (String) null); // q (ak, bx)
+// Elapsed time: 14 seconds
+setFileChooser("/home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv");
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (bx)
+// 'az' command handler elapsed time: 21 seconds
+// Tcl Command: 'write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv.tcl'
+// [GUI Memory]: 220 MB (+13848kb) [01:08:44]
+dismissDialog("Export Block Design"); // bx (cp)
+// Tcl Message: write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv.tcl 
+// Tcl Message: INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230414/riscv.tcl>.  
+// bx (cp):  Export Block Design : addNotify
+dismissDialog("Export Block Design"); // bx (cp)
+// HMemoryUtils.trashcanNow. Engine heap size: 3,058 MB. GUI used memory: 149 MB. Current time: 4/14/23, 10:46:40 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 11:16:41 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 11:46:41 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 12:16:41 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 12:46:41 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 1:16:42 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 1:46:42 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 2:16:42 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 2:46:43 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 3:16:43 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 3:46:43 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 4:16:43 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 4:46:44 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 5:16:44 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 5:46:44 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 6:16:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 6:46:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 7:16:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 7:46:46 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 8:16:46 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 8:46:46 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 9:16:47 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 9:46:47 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 10:16:47 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 10:46:48 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 11:16:48 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/14/23, 11:46:48 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/15/23, 12:16:49 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/15/23, 12:46:49 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/15/23, 1:16:49 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/15/23, 1:46:49 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,048 MB. GUI used memory: 146 MB. Current time: 4/15/23, 2:16:50 AM CST
