@@ -16,7 +16,7 @@ module mac_rmii_intf (
     output logic         fifo_tx_rd,
     input        [34:0]  fifo_tx_rdata,
 
-    output logic         rx_busy
+    output logic         rx_busy_o
 );
 
 logic        crsdv_d1;
@@ -34,6 +34,7 @@ logic        rx_sfd;
 logic        rx_buf_push;
 logic        rx_buf_valid;
 logic [31:0] rx_buf;
+logic        rx_busy;
 
 logic        rx_crc32_ctrl;
 logic        rx_crc32_ctrl_d;
@@ -69,6 +70,7 @@ end
 assign rx_data_nz = |rx_data[31:30] && |rx_data[29:28] && |rx_data[27:26] && |rx_data[25:24];
 assign rx_cnt_rst = (~rx_busy && crsdv_d2 && rx_data_nz) ||
                     ( rx_busy && ~rx_sfd && rx_cnt[0] && rx_data[31:24] == 8'hd5);
+assign rx_busy_o  = rx_busy || rx_sfd;
 
 always_ff @(posedge rmii_refclk or negedge rstn) begin
     if (~rstn) rx_busy <= 1'b0;
@@ -177,7 +179,7 @@ always_ff @(posedge rmii_refclk or negedge rstn) begin
     end
 end
 
-assign nxt_txen = !(crsdv_d1 || rx_crs) &&
+assign nxt_txen = /*!(crsdv_d1 || rx_crs) &&*/
                   ((rmii_txen && !fifo_tx_nxt_empty) || (!rmii_txen && !fifo_tx_empty)) || tx_busy;
 assign nxt_txd  = ~nxt_txen    ? 2'b0:
                   tx_cnt[5]    ? fifo_tx_rdata[tx_cnt[3:0]*2+:2]:
@@ -192,7 +194,7 @@ always_ff @(posedge rmii_refclk or negedge rstn) begin
         rmii_txd  <= 2'b0;
     end
     else begin
-        rmii_txen <= nxt_txen | |tx_crc_cnt;
+        rmii_txen <= nxt_txen | (|tx_crc_cnt);
         rmii_txd  <= nxt_txen ? nxt_txd : tx_crc32_out;
     end
 end
@@ -219,4 +221,3 @@ mac_crc32 u_tx_mac_crc32 (
 
 
 endmodule
-

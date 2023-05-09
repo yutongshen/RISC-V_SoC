@@ -22,14 +22,14 @@ __U32 main(void) {
     __puts("[BROM] FAT BPB init");
     __fat_bpb_init(&__bpb);
 
-    if (*CFGREG_RSVREG0_32P == 0) {
-        // load rootfs
-        __puts("[BROM] load rootfs");
-        __fopen(&__file, "riscv.fs");
-        __fread(&__file, (void *) 0x90000000, __file.size);
+    // if (*CFGREG_RSVREG0_32P == 0) {
+    //     // load rootfs
+    //     __puts("[BROM] load rootfs");
+    //     __fopen(&__file, "riscv.fs");
+    //     __fread(&__file, (void *) 0x90000000, __file.size);
 
-        *CFGREG_RSVREG0_32P = 0xcafecafe;
-    }
+    //     *CFGREG_RSVREG0_32P = 0xcafecafe;
+    // }
 
     // load bbl
     __puts("[BROM] load bbl");

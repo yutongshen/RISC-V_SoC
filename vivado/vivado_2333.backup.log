@@ -1,0 +1,222 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Mon May  8 21:33:02 2023
+# Process ID: 2333
+# Current directory: /home/yutong/RISC-V_SoC/vivado
+# Command line: vivado
+# Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
+# Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr
+Scanning sources...
+Finished scanning sources
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'.
+WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivado/soc'.)
+INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'.
+WARNING: [BD 41-1661] One or more IPs have been locked in the design 'soc.bd'. Please run report_ip_status for more details and recommendations on how to fix this issue.
+List of locked IPs:
+soc_cpu_wrap_0_0
+
+open_project: Time (s): cpu = 00:00:15 ; elapsed = 00:00:34 . Memory (MB): peak = 6421.234 ; gain = 193.562 ; free physical = 3012 ; free virtual = 8526
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+Adding cell -- xilinx.com:ip:processing_system7:5.5 - processing_system7_0
+Adding cell -- xilinx.com:ip:axi_interconnect:2.1 - axi_interconnect_0
+Adding cell -- xilinx.com:ip:axi_protocol_converter:2.1 - auto_pc
+Adding cell -- xilinx.com:ip:axi_dwidth_converter:2.1 - auto_us
+Adding cell -- xilinx.com:ip:smartconnect:1.0 - smartconnect_0
+Adding cell -- xilinx.com:ip:axi_apb_bridge:3.0 - axi_apb_bridge_0
+Adding cell -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps7_0_50M
+Adding cell -- user.org:user:cpu_wrap:1.0 - cpu_wrap_0
+WARNING: [BD 41-1731] Type mismatch between connected pins: /processing_system7_0/FCLK_CLK1(clk) and /cpu_wrap_0/clk_32k(undef)
+Successfully read diagram <soc> from BD file </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>
+open_bd_design: Time (s): cpu = 00:00:07 ; elapsed = 00:00:07 . Memory (MB): peak = 6571.969 ; gain = 114.051 ; free physical = 2804 ; free virtual = 8337
+update_compile_order -fileset sources_1
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+open_run impl_2
+INFO: [Netlist 29-17] Analyzing 5123 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds
+INFO: [Project 1-479] Netlist was created with Vivado 2018.3
+INFO: [Device 21-403] Loading part xc7z020clg400-1
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Timing 38-478] Restoring timing data from binary archive.
+INFO: [Timing 38-479] Binary timing data restore complete.
+INFO: [Project 1-856] Restoring constraints from binary archive.
+INFO: [Project 1-853] Binary constraint restore complete.
+Reading XDEF placement.
+Reading placer database...
+Reading XDEF routing.
+Read XDEF File: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 7578.871 ; gain = 76.961 ; free physical = 1560 ; free virtual = 7190
+Restored from archive | CPU: 6.190000 secs | Memory: 86.017059 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:05 ; elapsed = 00:00:06 . Memory (MB): peak = 7578.871 ; gain = 76.961 ; free physical = 1560 ; free virtual = 7190
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00 . Memory (MB): peak = 7578.871 ; gain = 0.000 ; free physical = 1586 ; free virtual = 7216
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 130 instances were transformed.
+  RAM32M => RAM32M (RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMS32, RAMS32): 118 instances
+  RAM32X1D => RAM32X1D (RAMD32, RAMD32): 1 instances
+  RAM64M => RAM64M (RAMD64E, RAMD64E, RAMD64E, RAMD64E): 11 instances
+
+open_run: Time (s): cpu = 00:00:35 ; elapsed = 00:00:48 . Memory (MB): peak = 7669.926 ; gain = 1097.957 ; free physical = 1477 ; free virtual = 7110
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
+INFO: [Common 17-14] Message 'Designutils 20-3303' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
+open_report: Time (s): cpu = 00:00:14 ; elapsed = 00:00:09 . Memory (MB): peak = 7900.781 ; gain = 100.031 ; free physical = 1142 ; free virtual = 6787
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_ip_catalog -rebuild -scan_changes
+INFO: [IP_Flow 19-234] Refreshing IP repositories
+INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'.
+WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivado/soc'.)
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+Upgrading '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd'
+INFO: [IP_Flow 19-3422] Upgraded soc_cpu_wrap_0_0 (cpu_wrap_v1_0 1.0) from revision 17 to revision 19
+WARNING: [BD 41-1731] Type mismatch between connected pins: /processing_system7_0/FCLK_CLK1(clk) and /cpu_wrap_0_upgraded_ipi/clk_32k(undef)
+Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd> 
+Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ui/bd_e0923ae7.ui> 
+INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/yutong/RISC-V_SoC/vivado/soc/ip_upgrade.log'.
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+WARNING: [SMARTCONNECT-2] Port M01_AXI of /smartconnect_0 is connected to an infrastructure IP (/axi_apb_bridge_0).  It is recommended to attach AXI SmartConnect directly to endpoint IPs to avoid mismatches or other issues during validation.  If mismatches occur, manually assign values for AXI Interface properties of /axi_apb_bridge_0.
+WARNING: [BD 41-927] Following properties on pin /cpu_wrap_0/clk have been updated from connected ip. They may not be synchronized with cell properties. You can set property on pin directly to confirm the value and resolve the warning.
+	CLK_DOMAIN=soc_processing_system7_0_0_FCLK_CLK0 
+Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd> 
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/axi_interconnect_0/s00_couplers/auto_pc/s_axi_awlock'(1) to net 's00_couplers_to_auto_pc_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/axi_interconnect_0/s00_couplers/auto_pc/s_axi_arlock'(1) to net 's00_couplers_to_auto_pc_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/cpu_wrap_0/ext_s_awlock'(2) to net 'smartconnect_0_M00_AXI_AWLOCK'(1) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/cpu_wrap_0/ext_s_arlock'(2) to net 'smartconnect_0_M00_AXI_ARLOCK'(1) - Only lower order bits will be connected.
+VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.v
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/axi_interconnect_0/s00_couplers/auto_pc/s_axi_awlock'(1) to net 's00_couplers_to_auto_pc_AWLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/axi_interconnect_0/s00_couplers/auto_pc/s_axi_arlock'(1) to net 's00_couplers_to_auto_pc_ARLOCK'(2) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/cpu_wrap_0/ext_s_awlock'(2) to net 'smartconnect_0_M00_AXI_AWLOCK'(1) - Only lower order bits will be connected.
+WARNING: [BD 41-235] Width mismatch when connecting pin: '/cpu_wrap_0/ext_s_arlock'(2) to net 'smartconnect_0_M00_AXI_ARLOCK'(1) - Only lower order bits will be connected.
+VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/sim/soc.v
+VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hdl/soc_wrapper.v
+INFO: [BD 41-1029] Generation completed for the IP Integrator block processing_system7_0 .
+Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0.hwh
+Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0_bd.tcl
+Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/synth/soc_smartconnect_0_0.hwdef
+INFO: [BD 41-1029] Generation completed for the IP Integrator block smartconnect_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_apb_bridge_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block cpu_wrap_0 .
+INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_ps7_0_50M .
+WARNING: [IP_Flow 19-4994] Overwriting existing constraint file '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_auto_pc_0/soc_auto_pc_0_ooc.xdc'
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_pc .
+WARNING: [IP_Flow 19-4994] Overwriting existing constraint file '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_auto_us_0/soc_auto_us_0_ooc.xdc'
+INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_us .
+Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc.hwh
+Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc_bd.tcl
+Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.hwdef
+INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_us_0, cache-ID = 99876c5926526efb; cache size = 638.923 MB.
+INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_pc_0, cache-ID = 0c40fe8138cf3762; cache size = 638.923 MB.
+[Mon May  8 21:37:55 2023] Launched soc_cpu_wrap_0_0_synth_1, synth_1...
+Run output will be captured here:
+soc_cpu_wrap_0_0_synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_cpu_wrap_0_0_synth_1/runme.log
+synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/synth_1/runme.log
+[Mon May  8 21:37:56 2023] Launched impl_2...
+Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log
+launch_runs: Time (s): cpu = 00:00:15 ; elapsed = 00:00:16 . Memory (MB): peak = 8168.992 ; gain = 134.105 ; free physical = 859 ; free virtual = 6469
+report_ip_status -name ip_status 

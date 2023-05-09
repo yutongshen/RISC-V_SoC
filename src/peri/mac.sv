@@ -189,7 +189,7 @@ mac_rmii_intf u_mac_rmii_intf (
     .fifo_tx_rd        ( afifo_tx_rd        ),
     .fifo_tx_rdata     ( afifo_tx_rdata     ),
 
-    .rx_busy           ( rx_busy_async      )
+    .rx_busy_o         ( rx_busy_async      )
 );
 
 mac_afifo u_mac_afifo_rx (
@@ -243,8 +243,9 @@ always_ff @(posedge clk or negedge sw_rstn) begin
         rx_busy <= 1'b0;
     end
     else begin
-        if (rx_busy && rx_len_cnt_upd) rx_busy <= 1'b0;
-        else if (rx_busy_d2)           rx_busy <= 1'b1;
+        rx_busy <= rx_busy_d2;
+        // if (rx_busy && rx_len_cnt_upd) rx_busy <= 1'b0;
+        // else if (rx_busy_d2)           rx_busy <= 1'b1;
     end
 end
 
@@ -322,7 +323,8 @@ end
 
 assign rx_ram_full = rx_ram_wptr[8:0] == rx_ram_rptr[8:0] && (rx_ram_wptr[9] ^ rx_ram_rptr[9]);
 assign rx_ram_rd   = !rx_ram_do_valid && rx_ram_rptr_tail != rx_ram_rptr;
-assign rx_ram_wr   = rx_en && !afifo_rx_empty && |afifo_rx_rdata[34:32] && !(&afifo_rx_rdata[34:32]) && !rx_ram_full;
+assign rx_ram_wr   = rx_en && !afifo_rx_empty && |afifo_rx_rdata[34:32] &&
+                     !(&afifo_rx_rdata[34:32]) && !rx_ram_full && !rx_ovf;
 assign rx_ram_cs   = rx_ram_wr || rx_ram_rd;
 assign rx_ram_we   = rx_ram_wr;
 assign rx_ram_a    = rx_ram_wr ? rx_ram_wptr[8:0] : rx_ram_rptr[8:0];
@@ -350,10 +352,9 @@ end
 
 always_ff @(posedge clk or negedge sw_rstn) begin
     if (~sw_rstn) rx_len_cnt <= 11'b0;
-    else          rx_len_cnt <= rx_len_cnt_upd_dly        ? 11'b0:
-                                !afifo_rx_empty && 
-                                !(&afifo_rx_rdata[34:32]) ? rx_len_cnt + {8'b0, afifo_rx_rdata[34:32]}:
-                                                            rx_len_cnt;
+    else          rx_len_cnt <= rx_len_cnt_upd_dly ? 11'b0:
+                                rx_ram_wr          ? rx_len_cnt + {8'b0, afifo_rx_rdata[34:32]}:
+                                                     rx_len_cnt;
 end
 
 always_ff @(posedge clk or negedge sw_rstn) begin

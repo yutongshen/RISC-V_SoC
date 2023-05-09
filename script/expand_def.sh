@@ -14,7 +14,7 @@ rand()
 rm -f ${outfile};
 touch ${outfile};
 
-printf "\`define RISCV_VER 32'h%8x\n" $(rand) >> ${outfile};
+printf "\`define RISCV_VER 64'h%s\n" $(date +"%Y_%m_%d_00_%H_%M_%S") >> ${outfile};
 
 
 function get_path () {

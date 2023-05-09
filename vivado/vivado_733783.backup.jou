@@ -55,3 +55,61 @@ refresh_design
 open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
 file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230426/riscv.bit
 write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230426/riscv.tcl
+report_timing -to [get_ports "*jtag*"] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_ports {riscv_jtag_tdo}]}
+report_timing -through  [get_nets {riscv_jtag_tck_IBUF_BUFG riscv_jtag_tdi_IBUF riscv_jtag_tdo_OBUF riscv_jtag_tms_IBUF}] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_ports {riscv_jtag_tdo}]}
+report_timing -through  [get_nets {soc_i/cpu_wrap_0/inst/u_dap/p_1_in_7[3]}] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_nets {soc_i/cpu_wrap_0/inst/u_dap/p_1_in_7[3]}]}
+report_timing -through  [get_nets {soc_i/cpu_wrap_0/inst/u_dap/u_apb_ap/tx_mem_addr[2]}] -delay_type min_max -max_paths 10 -sort_by group -input_pins -routable_nets -name {[get_nets {soc_i/cpu_wrap_0/inst/u_dap/u_apb_ap/tx_mem_addr[2]}]}
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {41.6}] [get_bd_cells processing_system7_0]
+endgroup
+startgroup
+endgroup
+save_bd_design
+reset_run synth_1
+reset_run soc_processing_system7_0_0_synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+report_ip_status -name ip_status 
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230503/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230503/riscv.tcl
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+startgroup
+set_property -dict [list CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {45.45}] [get_bd_cells processing_system7_0]
+endgroup
+save_bd_design
+reset_run synth_1
+reset_run soc_processing_system7_0_0_synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230504/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230504/riscv.tcl
+update_ip_catalog -rebuild -scan_changes
+report_ip_status -name ip_status
+upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+report_ip_status -name ip_status 
+reset_run synth_1
+launch_runs impl_2 -to_step write_bitstream -jobs 2
+wait_on_run impl_2
+report_ip_status -name ip_status 
+create_ip_run [get_files -of_objects [get_fileset sources_1] /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd]
+refresh_design
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230505/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230505/riscv.tcl

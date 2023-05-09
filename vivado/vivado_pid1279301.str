@@ -1,0 +1,323 @@
+/*
+
+Xilinx Vivado v2018.3 (64-bit) [Major: 2018, Minor: 3]
+SW Build: 2405991 on Thu Dec  6 23:36:41 MST 2018
+IP Build: 2404404 on Fri Dec  7 01:43:56 MST 2018
+
+Process ID (PID): 1279301
+License: Customer
+
+Current time: 	Tue May 09 01:10:11 CST 2023
+Time zone: 	Taipei Standard Time (Asia/Taipei)
+
+OS: Ubuntu
+OS Version: 5.19.0-41-generic
+OS Architecture: amd64
+Available processors (cores): 2
+
+Display: :0
+Screen size: 1920x1080
+Screen resolution (DPI): 96
+Available screens: 1
+Available disk space: 35 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4
+Java executable location: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	yutong
+User home directory: /home/yutong
+User working directory: /home/yutong/RISC-V_SoC/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /tools/Xilinx/Vivado
+HDI_APPROOT: /tools/Xilinx/Vivado/2018.3
+RDI_DATADIR: /tools/Xilinx/Vivado/2018.3/data
+RDI_BINDIR: /tools/Xilinx/Vivado/2018.3/bin
+
+Vivado preferences file location: /home/yutong/.Xilinx/Vivado/2018.3/vivado.xml
+Vivado preferences directory: /home/yutong/.Xilinx/Vivado/2018.3/
+Vivado layouts directory: /home/yutong/.Xilinx/Vivado/2018.3/layouts
+PlanAhead jar file location: 	/tools/Xilinx/Vivado/2018.3/lib/classes/planAhead.jar
+Vivado log file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.log
+Vivado journal file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-1279301-yutong-virtual-machine
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_DSP: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_PLANAHEAD: /tools/Xilinx/Vivado/2018.3
+XILINX_SDK: /tools/Xilinx/SDK/2018.3
+XILINX_VIVADO: /tools/Xilinx/Vivado/2018.3
+XILINX_VIVADO_HLS: /tools/Xilinx/Vivado/2018.3
+
+
+GUI allocated memory:	165 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 808 MB
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// Tcl Message: start_gui 
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/yutong/RISC-V_SoC/vivado/soc/soc.xpr", 0); // q (Q, cp)
+// [GUI Memory]: 91 MB (+92852kb) [00:00:21]
+// [Engine Memory]: 809 MB (+697043kb) [00:00:21]
+// bx (cp):  Open Project : addNotify
+// Opening Vivado Project: /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr. Version: Vivado v2018.3 
+// WARNING: HEventQueue.dispatchEvent() is taking  1051 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 810 MB. GUI used memory: 44 MB. Current time: 5/9/23, 1:10:14 AM CST
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_COMPLETED
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_COMPLETED
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 97 MB (+2002kb) [00:00:39]
+// [Engine Memory]: 928 MB (+81615kb) [00:00:39]
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 1656 ms. Increasing delay to 3000 ms.
+// [GUI Memory]: 117 MB (+15184kb) [00:00:43]
+// WARNING: HEventQueue.dispatchEvent() is taking  7625 ms.
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// Tcl Message: INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'. 
+// HMemoryUtils.trashcanNow. Engine heap size: 985 MB. GUI used memory: 58 MB. Current time: 5/9/23, 1:10:38 AM CST
+// [Engine Memory]: 986 MB (+12800kb) [00:00:46]
+// WARNING: HEventQueue.dispatchEvent() is taking  2303 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1243 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1816 ms.
+// Tcl Message: open_project: Time (s): cpu = 00:00:14 ; elapsed = 00:00:24 . Memory (MB): peak = 6419.566 ; gain = 149.992 ; free physical = 2761 ; free virtual = 5952 
+// Project name: soc; location: /home/yutong/RISC-V_SoC/vivado/soc; part: xc7z020clg400-1
+// [Engine Memory]: 1,384 MB (+365314kb) [00:00:52]
+// Elapsed time: 31 seconds
+dismissDialog("Open Project"); // bx (cp)
+// Tcl Message: update_compile_order -fileset sources_1 
+// Elapsed time: 12 seconds
+selectTab((HResource) null, (HResource) null, "Messages", 1); // aI (aF, cp)
+selectCheckBox(PAResourceItoN.MsgView_WARNING_MESSAGES, (String) null, false); // g (aR, cp): FALSE
+// WARNING: HEventQueue.dispatchEvent() is taking  1153 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1035 ms.
+selectCheckBox(PAResourceItoN.MsgView_INFORMATION_MESSAGES, (String) null, false); // g (aR, cp): FALSE
+// [Engine Memory]: 1,661 MB (+217854kb) [00:01:11]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,114 MB. GUI used memory: 65 MB. Current time: 5/9/23, 1:11:04 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,096 MB. GUI used memory: 58 MB. Current time: 5/9/23, 1:41:04 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,096 MB. GUI used memory: 92 MB. Current time: 5/9/23, 2:11:04 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,081 MB. GUI used memory: 53 MB. Current time: 5/9/23, 2:41:05 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 53 MB. Current time: 5/9/23, 3:11:05 AM CST
+// TclEventType: RUN_COMPLETED
+// ah (cp): Bitstream Generation Completed: addNotify
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 3:41:05 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 4:11:05 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 4:41:06 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 55 MB. Current time: 5/9/23, 5:11:06 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 5:41:06 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 6:11:06 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 6:41:07 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 7:11:07 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 7:41:07 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,080 MB. GUI used memory: 56 MB. Current time: 5/9/23, 8:11:07 AM CST
+// Elapsed time: 26901 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (ah)
+// Run Command: PAResourceCommand.PACommandNames_GOTO_IMPLEMENTED_DESIGN
+// bx (cp):  Open Implemented Design : addNotify
+// Tcl Message: open_run impl_2 
+// HMemoryUtils.trashcanNow. Engine heap size: 1,853 MB. GUI used memory: 54 MB. Current time: 5/9/23, 8:39:53 AM CST
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_CNS_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// TclEventType: POWER_REPORT_STALE
+// TclEventType: SDC_CONSTRAINT_ADD
+// HMemoryUtils.trashcanNow. Engine heap size: 2,136 MB. GUI used memory: 54 MB. Current time: 5/9/23, 8:40:08 AM CST
+// TclEventType: FLOORPLAN_MODIFY
+// TclEventType: DESIGN_NEW
+// HMemoryUtils.trashcanNow. Engine heap size: 2,143 MB. GUI used memory: 54 MB. Current time: 5/9/23, 8:40:11 AM CST
+// [Engine Memory]: 2,143 MB (+418401kb) [07:30:19]
+// TclEventType: DESIGN_NEW
+// Xgd.load filename: /tools/Xilinx/Vivado/2018.3/data/parts/xilinx/zynq/devint/zynq/xc7z020/xc7z020.xgd; ZipEntry: xc7z020_detail.xgd elapsed time: 3.5s
+// Device: addNotify
+// [GUI Memory]: 124 MB (+1668kb) [07:30:25]
+// DeviceView Instantiated
+// [Engine Memory]: 2,290 MB (+41968kb) [07:30:26]
+// WARNING: HEventQueue.dispatchEvent() is taking  6383 ms.
+// TclEventType: CURR_DESIGN_SET
+// Tcl Message: INFO: [Netlist 29-17] Analyzing 5123 Unisim elements for replacement INFO: [Netlist 29-28] Unisim Transformation completed in 0 CPU seconds INFO: [Project 1-479] Netlist was created with Vivado 2018.3 INFO: [Device 21-403] Loading part xc7z020clg400-1 INFO: [Project 1-570] Preparing netlist for logic optimization INFO: [Timing 38-478] Restoring timing data from binary archive. INFO: [Timing 38-479] Binary timing data restore complete. INFO: [Project 1-856] Restoring constraints from binary archive. INFO: [Project 1-853] Binary constraint restore complete. 
+// Tcl Message: Reading XDEF placement. Reading placer database... Reading XDEF routing. 
+// Tcl Message: Read XDEF File: Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 7549.160 ; gain = 77.961 ; free physical = 2115 ; free virtual = 6862 
+// Tcl Message: Restored from archive | CPU: 7.960000 secs | Memory: 81.556427 MB | 
+// Tcl Message: Finished XDEF File Restore: Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 7549.160 ; gain = 77.961 ; free physical = 2115 ; free virtual = 6862 Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 7549.160 ; gain = 0.000 ; free physical = 2123 ; free virtual = 6870 
+// Tcl Message: INFO: [Project 1-111] Unisim Transformation Summary:   A total of 130 instances were transformed.   RAM32M => RAM32M (RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMS32, RAMS32): 118 instances   RAM32X1D => RAM32X1D (RAMD32, RAMD32): 1 instances   RAM64M => RAM64M (RAMD64E, RAMD64E, RAMD64E, RAMD64E): 11 instances  
+// Tcl Message: open_run: Time (s): cpu = 00:00:38 ; elapsed = 00:00:55 . Memory (MB): peak = 7693.836 ; gain = 1113.238 ; free physical = 2005 ; free virtual = 6757 
+// Device view-level: 0.0
+// RouteApi::initDelayMediator elapsed time: 1.6s
+// WARNING: HEventQueue.dispatchEvent() is taking  3271 ms.
+// ExpRunCommands.openImplResults elapsed time: 59.5s
+// RouteApi: Init Delay Mediator Swing Worker Finished
+// Tcl Message: INFO: [Common 17-14] Message 'Designutils 20-3303' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings. 
+// [GUI Memory]: 135 MB (+5207kb) [07:30:32]
+// [GUI Memory]: 147 MB (+4934kb) [07:30:32]
+// 'dQ' command handler elapsed time: 60 seconds
+// aI (cp): Feedback Request: addNotify
+// Elapsed time: 60 seconds
+dismissDialog("Open Implemented Design"); // bx (cp)
+// TclEventType: HFED_INIT_ROUTE_STORAGE_COMPLETED
+// RouteApi::loadEngineXgd elapsed time: 21.1s
+// Device view-level: 0.0
+// HMemoryUtils.trashcanNow. Engine heap size: 2,398 MB. GUI used memory: 126 MB. Current time: 5/9/23, 8:40:33 AM CST
+// [Engine Memory]: 2,409 MB (+4337kb) [07:33:19]
+// Elapsed time: 385 seconds
+selectButton(PAResourceTtoZ.TouchpointSurveyDialog_REMIND_ME_LATER, "Remind me Later"); // a (aI)
+dismissDialog("Feedback Request"); // aI (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTab((HResource) null, (HResource) null, "Design Runs", 4); // aI (aF, cp)
+selectTab((HResource) null, (HResource) null, "Timing", 5); // aI (aF, cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+// HMemoryUtils.trashcanNow. Engine heap size: 2,420 MB. GUI used memory: 86 MB. Current time: 5/9/23, 8:47:08 AM CST
+selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Project Summary", 0); // k (j, cp)
+selectButton(PAResourceQtoS.RunGadget_SHOW_ERROR_AND_CRITICAL_WARNING_MESSAGES, "3 critical warnings"); // h (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_MESSAGE_WINDOW
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Implementation, Route Design, [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports.. Resolution: Verify that the timing was met or had small violations at all previous steps (synthesis, placement, power_opt, and phys_opt). Run report_timing_summary and analyze individual timing paths.. ]", 7, false); // ah (Q, cp)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Implementation, Route Design, [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports.. Resolution: Verify that the timing was met or had small violations at all previous steps (synthesis, placement, power_opt, and phys_opt). Run report_timing_summary and analyze individual timing paths.. ]", 7, false, false, false, false, true, false); // ah (Q, cp) - Popup Trigger
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Implementation, Route Design, [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports.. Resolution: Verify that the timing was met or had small violations at all previous steps (synthesis, placement, power_opt, and phys_opt). Run report_timing_summary and analyze individual timing paths.. ]", 7, false); // ah (Q, cp)
+selectTree(PAResourceItoN.MsgTreePanel_MESSAGE_VIEW_TREE, "[, Implementation, Route Design, [Route 35-39] The design did not meet timing requirements. Please run report_timing_summary for detailed reports.. Resolution: Verify that the timing was met or had small violations at all previous steps (synthesis, placement, power_opt, and phys_opt). Run report_timing_summary and analyze individual timing paths.. ]", 7, false); // ah (Q, cp)
+// HMemoryUtils.trashcanNow. Engine heap size: 2,459 MB. GUI used memory: 87 MB. Current time: 5/9/23, 8:47:23 AM CST
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true, false, false, false, false, true); // u (Q, cp) - Double Click - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+expandTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18); // u (Q, cp)
+collapseTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18); // u (Q, cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Synthesis, Open Synthesized Design]", 15, true); // u (Q, cp) - Node
+// Run Command: PAResourceCommand.PACommandNames_GOTO_NETLIST_DESIGN
+// g (cp): Close Design: addNotify
+selectButton(PAResourceAtoD.ClosePlanner_CANCEL, "Cancel"); // a (g)
+// 'dQ' command handler elapsed time: 6 seconds
+dismissDialog("Close Design"); // g (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true, false, false, false, false, true); // u (Q, cp) - Double Click - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design, Report Timing Summary]", 21, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_REPORT_TIMING_SUMMARY
+// aJ (cp): Report Timing Summary: addNotify
+// 'r' command handler elapsed time: 6 seconds
+dismissDialog("Report Timing Summary"); // aJ (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true, false, false, false, false, true); // u (Q, cp) - Double Click - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design]", 18, true); // u (Q, cp) - Node
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Implementation, Open Implemented Design, Report Timing Summary]", 21, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_REPORT_TIMING_SUMMARY
+// aJ (cp): Report Timing Summary: addNotify
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (aJ)
+dismissDialog("Report Timing Summary"); // aJ (cp)
+// bx (cp):  Report Timing Summary : addNotify
+// Tcl Message: report_timing_summary -delay_type min_max -report_unconstrained -check_timing_verbose -max_paths 10 -input_pins -routable_nets -name timing_1 
+// Tcl Message: INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -1, Delay Type: min_max. INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 2 CPUs 
+// TclEventType: TIMING_RESULTS_STALE
+// HMemoryUtils.trashcanNow. Engine heap size: 2,528 MB. GUI used memory: 88 MB. Current time: 5/9/23, 8:48:13 AM CST
+// TclEventType: TIMING_SUMMARY_UPDATED
+// [Engine Memory]: 2,576 MB (+49414kb) [07:38:26]
+// WARNING: HEventQueue.dispatchEvent() is taking  2275 ms.
+// Tcl Message: report_timing_summary: Time (s): cpu = 00:00:37 ; elapsed = 00:00:22 . Memory (MB): peak = 7950.516 ; gain = 110.238 ; free physical = 1708 ; free virtual = 6467 
+// [GUI Memory]: 157 MB (+2335kb) [07:38:26]
+// Elapsed time: 22 seconds
+dismissDialog("Report Timing Summary"); // bx (cp)
+selectButton(PAResourceAtoD.DesignTimingSumSectionPanel_WORST_NEGATIVE_SLACK, "-0.075 ns"); // h (Q, cp)
+// PAPropertyPanels.initPanels (Path 89) elapsed time: 0.9s
+// WARNING: HEventQueue.dispatchEvent() is taking  1047 ms.
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator, Open Block Design]", 7, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_OPEN_BLOCK_DESIGN
+// bx (cp):  Open Block Design : addNotify
+// TclEventType: LOAD_FEATURE
+// Tcl Message: open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd} 
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: LOAD_FEATURE
+// TclEventType: RSB_PROPERTY_CHANGE
+// TclEventType: RSB_OPEN_DIAGRAM
+// Tcl Message: Adding cell -- xilinx.com:ip:processing_system7:5.5 - processing_system7_0 Adding cell -- xilinx.com:ip:axi_interconnect:2.1 - axi_interconnect_0 Adding cell -- xilinx.com:ip:axi_protocol_converter:2.1 - auto_pc Adding cell -- xilinx.com:ip:axi_dwidth_converter:2.1 - auto_us Adding cell -- xilinx.com:ip:smartconnect:1.0 - smartconnect_0 Adding cell -- xilinx.com:ip:axi_apb_bridge:3.0 - axi_apb_bridge_0 Adding cell -- xilinx.com:ip:proc_sys_reset:5.0 - rst_ps7_0_50M Adding cell -- user.org:user:cpu_wrap:1.0 - cpu_wrap_0 
+// Tcl Message: Successfully read diagram <soc> from BD file </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd> 
+// TclEventType: RSB_OPEN_DIAGRAM
+// PAPropertyPanels.initPanels (cpu_wrap_0) elapsed time: 0.2s
+// WARNING: HEventQueue.dispatchEvent() is taking  1726 ms.
+// TclEventType: RSB_CONNECTION_CHANGE
+closeView(PAResourceOtoP.PAViews_PROJECT_SUMMARY, "Project Summary"); // v
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: RSB_CHANGE_CURRENT_DIAGRAM
+// 'bA' command handler elapsed time: 4 seconds
+dismissDialog("Open Block Design"); // bx (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+selectMenu(PAResourceItoN.MainMenuMgr_PROJECT, "Project"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_CHECKPOINT, "Checkpoint"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_IP, "IP"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_TEXT_EDITOR, "Text Editor"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_TEXT_EDITOR, "Text Editor"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenuItem(PAResourceCommand.PACommandNames_EXPORT_BITSTREAM_FILES, "Export Bitstream File..."); // af (cp)
+dismissMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+// Run Command: PAResourceCommand.PACommandNames_EXPORT_BITSTREAM_FILES
+// Elapsed time: 17 seconds
+setFileChooser("/home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.bit");
+// 'a' command handler elapsed time: 17 seconds
+// Tcl Message: file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.bit 
+selectButton("PAResourceEtoH.ExportBitstreamFile_BITSTREAM_EXPORT_SUCCESSFUL_OK", "OK"); // JButton (C, I)
+selectMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+selectMenu(PAResourceItoN.MainMenuMgr_PROJECT, "Project"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_CHECKPOINT, "Checkpoint"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_IP, "IP"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_TEXT_EDITOR, "Text Editor"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenu(PAResourceItoN.MainMenuMgr_EXPORT, "Export"); // ac (cp)
+selectMenuItem(PAResourceCommand.PACommandNames_EXPORT_BD_TCL, "Export Block Design..."); // af (cp)
+dismissMenu(PAResourceItoN.MainMenuMgr_FILE, "File"); // X (q, cp)
+// Run Command: PAResourceCommand.PACommandNames_EXPORT_BD_TCL
+// bx (cp): Export Block Design: addNotify
+selectButton(PAResourceEtoH.ExportRSBTclScriptDialog_SPECIFY_FILE, (String) null); // q (ak, bx)
+// Tcl Command: 'rdi::info_commands {device::*}'
+// Tcl Command: 'rdi::info_commands {debug::*}'
+// Tcl Command: 'rdi::info_commands {*}'
+setFileChooser("/home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.tcl");
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (bx)
+// 'az' command handler elapsed time: 12 seconds
+// Tcl Command: 'write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.tcl'
+dismissDialog("Export Block Design"); // bx (cp)
+// Tcl Message: write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.tcl 
+// Tcl Message: INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230509/riscv.tcl>.  
+// [GUI Memory]: 167 MB (+2256kb) [07:43:15]

@@ -64,6 +64,7 @@ set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_So
 set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0_ooc.xdc]
 set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_rst_ps7_0_50M_0/soc_rst_ps7_0_50M_0_board.xdc]
 set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_rst_ps7_0_50M_0/soc_rst_ps7_0_50M_0.xdc]
+set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_rst_ps7_0_50M_0/soc_rst_ps7_0_50M_0_ooc.xdc]
 set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_auto_pc_0/soc_auto_pc_0_ooc.xdc]
 set_property used_in_synthesis false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_auto_us_0/soc_auto_us_0_clocks.xdc]
 set_property used_in_implementation false [get_files -all /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_auto_us_0/soc_auto_us_0_clocks.xdc]

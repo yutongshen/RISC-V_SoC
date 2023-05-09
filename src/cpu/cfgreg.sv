@@ -10,6 +10,7 @@ module cfgreg (
     output logic              core_rstn
 );
 
+parameter [63:0] RISCV_VER = `RISCV_VER;
 
 logic [31:0] reserved_reg0;
 logic [31:0] reserved_reg1;
@@ -70,12 +71,13 @@ end
 always_comb begin: comb_prdata_t
     prdata_t = 32'b0;
     case (apb_intf.paddr[11:0])
-        `CFGREG_RSTN:      prdata_t = {31'b0, core_rstn};
-        `CFGREG_BOOTVEC:   prdata_t = core_bootvec;
-        `CFGREG_DDROFFSET: prdata_t = ddr_offset;
-        `CFGREG_RSVREG0:   prdata_t = reserved_reg0;
-        `CFGREG_RSVREG1:   prdata_t = reserved_reg1;
-        `CFGREG_VER:       prdata_t = `RISCV_VER;
+        `CFGREG_RSTN:        prdata_t = {31'b0, core_rstn};
+        `CFGREG_BOOTVEC:     prdata_t = core_bootvec;
+        `CFGREG_DDROFFSET:   prdata_t = ddr_offset;
+        `CFGREG_RSVREG0:     prdata_t = reserved_reg0;
+        `CFGREG_RSVREG1:     prdata_t = reserved_reg1;
+        `CFGREG_VER:         prdata_t = RISCV_VER[63:32];
+        `CFGREG_VER + 12'h4: prdata_t = RISCV_VER[31: 0];
     endcase
 end
 

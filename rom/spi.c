@@ -157,7 +157,7 @@ __U8 __sd_init(__U8P __sd_type) {
     }
 
     // Set baud rate high speed
-    __spi_init(0);
+    __spi_init(2);
 
     // Disable CRC
     r1 = __sd_sendcmd(__CMD59, 0, 0x95);

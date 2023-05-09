@@ -18,28 +18,189 @@ logic [ 31:0] prdata_trace;
 logic [ 31:0] prdata_t;
 logic [ 31:0] prdata_t_latch;
 
-logic [ 63:0] breakpoint;
+logic [ 62:0] bp0;
+logic         bp0_en;
+logic [ 62:0] bp1;
+logic         bp1_en;
+logic [ 62:0] bp2;
+logic         bp2_en;
+logic [ 62:0] bp3;
+logic         bp3_en;
+logic [ 62:0] wp0;
+logic         wp0_en;
+logic [ 62:0] wp1;
+logic         wp1_en;
+logic [ 62:0] wp2;
+logic         wp2_en;
+logic [ 62:0] wp3;
+logic         wp3_en;
+logic [ 31:0] exc;
+logic         exc_en;
+logic [ 31:0] irq;
+logic         irq_en;
+
+logic [ 15:0] delay;
+logic [ 15:0] cnt;
 
 logic [255:0] pkg_out;
 logic [  6:0] trace_ptr;
 logic         trace_sram_we;
 logic [  6:0] trace_sram_addr;
 logic         stop_trace;
+logic         stop;
 logic         stop_hit;
+logic         stop_hit_latch;
 
-always_ff @(posedge clk or negedge rstn) begin: reg_bp
-    if (~rstn) breakpoint <= 64'h21d62;
+always_ff @(posedge clk or negedge rstn) begin: reg_bp0
+    if (~rstn) {bp0_en, bp0} <= 64'h0;
     else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
-        if (apb_intf.paddr[12:0] == `DBGMON_BP)
-            breakpoint[ 0+:32] <= apb_intf.pwdata;
-        if (apb_intf.paddr[12:0] == `DBGMON_BP + 13'h4)
-            breakpoint[32+:32] <= apb_intf.pwdata;
+        if (apb_intf.paddr[12:0] == `DBGMON_BP0)
+            bp0[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_BP0 + 13'h4)
+            {bp0_en, bp0[32+:31]} <= apb_intf.pwdata;
     end
 end
 
-assign stop_hit        = pkg_valid && (((breakpoint == pkg[160+:64]) && !pkg[255]) ||
-                                       ((64'hffffffe00002a110 == pkg[160+:64]) && pkg[255] && ~pkg[95]) ||
-                                       ((64'hffffffe00002a114 == pkg[160+:64]) && pkg[255] && ~pkg[95]));
+always_ff @(posedge clk or negedge rstn) begin: reg_bp1
+    if (~rstn) {bp1_en, bp1} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_BP1)
+            bp1[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_BP1 + 13'h4)
+            {bp1_en, bp1[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_bp2
+    if (~rstn) {bp2_en, bp2} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_BP2)
+            bp2[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_BP2 + 13'h4)
+            {bp2_en, bp2[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_bp3
+    if (~rstn) {bp3_en, bp3} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_BP3)
+            bp3[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_BP3 + 13'h4)
+            {bp3_en, bp3[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_wp0
+    if (~rstn) {wp0_en, wp0} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_WP0)
+            wp0[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_WP0 + 13'h4)
+            {wp0_en, wp0[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_wp1
+    if (~rstn) {wp1_en, wp1} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_WP1)
+            wp1[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_WP1 + 13'h4)
+            {wp1_en, wp1[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_wp2
+    if (~rstn) {wp2_en, wp2} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_WP2)
+            wp2[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_WP2 + 13'h4)
+            {wp2_en, wp2[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_wp3
+    if (~rstn) {wp3_en, wp3} <= 64'h0;
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_WP3)
+            wp3[ 0+:32] <= apb_intf.pwdata;
+        else if (apb_intf.paddr[12:0] == `DBGMON_WP3 + 13'h4)
+            {wp3_en, wp3[32+:31]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_exc
+    if (~rstn) begin
+        exc_en <=  1'h0;
+        exc    <= 32'b0;
+    end
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_EXC)
+            {exc_en, exc[30:0]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_irq
+    if (~rstn) begin
+        irq_en <=  1'h0;
+        irq    <= 32'b0;
+    end
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_IRQ)
+            {irq_en, irq[30:0]} <= apb_intf.pwdata;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_dly
+    if (~rstn) begin
+        delay <=  16'h0;
+    end
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_DELAY)
+            delay <= apb_intf.pwdata[15:0];
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_cnt
+    if (~rstn) begin
+        cnt <=  16'h0;
+    end
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_DELAY)
+            cnt <= apb_intf.pwdata[15:0];
+    end
+    else if ((stop_hit || stop_hit_latch) && (|cnt)) begin
+        cnt <= cnt - {15'b0, pkg_valid};
+    end
+    else if (stop) begin
+        cnt <= delay;
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_stop_hit_latch
+    if (~rstn) begin
+        stop_hit_latch <= 1'b0;
+    end
+    else begin
+        stop_hit_latch <= |cnt && stop_hit ? 1'b1:
+                          stop             ? 1'b0:
+                                             stop_hit_latch;
+    end
+end
+
+assign stop_hit        = pkg_valid && (((bp0 == pkg[160+:63]) && (pkg[255:254] != 2'h3) && bp0_en) ||
+                                       ((bp1 == pkg[160+:63]) && (pkg[255:254] != 2'h3) && bp1_en) ||
+                                       ((bp2 == pkg[160+:63]) && (pkg[255:254] != 2'h3) && bp2_en) ||
+                                       ((bp3 == pkg[160+:63]) && (pkg[255:254] != 2'h3) && bp3_en) ||
+                                       ((wp0 == pkg[ 64+:63]) && (pkg[255] == 1'h0) && wp0_en) ||
+                                       ((wp1 == pkg[ 64+:63]) && (pkg[255] == 1'h0) && wp1_en) ||
+                                       ((wp2 == pkg[ 64+:63]) && (pkg[255] == 1'h0) && wp2_en) ||
+                                       ((wp3 == pkg[ 64+:63]) && (pkg[255] == 1'h0) && wp3_en) ||
+                                       ((exc[pkg[64+:5]])     && (pkg[255:254] == 2'h3) && ~pkg[95]) ||
+                                       ((irq[pkg[64+:5]])     && (pkg[255:254] == 2'h3) &&  pkg[95]));
+assign stop            = (stop_hit || stop_hit_latch) && ~|cnt;
 assign trace_sram_we   = pkg_valid && ~stop_trace;
 assign trace_sram_addr = ({7{stop_trace}} & apb_intf.paddr[11:5]) + trace_ptr;
 
@@ -49,8 +210,8 @@ always_ff @(posedge clk or negedge rstn) begin: reg_trace_ptr
 end
 
 always_ff @(posedge clk or negedge srstn) begin: reg_stop_trace
-    if (~srstn)        stop_trace <= 1'b0;
-    else if (stop_hit) stop_trace <= 1'b1;
+    if (~srstn)    stop_trace <= 1'b0;
+    else if (stop) stop_trace <= 1'b1;
     else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable &&
              apb_intf.paddr[12:0] == `DBGMON_STOP_TRACE) begin
         stop_trace <= apb_intf.pwdata[0];
@@ -178,9 +339,26 @@ always_comb begin: comb_prdata_t
         `DBGMON_X30 + 13'h4: prdata_t = gpr[30][63:32];
         `DBGMON_X31 + 13'h0: prdata_t = gpr[31][31: 0];
         `DBGMON_X31 + 13'h4: prdata_t = gpr[31][63:32];
-        `DBGMON_BP  + 13'h0: prdata_t = breakpoint[31: 0];
-        `DBGMON_BP  + 13'h4: prdata_t = breakpoint[63:32];
-        `DBGMON_STOP_TRACE:  prdata_t = {31'b0, stop_trace};
+        `DBGMON_BP0 + 13'h0: prdata_t = bp0[31: 0];
+        `DBGMON_BP0 + 13'h4: prdata_t = {bp0_en, bp0[62:32]};
+        `DBGMON_BP1 + 13'h0: prdata_t = bp1[31: 0];
+        `DBGMON_BP1 + 13'h4: prdata_t = {bp1_en, bp1[62:32]};
+        `DBGMON_BP2 + 13'h0: prdata_t = bp2[31: 0];
+        `DBGMON_BP2 + 13'h4: prdata_t = {bp2_en, bp2[62:32]};
+        `DBGMON_BP3 + 13'h0: prdata_t = bp3[31: 0];
+        `DBGMON_BP3 + 13'h4: prdata_t = {bp3_en, bp3[62:32]};
+        `DBGMON_WP0 + 13'h0: prdata_t = wp0[31: 0];
+        `DBGMON_WP0 + 13'h4: prdata_t = {wp0_en, wp0[62:32]};
+        `DBGMON_WP1 + 13'h0: prdata_t = wp1[31: 0];
+        `DBGMON_WP1 + 13'h4: prdata_t = {wp1_en, wp1[62:32]};
+        `DBGMON_WP2 + 13'h0: prdata_t = wp2[31: 0];
+        `DBGMON_WP2 + 13'h4: prdata_t = {wp2_en, wp2[62:32]};
+        `DBGMON_WP3 + 13'h0: prdata_t = wp3[31: 0];
+        `DBGMON_WP3 + 13'h4: prdata_t = {wp3_en, wp3[62:32]};
+        `DBGMON_EXC        : prdata_t = {exc_en, exc[30: 0]};
+        `DBGMON_IRQ        : prdata_t = {irq_en, irq[30: 0]};
+        `DBGMON_DELAY      : prdata_t = {16'b0, delay};
+        `DBGMON_STOP_TRACE : prdata_t = {31'b0, stop_trace};
     endcase
 end
 

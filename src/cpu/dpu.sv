@@ -98,8 +98,10 @@ always_ff @(posedge clk or negedge rstn) begin
         store_misaligned <= 1'b0;
     end
     else begin
-        load_misaligned  <= req_i & misaligned & ~wr_i;
-        store_misaligned <= req_i & misaligned &  wr_i;
+        if (!hazard_o) begin
+            load_misaligned  <= req_i & misaligned & ~wr_i;
+            store_misaligned <= req_i & misaligned &  wr_i;
+        end
     end
 end
 

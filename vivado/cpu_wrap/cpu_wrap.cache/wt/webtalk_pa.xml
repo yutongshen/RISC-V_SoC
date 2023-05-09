@@ -3,7 +3,7 @@
 <!--The data in this file is primarily intended for consumption by Xilinx tools.
 The structure and the elements are likely to change over the next few releases.
 This means code written to parse this file will need to be revisited each subsequent release.-->
-<application name="pa" timeStamp="Fri Apr  7 19:11:54 2023">
+<application name="pa" timeStamp="Mon May  8 21:21:01 2023">
 <section name="Project Information" visible="false">
 <property name="ProjectID" value="fef05d715bee4d63b4ce649ab49ab319" type="ProjectID"/>
 <property name="ProjectIteration" value="2" type="ProjectIteration"/>
@@ -17,17 +17,24 @@ This means code written to parse this file will need to be revisited each subseq
 <property name="ImplStrategy" value="Vivado Implementation Defaults" type="ImplStrategy"/>
 </item>
 <item name="Java Command Handlers">
-<property name="IPPackagerHandler" value="2" type="JavaHandler"/>
+<property name="IPPackagerHandler" value="4" type="JavaHandler"/>
 <property name="RunBitgen" value="1" type="JavaHandler"/>
 </item>
 <item name="Gui Handlers">
 <property name="BaseDialog_OK" value="1" type="GuiHandlerData"/>
 <property name="BaseDialog_YES" value="1" type="GuiHandlerData"/>
-<property name="FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE" value="2" type="GuiHandlerData"/>
-<property name="MessageBanner_CHANGES_DETECTED_IN_VIVADO_PROJECT_THAT" value="1" type="GuiHandlerData"/>
-<property name="PackagerStepsPanel_PACKAGER_STEPS_LIST" value="2" type="GuiHandlerData"/>
-<property name="ReviewContentPanel_RE_PACKAGE_IP" value="1" type="GuiHandlerData"/>
-<property name="SyntheticaGettingStartedView_RECENT_PROJECTS" value="2" type="GuiHandlerData"/>
+<property name="ExpRunTreePanel_EXP_RUN_TREE_TABLE" value="1" type="GuiHandlerData"/>
+<property name="FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE" value="3" type="GuiHandlerData"/>
+<property name="MessageBanner_CHANGES_DETECTED_IN_IP_THAT_REQUIRE" value="2" type="GuiHandlerData"/>
+<property name="MessageBanner_CHANGES_DETECTED_IN_VIVADO_PROJECT_THAT" value="3" type="GuiHandlerData"/>
+<property name="PackagerStepsPanel_PACKAGER_STEPS_LIST" value="10" type="GuiHandlerData"/>
+<property name="ReviewContentPanel_RE_PACKAGE_IP" value="2" type="GuiHandlerData"/>
+<property name="SyntheticaGettingStartedView_RECENT_PROJECTS" value="3" type="GuiHandlerData"/>
+</item>
+<item name="Other">
+<property name="GuiMode" value="16" type="GuiMode"/>
+<property name="BatchMode" value="0" type="BatchMode"/>
+<property name="TclMode" value="6" type="TclMode"/>
 </item>
 </section>
 </application>

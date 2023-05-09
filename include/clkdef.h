@@ -1,1 +1,1 @@
-`define CLK_PRIOD 22
+`define CLK_PERIOD 22

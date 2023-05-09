@@ -35,7 +35,17 @@
 `define DBGMON_X29        13'h10e8
 `define DBGMON_X30        13'h10f0
 `define DBGMON_X31        13'h10f8
-`define DBGMON_BP         13'h1100
-`define DBGMON_STOP_TRACE 13'h1108
+`define DBGMON_BP0        13'h1100
+`define DBGMON_BP1        13'h1108
+`define DBGMON_BP2        13'h1110
+`define DBGMON_BP3        13'h1118
+`define DBGMON_WP0        13'h1120
+`define DBGMON_WP1        13'h1128
+`define DBGMON_WP2        13'h1130
+`define DBGMON_WP3        13'h1138
+`define DBGMON_EXC        13'h1140
+`define DBGMON_IRQ        13'h1144
+`define DBGMON_DELAY      13'h1148
+`define DBGMON_STOP_TRACE 13'h114c
 
 `endif

@@ -32,10 +32,10 @@ module cpu_tracer (
 
 
 assign pkg_valid = valid || trap_en;
-assign pkg       = ~trap_en ? mem_req ? mem_wr ? {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_wdata[63:0]}:
-                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_rdata[63:0]}:
-                                                 {1'b0, prv[1:0], misa_mxl[1], cycle[27:0],  pc[63:0], insn[31:0], csr_wdata[63:0],   rd_data[63:0]}:
-                                                 {1'b1, prv[1:0], misa_mxl[1], cycle[27:0], epc[63:0],      32'b0,    mcause[63:0],     mtval[63:0]};
+assign pkg       = ~trap_en ? mem_req ? mem_wr ? {2'h0, prv[1:0], misa_mxl[1], cycle[26:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_wdata[63:0]}:
+                                                 {2'h1, prv[1:0], misa_mxl[1], cycle[26:0],  pc[63:0], insn[31:0],  mem_addr[63:0], mem_rdata[63:0]}:
+                                                 {2'h2, prv[1:0], misa_mxl[1], cycle[26:0],  pc[63:0], insn[31:0], csr_wdata[63:0],   rd_data[63:0]}:
+                                                 {2'h3, prv[1:0], misa_mxl[1], cycle[26:0], epc[63:0],      32'b0,    mcause[63:0],     mtval[63:0]};
                                            
 
 `ifdef CPULOG
