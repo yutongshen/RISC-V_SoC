@@ -74,6 +74,7 @@ logic [10:0] rx_len_fifo_wdata;
 logic        rx_len_fifo_empty;
 logic        rx_len_fifo_rd;
 logic [10:0] rx_len_fifo_rdata;
+logic        rx_len_illegal;
 
 logic        afifo_tx_empty_d1;
 logic        afifo_tx_empty_d2;
@@ -104,8 +105,6 @@ logic        rxne;
 logic        sw_rstn;
 logic [ 3:0] rst_cnt;
 
-logic [31:0] debug_reg;
-
 assign apb_wr = ~s_apb_intf.penable && s_apb_intf.psel &&  s_apb_intf.pwrite;
 assign apb_rd = ~s_apb_intf.penable && s_apb_intf.psel && ~s_apb_intf.pwrite;
 
@@ -124,7 +123,8 @@ always_comb begin
         `MAC_IC    : prdata_t = {30'b0, rxne, txe};
         `MAC_MAC0  : prdata_t = MAC_ADDR[32:0];
         `MAC_MAC1  : prdata_t = {16'b0, MAC_ADDR[47:32]};
-        12'h38     : prdata_t = debug_reg;
+        12'h38     : prdata_t = {7'b0, tx_ram_wptr, 7'b0, tx_ram_rptr};
+        12'h3c     : prdata_t = {rx_len_fifo_full, rx_len_fifo_empty, 4'b0, rx_ram_wptr, 6'b0, rx_ram_rptr};
     endcase
 end
 
@@ -362,12 +362,16 @@ always_ff @(posedge clk or negedge sw_rstn) begin
     else          rx_ovf <= rx_len_cnt_upd                              ? 1'b0:
                             !afifo_rx_empty && (rx_ram_full      ||
                                                 rx_len_fifo_full ||
+                                                rx_len_illegal   ||
                                                 &afifo_rx_rdata[34:32]) ? 1'b1: rx_ovf;
 end
 
 assign rx_len_fifo_rd    = rx_discar && !rx_len_fifo_empty;
 assign rx_len_fifo_wr    = rx_en && rx_len_cnt_upd && !rx_ovf;
 assign rx_len_fifo_wdata = rx_len_cnt;
+assign rx_len_illegal    = !afifo_rx_rdata[34] &&
+                           (rx_len_cnt + {9'b0, afifo_rx_rdata[33:32]} < 11'd60 ||
+                            rx_len_cnt + {9'b0, afifo_rx_rdata[33:32]} > 11'd1518);
 
 mac_fifo u_rx_len_fifo (
     .clk   ( clk               ),
@@ -489,65 +493,5 @@ sram512x32 u_tx_ram (
     .DI ( tx_ram_di ),
     .DO ( tx_ram_do )
 );
-
-// debug
-
-logic [31:0] sys_cnt;
-logic [31:0] debug;
-logic [31:0] debug_latch;
-logic        dbg_rst_async;
-logic        dbg_rst_d1;
-logic        dbg_rst_d2;
-logic        dbg_rst_d3;
-logic        dbg_rst_d4;
-
-
-always_ff @(posedge clk or negedge sw_rstn) begin
-    if (~sw_rstn) sys_cnt <= 32'b0;
-    else          sys_cnt <= ~|sys_cnt ? 32'd45454 : (sys_cnt - 32'b1);
-end
-
-always_ff @(posedge clk or negedge sw_rstn) begin
-    if (~sw_rstn) dbg_rst_async <= 1'b0;
-    else          dbg_rst_async <= ~|sys_cnt ? ~dbg_rst_async : dbg_rst_async;
-end
-
-always_ff @(posedge clk or negedge sw_rstn) begin
-    if (~sw_rstn) begin
-        dbg_rst_d3 <= 1'b1;
-        dbg_rst_d4 <= 1'b1;
-    end
-    else begin
-        dbg_rst_d3 <= dbg_rst_d2;
-        dbg_rst_d4 <= dbg_rst_d3;
-    end
-end
-
-always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
-    if (~rmii_rstn) begin
-        dbg_rst_d1 <= 1'b1;
-        dbg_rst_d2 <= 1'b1;
-    end
-    else begin
-        dbg_rst_d1 <= dbg_rst_async;
-        dbg_rst_d2 <= dbg_rst_d1;
-    end
-end
-
-always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
-    if (~rmii_rstn) debug <= 32'b0;
-    else            debug <= ~dbg_rst_d1 ? 32'b0 : (debug + 32'b1);
-end
-
-always_ff @(posedge rmii_refclk or negedge rmii_rstn) begin
-    if (~rmii_rstn) debug_latch <= 32'b0;
-    else            debug_latch <= (~dbg_rst_d1 && dbg_rst_d2) ? debug : debug_latch;
-end
-
-always_ff @(posedge clk or negedge sw_rstn) begin
-    if (~sw_rstn) debug_reg <= 32'b0;
-    else          debug_reg <= (~dbg_rst_d3 && dbg_rst_d4) ? debug_latch : debug_reg;
-end
-
 
 endmodule

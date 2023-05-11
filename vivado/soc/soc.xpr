@@ -66,14 +66,14 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_cpu_wrap_0_0/soc_cpu_wrap_0_0.xci">
-          <Proxy FileSetName="soc_cpu_wrap_0_0"/>
-        </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0.xci">
           <Proxy FileSetName="soc_axi_apb_bridge_0_0"/>
         </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_smartconnect_0_0/soc_smartconnect_0_0.xci">
           <Proxy FileSetName="soc_smartconnect_0_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_cpu_wrap_0_0/soc_cpu_wrap_0_0.xci">
+          <Proxy FileSetName="soc_cpu_wrap_0_0"/>
         </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_processing_system7_0_0/soc_processing_system7_0_0.xci">
           <Proxy FileSetName="soc_processing_system7_0_0"/>
@@ -290,9 +290,11 @@
       <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2018"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
     </Run>
-    <Run Id="impl_2" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Includes alternate algorithms for timing-driven optimization" AutoIncrementalCheckpoint="false" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_2" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
+    <Run Id="impl_2" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Includes alternate algorithms for timing-driven optimization" AutoIncrementalCheckpoint="true" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_2" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Performance_ExtraTimingOpt" Flow="Vivado Implementation 2018"/>
+        <StratHandle Name="Performance_ExtraTimingOpt" Flow="Vivado Implementation 2018">
+          <Desc>Includes alternate algorithms for timing-driven optimization</Desc>
+        </StratHandle>
         <Step Id="init_design"/>
         <Step Id="opt_design"/>
         <Step Id="power_opt_design"/>

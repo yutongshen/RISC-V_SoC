@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------
 | Tool Version              : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date                      : Mon May  8 21:53:31 2023
+| Date                      : Thu May 11 19:15:02 2023
 | Host                      : yutong-virtual-machine running 64-bit Ubuntu 22.04.1 LTS
 | Command                   : report_io -file soc_wrapper_io_placed.rpt
 | Design                    : soc_wrapper

@@ -1,5 +1,9 @@
 `include "cfgreg_mmap.h"
 
+`ifndef RISCV_VER
+`define RISCV_VER 64'h00000000_00000000
+`endif
+
 module cfgreg (
     input                     clk,
     input                     rstn,
@@ -14,21 +18,32 @@ parameter [63:0] RISCV_VER = `RISCV_VER;
 
 logic [31:0] reserved_reg0;
 logic [31:0] reserved_reg1;
+logic        core_pwron;
+logic        core_srst;
 
 logic [31:0] prdata_t;
 logic        apb_wr;
+
+always_ff @(posedge clk or negedge rstn) begin: reg_core_rstn
+    if (~rstn) core_rstn <= 1'b0;
+    else       core_rstn <= core_pwron & core_srst;
+end
 
 always_comb begin: comb_apb_wr
     apb_wr = ~apb_intf.penable & apb_intf.psel & apb_intf.pwrite;
 end
 
-
-always_ff @(posedge clk or negedge rstn) begin: reg_core_rstn
+always_ff @(posedge clk or negedge rstn) begin: reg_core_pwr
     if (~rstn) begin
-        core_rstn <= 1'b0;
+        core_pwron <= 1'b0;
+        core_srst  <= 1'b1;
     end
     else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_RSTN) begin
-        core_rstn <= apb_intf.pwdata[0];
+        core_pwron <=  apb_intf.pwdata[ 0];
+        core_srst  <= ~apb_intf.pwdata[31];
+    end
+    else begin
+        core_srst  <= 1'b1;
     end
 end
 

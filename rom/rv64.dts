@@ -76,29 +76,29 @@
         reg = <0x00000000 0x90000000 0x00000000 0x08000000>;
     }; */
 
-    peribus: peribus@04000000 {
+    peribus: peribus@4000000 {
         compatible = "simple-bus";
         #address-cells = <1>;
         #size-cells = <1>;
         ranges;
         
-        cfgreg: cfgreg@04000000 {
+        cfgreg: cfgreg@4000000 {
             compatible = "riscv,cfgreg";
             reg = <0x04000000 0x1000>;
         };
 
-        cpustatreg: cpustatreg@04001000 {
-            compatible = "riscv,cpustatreg";
-            reg = <0x04001000 0x1000>;
+        dbgmon: dbgmon@4002000 {
+            compatible = "riscv,dbgmon";
+            reg = <0x04002000 0x2000>;
         };
 
-        clint: clint@08000000 {
+        clint: clint@8000000 {
             compatible = "riscv,clint0";
             reg = <0x08000000 0x10000>;
             interrupts-extended = <&cpu0_intc 7>, <&cpu0_intc 3>;
         };
 
-        plic: interrupt-controller@0c000000{
+        plic: interrupt-controller@c000000{
             #interrupt-cells = <1>;
             interrupt-controller;
             compatible = "riscv,plic0";
@@ -140,14 +140,13 @@
                 disable-wp;
             };
         };
-/*
+
         eth0: eth@10002000 {
             interrupts = <0x3>;
             interrupt-parent = <&plic>;
             compatible = "riscv,eth0";
             reg = <0x10002000 0x1000>;
         };
-        */
     };
 
     chosen {
