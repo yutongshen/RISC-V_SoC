@@ -88,6 +88,8 @@
         };
 
         dbgmon: dbgmon@4002000 {
+            interrupts = <0x4>;
+            interrupt-parent = <&plic>;
             compatible = "riscv,dbgmon";
             reg = <0x04002000 0x2000>;
         };

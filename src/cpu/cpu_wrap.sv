@@ -194,102 +194,103 @@ logic [              `XLEN - 1:0] tlb_flush_vaddr;
 logic [              `XLEN - 1:0] tlb_flush_asid;
 logic                             ic_flush;
 
-logic          mem_ck_0;
-logic          mem_ck_1;
+logic                             mem_ck_0;
+logic                             mem_ck_1;
+                            
+logic                             cs_0;
+logic                             we_0;
+logic [                     31:0] addr_0;
+logic [                      3:0] byte_0;
+logic [                     31:0] di_0;
+logic [                     31:0] do_0;
+logic                             busy_0;
+                                 
+logic                             cs_1;
+logic                             we_1;
+logic [                     31:0] addr_1;
+logic [                      3:0] byte_1;
+logic [                     31:0] di_1;
+logic [                     31:0] do_1;
+logic                             busy_1;
+                            
+logic                             icache_bypass;
+logic                             immu_pa_vld;
+logic [                      1:0] immu_pa_bad;
+logic [                     55:0] immu_pa;
+logic                             immu_pa_pre_vld;
+logic [                     63:0] immu_pa_pre;
+                            
+logic                             dcache_bypass;
+logic                             dmmu_pa_vld;
+logic [                      1:0] dmmu_pa_bad;
+logic [                     55:0] dmmu_pa;
+logic                             dmmu_pa_pre_vld;
+logic                             dmmu_pa_pre_wr;
+logic                             dmmu_pa_pre_rd;
+logic                             dmmu_pa_pre_ex;
+logic [                     63:0] dmmu_pa_pre;
+                            
+logic                             core_psel;
+logic                             core_penable;
+logic [                     31:0] core_paddr;
+logic                             core_pwrite;
+logic [                      3:0] core_pstrb;
+logic [                     31:0] core_pwdata;
+logic [                     31:0] core_prdata;
+logic                             core_pslverr;
+logic                             core_pready;
+                            
+logic                             intc_psel;
+logic                             intc_penable;
+logic [                     31:0] intc_paddr;
+logic                             intc_pwrite;
+logic [                      3:0] intc_pstrb;
+logic [                     31:0] intc_pwdata;
+logic [                     31:0] intc_prdata;
+logic                             intc_pslverr;
+logic                             intc_pready;
+logic [                     31:0] ints;
+                            
+logic                             cfgreg_psel;
+logic                             cfgreg_penable;
+logic [                     31:0] cfgreg_paddr;
+logic                             cfgreg_pwrite;
+logic [                      3:0] cfgreg_pstrb;
+logic [                     31:0] cfgreg_pwdata;
+logic [                     31:0] cfgreg_prdata;
+logic                             cfgreg_pslverr;
+logic                             cfgreg_pready;
+                            
+logic [                     31:0] m0_snp_addr;
+logic                             m0_snp_valid;
+logic                             m0_snp_ready;
+                            
+logic [                     31:0] m1_snp_addr;
+logic                             m1_snp_valid;
+logic                             m1_snp_ready;
+                            
+logic                             uart_irq;
+logic                             spi_irq;
+logic                             mac_irq;
+logic                             dbgmon_irq;
 
-logic          cs_0;
-logic          we_0;
-logic [ 31: 0] addr_0;
-logic [  3: 0] byte_0;
-logic [ 31: 0] di_0;
-logic [ 31: 0] do_0;
-logic          busy_0;
-              
-logic          cs_1;
-logic          we_1;
-logic [ 31: 0] addr_1;
-logic [  3: 0] byte_1;
-logic [ 31: 0] di_1;
-logic [ 31: 0] do_1;
-logic          busy_1;
-
-logic          icache_bypass;
-logic          immu_pa_vld;
-logic [  1: 0] immu_pa_bad;
-logic [ 55: 0] immu_pa;
-logic          immu_pa_pre_vld;
-logic [ 63: 0] immu_pa_pre;
-
-logic          dcache_bypass;
-logic          dmmu_pa_vld;
-logic [  1: 0] dmmu_pa_bad;
-logic [ 55: 0] dmmu_pa;
-logic          dmmu_pa_pre_vld;
-logic          dmmu_pa_pre_wr;
-logic          dmmu_pa_pre_rd;
-logic          dmmu_pa_pre_ex;
-logic [ 63: 0] dmmu_pa_pre;
-
-logic          core_psel;
-logic          core_penable;
-logic [ 31: 0] core_paddr;
-logic          core_pwrite;
-logic [  3: 0] core_pstrb;
-logic [ 31: 0] core_pwdata;
-logic [ 31: 0] core_prdata;
-logic          core_pslverr;
-logic          core_pready;
-
-logic          intc_psel;
-logic          intc_penable;
-logic [ 31: 0] intc_paddr;
-logic          intc_pwrite;
-logic [  3: 0] intc_pstrb;
-logic [ 31: 0] intc_pwdata;
-logic [ 31: 0] intc_prdata;
-logic          intc_pslverr;
-logic          intc_pready;
-logic [ 31: 0] ints;
-
-logic          cfgreg_psel;
-logic          cfgreg_penable;
-logic [ 31: 0] cfgreg_paddr;
-logic          cfgreg_pwrite;
-logic [  3: 0] cfgreg_pstrb;
-logic [ 31: 0] cfgreg_pwdata;
-logic [ 31: 0] cfgreg_prdata;
-logic          cfgreg_pslverr;
-logic          cfgreg_pready;
-
-logic [ 31: 0] m0_snp_addr;
-logic          m0_snp_valid;
-logic          m0_snp_ready;
-
-logic [ 31: 0] m1_snp_addr;
-logic          m1_snp_valid;
-logic          m1_snp_ready;
-
-logic          uart_irq;
-logic          spi_irq;
-logic          mac_irq;
-
-logic [`XLEN - 1: 0] dbg_gpr_all [32];
-logic [       11: 0] dbg_addr;
-logic [`XLEN - 1: 0] dbg_wdata;
-logic                dbg_gpr_rd;
-logic                dbg_gpr_wr;
-logic [`XLEN - 1: 0] dbg_gpr_rdata;
-logic                dbg_csr_rd;
-logic                dbg_csr_wr;
-logic [`XLEN - 1: 0] dbg_csr_rdata;
-logic [`XLEN - 1: 0] dbg_pc;
-logic [       31: 0] dbg_insn;
-logic                dbg_exec;
-logic                dbg_halted;
-logic                dbg_attach;
-
-logic                cpu_trace_pkg_valid;
-logic [      255: 0] cpu_trace_pkg;
+logic [              `XLEN - 1:0] dbg_gpr_all [32];
+logic [                     11:0] dbg_addr;
+logic [              `XLEN - 1:0] dbg_wdata;
+logic                             dbg_gpr_rd;
+logic                             dbg_gpr_wr;
+logic [              `XLEN - 1:0] dbg_gpr_rdata;
+logic                             dbg_csr_rd;
+logic                             dbg_csr_wr;
+logic [              `XLEN - 1:0] dbg_csr_rdata;
+logic [              `XLEN - 1:0] dbg_pc;
+logic [                     31:0] dbg_insn;
+logic                             dbg_exec;
+logic                             dbg_halted;
+logic                             dbg_attach;
+             
+logic                             cpu_trace_pkg_valid;
+logic [                    255:0] cpu_trace_pkg;
 
 
 `AXI_INTF_DEF(immu, 10)
@@ -662,7 +663,9 @@ dbgmon u_dbgmon (
     .gpr          ( dbg_gpr_all         ),
 
     .pkg_valid    ( cpu_trace_pkg_valid ),
-    .pkg          ( cpu_trace_pkg       )
+    .pkg          ( cpu_trace_pkg       ),
+    
+    .irq          ( dbgmon_irq          )
 );
 
 rgu u_rgu (
@@ -854,7 +857,8 @@ sram u_sram (
 );
 
 assign ints = {
-    28'b0,
+    27'b0,
+    dbgmon_irq,
     mac_irq,
     spi_irq,
     uart_irq,

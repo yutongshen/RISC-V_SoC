@@ -587,6 +587,12 @@ case (opcode_16)
             end
             OP_MISC_MEM : begin
                 case ({funct3, insn[11:7], insn[19:15], insn[31:28]})
+                    {FUNCT3_FENCE  , 5'b0, 5'b0, 4'h8}: begin
+                        if (pred != 4'hf | succ != 4'hf)
+                            $sformat(result, "fence.tso %s,%s", fence_flag(pred), fence_flag(succ));
+                        else
+                            $sformat(result, "fence.tso");
+                    end
                     {FUNCT3_FENCE  , 5'b0, 5'b0, 4'b0}: begin
                         if (pred != 4'hf | succ != 4'hf)
                             $sformat(result, "fence %s,%s", fence_flag(pred), fence_flag(succ));

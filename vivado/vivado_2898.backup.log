@@ -51,3 +51,33 @@ ipx::update_checksums [ipx::current_core]
 ipx::save_core [ipx::current_core]
 update_ip_catalog -rebuild -repo_path /home/yutong/RISC-V_SoC
 INFO: [IP_Flow 19-725] Reloaded user IP repository '/home/yutong/RISC-V_SoC'
+ipx::merge_project_changes hdl_parameters [ipx::current_core]
+WARNING: [IP_Flow 19-3899] Cannot get the environment domain name variable for the component vendor name. Setting the vendor name to 'user.org'.
+WARNING: [IP_Flow 19-5226] Project source file '/home/yutong/RISC-V_SoC/component.xml' ignored by IP packager.
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-3164] Bus Interface 'ddr_m': References existing address space 'ddr_m'.
+INFO: [IP_Flow 19-3166] Bus Interface 'ext_s': References existing memory map 'ext_s'.
+ipx::merge_project_changes: Time (s): cpu = 00:00:06 ; elapsed = 00:00:08 . Memory (MB): peak = 6505.691 ; gain = 2.641 ; free physical = 1460 ; free virtual = 5859
+ipx::update_checksums [ipx::current_core]
+ipx::update_checksums: Time (s): cpu = 00:00:00 ; elapsed = 00:00:08 . Memory (MB): peak = 6505.691 ; gain = 0.000 ; free physical = 1448 ; free virtual = 5857
+ipx::save_core [ipx::current_core]
+set_property core_revision 25 [ipx::current_core]
+ipx::create_xgui_files [ipx::current_core]
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+update_ip_catalog -rebuild -repo_path /home/yutong/RISC-V_SoC
+INFO: [IP_Flow 19-725] Reloaded user IP repository '/home/yutong/RISC-V_SoC'
+ipx::merge_project_changes ports [ipx::current_core]
+WARNING: [IP_Flow 19-3899] Cannot get the environment domain name variable for the component vendor name. Setting the vendor name to 'user.org'.
+WARNING: [IP_Flow 19-5226] Project source file '/home/yutong/RISC-V_SoC/component.xml' ignored by IP packager.
+WARNING: [IP_Flow 19-5101] Packaging a component with a SystemVerilog top file is not fully supported. Please refer to UG1118 'Creating and Packaging Custom IP'.
+INFO: [IP_Flow 19-3164] Bus Interface 'ddr_m': References existing address space 'ddr_m'.
+INFO: [IP_Flow 19-3166] Bus Interface 'ext_s': References existing memory map 'ext_s'.
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+set_property core_revision 26 [ipx::current_core]
+ipx::create_xgui_files [ipx::current_core]
+ipx::update_checksums [ipx::current_core]
+ipx::save_core [ipx::current_core]
+update_ip_catalog -rebuild -repo_path /home/yutong/RISC-V_SoC
+INFO: [IP_Flow 19-725] Reloaded user IP repository '/home/yutong/RISC-V_SoC'

@@ -1,0 +1,125 @@
+/*
+
+Xilinx Vivado v2018.3 (64-bit) [Major: 2018, Minor: 3]
+SW Build: 2405991 on Thu Dec  6 23:36:41 MST 2018
+IP Build: 2404404 on Fri Dec  7 01:43:56 MST 2018
+
+Process ID (PID): 2203
+License: Customer
+
+Current time: 	Mon May 22 20:42:17 CST 2023
+Time zone: 	Taipei Standard Time (Asia/Taipei)
+
+OS: Ubuntu
+OS Version: 5.19.0-41-generic
+OS Architecture: amd64
+Available processors (cores): 2
+
+Display: :0
+Screen size: 1920x1080
+Screen resolution (DPI): 96
+Available screens: 1
+Available disk space: 23 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4
+Java executable location: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	yutong
+User home directory: /home/yutong
+User working directory: /home/yutong/RISC-V_SoC/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /tools/Xilinx/Vivado
+HDI_APPROOT: /tools/Xilinx/Vivado/2018.3
+RDI_DATADIR: /tools/Xilinx/Vivado/2018.3/data
+RDI_BINDIR: /tools/Xilinx/Vivado/2018.3/bin
+
+Vivado preferences file location: /home/yutong/.Xilinx/Vivado/2018.3/vivado.xml
+Vivado preferences directory: /home/yutong/.Xilinx/Vivado/2018.3/
+Vivado layouts directory: /home/yutong/.Xilinx/Vivado/2018.3/layouts
+PlanAhead jar file location: 	/tools/Xilinx/Vivado/2018.3/lib/classes/planAhead.jar
+Vivado log file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.log
+Vivado journal file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-2203-yutong-virtual-machine
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_DSP: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_PLANAHEAD: /tools/Xilinx/Vivado/2018.3
+XILINX_SDK: /tools/Xilinx/SDK/2018.3
+XILINX_VIVADO: /tools/Xilinx/Vivado/2018.3
+XILINX_VIVADO_HLS: /tools/Xilinx/Vivado/2018.3
+
+
+GUI allocated memory:	158 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 759 MB
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// WARNING: HEventQueue.dispatchEvent() is taking  1252 ms.
+// Tcl Message: start_gui 
+// HMemoryUtils.trashcanNow. Engine heap size: 755 MB. GUI used memory: 46 MB. Current time: 5/22/23, 8:42:19 PM CST
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr", 1); // q (Q, cp)
+// [GUI Memory]: 66 MB (+66871kb) [00:00:24]
+// [Engine Memory]: 765 MB (+650361kb) [00:00:24]
+// bx (cp):  Open Project : addNotify
+// Opening Vivado Project: /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr. Version: Vivado v2018.3 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_COMPLETED
+// TclEventType: RUN_FAILED
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_NEW
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories 
+// Tcl Message: INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// Tcl Message: INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'. 
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 76 MB (+6355kb) [00:00:39]
+// [Engine Memory]: 891 MB (+91863kb) [00:00:39]
+// [GUI Memory]: 102 MB (+23347kb) [00:00:40]
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 1200 ms. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6130 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 939 MB. GUI used memory: 52 MB. Current time: 5/22/23, 8:42:40 PM CST
+// [Engine Memory]: 940 MB (+4605kb) [00:00:44]
+// WARNING: HEventQueue.dispatchEvent() is taking  1641 ms.
+// Tcl Message: open_project: Time (s): cpu = 00:00:11 ; elapsed = 00:00:18 . Memory (MB): peak = 6374.375 ; gain = 148.461 ; free physical = 3075 ; free virtual = 8612 
+// Project name: cpu_wrap; location: /home/yutong/RISC-V_SoC/vivado/cpu_wrap; part: xc7z020clg400-1
+// Elapsed time: 23 seconds
+dismissDialog("Open Project"); // bx (cp)
+// [Engine Memory]: 991 MB (+4968kb) [00:00:48]
+// Tcl Message: update_compile_order -fileset sources_1 
+// [GUI Memory]: 108 MB (+1619kb) [00:03:11]
+// [Engine Memory]: 1,045 MB (+4430kb) [00:16:04]
+// HMemoryUtils.trashcanNow. Engine heap size: 1,006 MB. GUI used memory: 55 MB. Current time: 5/22/23, 9:12:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 988 MB. GUI used memory: 49 MB. Current time: 5/22/23, 9:42:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 988 MB. GUI used memory: 49 MB. Current time: 5/22/23, 10:12:45 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 988 MB. GUI used memory: 49 MB. Current time: 5/22/23, 10:42:46 PM CST

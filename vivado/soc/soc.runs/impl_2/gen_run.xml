@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="impl_2" LaunchPart="xc7z020clg400-1" LaunchTime="1683802788">
+<GenRun Id="impl_2" LaunchPart="xc7z020clg400-1" LaunchTime="1684759420" LaunchIncrCheckpoint="$PSRCDIR/utils_1/imports/impl_2/soc_wrapper_routed.dcp">
   <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
   <File Type="BG-DRC" Name="soc_wrapper.drc"/>
   <File Type="BG-BGN" Name="soc_wrapper.bgn"/>
@@ -112,32 +112,34 @@
   </FileSet>
   <FileSet Name="utils" Type="Utils" RelSrcDir="$PSRCDIR/utils_1">
     <Filter Type="Utils"/>
+    <File Path="$PSRCDIR/utils_1/imports/impl_2/soc_wrapper_routed.dcp">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PRUNDIR/impl_2/soc_wrapper_routed.dcp"/>
+        <Attr Name="ImportTime" Val="1684677253"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedInSteps" Val="impl_2"/>
+        <Attr Name="AutoDcp" Val="1"/>
+      </FileInfo>
+    </File>
     <Config>
       <Option Name="TopAutoSet" Val="TRUE"/>
     </Config>
   </FileSet>
   <Strategy Version="1" Minor="2">
-    <StratHandle Name="Performance_ExtraTimingOpt" Flow="Vivado Implementation 2018">
-      <Desc>Includes alternate algorithms for timing-driven optimization</Desc>
-    </StratHandle>
+    <StratHandle Name="Vivado Implementation Defaults" Flow="Vivado Implementation 2018"/>
     <Step Id="init_design"/>
     <Step Id="opt_design"/>
     <Step Id="power_opt_design"/>
-    <Step Id="place_design">
-      <Option Id="Directive">8</Option>
-    </Step>
+    <Step Id="place_design"/>
     <Step Id="post_place_power_opt_design"/>
-    <Step Id="phys_opt_design" EnableStepBool="1">
-      <Option Id="Directive">0</Option>
-    </Step>
-    <Step Id="route_design">
-      <Option Id="Directive">1</Option>
-    </Step>
+    <Step Id="phys_opt_design"/>
+    <Step Id="route_design"/>
     <Step Id="post_route_phys_opt_design"/>
     <Step Id="write_bitstream"/>
   </Strategy>
-  <BlockFileSet Type="BlockSrcs" Name="soc_processing_system7_0_0"/>
-  <BlockFileSet Type="BlockSrcs" Name="soc_smartconnect_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="soc_cpu_wrap_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="soc_axi_apb_bridge_0_0"/>
+  <BlockFileSet Type="BlockSrcs" Name="soc_processing_system7_0_0"/>
+  <BlockFileSet Type="BlockSrcs" Name="soc_smartconnect_0_0"/>
 </GenRun>

@@ -48,7 +48,7 @@
 
 
 // IP VLNV: user.org:user:cpu_wrap:1.0
-// IP Revision: 24
+// IP Revision: 27
 
 (* X_CORE_INFO = "cpu_wrap,Vivado 2018.3" *)
 (* CHECK_LICENSE_TYPE = "soc_cpu_wrap_0_0,cpu_wrap,{}" *)

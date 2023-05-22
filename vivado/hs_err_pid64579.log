@@ -1,0 +1,9 @@
+#
+# An unexpected error has occurred (11)
+#
+Stack:
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb6aadb) [0x7f4a21d6aadb]
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(JVM_handle_linux_signal+0xbb) [0x7f4a21d6fe1b]
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb647b8) [0x7f4a21d647b8]
+/lib/x86_64-linux-gnu/libc.so.6(+0x42520) [0x7f4a6dc42520]
+[0x7f4a09a80d9e]

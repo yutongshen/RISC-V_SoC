@@ -117,10 +117,12 @@ start_step place_design
 set ACTIVE_STEP place_design
 set rc [catch {
   create_msg_db place_design.pb
+  read_checkpoint -auto_incremental  -incremental /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/utils_1/imports/impl_2/soc_wrapper_routed.dcp
+  catch { report_incremental_reuse -file soc_wrapper_incremental_reuse_pre_placed.rpt }
   if { [llength [get_debug_cores -quiet] ] > 0 }  { 
     implement_debug_core 
   } 
-  place_design -directive ExtraTimingOpt
+  place_design 
   write_checkpoint -force soc_wrapper_placed.dcp
   create_report "impl_2_place_report_io_0" "report_io -file soc_wrapper_io_placed.rpt"
   create_report "impl_2_place_report_utilization_0" "report_utilization -file soc_wrapper_utilization_placed.rpt -pb soc_wrapper_utilization_placed.pb"
@@ -135,27 +137,11 @@ if {$rc} {
   unset ACTIVE_STEP 
 }
 
-start_step phys_opt_design
-set ACTIVE_STEP phys_opt_design
-set rc [catch {
-  create_msg_db phys_opt_design.pb
-  phys_opt_design -directive Explore
-  write_checkpoint -force soc_wrapper_physopt.dcp
-  close_msg_db -file phys_opt_design.pb
-} RESULT]
-if {$rc} {
-  step_failed phys_opt_design
-  return -code error $RESULT
-} else {
-  end_step phys_opt_design
-  unset ACTIVE_STEP 
-}
-
 start_step route_design
 set ACTIVE_STEP route_design
 set rc [catch {
   create_msg_db route_design.pb
-  route_design -directive NoTimingRelaxation
+  route_design 
   write_checkpoint -force soc_wrapper_routed.dcp
   create_report "impl_2_route_report_drc_0" "report_drc -file soc_wrapper_drc_routed.rpt -pb soc_wrapper_drc_routed.pb -rpx soc_wrapper_drc_routed.rpx"
   create_report "impl_2_route_report_methodology_0" "report_methodology -file soc_wrapper_methodology_drc_routed.rpt -pb soc_wrapper_methodology_drc_routed.pb -rpx soc_wrapper_methodology_drc_routed.rpx"

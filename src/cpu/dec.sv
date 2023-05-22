@@ -721,27 +721,26 @@ always_comb begin
                     OP_LOAD_FP  : ill_insn     = 1'b1;
                     OP_CUST_0   : ill_insn     = 1'b1;
                     OP_MISC_MEM : begin
-                        case ({funct3, insn[11:7], insn[19:15], insn[31:28]})
-                            {FUNCT3_FENCE  , 5'b0, 5'b0, 4'b0}: begin
+                        case (funct3)
+                            FUNCT3_FENCE  : begin // FENCE, FENCE.TSO
                                 mem_req      = 1'b0;
                                 mem_wr       = 1'b0;
                                 reg_wr       = 1'b0;
                                 fence        = 1'b1;
                             end
-                            {FUNCT3_FENCE_I, 5'b0, 5'b0, 4'b0}: begin
-                                if (insn[27:20] == 8'b0) begin
-                                    mem_req      = 1'b0;
-                                    mem_wr       = 1'b0;
-                                    reg_wr       = 1'b0;
-                                    fence_i      = 1'b1;
-                                    pc_imm_sel   = 1'b0;
-                                end
-                                else ill_insn     = 1'b1;
+                            FUNCT3_FENCE_I: begin // FENCE.I
+                                mem_req      = 1'b0;
+                                mem_wr       = 1'b0;
+                                reg_wr       = 1'b0;
+                                fence_i      = 1'b1;
+                                pc_imm_sel   = 1'b0;
+                                ill_insn     = ill_insn | (|insn[31:20]);
                             end
                             default       : begin
                                 ill_insn     = 1'b1;
                             end
                         endcase
+                        ill_insn = ill_insn | (|insn[11:7]) | (|insn[19:15]);
                     end
                     OP_OP_IMM   : begin
                         rs1_rd       = 1'b1;
