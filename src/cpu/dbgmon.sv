@@ -36,10 +36,8 @@ logic [ 62:0] wp2;
 logic         wp2_en;
 logic [ 62:0] wp3;
 logic         wp3_en;
-logic [ 31:0] wait_exc;
-logic         wait_exc_en;
-logic [ 31:0] wait_irq;
-logic         wait_irq_en;
+logic [ 31:0] vc0;
+logic [ 31:0] vc1;
 
 logic [ 15:0] delay;
 logic [ 15:0] cnt;
@@ -53,7 +51,9 @@ logic         stop;
 logic         stop_hit;
 logic         stop_hit_latch;
 
-assign irq = stop_trace;
+logic         ie;
+
+assign irq = stop_trace & ie;
 
 always_ff @(posedge clk or negedge rstn) begin: reg_bp0
     if (~rstn) {bp0_en, bp0} <= 64'h0;
@@ -137,23 +137,21 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_exc
     if (~rstn) begin
-        wait_exc_en <=  1'h0;
-        wait_exc    <= 32'b0;
+        vc0 <= 32'b0;
     end
     else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
-        if (apb_intf.paddr[12:0] == `DBGMON_EXC)
-            {wait_exc_en, wait_exc[30:0]} <= apb_intf.pwdata;
+        if (apb_intf.paddr[12:0] == `DBGMON_VC_EXC)
+            vc0 <= apb_intf.pwdata;
     end
 end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_irq
     if (~rstn) begin
-        wait_irq_en <=  1'h0;
-        wait_irq    <= 32'b0;
+        vc1 <= 32'b0;
     end
     else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
-        if (apb_intf.paddr[12:0] == `DBGMON_IRQ)
-            {wait_irq_en, wait_irq[30:0]} <= apb_intf.pwdata;
+        if (apb_intf.paddr[12:0] == `DBGMON_VC_IRQ)
+            vc1 <= apb_intf.pwdata;
     end
 end
 
@@ -202,8 +200,8 @@ assign stop_hit        = pkg_valid && (((bp0 == pkg[160+:63])  && (pkg[255:254] 
                                        ((wp1 == pkg[ 64+:63])  && (pkg[255] == 1'h0) && wp1_en) ||
                                        ((wp2 == pkg[ 64+:63])  && (pkg[255] == 1'h0) && wp2_en) ||
                                        ((wp3 == pkg[ 64+:63])  && (pkg[255] == 1'h0) && wp3_en) ||
-                                       ((wait_exc[pkg[64+:5]]) && (pkg[255:254] == 2'h3) && ~pkg[95]) ||
-                                       ((wait_irq[pkg[64+:5]]) && (pkg[255:254] == 2'h3) &&  pkg[95]));
+                                       ((vc0[pkg[64+:5]]) && (pkg[255:254] == 2'h3) && ~pkg[95]) ||
+                                       ((vc1[pkg[64+:5]]) && (pkg[255:254] == 2'h3) &&  pkg[95]));
 assign stop            = (stop_hit || stop_hit_latch) && ~|cnt;
 assign trace_sram_we   = pkg_valid && ~stop_trace;
 assign trace_sram_addr = ({7{stop_trace}} & apb_intf.paddr[11:5]) + trace_ptr;
@@ -219,6 +217,16 @@ always_ff @(posedge clk or negedge srstn) begin: reg_stop_trace
     else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable &&
              apb_intf.paddr[12:0] == `DBGMON_STOP_TRACE) begin
         stop_trace <= apb_intf.pwdata[0];
+    end
+end
+
+always_ff @(posedge clk or negedge rstn) begin: reg_ie
+    if (~rstn) begin
+        ie <=  1'h0;
+    end
+    else if (apb_intf.pwrite && apb_intf.psel && ~apb_intf.penable) begin
+        if (apb_intf.paddr[12:0] == `DBGMON_IE)
+            ie <= apb_intf.pwdata[0];
     end
 end
 
@@ -359,10 +367,11 @@ always_comb begin: comb_prdata_t
         `DBGMON_WP2 + 13'h4: prdata_t = {wp2_en, wp2[62:32]};
         `DBGMON_WP3 + 13'h0: prdata_t = wp3[31: 0];
         `DBGMON_WP3 + 13'h4: prdata_t = {wp3_en, wp3[62:32]};
-        `DBGMON_EXC        : prdata_t = {wait_exc_en, wait_exc[30: 0]};
-        `DBGMON_IRQ        : prdata_t = {wait_irq_en, wait_irq[30: 0]};
+        `DBGMON_VC_EXC     : prdata_t = vc0;
+        `DBGMON_VC_IRQ     : prdata_t = vc1;
         `DBGMON_DELAY      : prdata_t = {16'b0, delay};
         `DBGMON_STOP_TRACE : prdata_t = {31'b0, stop_trace};
+        `DBGMON_IE         : prdata_t = {31'b0, ie};
     endcase
 end
 

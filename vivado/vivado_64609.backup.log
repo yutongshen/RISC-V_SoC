@@ -164,3 +164,4 @@ file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.
 write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230522/riscv.tcl
 INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230522/riscv.tcl>.
 
+exit

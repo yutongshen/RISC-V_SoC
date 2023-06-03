@@ -1,6 +1,48 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Thu Jun  1 01:56:02 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 28) to (Rev. 29)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Wed May 31 23:18:55 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
+| Command      : upgrade_ip
+| Device       : xc7z020clg400-1
+------------------------------------------------------------------------------------
+
+Upgrade Log for IP 'soc_cpu_wrap_0_0'
+
+1. Summary
+----------
+
+SUCCESS in the upgrade of soc_cpu_wrap_0_0 (user.org:user:cpu_wrap:1.0) from (Rev. 27) to (Rev. 28)
+
+
+
+
+
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
 | Date         : Sun May 21 21:53:51 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : upgrade_ip

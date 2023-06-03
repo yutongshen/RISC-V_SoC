@@ -53,3 +53,9 @@ void __delay(__U32 __ms) {
     __WFI();
     __CSR_CLR(mie, 1 << 7);
 }
+
+void __dec2hex(__U8 *buf, __U32 val) {
+    int i;
+    for (i = 0; i < 8; i++, val <<= 4)
+        *buf++ = ((val >> 28) & 0xf) + '0';
+}

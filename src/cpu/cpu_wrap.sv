@@ -127,7 +127,7 @@ logic                             core_rstn;
 logic                             srstn;
 logic                             xrstn;
 logic                             rv64_mode;
-logic [              `XLEN - 1:0] core_bootvec;
+logic [              `XLEN - 1:0] core_rstvec;
 logic [                     31:0] ddr_offset;
 
 logic [                     63:0] systime;
@@ -331,7 +331,7 @@ cpu_top u_cpu_top (
     .xrstn               ( xrstn                  ),
     .cpu_id              ( `XLEN'd0               ),
     .rv64_mode           ( rv64_mode              ),
-    .bootvec             ( core_bootvec           ),
+    .bootvec             ( core_rstvec            ),
     .warm_rst_trigger    ( warm_rst_trigger       ),
     .systime             ( systime                ),
 
@@ -649,7 +649,7 @@ cfgreg u_cfgreg (
     .apb_intf     ( cfgreg_apb.slave ),
 
     .ddr_offset   ( ddr_offset       ),
-    .core_bootvec ( core_bootvec     ),
+    .core_rstvec  ( core_rstvec      ),
     .core_rstn    ( core_rstn        )
 );
 
@@ -754,57 +754,6 @@ marb u_marb (
     .m_peri_apb  ( peri_apb.master     ),
     .m_ddr_axi   ( ddr_axi.master      )
 );
-
-// assign msip = 1'b0;
-// assign mtip = 1'b0;
-// assign meip = 1'b0;
-// 
-// assign core_rstn = rstn;
-// assign core_bootvec = 32'b0;
-// 
-// assign imem_bad  = 2'b0;
-// assign imem_busy = 1'b0;
-// 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (~rstn) begin
-//         imem_rdata <= 32'b0;
-//     end
-//     else begin
-//         imem_rdata <= imem_addr[16] ? u_sram_1.memory[imem_addr[15:2]] : u_sram_0.memory[imem_addr[15:2]];
-//     end
-// end
-// 
-// assign dmem_bad  = 2'b0;
-// assign dmem_busy = 1'b0;
-// 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (~rstn) begin
-//         dmem_rdata <= 32'b0;
-//     end
-//     else begin
-//         dmem_rdata <= dmem_addr[16] ? u_sram_1.memory[dmem_addr[15:2]] : u_sram_0.memory[dmem_addr[15:2]];
-//     end
-// end
-// 
-// always_ff @(posedge clk or negedge rstn) begin
-//     if (dmem_write & dmem_en) begin
-//         if (~dmem_addr[16]) begin
-//             if (dmem_strb[0]) u_sram_0.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
-//             if (dmem_strb[1]) u_sram_0.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
-//             if (dmem_strb[2]) u_sram_0.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
-//             if (dmem_strb[3]) u_sram_0.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
-//         end
-//         else begin
-//             if (dmem_strb[0]) u_sram_1.memory[dmem_addr[15:2]][ 0+:8] <= dmem_wdata[ 0+:8];
-//             if (dmem_strb[1]) u_sram_1.memory[dmem_addr[15:2]][ 8+:8] <= dmem_wdata[ 8+:8];
-//             if (dmem_strb[2]) u_sram_1.memory[dmem_addr[15:2]][16+:8] <= dmem_wdata[16+:8];
-//             if (dmem_strb[3]) u_sram_1.memory[dmem_addr[15:2]][24+:8] <= dmem_wdata[24+:8];
-//         end
-//     end
-// end
-// 
-// assign cs_0 = 1'b0;
-// assign cs_1 = 1'b0;
 
 CG u_mem_cg_0 (
     .CK   ( clk      ),

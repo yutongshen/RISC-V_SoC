@@ -1,7 +1,7 @@
-`ifndef __CPUSTATREG_MMAP__
-`define __CPUSTATREG_MMAP__
+`ifndef __DBGMON_MMAP__
+`define __DBGMON_MMAP__
 
-// CPUSTATREG_BASE
+// DBGMON_BASE
 
 `define DBGMON_PC         13'h1000
 `define DBGMON_X1         13'h1008
@@ -43,9 +43,10 @@
 `define DBGMON_WP1        13'h1128
 `define DBGMON_WP2        13'h1130
 `define DBGMON_WP3        13'h1138
-`define DBGMON_EXC        13'h1140
-`define DBGMON_IRQ        13'h1144
+`define DBGMON_VC_EXC     13'h1140
+`define DBGMON_VC_IRQ     13'h1144
 `define DBGMON_DELAY      13'h1148
 `define DBGMON_STOP_TRACE 13'h114c
+`define DBGMON_IE         13'h1150
 
 `endif

@@ -9,7 +9,7 @@ module cfgreg (
     input                     rstn,
     apb_intf.slave            apb_intf,
 
-    output logic [`XLEN-1: 0] core_bootvec,
+    output logic [`XLEN-1: 0] core_rstvec,
     output logic [     31: 0] ddr_offset,
     output logic              core_rstn
 );
@@ -24,10 +24,6 @@ logic        core_srstn;
 logic [31:0] prdata_t;
 logic        apb_wr;
 
-// always_ff @(posedge clk or negedge rstn) begin: reg_core_rstn
-//     if (~rstn) core_rstn <= 1'b0;
-//     else       core_rstn <= core_pwron & core_srstn;
-// end
 assign core_rstn = core_pwron & core_srstn;
 
 always_comb begin: comb_apb_wr
@@ -39,7 +35,7 @@ always_ff @(posedge clk or negedge rstn) begin: reg_core_pwr
         core_pwron <= 1'b0;
         core_srstn <= 1'b1;
     end
-    else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_RSTN) begin
+    else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_PWR_CON) begin
         core_pwron <=  apb_intf.pwdata[ 0];
         core_srstn <= ~apb_intf.pwdata[31];
     end
@@ -50,10 +46,10 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_core_bootvec
     if (~rstn) begin
-        core_bootvec <= 32'b0;
+        core_rstvec <= 32'b0;
     end
-    else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_BOOTVEC) begin
-        core_bootvec <= apb_intf.pwdata;
+    else if (apb_wr && apb_intf.paddr[11:0] == `CFGREG_RSTVEC) begin
+        core_rstvec <= apb_intf.pwdata;
     end
 end
 
@@ -87,8 +83,8 @@ end
 always_comb begin: comb_prdata_t
     prdata_t = 32'b0;
     case (apb_intf.paddr[11:0])
-        `CFGREG_RSTN:        prdata_t = {31'b0, core_rstn};
-        `CFGREG_BOOTVEC:     prdata_t = core_bootvec;
+        `CFGREG_PWR_CON:     prdata_t = {31'b0, core_pwron};
+        `CFGREG_RSTVEC:      prdata_t = core_rstvec;
         `CFGREG_DDROFFSET:   prdata_t = ddr_offset;
         `CFGREG_RSVREG0:     prdata_t = reserved_reg0;
         `CFGREG_RSVREG1:     prdata_t = reserved_reg1;

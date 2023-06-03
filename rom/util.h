@@ -9,5 +9,6 @@
 __U32 __strcmp(const __U8P str1, const __U8P str2, __U32 len);
 void *__memcpy(void *buff1, const void *buff2, __U32 len);
 void __delay(__U32 __ms);
+void __dec2hex(__U8 *buf, __U32 val);
 
 #endif
