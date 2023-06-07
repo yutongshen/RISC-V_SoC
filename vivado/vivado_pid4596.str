@@ -1762,3 +1762,182 @@ dismissDialog("Export Block Design"); // bx (cp)
 // HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 2:34:57 PM CST
 // HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 3:04:58 PM CST
 // HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 3:34:58 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 4:04:58 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 4:34:59 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 5:04:59 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 5:34:59 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 6:04:59 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 6:35:00 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 7:05:00 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 7:35:00 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 8:05:00 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 8:35:01 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 9:05:01 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1111 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 9:35:01 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1023 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 10:05:01 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1237 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1310 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2025ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2026 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2205ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2205 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1665ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1665 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2014 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 821ms to process. Increasing delay to 4000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1077ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1077 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1341 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 1320 ms. Increasing delay to 3960 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 5037ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5037 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 4973ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4973 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 10498 ms. Increasing delay to 3000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 18206ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  18206 ms.
+// WARNING: HTimer (MainWindowUtils Timer) is taking 4980ms to process. Increasing delay to 11000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4980 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  562337 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 10:40:07 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1083 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 11:10:06 PM CST
+// WARNING: HTimer (StateMonitor Timer) is taking 608ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1028 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1251 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1585 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2146ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2150 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1038 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1875ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1875 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2178 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1687 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1351 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1177 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1131 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1086 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1004 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1171 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1093 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1072 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2151 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1639 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2146ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2146 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1242ms to process. Increasing delay to 6000 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 13276 ms. Increasing delay to 39828 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1242 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5535 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 10048 ms. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1598 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1364 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1910 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1213 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1194 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1534 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1772 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3165 ms.
+// WARNING: HTimer (HSTRUtils Dump STR Log Timer) is taking 9261ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9261 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1037 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6531 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1742 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1934 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1289ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1289 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1756ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1757 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1215 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1081ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1081 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 2 ms. Decreasing delay to 2002 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9558 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  17035 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 15821 ms. Increasing delay to 47463 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1108ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1108 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1791 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2248 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3024 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1990 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1907 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2050 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3757 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1603 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1666 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1729 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1872 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2061ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2061 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1483 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1275 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2339 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1780 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2226 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 3 ms. Decreasing delay to 2003 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1112 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1576 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1760 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1334 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1217 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2799 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1121 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4026 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 4947 ms. Increasing delay to 14841 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2385 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1409 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1601 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1189 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2870ms to process. Increasing delay to 8000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2870 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1934 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 2 ms. Decreasing delay to 2002 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1242 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1618 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1030 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1480 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1065 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1285 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2096 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1040 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1061 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1824 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2300 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1416 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 1118 ms. Increasing delay to 3354 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1126 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1249 ms.
+// WARNING: HTimer (ExpRunPropPanels Refresh Status Timer) is taking 1278ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1278 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 681ms to process. Increasing delay to 3000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/3/23, 11:40:09 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  2016 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  208732 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 12:10:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 12:40:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 1:10:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 1:40:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 2:10:09 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 2:40:10 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 3:10:10 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 3:40:10 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 4:10:10 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 4:40:11 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 5:10:11 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 5:40:11 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 6:10:11 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 6:40:12 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 7:10:12 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 7:40:12 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 8:10:12 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 8:40:13 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 9:10:13 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 9:40:13 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 10:10:13 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 10:40:14 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 11:10:14 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 11:40:14 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,280 MB. GUI used memory: 149 MB. Current time: 6/4/23, 12:10:14 PM CST

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Thu Jun  1 02:05:51 2023" VIVADOVERSION="2018.3">
+<EDKSYSTEM EDWVERSION="1.2" TIMESTAMP="Tue Jun  6 22:57:50 2023" VIVADOVERSION="2018.3">
 
   <SYSTEMINFO ARCH="zynq" DEVICE="7z020" NAME="soc" PACKAGE="clg400" SPEEDGRADE="-1"/>
 
@@ -27,36 +27,6 @@
     <PORT DIR="I" NAME="riscv_rmii_refclk" SIGIS="undef" SIGNAME="External_Ports_riscv_rmii_refclk">
       <CONNECTIONS>
         <CONNECTION INSTANCE="cpu_wrap_0" PORT="rmii_refclk"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="riscv_jtag_tdi" SIGIS="undef" SIGNAME="cpu_wrap_0_tdi">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tdi"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="riscv_jtag_tms" SIGIS="undef" SIGNAME="cpu_wrap_0_tms">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tms"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT CLKFREQUENCY="100000000" DIR="I" NAME="riscv_jtag_tck" SIGIS="clk" SIGNAME="cpu_wrap_0_tck">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tck"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="riscv_jtag_tdo" SIGIS="undef" SIGNAME="cpu_wrap_0_tdo">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tdo"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="O" NAME="riscv_uart_txd" SIGIS="undef" SIGNAME="cpu_wrap_0_uart_tx">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="uart_tx"/>
-      </CONNECTIONS>
-    </PORT>
-    <PORT DIR="I" NAME="riscv_uart_rxd" SIGIS="undef" SIGNAME="cpu_wrap_0_uart_rx">
-      <CONNECTIONS>
-        <CONNECTION INSTANCE="cpu_wrap_0" PORT="uart_rx"/>
       </CONNECTIONS>
     </PORT>
     <PORT DIR="IO" LEFT="53" NAME="FIXED_IO_mio" RIGHT="0" SIGIS="undef" SIGNAME="processing_system7_0_MIO">
@@ -162,6 +132,36 @@
     <PORT DIR="IO" LEFT="3" NAME="DDR_dqs_p" RIGHT="0" SIGIS="undef" SIGNAME="processing_system7_0_DDR_DQS">
       <CONNECTIONS>
         <CONNECTION INSTANCE="processing_system7_0" PORT="DDR_DQS"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" NAME="riscv_uart_txd" SIGIS="undef" SIGNAME="cpu_wrap_0_uart_tx">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="uart_tx"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" NAME="riscv_uart_rxd" SIGIS="undef" SIGNAME="cpu_wrap_0_uart_rx">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="uart_rx"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" NAME="riscv_jtag_tdi" SIGIS="undef" SIGNAME="cpu_wrap_0_tdi">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tdi"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="I" NAME="riscv_jtag_tms" SIGIS="undef" SIGNAME="cpu_wrap_0_tms">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tms"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT CLKFREQUENCY="100000000" DIR="I" NAME="riscv_jtag_tck" SIGIS="clk" SIGNAME="cpu_wrap_0_tck">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tck"/>
+      </CONNECTIONS>
+    </PORT>
+    <PORT DIR="O" NAME="riscv_jtag_tdo" SIGIS="undef" SIGNAME="cpu_wrap_0_tdo">
+      <CONNECTIONS>
+        <CONNECTION INSTANCE="cpu_wrap_0" PORT="tdo"/>
       </CONNECTIONS>
     </PORT>
     <PORT DIR="O" LEFT="1" NAME="riscv_rmii_txd" RIGHT="0" SIGIS="undef" SIGNAME="cpu_wrap_0_rmii_txd">
@@ -1313,7 +1313,7 @@
         </BUSINTERFACE>
       </BUSINTERFACES>
     </MODULE>
-    <MODULE COREREVISION="29" FULLNAME="/cpu_wrap_0" HWVERSION="1.0" INSTANCE="cpu_wrap_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="cpu_wrap" VLNV="user.org:user:cpu_wrap:1.0">
+    <MODULE COREREVISION="30" FULLNAME="/cpu_wrap_0" HWVERSION="1.0" INSTANCE="cpu_wrap_0" IPTYPE="PERIPHERAL" IS_ENABLE="1" MODCLASS="PERIPHERAL" MODTYPE="cpu_wrap" VLNV="user.org:user:cpu_wrap:1.0">
       <DOCUMENTS/>
       <ADDRESSBLOCKS>
         <ADDRESSBLOCK ACCESS="" INTERFACE="ext_s" NAME="reg0" RANGE="4294967296" USAGE="register"/>

@@ -628,9 +628,9 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             if2id_insn                <= {`IM_DATA_LEN{if_insn_valid}} & if_insn;
             if2id_insn_valid          <= ~if_flush & if_insn_valid;
             if2id_insn_misaligned_epc <= if_insn_misaligned_epc;
-            if2id_insn_misaligned     <= if_insn_misaligned;
-            if2id_insn_page_fault     <= if_insn_page_fault;
-            if2id_insn_xes_fault      <= if_insn_xes_fault;
+            if2id_insn_misaligned     <= ~if_flush & if_insn_misaligned;
+            if2id_insn_page_fault     <= ~if_flush & if_insn_page_fault;
+            if2id_insn_xes_fault      <= ~if_flush & if_insn_xes_fault;
             if2id_insn_badaddr        <= if_insn_badaddr;
             if2id_jump_token          <= if_jump_token;
             if2id_attach              <= attach;
@@ -766,7 +766,9 @@ assign id_rs2_data = fwd_wb2id_rd_rs2 ? mr2wb_rd_data :
 assign id_hazard = (id_csr_rd &&
                     (exe_pmu_csr_wr | exe_fpu_csr_wr | exe_dbg_csr_wr |
                      exe_mmu_csr_wr | exe_mpu_csr_wr | exe_sru_csr_wr) &&
-                    (id_csr_addr == id2exe_csr_waddr));
+                    (id_csr_addr == id2exe_csr_waddr)) ||
+                   ((if2id_insn_misaligned || if2id_insn_page_fault || if2id_insn_xes_fault) &&
+                    (exe2ma_mem_req || mr_dpu_hazard));
 
 
 // ID/EXE pipeline
