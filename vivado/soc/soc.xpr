@@ -125,13 +125,11 @@
     </FileSet>
     <FileSet Name="utils_1" Type="Utils" RelSrcDir="$PSRCDIR/utils_1">
       <Filter Type="Utils"/>
-      <File Path="$PSRCDIR/utils_1/imports/impl_2/soc_wrapper_routed.dcp">
+      <File Path="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp">
         <FileInfo>
-          <Attr Name="ImportPath" Val="$PRUNDIR/impl_2/soc_wrapper_routed.dcp"/>
-          <Attr Name="ImportTime" Val="1686063437"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedInSteps" Val="impl_2"/>
+          <Attr Name="UsedInSteps" Val="impl_1"/>
           <Attr Name="AutoDcp" Val="1"/>
         </FileInfo>
       </File>
@@ -284,26 +282,20 @@
       <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2018"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
     </Run>
-    <Run Id="impl_2" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Uses multiple algorithms for optimization, placement, and routing to get potentially better results." AutoIncrementalCheckpoint="true" IncrementalCheckpoint="$PSRCDIR/utils_1/imports/impl_2/soc_wrapper_routed.dcp" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_2" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
+    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Uses multiple optimization algorithms to get potentially fewer LUTs and registers." AutoIncrementalCheckpoint="true" IncrementalCheckpoint="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Performance_Explore" Flow="Vivado Implementation 2018">
-          <Desc>Uses multiple algorithms for optimization, placement, and routing to get potentially better results.</Desc>
+        <StratHandle Name="Area_ExploreSequential" Flow="Vivado Implementation 2018">
+          <Desc>Uses multiple optimization algorithms to get potentially fewer LUTs and registers.</Desc>
         </StratHandle>
         <Step Id="init_design"/>
         <Step Id="opt_design">
-          <Option Id="Directive">0</Option>
+          <Option Id="Directive">2</Option>
         </Step>
         <Step Id="power_opt_design"/>
-        <Step Id="place_design">
-          <Option Id="Directive">0</Option>
-        </Step>
+        <Step Id="place_design"/>
         <Step Id="post_place_power_opt_design"/>
-        <Step Id="phys_opt_design" EnableStepBool="1">
-          <Option Id="Directive">0</Option>
-        </Step>
-        <Step Id="route_design">
-          <Option Id="Directive">0</Option>
-        </Step>
+        <Step Id="phys_opt_design"/>
+        <Step Id="route_design"/>
         <Step Id="post_route_phys_opt_design"/>
         <Step Id="write_bitstream"/>
       </Strategy>

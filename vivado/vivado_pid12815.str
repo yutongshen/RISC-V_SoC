@@ -438,3 +438,48 @@ selectTab("PlanAheadTabBaseWorkspace_JideTabbedPane", (HResource) null, "Package
 // WARNING: HEventQueue.dispatchEvent() is taking  7300 ms.
 // WARNING: HEventQueue.dispatchEvent() is taking  2711 ms.
 // HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 88 MB. Current time: 6/7/23, 9:00:25 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 9:30:26 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 10:00:27 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 10:30:26 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 11:00:27 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 11:30:27 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 12:00:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 12:30:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 1:00:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 1:30:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 2:00:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 2:30:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 3:00:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 3:30:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 4:00:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 4:30:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 5:00:30 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 5:30:30 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 6:00:30 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 6:30:30 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 7:00:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 7:30:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 8:00:31 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 8:30:32 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 9:00:32 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 9:30:32 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 10:00:32 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 10:30:33 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 11:00:33 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 1,091 MB. GUI used memory: 62 MB. Current time: 6/7/23, 11:30:33 PM CST
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: PACKAGER_MESSAGE_UPDATE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  7719 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 11878 ms. Increasing delay to 35634 ms.
+// WARNING: updateGUI() is taking  1290 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 5746ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5746 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  7428 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1181 ms.
+// Elapsed time: 83333 seconds
+selectList(PAResourceOtoP.PackagerStepsPanel_PACKAGER_STEPS_LIST, "Ports and Interfaces", 4); // ar (Q, cp)
+// TclEventType: PACKAGER_MESSAGE_UPDATE
+// TclEventType: FILE_SET_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  1420 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3707 ms.

@@ -277,9 +277,9 @@ end
 
 always_ff @(posedge clk or negedge sw_rstn) begin
     if (~sw_rstn) rx_ram_read_busy <= 1'b0;
-    else       rx_ram_read_busy <= rx_len_fifo_rd                          ? 1'b0:
-                                   !rx_ram_read_busy && !rx_len_fifo_empty ? 1'b1:
-                                                                             rx_ram_read_busy;
+    else          rx_ram_read_busy <= rx_len_fifo_rd                          ? 1'b0:
+                                      !rx_ram_read_busy && !rx_len_fifo_empty ? 1'b1:
+                                                                                rx_ram_read_busy;
 end
 
 always_ff @(posedge clk or negedge sw_rstn) begin
@@ -369,9 +369,8 @@ end
 assign rx_len_fifo_rd    = rx_discar && !rx_len_fifo_empty;
 assign rx_len_fifo_wr    = rx_en && rx_len_cnt_upd && !rx_ovf;
 assign rx_len_fifo_wdata = rx_len_cnt;
-assign rx_len_illegal    = !afifo_rx_rdata[34] &&
-                           (rx_len_cnt + {9'b0, afifo_rx_rdata[33:32]} < 11'd60 ||
-                            rx_len_cnt + {9'b0, afifo_rx_rdata[33:32]} > 11'd1518);
+assign rx_len_illegal    = (!afifo_rx_rdata[34] && rx_len_cnt + {9'b0, afifo_rx_rdata[33:32]} < 11'd60) ||
+                           rx_len_cnt + {8'b0, afifo_rx_rdata[34:32]} > 11'd1518;
 
 mac_fifo u_rx_len_fifo (
     .clk   ( clk               ),

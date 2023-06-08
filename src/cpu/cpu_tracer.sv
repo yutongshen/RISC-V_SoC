@@ -131,8 +131,14 @@ always_ff @(posedge clk) begin
     end
     if (trap_en) begin
         if (mcause[31]) begin
-            $fdisplay(cpu_tracer_file, "(%0d ns) Interrupt #%0d, epc = 0x%08x, tval = 0x%08x",
-                      $time, mcause[30:0], epc, mtval);
+            $fdisplay(cpu_tracer_file, "(%0d ns) [%s] Interrupt #%0d, epc = 0x%08x, tval = 0x%08x",
+                      $time,
+                      prv === `PRV_M ? "M":
+                      prv === `PRV_H ? "H":
+                      prv === `PRV_S ? "S":
+                      prv === `PRV_U ? "U":
+                                       "X",
+                      mcause[30:0], epc, mtval);
         end
         else begin
             str = "";
@@ -162,8 +168,7 @@ always_ff @(posedge clk) begin
                       prv === `PRV_S ? "S":
                       prv === `PRV_U ? "U":
                                        "X",
-                      str,
-                      epc, mtval);
+                      str, epc, mtval);
         end
     end
 end

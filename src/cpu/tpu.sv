@@ -3,6 +3,7 @@
 module tpu (
     input                           insn_valid,
     input        [`IM_DATA_LEN-1:0] insn,
+    input                           exe_hazard,
     input        [`IM_ADDR_LEN-1:0] exe_pc,
     input        [`IM_ADDR_LEN-1:0] wb_pc,
     input        [`DM_ADDR_LEN-1:0] ldst_badaddr,
@@ -76,7 +77,7 @@ assign trap_insn_pg_fault         = insn_pg_fault;
 assign trap_load_pg_fault         = load_pg_fault;
 assign trap_store_pg_fault        = store_pg_fault;
 
-assign trap_en = (insn_valid && (if_trap_en | exe_trap_en)) || wb_trap_en;
+assign trap_en = (insn_valid && ~exe_hazard && (if_trap_en | exe_trap_en)) || wb_trap_en;
 
 assign if_trap_en  = trap_insn_misaligned | trap_insn_access_fault |
                      trap_insn_pg_fault | trap_insn_addr_break_point;

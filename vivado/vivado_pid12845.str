@@ -824,3 +824,190 @@ dismissDialog("Export Block Design"); // bx (cp)
 // WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 281ms to process. Increasing delay to 2000 ms.
 // WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 417ms to process. Increasing delay to 2000 ms.
 // WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 245ms to process. Increasing delay to 2000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,102 MB. GUI used memory: 160 MB. Current time: 6/7/23, 9:17:22 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,086 MB. GUI used memory: 155 MB. Current time: 6/7/23, 9:47:22 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,085 MB. GUI used memory: 155 MB. Current time: 6/7/23, 10:17:22 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,085 MB. GUI used memory: 155 MB. Current time: 6/7/23, 10:47:23 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,085 MB. GUI used memory: 155 MB. Current time: 6/7/23, 11:17:23 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,085 MB. GUI used memory: 155 MB. Current time: 6/7/23, 11:47:23 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,085 MB. GUI used memory: 155 MB. Current time: 6/7/23, 12:17:23 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 12:47:24 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 1:17:24 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 1:47:24 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 2:17:24 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 2:47:25 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 3:17:25 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 3:47:25 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 4:17:25 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 4:47:26 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 5:17:26 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 5:47:26 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 6:17:26 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 6:47:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 7:17:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 7:47:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 8:17:27 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,084 MB. GUI used memory: 155 MB. Current time: 6/7/23, 8:47:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,092 MB. GUI used memory: 155 MB. Current time: 6/7/23, 9:17:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,092 MB. GUI used memory: 155 MB. Current time: 6/7/23, 9:47:28 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,092 MB. GUI used memory: 155 MB. Current time: 6/7/23, 10:17:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,092 MB. GUI used memory: 155 MB. Current time: 6/7/23, 10:47:29 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,092 MB. GUI used memory: 155 MB. Current time: 6/7/23, 11:17:29 PM CST
+// WARNING: updateGUI() is taking  3689 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9163 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  11431 ms.
+// Thread: hw_ila_monitor
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.mainLoop(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.run(Unknown Source)
+// Thread: Common-Cleaner
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.ref.CleanerImpl.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.misc.InnocuousThread.run(Unknown Source)
+// Thread: AWT-Shutdown
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.AWTAutoShutdown.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaAnimation 25
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Thread-1
+// Thread: Reference Handler
+// 	at java.base@9.0.4/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.Reference.processPendingReferences(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference.access$000(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference$ReferenceHandler.run(Unknown Source)
+// Thread: Monitor HEventQueue
+// 	at java.base@9.0.4/java.lang.Thread.dumpThreads(Native Method)
+// 	at java.base@9.0.4/java.lang.Thread.getAllStackTraces(Unknown Source)
+// 	at ui.utils.d.c.exx(SourceFile:484)
+// 	at ui.frmwork.b.e.construct(SourceFile:140)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Thread-205
+// Thread: SyntheticaAnimation 70
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: TimerQueue
+// 	at java.base@9.0.4/jdk.internal.misc.Unsafe.park(Native Method)
+// 	at java.base@9.0.4/java.util.concurrent.locks.LockSupport.parkNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.DelayQueue.take(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.TimerQueue.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Update Runs Swing Worker
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.experiment.A.construct(SourceFile:311)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Process Messages
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.frmwork.d.h.construct(SourceFile:132)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaCleanerThread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.StyleFactory$ComponentPropertyStore$1.run(StyleFactory.java:1846)
+// Thread: Batik CleanerThread
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at org.apache.batik.util.CleanerThread.run(CleanerThread.java:106)
+// Thread: Thread-206
+// Thread: AWT-EventQueue-1
+// 	at java.desktop@9.0.4/sun.java2d.loops.FillRect.FillRect(Native Method)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.LoopPipe.fillRect(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.ValidatePipe.fillRect(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.SunGraphics2D.fillRect(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.plaf.synth.SynthLookAndFeel.paintRegion(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.plaf.synth.SynthLookAndFeel.update(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.plaf.synth.SynthPanelUI.update(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.paintComponent(Unknown Source)
+// 	at com.jidesoft.swing.ContentContainer.paintComponent(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.paintToOffscreen(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paintDoubleBufferedImpl(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paintDoubleBuffered(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.BufferStrategyPaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent._paintImmediately(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.paintImmediately(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$4.run(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$4.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.prePaintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.access$1200(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$ProcessingRunnable.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.event.InvocationEvent.dispatch(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.access$500(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEvent(Unknown Source)
+// 	at ui.frmwork.b.d.dispatchEvent(SourceFile:88)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.run(Unknown Source)
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.utils.lnf.b.run(SourceFile:99)
+// Thread: main
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.PlanAhead.b(SourceFile:1030)
+// 	at ui.PlanAhead.jswMain(SourceFile:1084)
+// Thread: Finalizer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Finalizer$FinalizerThread.run(Unknown Source)
+// Thread: Attach Listener
+// Thread: Refresh Filesets Swing Worker
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.design.w.construct(SourceFile:2446)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: AWT-XAWT
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.waitForEvents(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Java2D Disposer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.Disposer.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1208ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1208 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1035ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1035 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1473ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1473 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1129ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1129 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 688ms to process. Increasing delay to 3000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 817ms to process. Increasing delay to 4000 ms.
+// WARNING: HTimer (MainWindowUtils Timer) is taking 2504ms to process. Increasing delay to 11000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2504 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 685ms to process. Increasing delay to 4000 ms.
+// WARNING: HTimer (HSTRUtils Dump STR Log Timer) is taking 1909ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1909 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2133 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1771ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1771 ms.

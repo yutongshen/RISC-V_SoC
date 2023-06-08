@@ -2,8 +2,8 @@
 # Vivado v2018.3 (64-bit)
 # SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
 # IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
-# Start of session at: Tue Jun  6 22:49:43 2023
-# Process ID: 12845
+# Start of session at: Wed Jun  7 23:52:15 2023
+# Process ID: 2277
 # Current directory: /home/yutong/RISC-V_SoC/vivado
 # Command line: vivado
 # Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
@@ -13,8 +13,8 @@ start_gui
 open_project /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpuScanning sources...
 Finished scanning sources
 INFO: [IP_Flow 19-234] Refreshing IP repositories
-INFO: [IP_INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'.
-WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivaINFO: [IP_Flow INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/20open_project: Time (s): cpu = 00:00:24 ; elapsed = 00:01:35 . Memory (MB): peak = 6426.023 ; gain = 205.617 ; free physical = 155 ; free virtual = 8065
+INFO: [IP_INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISWARNING: [WARNING: [IP_Flow 19-3656] If you move the project, the path for repository '/home/yutong/RISC-V_SoC' may become invalid. A better location for the repository would be in a path adjacent to the project. (Current project location is '/home/yutong/RISC-V_SoC/vivaINFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'.
+open_project: Time (s): cpu = 00:00:16 ; elapsed = 00:00:34 . Memory (MB): peak = 6430.203 ; gain = 207.391 ; free physical = 3113 ; free virtual = 8612
 update_compile_order -fileset sources_1
 update_ip_catalog -rebuild -scan_changes
 INFO: [IP_Flow 19-234] Refreshing IP repositories
@@ -33,14 +33,13 @@ Adding cell -- user.org:user:cpu_wrap:1.0 - cpu_wrap_0
 WARNING: [BD 41-1731] Type mismatch between connected pins: /processing_system7_0/FCLK_CLK1(clk) and /cpu_wrap_0/clk_32k(undef)
 Successfully read diagram <soc> from BD file </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>
 Upgrading '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd'
-INFO: [IP_Flow 19-3422] Upgraded soc_cpu_wrap_0_0 (cpu_wrap_v1_0 1.0) from revision 29 to revision 30
+INFO: [IP_Flow 19-3422] Upgraded soc_cpu_wrap_0_0 (cpu_wrap_v1_0 1.0) from revision 30 to revision 31
 WARNING: [BD 41-1731] Type mismatch between connected pins: /processing_system7_0/FCLK_CLK1(clk) and /cpu_wrap_0_upgraded_ipi/clk_32k(undef)
 Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd> 
 Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ui/bd_e0923ae7.ui> 
 INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/yutong/RISC-V_SoC/vivado/soc/ip_upgrade.log'.
-upgradereset_run synth_1 -prev_step 
-reset_runs: Time (s): cpu = 00:00:05 ; elapsed = 00:00:07 . Memory (MB): peak = 6460.000 ; gain = 0.000 ; free physical = 927 ; free virtual = 5540
-_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
+upgrade_ip: Time (s): cpu = 00:00:08 ; elapsed = 00:00:06 . Memory (MB): peak = 6547.258 ; gain = 0.000 ; free physical = 2917 ; free virtual = 8374
+export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet
 reset_run synth_1
 INFO: [Project 1-973] Auto Incremental Compile:: New reference dcp wns is greater than threshold, current reference dcp will be replaced
 INFO: [filemgmt 20-762] Replacing file '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/utils_1/imports/impl_2/soc_wrapper_routed.dcp' with file '/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper_routed.dcp'.
@@ -76,30 +75,31 @@ INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_intercon
 Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc.hwh
 Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc_bd.tcl
 Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.hwdef
-INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_pc_0, cache-ID = 0c40fe8138cf3762; cache size = 1186.080 MB.
-INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_us_0, cache-ID = 99876c5926526efb; cache size = 1186.080 MB.
-[Tue Jun  6 22:57:58 2023] Launched soc_cpu_wrap_0_0_synth_1, synth_1...
+INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_us_0, cache-ID = 99876c5926526efb; cache size = 1246.887 MB.
+INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_pc_0, cache-ID = 0c40fe8138cf3762; cache size = 1246.887 MB.
+[Wed Jun  7 23:55:03 2023] Launched soc_cpu_wrap_0_0_synth_1, synth_1...
 Run output will be captured here:
 soc_cpu_wrap_0_0_synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_cpu_wrap_0_0_synth_1/runme.log
 synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/synth_1/runme.log
-[Tue Jun  6 22:57:58 2023] Launched impl_2...
+[Wed Jun  7 23:55:03 2023] Launched impl_2...
 Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log
-launch_runs: Time (s): cpu = 00:00:24 ; elapsed = 00:00:38 . Memory (MB): peak = 6751.523 ; gain = 206.008 ; free physical = 128 ; free virtual = 7591
+launch_runs: Time (s): cpu = 00:00:19 ; elapsed = 00:00:20 . Memory (MB): peak = 6829.883 ; gain = 282.625 ; free physical = 2652 ; free virtual = 8209
 report_ip_status -name ip_status 
-delete_runs "impl_1"
 reset_run impl_2
-set_property strategy {Vivado Implementation Defaults} [get_runs impl_2]
-launch_runs impl_2 -jobs 2
-[Wed Jun  7 00:52:35 2023] Launched impl_2...
-Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log
-launch_runs: Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 6774.469 ; gain = 0.000 ; free physical = 2876 ; free virtual = 7449
-reset_run impl_2
-set_property strategy Performance_Explore [get_runs impl_2]
-launch_runs impl_2 -jobs 2
-[Wed Jun  7 01:00:50 2023] Launched impl_2...
-Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log
-open_run impl_2
-INFO: [Netlist 29-17] Analyzing 5111 Unisim elements for replacement
+set_property name impl_1 [get_runs impl_2]
+WARNING: [Project 1-966] File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/utils_1/imports/impl_2/soc_wrapper_routed.dcp has been removed from project, but is still used as a incremental_checkpoint for run(s) impl_2. Please use the command(s) "reset_property incremental_checkpoint [get_runs impl_2]" to remove it as incremental_checkpoint.
+set_property strategy {Vivado Implementation Defaults} [get_runs impl_1]
+launch_runs impl_1 -jobs 2
+[Thu Jun  8 01:48:09 2023] Launched impl_1...
+Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/runme.log
+reset_run impl_1
+set_property strategy Power_DefaultOpt [get_runs impl_1]
+set_property strategy Area_ExploreSequential [get_runs impl_1]
+launch_runs impl_1 -jobs 2
+[Thu Jun  8 08:47:31 2023] Launched impl_1...
+Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/runme.log
+open_run impl_1
+INFO: [Netlist 29-17] Analyzing 5114 Unisim elements for replacement
 INFO: [Netlist 29-28] Unisim Transformation completed in 2 CPU seconds
 INFO: [Project 1-479] Netlist was created with Vivado 2018.3
 INFO: [Device 21-403] Loading part xc7z020clg400-1
@@ -111,10 +111,10 @@ INFO: [Project 1-853] Binary constraint restore complete.
 Reading XDEF placement.
 Reading placer database...
 Reading XDEF routing.
-Read XDEF File: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 7815.781 ; gain = 77.961 ; free physical = 1502 ; free virtual = 6467
-Restored from archive | CPU: 5.380000 secs | Memory: 80.947456 MB |
-Finished XDEF File Restore: Time (s): cpu = 00:00:05 ; elapsed = 00:00:05 . Memory (MB): peak = 7815.781 ; gain = 77.961 ; free physical = 1502 ; free virtual = 6467
-Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.01 . Memory (MB): peak = 7815.781 ; gain = 0.000 ; free physical = 1507 ; free virtual = 6473
+Read XDEF File: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 7809.305 ; gain = 77.961 ; free physical = 1574 ; free virtual = 6868
+Restored from archive | CPU: 5.630000 secs | Memory: 78.825890 MB |
+Finished XDEF File Restore: Time (s): cpu = 00:00:06 ; elapsed = 00:00:05 . Memory (MB): peak = 7809.305 ; gain = 77.961 ; free physical = 1574 ; free virtual = 6868
+Netlist sorting complete. Time (s): cpu = 00:00:00.01 ; elapsed = 00:00:00.02 . Memory (MB): peak = 7809.305 ; gain = 0.000 ; free physical = 1594 ; free virtual = 6889
 INFO: [Project 1-111] Unisim Transformation Summary:
   A total of 130 instances were transformed.
   RAM32M => RAM32M (RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMD32, RAMS32, RAMS32): 118 instances
@@ -222,13 +222,22 @@ WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
 WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
 WARNING: [Designutils 20-3303] unexpected site type 'IOPAD' in HDPYFinalizeIO
 INFO: [Common 17-14] Message 'Designutils 20-3303' appears 100 times and further instances of the messages will be disabled. Use the Tcl command set_msg_config to change the current settings.
-open_run: Time (s): cpu = 00:01:23 ; elapsed = 00:01:23 . Memory (MB): peak = 8040.340 ; gain = 1263.871 ; free physical = 1238 ; free virtual = 6241
-open_report: Time (s): cpu = 00:00:30 ; elapsed = 00:00:21 . Memory (MB): peak = 8115.676 ; gain = 48.992 ; free physical = 959 ; free virtual = 5987
-launch_runs impl_2 -to_step write_bitstream -jobs 2
-[Wed Jun  7 08:47:53 2023] Launched impl_2...
-Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/runme.log
+open_run: Time (s): cpu = 00:01:07 ; elapsed = 00:01:08 . Memory (MB): peak = 8003.012 ; gain = 1173.129 ; free physical = 1376 ; free virtual = 6703
+open_report: Time (s): cpu = 00:00:15 ; elapsed = 00:00:10 . Memory (MB): peak = 8103.949 ; gain = 33.031 ; free physical = 1033 ; free virtual = 6381
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+[Thu Jun  8 09:21:08 2023] Launched impl_1...
+Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/runme.log
 open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
-file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_2/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230607/riscv.bit
-write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230607/riscv.tcl
-INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230607/riscv.tcl>.
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230608/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230608/riscv.tcl
+INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230608/riscv.tcl>.
+
+file mkdir /home/yutong/RISC-V_SoC/vivado/soc/soc.sdk
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.sysdef /home/yutong/RISC-V_SoC/vivado/soc/soc.sdk/soc_wrapper.hdf
+
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.sysdef /home/yutong/RISC-V_SoC/vivado/bitfile/20230608/soc_wrapper.hdf
+
+open_hw
+write_hwdef -force  -file /home/yutong/RISC-V_SoC/vivado/bitfile/20230608/soc_wrapper.hdf
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.sysdef /home/yutong/RISC-V_SoC/vivado/bitfile/20230608/soc_wrapper.hdf
 

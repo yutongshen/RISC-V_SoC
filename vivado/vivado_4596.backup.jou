@@ -20,3 +20,4 @@ ipx::update_checksums [ipx::current_core]
 ipx::save_core [ipx::current_core]
 update_ip_catalog -rebuild -repo_path /home/yutong/RISC-V_SoC
 reset_run synth_1 -prev_step 
+ipx::merge_project_changes ports [ipx::current_core]
