@@ -869,3 +869,36 @@ dismissDialog("Export Hardware"); // X (cp)
 // HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 8:54:50 PM CST
 // WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 264ms to process. Increasing delay to 2000 ms.
 // HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 9:24:51 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 9:54:51 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 10:24:51 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 10:54:51 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 11:24:52 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,152 MB. GUI used memory: 164 MB. Current time: 6/8/23, 11:54:52 PM CST
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1140ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1140 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 578ms to process. Increasing delay to 3000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 12:24:52 AM CST
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 575ms to process. Increasing delay to 2000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 12:54:53 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 1:24:56 AM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  3358 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 1:54:53 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 2:24:53 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 2:54:53 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 3:24:54 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 3:54:54 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 4:24:55 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 4:54:55 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 5:24:55 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 5:54:55 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 6:24:56 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 6:54:56 AM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1332 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 490ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1064 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 7:24:57 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 7:54:57 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 8:24:57 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 8:54:58 AM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  2940 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5576 ms.
