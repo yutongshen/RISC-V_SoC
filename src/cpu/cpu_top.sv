@@ -1010,7 +1010,7 @@ assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr}
 
 assign exe_int_mask   = exe_hazard || ~id2exe_insn_valid || ma_stall ||
                         ma_pipe_restart || mr_pipe_restart ||
-                        exe2ma_mem_req || ma2mr_mem_req_wo_flush;
+                        exe2ma_mem_req || ma2mr_mem_req_wo_flush || mr_dpu_hazard;
 
 sru u_sru (
     .clk              ( clk_wfi           ),

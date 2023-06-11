@@ -902,3 +902,661 @@ dismissDialog("Export Hardware"); // X (cp)
 // HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 8:54:58 AM CST
 // WARNING: HEventQueue.dispatchEvent() is taking  2940 ms.
 // WARNING: HEventQueue.dispatchEvent() is taking  5576 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 9:24:59 AM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1483 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 9:54:58 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 10:24:58 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 10:54:59 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 11:24:59 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 11:54:59 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 164 MB. Current time: 6/9/23, 12:24:59 PM CST
+// Elapsed time: 98598 seconds
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, IP Integrator, Open Block Design]", 7, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_OPEN_BLOCK_DESIGN
+// bx (cp):  Open Block Design : addNotify
+// WARNING: HEventQueue.dispatchEvent() is taking  2746 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2014 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6279 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1837 ms.
+// Tcl Message: open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd} 
+// WARNING: HEventQueue.dispatchEvent() is taking  1470 ms.
+// TclEventType: RSB_OPEN_DIAGRAM
+// WARNING: HEventQueue.dispatchEvent() is taking  7146 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  10260 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,161 MB. GUI used memory: 165 MB. Current time: 6/9/23, 12:55:08 PM CST
+// Tcl Message: open_bd_design: Time (s): cpu = 00:00:09 ; elapsed = 00:00:12 . Memory (MB): peak = 8170.852 ; gain = 0.000 ; free physical = 156 ; free virtual = 6158 
+// WARNING: HEventQueue.dispatchEvent() is taking  2177 ms.
+// 'bA' command handler elapsed time: 47 seconds
+// WARNING: updateGUI() is taking  2934 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3804 ms.
+// Elapsed time: 51 seconds
+dismissDialog("Open Block Design"); // bx (cp)
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 23347 ms. Increasing delay to 70041 ms.
+// Elapsed time: 49 seconds
+selectButton(PAResourceOtoP.PlanAheadTab_REFRESH_IP_CATALOG, "Refresh IP Catalog"); // h (cQ, cp)
+// bx (cp):  Refresh IP Catalog : addNotify
+// Tcl Message: update_ip_catalog -rebuild -scan_changes 
+// TclEventType: CREATE_IP_CATALOG
+// WARNING: HEventQueue.dispatchEvent() is taking  2929 ms.
+// TclEventType: IP_LOCK_CHANGE
+// WARNING: HEventQueue.dispatchEvent() is taking  20296 ms.
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories 
+// Tcl Message: INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// HMemoryUtils.trashcanNow. Engine heap size: 3,186 MB. GUI used memory: 170 MB. Current time: 6/9/23, 12:57:30 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1261 ms.
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: BDCELL_LOCK_CHANGE
+// TclEventType: RSB_LOCK_CHANGE
+// TclEventType: IP_LOCK_CHANGE
+// TclEventType: BDCELL_LOCK_CHANGE
+// TclEventType: CREATE_IP_CATALOG
+// WARNING: HEventQueue.dispatchEvent() is taking  1605 ms.
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 7.1s
+// WARNING: HEventQueue.dispatchEvent() is taking  7111 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 902ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  7891 ms.
+// Tcl Message: update_ip_catalog: Time (s): cpu = 00:01:02 ; elapsed = 00:02:32 . Memory (MB): peak = 8175.852 ; gain = 5.000 ; free physical = 147 ; free virtual = 6122 
+// WARNING: HEventQueue.dispatchEvent() is taking  23882 ms.
+// [Engine Memory]: 4,526 MB (+181943kb) [37:06:35]
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 8.9s
+// WARNING: HEventQueue.dispatchEvent() is taking  8940 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 4,526 MB. GUI used memory: 239 MB. Current time: 6/9/23, 12:59:34 PM CST
+// Tcl Message: report_ip_status -name ip_status 
+// TclEventType: IP_SUMMARY_RESULTS
+// Tcl Message: report_ip_status: Time (s): cpu = 00:00:03 ; elapsed = 00:00:06 . Memory (MB): peak = 8181.852 ; gain = 0.000 ; free physical = 117 ; free virtual = 5999 
+// Elapsed time: 219 seconds
+dismissDialog("Refresh IP Catalog"); // bx (cp)
+// WARNING: HTimer (RSBApplyAutomationBar Update Bar Timer) is taking 3334ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3334 ms.
+// Elapsed time: 24 seconds
+selectButton(PAResourceItoN.IPStatusSectionPanel_UPGRADE_SELECTED, "Upgrade Selected"); // a (g, cp)
+// Run Command: PAResourceCommand.PACommandNames_UPGRADE_IP
+// bx (cp):  Upgrade IP : addNotify
+// Tcl Message: upgrade_ip -vlnv user.org:user:cpu_wrap:1.0 [get_ips  soc_cpu_wrap_0_0] -log ip_upgrade.log 
+// TclEventType: RSB_OPEN_DIAGRAM
+// Tcl Message: Upgrading '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd' 
+// TclEventType: RUN_MODIFY
+// WARNING: HEventQueue.dispatchEvent() is taking  1299 ms.
+// TclEventType: RUN_RESET
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.3s
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.9s
+// WARNING: HEventQueue.dispatchEvent() is taking  1518 ms.
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_runs: Time (s): cpu = 00:00:11 ; elapsed = 00:00:11 . Memory (MB): peak = 8181.852 ; gain = 0.000 ; free physical = 126 ; free virtual = 5968 
+// TclEventType: RUN_DELETE
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.3s
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 1.1s
+// WARNING: HEventQueue.dispatchEvent() is taking  1724 ms.
+// TclEventType: RUN_DELETE
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.4s
+// TclEventType: RUN_DELETE
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.6s
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 1.2s
+// WARNING: HEventQueue.dispatchEvent() is taking  2194 ms.
+// TclEventType: RUN_DELETE
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// [GUI Memory]: 248 MB (+9085kb) [37:07:33]
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 1.9s
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.2s
+// WARNING: HEventQueue.dispatchEvent() is taking  2324 ms.
+// TclEventType: FILE_SET_DELETE
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.5s
+// Tcl Message: delete_fileset: Time (s): cpu = 00:00:09 ; elapsed = 00:00:09 . Memory (MB): peak = 8181.852 ; gain = 0.000 ; free physical = 125 ; free virtual = 5966 delete_ip_run: Time (s): cpu = 00:00:21 ; elapsed = 00:00:21 . Memory (MB): peak = 8181.852 ; gain = 0.000 ; free physical = 125 ; free virtual = 5966 
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 2.6s
+// WARNING: HEventQueue.dispatchEvent() is taking  2707 ms.
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [IP_Flow 19-3422] Upgraded soc_cpu_wrap_0_0 (cpu_wrap_v1_0 1.0) from revision 31 to revision 32 
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// WARNING: HEventQueue.dispatchEvent() is taking  4721 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1955ms to process. Increasing delay to 2000 ms.
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILESET_UPDATE_IP
+// Tcl Message: Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>  
+// TclEventType: FILESET_UPDATE_IP
+// TclEventType: IP_UPGRADE_COMPLETE
+// Tcl Message: INFO: [Coretcl 2-1525] Wrote upgrade log to '/home/yutong/RISC-V_SoC/vivado/soc/ip_upgrade.log'. 
+// Tcl Message: upgrade_ip: Time (s): cpu = 00:00:44 ; elapsed = 00:00:58 . Memory (MB): peak = 8181.852 ; gain = 0.000 ; free physical = 173 ; free virtual = 5957 
+// Tcl Message: export_ip_user_files -of_objects [get_ips soc_cpu_wrap_0_0] -no_script -sync -force -quiet 
+// WARNING: HTimer (RSBAttributeDisplay Update Pin Markers Timer) is taking 518ms to process. Increasing delay to 3000 ms.
+// aI (cp): Generate Output Products: addNotify
+// Elapsed time: 67 seconds
+selectButton("PAResourceTtoZ.UpgradeIP_IP_UPGRADE_COMPLETED_OK", "OK"); // JButton (C, I)
+// WARNING: updateGUI() is taking  1259 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1339 ms.
+selectButton(PAResourceQtoS.SimpleOutputProductDialog_CLOSE_DIALOG_UNSAVED_CHANGES_WILL, "Skip"); // a (aI)
+dismissDialog("Generate Output Products"); // aI (cp)
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cQ, cp)
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cQ, cp)
+// Tcl Command: 'report_ip_status -name ip_status '
+// TclEventType: IP_SUMMARY_RESULTS
+// Tcl Message: report_ip_status -name ip_status  
+// bx (cp):  Report IP Status : addNotify
+dismissDialog("Report IP Status"); // bx (cp)
+selectTree(PAResourceEtoH.FlowNavigatorTreePanel_FLOW_NAVIGATOR_TREE, "[, Program and Debug, Generate Bitstream]", 20, false); // u (Q, cp)
+// Run Command: PAResourceCommand.PACommandNames_RUN_BITGEN
+// A (cp): Synthesis is Out-of-date: addNotify
+selectButton(RDIResource.BaseDialog_YES, "Yes"); // a (A)
+// bx (cp):  Resetting Runs : addNotify
+// TclEventType: RUN_MODIFY
+dismissDialog("Synthesis is Out-of-date"); // A (cp)
+// Tcl Message: reset_run synth_1 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_RESET
+// Tcl Message: INFO: [Project 1-973] Auto Incremental Compile:: New reference dcp wns is greater than threshold, current reference dcp will be replaced INFO: [filemgmt 20-762] Replacing file '/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/utils_1/imports/impl_1/soc_wrapper_routed.dcp' with file '/home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper_routed.dcp'. 
+// TclEventType: RUN_RESET
+// WARNING: HTimer (StateMonitor Timer) is taking 1381ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1381 ms.
+// TclEventType: RUN_RESET
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 1.2s
+// PAPropertyPanels.initPanels (impl_1) elapsed time: 0.6s
+// WARNING: HEventQueue.dispatchEvent() is taking  2910 ms.
+// TclEventType: RUN_RESET
+// TclEventType: RUN_MODIFY
+// Tcl Message: reset_runs: Time (s): cpu = 00:00:08 ; elapsed = 00:00:10 . Memory (MB): peak = 8304.914 ; gain = 0.000 ; free physical = 220 ; free virtual = 5943 
+// f (cp): Launch Runs: addNotify
+// Elapsed time: 13 seconds
+selectButton(RDIResource.BaseDialog_OK, "OK"); // a (f)
+// 'cw' command handler elapsed time: 16 seconds
+dismissDialog("Launch Runs"); // f (cp)
+// bx (cp):  Generate Bitstream : addNotify
+// Tcl Message: launch_runs impl_1 -to_step write_bitstream -jobs 2 
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: DG_GRAPH_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// Tcl Message: delete_bd_objs: Time (s): cpu = 00:00:02 ; elapsed = 00:00:05 . Memory (MB): peak = 8304.914 ; gain = 0.000 ; free physical = 227 ; free virtual = 5945 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: RSB_REMOVE_OBJECT
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_CLOSE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: REPORT_IP_STATUS_STALE
+// Tcl Message: xit::source_ipfile: Time (s): cpu = 00:00:08 ; elapsed = 00:00:12 . Memory (MB): peak = 8304.914 ; gain = 0.000 ; free physical = 201 ; free virtual = 5931 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SCRIPT_TASK
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// Tcl Message: Wrote  : </home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd>  
+// Tcl Message: VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.v 
+// Tcl Message: VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/sim/soc.v 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RSB_SAVE_DIAGRAM
+// TclEventType: RSB_SCRIPT_TASK
+// WARNING: HEventQueue.dispatchEvent() is taking  1256 ms.
+// Tcl Message: VHDL Output written to : /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hdl/soc_wrapper.v 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block processing_system7_0 . 
+// HMemoryUtils.trashcanNow. Engine heap size: 3,206 MB. GUI used memory: 162 MB. Current time: 6/9/23, 1:03:13 PM CST
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0.hwh Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/hw_handoff/soc_smartconnect_0_0_bd.tcl Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/ip/soc_smartconnect_0_0/bd_0/synth/soc_smartconnect_0_0.hwdef 
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block smartconnect_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_apb_bridge_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block cpu_wrap_0 . INFO: [BD 41-1029] Generation completed for the IP Integrator block rst_ps7_0_50M . 
+// TclEventType: FILE_SET_CHANGE
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_pc . 
+// Tcl Message: INFO: [BD 41-1029] Generation completed for the IP Integrator block axi_interconnect_0/s00_couplers/auto_us . 
+// Tcl Message: Exporting to file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc.hwh Generated Block Design Tcl file /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/hw_handoff/soc_bd.tcl Generated Hardware Definition File /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/synth/soc.hwdef 
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: PROJ_DESIGN_MODE_SET
+// TclEventType: FILE_SET_NEW
+// Tcl Message: INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_pc_0, cache-ID = 0c40fe8138cf3762; cache size = 1307.609 MB. INFO: [IP_Flow 19-4993] Using cached IP synthesis design for IP soc_auto_us_0, cache-ID = 99876c5926526efb; cache size = 1307.609 MB. 
+// TclEventType: FILE_SET_NEW
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_ADD
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILE_SET_CHANGE
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: RUN_LAUNCH
+// TclEventType: FILESET_TARGET_UCF_CHANGE
+// TclEventType: DESIGN_STALE
+// TclEventType: RUN_LAUNCH
+// TclEventType: RUN_MODIFY
+// Tcl Message: [Fri Jun  9 13:03:46 2023] Launched soc_cpu_wrap_0_0_synth_1, synth_1... Run output will be captured here: soc_cpu_wrap_0_0_synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/soc_cpu_wrap_0_0_synth_1/runme.log synth_1: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/synth_1/runme.log [Fri Jun  9 13:03:47 2023] Launched impl_1... Run output will be captured here: /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/runme.log 
+// Tcl Message: launch_runs: Time (s): cpu = 00:01:05 ; elapsed = 00:01:56 . Memory (MB): peak = 8388.281 ; gain = 83.367 ; free physical = 189 ; free virtual = 5986 
+// Elapsed time: 115 seconds
+dismissDialog("Generate Bitstream"); // bx (cp)
+// TclEventType: FILE_SET_CHANGE
+selectButton(RDIResource.BaseReportTab_RERUN, "Rerun"); // h (cQ, cp)
+// Tcl Command: 'report_ip_status -name ip_status '
+// TclEventType: IP_SUMMARY_RESULTS
+// bx (cp):  Report IP Status : addNotify
+// Tcl Message: report_ip_status -name ip_status  
+dismissDialog("Report IP Status"); // bx (cp)
+// Elapsed time: 10 seconds
+selectTreeTable(PAResourceEtoH.ExpRunTreePanel_EXP_RUN_TREE_TABLE, "synth_1 ; constrs_1 ; Queued... ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ;  ; 00:00:00 ; Vivado Synthesis Defaults (Vivado Synthesis 2018) ; Vivado Synthesis Default Reports (Vivado Synthesis 2018) ; xc7z020clg400-1 ;  ; Vivado Synthesis Defaults", 0, "Queued...", 2, true); // ax (Q, cp) - Node
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 3 ms. Decreasing delay to 2003 ms.
+// PAPropertyPanels.initPanels (synth_1) elapsed time: 0.2s
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 627ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 328ms to process. Increasing delay to 2000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1075 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 364ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 320ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 313ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 437ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1026 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 450ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2837ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2837 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 524ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1409 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1004ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1004 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1161ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1161 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 541ms to process. Increasing delay to 3000 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 2007 ms. Increasing delay to 6021 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  7072 ms.
+// WARNING: HTimer (MainWindowUtils Timer) is taking 13541ms to process. Increasing delay to 11000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3366 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1175 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1260 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  11702 ms.
+// Thread: hw_ila_monitor
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.mainLoop(Unknown Source)
+// 	at java.base@9.0.4/java.util.TimerThread.run(Unknown Source)
+// Thread: Monitor HEventQueue
+// 	at java.base@9.0.4/java.lang.Thread.dumpThreads(Native Method)
+// 	at java.base@9.0.4/java.lang.Thread.getAllStackTraces(Unknown Source)
+// 	at ui.utils.d.c.exx(SourceFile:484)
+// 	at ui.frmwork.b.e.construct(SourceFile:140)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Process Messages
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.frmwork.d.h.construct(SourceFile:132)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaAnimation 25
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: AWT-XAWT
+// 	at java.base@9.0.4/jdk.internal.misc.Unsafe.park(Native Method)
+// 	at java.base@9.0.4/java.util.concurrent.locks.LockSupport.park(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.parkAndCheckInterrupt(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquireQueued(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer.acquire(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.ReentrantLock.lock(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.SunToolkit.awtLock(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.waitForEvents(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.X11.XToolkit.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Thread-94
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Thread-95
+// Thread: Thread-423802
+// Thread: Batik CleanerThread
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at org.apache.batik.util.CleanerThread.run(CleanerThread.java:106)
+// Thread: Finalizer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Finalizer$FinalizerThread.run(Unknown Source)
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.utils.lnf.b.run(SourceFile:99)
+// Thread: Update Runs Swing Worker
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.experiment.A.construct(SourceFile:311)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: AWT-EventQueue-0
+// 	at java.desktop@9.0.4/sun.java2d.loops.Blit.Blit(Native Method)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.DrawImage.blitSurfaceData(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.DrawImage.renderImageCopy(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.DrawImage.copyImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.DrawImage.copyImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.pipe.ValidatePipe.copyImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.SunGraphics2D.drawImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.SunGraphics2D.drawImage(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paintDoubleBufferedImpl(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paintDoubleBuffered(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$PaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.BufferStrategyPaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paint(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent._paintImmediately(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.JComponent.paintImmediately(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$4.run(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$4.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.paintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.prePaintDirtyRegions(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager.access$1200(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.RepaintManager$ProcessingRunnable.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.event.InvocationEvent.dispatch(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEventImpl(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.access$500(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue$3.run(Unknown Source)
+// 	at java.base@9.0.4/java.security.AccessController.doPrivileged(Native Method)
+// 	at java.base@9.0.4/java.security.ProtectionDomain$JavaSecurityAccessImpl.doIntersectionPrivilege(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventQueue.dispatchEvent(Unknown Source)
+// 	at ui.frmwork.b.d.dispatchEvent(SourceFile:88)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpOneEventForFilters(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForFilter(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEventsForHierarchy(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.pumpEvents(Unknown Source)
+// 	at java.desktop@9.0.4/java.awt.EventDispatchThread.run(Unknown Source)
+// Thread: Thread-1
+// Thread: main
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.PlanAhead.b(SourceFile:1030)
+// 	at ui.PlanAhead.jswMain(SourceFile:1084)
+// Thread: SyntheticaCleanerThread
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.StyleFactory$ComponentPropertyStore$1.run(StyleFactory.java:1846)
+// Thread: AWT-Shutdown
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.Object.wait(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.AWTAutoShutdown.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: SyntheticaAnimation 70
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at de.javasoft.plaf.synthetica.painter.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:119)
+// Thread: Common-Cleaner
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.ref.CleanerImpl.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// 	at java.base@9.0.4/jdk.internal.misc.InnocuousThread.run(Unknown Source)
+// Thread: SyntheticaAnimation 50
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at com.jidesoft.plaf.synthetica.AnimationThreadFactory$AnimationThread.run(AnimationThreadFactory.java:99)
+// Thread: Java2D Disposer
+// 	at java.base@9.0.4/java.lang.Object.wait(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.ReferenceQueue.remove(Unknown Source)
+// 	at java.desktop@9.0.4/sun.java2d.Disposer.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Reference Handler
+// 	at java.base@9.0.4/java.lang.ref.Reference.waitForReferencePendingList(Native Method)
+// 	at java.base@9.0.4/java.lang.ref.Reference.processPendingReferences(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference.access$000(Unknown Source)
+// 	at java.base@9.0.4/java.lang.ref.Reference$ReferenceHandler.run(Unknown Source)
+// Thread: Attach Listener
+// Thread: Thread-423801
+// Thread: TimerQueue
+// 	at java.base@9.0.4/jdk.internal.misc.Unsafe.park(Native Method)
+// 	at java.base@9.0.4/java.util.concurrent.locks.LockSupport.parkNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.locks.AbstractQueuedSynchronizer$ConditionObject.awaitNanos(Unknown Source)
+// 	at java.base@9.0.4/java.util.concurrent.DelayQueue.take(Unknown Source)
+// 	at java.desktop@9.0.4/javax.swing.TimerQueue.run(Unknown Source)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// Thread: Image Animator 0
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.image.GifFrame.dispose(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.readImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.produceImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.InputStreamImageSource.doFetch(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.fetchloop(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.run(Unknown Source)
+// Thread: Image Animator 3
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at java.desktop@9.0.4/sun.awt.image.GifFrame.dispose(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.readImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.GifImageDecoder.produceImage(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.InputStreamImageSource.doFetch(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.fetchloop(Unknown Source)
+// 	at java.desktop@9.0.4/sun.awt.image.ImageFetcher.run(Unknown Source)
+// Thread: Refresh Filesets Swing Worker
+// 	at java.base@9.0.4/java.lang.Thread.sleep(Native Method)
+// 	at ui.data.design.w.construct(SourceFile:2446)
+// 	at ui.frmwork.y.run(SourceFile:204)
+// 	at java.base@9.0.4/java.lang.Thread.run(Unknown Source)
+// WARNING: HEventQueue.dispatchEvent() is taking  2565 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3745 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1042 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1252 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1510 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2176 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  12730 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1014ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1015 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 883ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4924 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 829ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1393 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2256 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4147 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5024 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1563ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1563 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2398ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2398 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2670 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3872 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2475 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3600 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 667ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2922 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1155 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1040 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1068 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1433 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1122ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1122 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 5565ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5565 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2859ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2859 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4147 ms.
+// WARNING: HTimer (MainWindowUtils Timer) is taking 2821ms to process. Increasing delay to 12000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2821 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 3921ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3921 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1464ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1464 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  15711 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1919 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 3846ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3846 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1678ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1678 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  17744 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2928ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2928 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  4579 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2319 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 18754ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  18754 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1032 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1650 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 8661ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  8661 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1164 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2398 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2629 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1049 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1567 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1990 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  9504 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 5477ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5477 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1376ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1376 ms.
+// WARNING: HTimer (ExpRunMonitor Open Timer) is taking 2190ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2190 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1401ms to process. Increasing delay to 7000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1401 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  12359 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  8198 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 6996ms to process. Increasing delay to 6000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6996 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1758 ms.
+// WARNING: HSwingWorker (Update Runs Swing Worker) is taking 1346 ms. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1207 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  20609 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1721 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1227 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5248 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1543 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  7857 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  5249 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 2276ms to process. Increasing delay to 8000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2276 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2428 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  14495 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1462 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1483 ms.

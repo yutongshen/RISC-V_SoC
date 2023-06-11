@@ -66,17 +66,17 @@
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
-        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_cpu_wrap_0_0/soc_cpu_wrap_0_0.xci">
-          <Proxy FileSetName="soc_cpu_wrap_0_0"/>
-        </CompFileExtendedInfo>
-        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0.xci">
-          <Proxy FileSetName="soc_axi_apb_bridge_0_0"/>
+        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_processing_system7_0_0/soc_processing_system7_0_0.xci">
+          <Proxy FileSetName="soc_processing_system7_0_0"/>
         </CompFileExtendedInfo>
         <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_smartconnect_0_0/soc_smartconnect_0_0.xci">
           <Proxy FileSetName="soc_smartconnect_0_0"/>
         </CompFileExtendedInfo>
-        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_processing_system7_0_0/soc_processing_system7_0_0.xci">
-          <Proxy FileSetName="soc_processing_system7_0_0"/>
+        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_axi_apb_bridge_0_0/soc_axi_apb_bridge_0_0.xci">
+          <Proxy FileSetName="soc_axi_apb_bridge_0_0"/>
+        </CompFileExtendedInfo>
+        <CompFileExtendedInfo CompFileName="soc.bd" FileRelPathName="ip/soc_cpu_wrap_0_0/soc_cpu_wrap_0_0.xci">
+          <Proxy FileSetName="soc_cpu_wrap_0_0"/>
         </CompFileExtendedInfo>
       </File>
       <File Path="$PSRCDIR/sources_1/bd/soc/hdl/soc_wrapper.v">
@@ -127,6 +127,8 @@
       <Filter Type="Utils"/>
       <File Path="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp">
         <FileInfo>
+          <Attr Name="ImportPath" Val="$PRUNDIR/impl_1/soc_wrapper_routed.dcp"/>
+          <Attr Name="ImportTime" Val="1686500146"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedInSteps" Val="impl_1"/>
@@ -282,14 +284,12 @@
       <ReportStrategy Name="Vivado Implementation Default Reports" Flow="Vivado Implementation 2018"/>
       <Report Name="ROUTE_DESIGN.REPORT_METHODOLOGY" Enabled="1"/>
     </Run>
-    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Uses multiple optimization algorithms to get potentially fewer LUTs and registers." AutoIncrementalCheckpoint="true" IncrementalCheckpoint="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
+    <Run Id="impl_1" Type="Ft2:EntireDesign" Part="xc7z020clg400-1" ConstrsSet="constrs_1" Description="Uses multiple optimization algorithms to get potentially fewer LUTs." AutoIncrementalCheckpoint="true" IncrementalCheckpoint="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp" WriteIncrSynthDcp="false" State="current" Dir="$PRUNDIR/impl_1" SynthRun="synth_1" IncludeInArchive="true" GenFullBitstream="true">
       <Strategy Version="1" Minor="2">
-        <StratHandle Name="Area_ExploreSequential" Flow="Vivado Implementation 2018">
-          <Desc>Uses multiple optimization algorithms to get potentially fewer LUTs and registers.</Desc>
-        </StratHandle>
+        <StratHandle Name="Area_Explore" Flow="Vivado Implementation 2018"/>
         <Step Id="init_design"/>
         <Step Id="opt_design">
-          <Option Id="Directive">2</Option>
+          <Option Id="Directive">1</Option>
         </Step>
         <Step Id="power_opt_design"/>
         <Step Id="place_design"/>

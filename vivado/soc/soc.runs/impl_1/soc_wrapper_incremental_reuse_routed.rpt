@@ -1,0 +1,86 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
+| Date         : Mon Jun 12 00:12:40 2023
+| Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
+| Command      : report_incremental_reuse -file soc_wrapper_incremental_reuse_routed.rpt
+| Design       : soc_wrapper
+| Device       : xc7z020
+| Design State : Fully Routed
+-----------------------------------------------------------------------------------------
+
+Incremental Implementation Information
+
+Table of Contents
+-----------------
+1. Reuse Summary
+2. Reference Checkpoint Information
+3. Comparison with Reference Run
+4. Non Reuse Information
+
+1. Reuse Summary
+----------------
+
++-------+----------------------+--------------------+--------------------+--------+
+|  Type | Matched % (of Total) | Reuse % (of Total) | Fixed % (of Total) |  Total |
++-------+----------------------+--------------------+--------------------+--------+
+| Cells |                98.31 |              95.65 |               0.17 |  82327 |
+| Nets  |                98.04 |              87.02 |               0.00 |  65711 |
+| Pins  |                    - |              75.51 |                  - | 373295 |
+| Ports |               100.00 |             100.00 |             100.00 |    147 |
++-------+----------------------+--------------------+--------------------+--------+
+
+
+2. Reference Checkpoint Information
+-----------------------------------
+
++----------------+-------------------------------------------------------------------------------------------+
+| DCP Location:  | /home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/utils_1/imports/impl_1/soc_wrapper_routed.dcp |
++----------------+-------------------------------------------------------------------------------------------+
+
+
++--------------------------------+----------------------------+
+|         DCP Information        |            Value           |
++--------------------------------+----------------------------+
+| Vivado Version                 |                    v2018.3 |
+| DCP State                      |                 POST_ROUTE |
+| Recorded WNS                   |                      0.297 |
+| Recorded WHS                   |                      0.056 |
+| Reference Speed File Version   | PRODUCTION 1.11 2014-09-11 |
+| Incremental Speed File Version | PRODUCTION 1.11 2014-09-11 |
++--------------------------------+----------------------------+
+* Recorded WNS/WHS timing numbers are estimated timing numbers. They may vary slightly from sign-off timing numbers.
+
+
+3. Comparison with Reference Run
+--------------------------------
+
++-----------------+---------------------------+---------------------------+---------------------------+
+|                 |          WNS(ns)          |  Runtime(elapsed)(hh:mm)  |    Runtime(cpu)(hh:mm)    |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+|      Stage      |  Reference  | Incremental |  Reference  | Incremental |  Reference  | Incremental |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+| synth_design    |             |             |     < 1 min |     < 1 min |     < 1 min |     < 1 min |
+| opt_design      |             |             |       00:02 |       00:02 |       00:04 |       00:04 |
+| read_checkpoint |             |             |             |       00:01 |             |       00:01 |
+| place_design    |       0.094 |       0.309 |       00:03 |       00:02 |       00:04 |       00:03 |
+| route_design    |       0.297 |       0.368 |       00:05 |       00:03 |       00:08 |       00:04 |
++-----------------+-------------+-------------+-------------+-------------+-------------+-------------+
+
+
+4. Non Reuse Information
+------------------------
+
++------------------------------------------------------+-------+
+|                         Type                         |   %   |
++------------------------------------------------------+-------+
+| Non-Reused Cells                                     |  4.34 |
+|   New                                                |  1.43 |
+|   Discarded illegal placement due to netlist changes |  0.71 |
+|   Discarded to improve timing                        |  2.19 |
+| Partially reused nets                                |  1.21 |
+| Non-Reused nets                                      | 11.76 |
+| Non-Reused Ports                                     |  0.00 |
++------------------------------------------------------+-------+
+
+
