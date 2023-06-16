@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xc7z020clg400-1" LaunchTime="1686498616">
+<GenRun Id="synth_1" LaunchPart="xc7z020clg400-1" LaunchTime="1686926185">
   <File Type="VDS-TIMING-PB" Name="soc_wrapper_timing_summary_synth.pb"/>
   <File Type="VDS-TIMINGSUMMARY" Name="soc_wrapper_timing_summary_synth.rpt"/>
   <File Type="RDS-DCP" Name="soc_wrapper.dcp"/>
@@ -55,7 +55,7 @@
     <File Path="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp">
       <FileInfo>
         <Attr Name="ImportPath" Val="$PRUNDIR/impl_1/soc_wrapper_routed.dcp"/>
-        <Attr Name="ImportTime" Val="1686311956"/>
+        <Attr Name="ImportTime" Val="1686923975"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedInSteps" Val="impl_1"/>

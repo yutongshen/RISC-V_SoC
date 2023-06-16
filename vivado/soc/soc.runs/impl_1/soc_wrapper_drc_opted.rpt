@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date         : Mon Jun 12 00:04:04 2023
+| Date         : Sat Jun 17 00:35:41 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : report_drc -file soc_wrapper_drc_opted.rpt -pb soc_wrapper_drc_opted.pb -rpx soc_wrapper_drc_opted.rpx
 | Design       : soc_wrapper
@@ -1039,8 +1039,8 @@ Related violations: <none>
 
 PLHOLDVIO-2#1 Warning
 Non-Optimal connections which could lead to hold violations  
-A LUT soc_i/cpu_wrap_0/inst/u_cpu_top/u_clkmnt/u_cg/satp_ppn[43]_i_3 is driving clock pin of 7776 cells. This could lead to large hold time violations. Involved cells are:
-soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_64_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_attach_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[31], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_alu_sel_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[10] (the first 15 of 7776 listed)
+A LUT soc_i/cpu_wrap_0/inst/u_cpu_top/u_clkmnt/u_cg/medeleg_imisalign_i_3 is driving clock pin of 7841 cells. This could lead to large hold time violations. Involved cells are:
+soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_64_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_attach_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[31], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_alu_sel_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[10] (the first 15 of 7841 listed)
 Related violations: <none>
 
 REQP-1839#1 Warning
@@ -1240,7 +1240,7 @@ Related violations: <none>
 
 REQP-1840#20 Warning
 RAMB18 async control check  
-The RAMB18E1 soc_i/cpu_wrap_0/inst/u_brom/byte_0_reg has an input control pin soc_i/cpu_wrap_0/inst/u_brom/byte_0_reg/WEA[0] (net: soc_i/cpu_wrap_0/inst/u_brom/WEA[0]) which is driven by a register (soc_i/cpu_wrap_0/inst/u_marb/u_axi_5to5_biu/u_dec/wsel_reg[0]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
+The RAMB18E1 soc_i/cpu_wrap_0/inst/u_brom/byte_0_reg has an input control pin soc_i/cpu_wrap_0/inst/u_brom/byte_0_reg/WEA[0] (net: soc_i/cpu_wrap_0/inst/u_brom/WEA[0]) which is driven by a register (soc_i/cpu_wrap_0/inst/u_marb/u_axi2mem0/cnt_reg[6]) that has an active asychronous set or reset. This may cause corruption of the memory contents and/or read values when the set/reset is asserted and is not analyzed by the default static timing analysis. It is suggested to eliminate the use of a set/reset to registers driving this RAMB pin or else use a synchronous reset in which the assertion of the reset is timed by default.
 Related violations: <none>
 
 

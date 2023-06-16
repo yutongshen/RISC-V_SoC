@@ -198,6 +198,13 @@ logic                             id_dbg_csr_wr;
 logic                             id_mmu_csr_wr;
 logic                             id_mpu_csr_wr;
 logic                             id_sru_csr_wr;
+logic                             id_pmu_csr_hit;
+logic                             id_fpu_csr_hit;
+logic                             id_dbg_csr_hit;
+logic                             id_mmu_csr_hit;
+logic                             id_mpu_csr_hit;
+logic                             id_sru_csr_hit;
+logic                             id_csr_ill;
 logic [              `XLEN - 1:0] id_csr_rdata;
 logic [              `XLEN - 1:0] id_pmu_csr_rdata;
 logic [              `XLEN - 1:0] id_fpu_csr_rdata;
@@ -729,6 +736,9 @@ idu u_idu (
 assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
 
+assign id_fpu_csr_hit   = 1'b0;
+assign id_dbg_csr_hit   = 1'b0;
+
 csr u_csr (
     .clk           ( clk_wfi          ),
     .rstn          ( srstn_sync       ),
@@ -737,12 +747,19 @@ csr u_csr (
     .wr            ( id_csr_wr        ),
     .raddr         ( id_csr_addr      ),
     .rdata         ( id_csr_rdata     ),
+    .csr_ill       ( id_csr_ill       ),
     .pmu_csr_wr    ( id_pmu_csr_wr    ),
     .fpu_csr_wr    ( id_fpu_csr_wr    ),
     .dbg_csr_wr    ( id_dbg_csr_wr    ),
     .mmu_csr_wr    ( id_mmu_csr_wr    ),
     .mpu_csr_wr    ( id_mpu_csr_wr    ),
     .sru_csr_wr    ( id_sru_csr_wr    ),
+    .pmu_csr_hit   ( id_pmu_csr_hit   ),
+    .fpu_csr_hit   ( id_fpu_csr_hit   ),
+    .dbg_csr_hit   ( id_dbg_csr_hit   ),
+    .mmu_csr_hit   ( id_mmu_csr_hit   ),
+    .mpu_csr_hit   ( id_mpu_csr_hit   ),
+    .sru_csr_hit   ( id_sru_csr_hit   ),
     .pmu_csr_rdata ( id_pmu_csr_rdata ),
     .fpu_csr_rdata ( id_fpu_csr_rdata ),
     .dbg_csr_rdata ( id_dbg_csr_rdata ),
@@ -889,7 +906,7 @@ always_ff @(posedge clk_wfi or negedge srstn_sync) begin
             id2exe_ebreak              <= ~id_flush & ~id_jump_fault & id_ebreak;
             id2exe_sret                <= ~id_flush & ~id_jump_fault & id_sret;
             id2exe_mret                <= ~id_flush & ~id_jump_fault & id_mret;
-            id2exe_ill_insn            <= ~id_flush & ~id_jump_fault & id_ill_insn;
+            id2exe_ill_insn            <= ~id_flush & ~id_jump_fault & (id_ill_insn | id_csr_ill);
             id2exe_prv_req             <= id_prv_req;
             id2exe_insn_misaligned_epc <= if2id_insn_misaligned_epc;
             id2exe_insn_misaligned     <= if2id_insn_misaligned;
@@ -1063,7 +1080,8 @@ sru u_sru (
     .csr_raddr        ( id_csr_addr       ),
     .csr_sdata        ( exe_csr_sdata     ),
     .csr_cdata        ( exe_csr_cdata     ),
-    .csr_rdata        ( id_sru_csr_rdata  )
+    .csr_rdata        ( id_sru_csr_rdata  ),
+    .csr_hit          ( id_sru_csr_hit    )
 );
 
 mmu_csr u_mmu_csr (
@@ -1082,7 +1100,8 @@ mmu_csr u_mmu_csr (
     .csr_raddr ( id_csr_addr      ),
     .csr_sdata ( exe_csr_sdata    ),
     .csr_cdata ( exe_csr_cdata    ),
-    .csr_rdata ( id_mmu_csr_rdata )
+    .csr_rdata ( id_mmu_csr_rdata ),
+    .csr_hit   ( id_mmu_csr_hit   )
 );
 
 mpu_csr u_mpu_csr (
@@ -1100,8 +1119,8 @@ mpu_csr u_mpu_csr (
     .csr_raddr ( id_csr_addr      ),
     .csr_sdata ( exe_csr_sdata    ),
     .csr_cdata ( exe_csr_cdata    ),
-    .csr_rdata ( id_mpu_csr_rdata )
-
+    .csr_rdata ( id_mpu_csr_rdata ),
+    .csr_hit   ( id_mpu_csr_hit   )
 );
 
 assign exe_touch_satp = (id2exe_mmu_csr_wr | id2exe_csr_rd) & ~ma_pipe_restart &
@@ -1541,6 +1560,7 @@ pmu u_pmu (
     .csr_sdata  ( exe_csr_sdata     ),
     .csr_cdata  ( exe_csr_cdata     ),
     .csr_rdata  ( id_pmu_csr_rdata  ),
+    .csr_hit    ( id_pmu_csr_hit    ),
     .csr_ill    ( exe_pmu_csr_ill   )
 );
 

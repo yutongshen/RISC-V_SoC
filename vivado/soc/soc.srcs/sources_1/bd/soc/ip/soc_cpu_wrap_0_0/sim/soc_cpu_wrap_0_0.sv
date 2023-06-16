@@ -48,7 +48,7 @@
 
 
 // IP VLNV: user.org:user:cpu_wrap:1.0
-// IP Revision: 34
+// IP Revision: 37
 
 `timescale 1ns/1ps
 

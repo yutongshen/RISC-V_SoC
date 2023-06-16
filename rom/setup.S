@@ -110,7 +110,8 @@ rv64:
     srli t0, t0, 2;
     csrw pmaaddr15, t0;
 #endif
-    ld s0, sysram_base;
+    # ld s0, sysram_base;
+    ld s0, ddr_base;
 
 goto_main:
 #ifdef REAL_ROM

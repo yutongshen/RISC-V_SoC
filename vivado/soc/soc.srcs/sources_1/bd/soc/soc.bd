@@ -380,12 +380,6 @@
               }
             },
             "interface_nets": {
-              "s00_couplers_to_auto_pc": {
-                "interface_ports": [
-                  "S_AXI",
-                  "auto_pc/S_AXI"
-                ]
-              },
               "auto_us_to_s00_couplers": {
                 "interface_ports": [
                   "M_AXI",
@@ -396,6 +390,12 @@
                 "interface_ports": [
                   "auto_pc/M_AXI",
                   "auto_us/S_AXI"
+                ]
+              },
+              "s00_couplers_to_auto_pc": {
+                "interface_ports": [
+                  "S_AXI",
+                  "auto_pc/S_AXI"
                 ]
               }
             },
@@ -510,40 +510,16 @@
       }
     },
     "interface_nets": {
+      "S00_AXI_1": {
+        "interface_ports": [
+          "axi_interconnect_0/S00_AXI",
+          "cpu_wrap_0/ddr_m"
+        ]
+      },
       "cpu_wrap_0_rmii": {
         "interface_ports": [
           "riscv_rmii",
           "cpu_wrap_0/rmii"
-        ]
-      },
-      "smartconnect_0_M00_AXI": {
-        "interface_ports": [
-          "smartconnect_0/M00_AXI",
-          "cpu_wrap_0/ext_s"
-        ]
-      },
-      "processing_system7_0_M_AXI_GP0": {
-        "interface_ports": [
-          "processing_system7_0/M_AXI_GP0",
-          "smartconnect_0/S00_AXI"
-        ]
-      },
-      "axi_interconnect_0_M00_AXI": {
-        "interface_ports": [
-          "axi_interconnect_0/M00_AXI",
-          "processing_system7_0/S_AXI_HP0"
-        ]
-      },
-      "riscv_jtag_1": {
-        "interface_ports": [
-          "riscv_jtag",
-          "cpu_wrap_0/jtag"
-        ]
-      },
-      "processing_system7_0_FIXED_IO": {
-        "interface_ports": [
-          "FIXED_IO",
-          "processing_system7_0/FIXED_IO"
         ]
       },
       "axi_apb_bridge_0_APB_M": {
@@ -552,10 +528,10 @@
           "cpu_wrap_0/dbg_apb_s"
         ]
       },
-      "smartconnect_0_M01_AXI": {
+      "smartconnect_0_M00_AXI": {
         "interface_ports": [
-          "smartconnect_0/M01_AXI",
-          "axi_apb_bridge_0/AXI4_LITE"
+          "smartconnect_0/M00_AXI",
+          "cpu_wrap_0/ext_s"
         ]
       },
       "cpu_wrap_0_uart": {
@@ -564,16 +540,40 @@
           "cpu_wrap_0/uart"
         ]
       },
+      "processing_system7_0_M_AXI_GP0": {
+        "interface_ports": [
+          "processing_system7_0/M_AXI_GP0",
+          "smartconnect_0/S00_AXI"
+        ]
+      },
+      "smartconnect_0_M01_AXI": {
+        "interface_ports": [
+          "smartconnect_0/M01_AXI",
+          "axi_apb_bridge_0/AXI4_LITE"
+        ]
+      },
+      "riscv_jtag_1": {
+        "interface_ports": [
+          "riscv_jtag",
+          "cpu_wrap_0/jtag"
+        ]
+      },
+      "axi_interconnect_0_M00_AXI": {
+        "interface_ports": [
+          "axi_interconnect_0/M00_AXI",
+          "processing_system7_0/S_AXI_HP0"
+        ]
+      },
+      "processing_system7_0_FIXED_IO": {
+        "interface_ports": [
+          "FIXED_IO",
+          "processing_system7_0/FIXED_IO"
+        ]
+      },
       "processing_system7_0_DDR": {
         "interface_ports": [
           "DDR",
           "processing_system7_0/DDR"
-        ]
-      },
-      "S00_AXI_1": {
-        "interface_ports": [
-          "axi_interconnect_0/S00_AXI",
-          "cpu_wrap_0/ddr_m"
         ]
       }
     },

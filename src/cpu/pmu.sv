@@ -24,6 +24,7 @@ module pmu (
     input        [`XLEN-1:0] csr_sdata,
     input        [`XLEN-1:0] csr_cdata,
     output logic [`XLEN-1:0] csr_rdata,
+    output logic             csr_hit,
     output logic             csr_ill
 );
 
@@ -84,6 +85,7 @@ end
 
 always_comb begin
     csr_rdata = `XLEN'b0;
+    csr_hit   = 1'b1;
     case (csr_raddr) 
         `CSR_CYCLE_ADDR:      csr_rdata = mcycle    [ 0+:`XLEN];
         `CSR_CYCLEH_ADDR:     csr_rdata = mcycle    [32+:   32];
@@ -98,6 +100,7 @@ always_comb begin
         `CSR_MINSTRET_ADDR:   csr_rdata = minstret  [ 0+:`XLEN];
         `CSR_MINSTRETH_ADDR:  csr_rdata = minstret  [32+:   32];
         `CSR_MHARTID_ADDR:    csr_rdata = mhartid;
+        default:              csr_hit   = 1'b0;
     endcase
 end
 

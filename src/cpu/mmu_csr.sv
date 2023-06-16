@@ -16,7 +16,8 @@ module mmu_csr (
     // input        [           `XLEN-1:0] csr_wdata,
     input        [           `XLEN-1:0] csr_sdata,
     input        [           `XLEN-1:0] csr_cdata,
-    output logic [           `XLEN-1:0] csr_rdata
+    output logic [           `XLEN-1:0] csr_rdata,
+    output logic                        csr_hit
 );
 
 logic [           `XLEN-1:0] satp;
@@ -54,8 +55,10 @@ end
 
 always_comb begin
     csr_rdata = `XLEN'b0;
+    csr_hit   = 1'b1;
     case (csr_raddr) 
         `CSR_SATP_ADDR   : csr_rdata = satp;
+        default          : csr_hit   = 1'b0;
     endcase
 end
 
