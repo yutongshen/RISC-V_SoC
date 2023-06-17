@@ -15,7 +15,12 @@ This repository contains the full RISC-V SoC RTL include RISC-V CPU, coherence b
 ## Memory mapping
   ![](figures/mmap.png)
 
+## Interrupt structure
+  ![](figures/irq_struct.png)
+
 ## Demonstration
+- Boot flow
+  ![](figures/boot_flow.png)
 - Boot up linux 4.20
   ![](figures/bootup_video.png)
 

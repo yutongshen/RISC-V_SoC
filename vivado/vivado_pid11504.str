@@ -170,3 +170,19 @@ dismissDialog("Open Project"); // bx (cp)
 // HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 9:09:23 PM CST
 // HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 9:39:23 PM CST
 // HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 45 MB. Current time: 6/17/23, 10:09:24 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1411 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1167 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2678 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1181 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1487 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1233 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  3236 ms.
+// WARNING: HTimer (HSTRUtils Dump STR Log Timer) is taking 1468ms to process. Increasing delay to 5000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1468 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1375 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  2779 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1480 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  6700 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1344 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1154 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 10:39:27 PM CST
