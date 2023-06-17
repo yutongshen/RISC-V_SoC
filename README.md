@@ -3,25 +3,24 @@ This repository contains the full RISC-V SoC RTL include RISC-V CPU, coherence b
 
 ## Environment
 - PYNQ-z2
-  ![](https://hackmd.io/_uploads/SkQdfEsPh.png)
+  ![](figures/pynq_z2.png)
 
 
 ## CPU block diagram
-  ![](https://i.imgur.com/t6aZQ7M.png)
+  ![](figures/rv_cpu.png)
 
 ## SoC block diagram
-  ![](https://hackmd.io/_uploads/H1fCInMVh.png)
+  ![](figures/rv_soc.png)
 
 ## Memory mapping
-  ![](https://hackmd.io/_uploads/SJdjbNsPh.png)
+  ![](figures/mmap.png)
 
 ## Demonstration
 - Boot up linux 4.20
-  [![](https://hackmd.io/_uploads/HJl32EoDh.png)](https://www.youtube.com/watch?v=LUEj9g0ChXA)
-
+  ![](figures/bootup_video.png)
 
 - Connect RISC-V SoC via SSH
-  ![](https://hackmd.io/_uploads/SkhNuNsw3.png)
+  ![](figures/demo_ssh.png)
 
 ## MISC
 - Watch for more detail [here](https://hackmd.io/@w4K9apQGS8-NFtsnFXutfg/B1Re5uGa5)
