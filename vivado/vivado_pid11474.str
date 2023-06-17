@@ -289,3 +289,5 @@ dismissDialog("Export Hardware"); // bx (cp)
 // HMemoryUtils.trashcanNow. Engine heap size: 2,617 MB. GUI used memory: 135 MB. Current time: 6/17/23, 9:25:59 PM CST
 // WARNING: HEventQueue.dispatchEvent() is taking  1609 ms.
 // WARNING: HEventQueue.dispatchEvent() is taking  7914 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 2,617 MB. GUI used memory: 135 MB. Current time: 6/17/23, 9:56:00 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1427 ms.
