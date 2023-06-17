@@ -1,0 +1,171 @@
+/*
+
+Xilinx Vivado v2018.3 (64-bit) [Major: 2018, Minor: 3]
+SW Build: 2405991 on Thu Dec  6 23:36:41 MST 2018
+IP Build: 2404404 on Fri Dec  7 01:43:56 MST 2018
+
+Process ID (PID): 11504
+License: Customer
+
+Current time: 	Sat Jun 17 14:12:52 CST 2023
+Time zone: 	Taipei Standard Time (Asia/Taipei)
+
+OS: Ubuntu
+OS Version: 5.19.0-43-generic
+OS Architecture: amd64
+Available processors (cores): 2
+
+Display: :0
+Screen size: 1920x1080
+Screen resolution (DPI): 96
+Available screens: 1
+Available disk space: 19 GB
+Default font: family=Dialog,name=Dialog,style=plain,size=12
+
+Java version: 	9.0.4 64-bit
+Java home: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4
+Java executable location: 	/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/bin/java
+Java initial memory (-Xms): 	128 MB
+Java maximum memory (-Xmx):	 3 GB
+
+
+User name: 	yutong
+User home directory: /home/yutong
+User working directory: /home/yutong/RISC-V_SoC/vivado
+User country: 	US
+User language: 	en
+User locale: 	en_US
+
+RDI_BASEROOT: /tools/Xilinx/Vivado
+HDI_APPROOT: /tools/Xilinx/Vivado/2018.3
+RDI_DATADIR: /tools/Xilinx/Vivado/2018.3/data
+RDI_BINDIR: /tools/Xilinx/Vivado/2018.3/bin
+
+Vivado preferences file location: /home/yutong/.Xilinx/Vivado/2018.3/vivado.xml
+Vivado preferences directory: /home/yutong/.Xilinx/Vivado/2018.3/
+Vivado layouts directory: /home/yutong/.Xilinx/Vivado/2018.3/layouts
+PlanAhead jar file location: 	/tools/Xilinx/Vivado/2018.3/lib/classes/planAhead.jar
+Vivado log file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.log
+Vivado journal file location: 	/home/yutong/RISC-V_SoC/vivado/vivado.jou
+Engine tmp dir: 	./.Xil/Vivado-11504-yutong-virtual-machine
+
+Xilinx Environment Variables
+----------------------------
+XILINX: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_DSP: /tools/Xilinx/Vivado/2018.3/ids_lite/ISE
+XILINX_PLANAHEAD: /tools/Xilinx/Vivado/2018.3
+XILINX_SDK: /tools/Xilinx/SDK/2018.3
+XILINX_VIVADO: /tools/Xilinx/Vivado/2018.3
+XILINX_VIVADO_HLS: /tools/Xilinx/Vivado/2018.3
+
+
+GUI allocated memory:	128 MB
+GUI max memory:		3,072 MB
+Engine allocated memory: 768 MB
+
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+
+*/
+
+// TclEventType: START_GUI
+// WARNING: HEventQueue.dispatchEvent() is taking  1606 ms.
+// Tcl Message: start_gui 
+// HMemoryUtils.trashcanNow. Engine heap size: 768 MB. GUI used memory: 46 MB. Current time: 6/17/23, 2:12:54 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1001 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1001 ms.
+selectList(PAResourceQtoS.SyntheticaGettingStartedView_RECENT_PROJECTS, "/home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr", 1); // q (Q, cp)
+// [GUI Memory]: 78 MB (+78922kb) [00:00:39]
+// [Engine Memory]: 771 MB (+656468kb) [00:00:39]
+// bx (cp):  Open Project : addNotify
+// Opening Vivado Project: /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr. Version: Vivado v2018.3 
+// TclEventType: DEBUG_PROBE_SET_CHANGE
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr 
+// TclEventType: MSGMGR_MOVEMSG
+// TclEventType: FILE_SET_NEW
+// TclEventType: RUN_CURRENT
+// TclEventType: PROJECT_DASHBOARD_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_DASHBOARD_GADGET_NEW
+// TclEventType: PROJECT_DASHBOARD_GADGET_CHANGE
+// TclEventType: PROJECT_NEW
+// Tcl Message: open_project /home/yutong/RISC-V_SoC/vivado/cpu_wrap/cpu_wrap.xpr 
+// Tcl Message: Scanning sources... Finished scanning sources 
+// Tcl Message: INFO: [IP_Flow 19-234] Refreshing IP repositories 
+// HMemoryUtils.trashcanNow. Engine heap size: 826 MB. GUI used memory: 45 MB. Current time: 6/17/23, 2:13:14 PM CST
+// Tcl Message: INFO: [IP_Flow 19-1700] Loaded user IP repository '/home/yutong/RISC-V_SoC'. 
+// Tcl Message: INFO: [IP_Flow 19-2313] Loaded Vivado IP repository '/tools/Xilinx/Vivado/2018.3/data/ip'. 
+// TclEventType: PROJECT_NEW
+// [GUI Memory]: 87 MB (+5777kb) [00:00:56]
+// [Engine Memory]: 868 MB (+62140kb) [00:00:56]
+// [GUI Memory]: 101 MB (+9712kb) [00:00:57]
+// [Engine Memory]: 929 MB (+17973kb) [00:00:58]
+// WARNING: HEventQueue.dispatchEvent() is taking  7986 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1040 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 941 MB. GUI used memory: 49 MB. Current time: 6/17/23, 2:13:31 PM CST
+// Tcl Message: open_project: Time (s): cpu = 00:00:13 ; elapsed = 00:00:22 . Memory (MB): peak = 6377.461 ; gain = 119.883 ; free physical = 2082 ; free virtual = 8566 
+// Project name: cpu_wrap; location: /home/yutong/RISC-V_SoC/vivado/cpu_wrap; part: xc7z020clg400-1
+// Elapsed time: 24 seconds
+dismissDialog("Open Project"); // bx (cp)
+// Tcl Message: update_compile_order -fileset sources_1 
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 3768 ms. Increasing delay to 11304 ms.
+// WARNING: HTimer (FileMgr Design Graph Update Timer) is taking 1607ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1634 ms.
+// WARNING: HSwingWorker (Refresh Filesets Swing Worker) is taking 3 ms. Decreasing delay to 2003 ms.
+// [GUI Memory]: 108 MB (+1910kb) [00:12:47]
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 266ms to process. Increasing delay to 2000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1078 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1241 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1225 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1097 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1869 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 973 MB. GUI used memory: 48 MB. Current time: 6/17/23, 2:43:37 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1116 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 964 MB. GUI used memory: 44 MB. Current time: 6/17/23, 3:13:36 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 963 MB. GUI used memory: 44 MB. Current time: 6/17/23, 3:43:36 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1299 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1005 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1098 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 963 MB. GUI used memory: 44 MB. Current time: 6/17/23, 4:13:40 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1683 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 963 MB. GUI used memory: 44 MB. Current time: 6/17/23, 4:43:39 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 964 MB. GUI used memory: 44 MB. Current time: 6/17/23, 5:13:39 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1276 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1037 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1134 ms.
+// WARNING: HTimer (HSTRUtils Dump STR Log Timer) is taking 1646ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1697 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 982 MB. GUI used memory: 45 MB. Current time: 6/17/23, 5:39:17 PM CST
+// [Engine Memory]: 982 MB (+7293kb) [03:28:45]
+// WARNING: HEventQueue.dispatchEvent() is taking  1633 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 451ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1326 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 1493ms to process. Increasing delay to 4000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1493 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1151 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 982 MB. GUI used memory: 44 MB. Current time: 6/17/23, 6:09:21 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  2141 ms.
+// WARNING: HTimer (a Update Status Timer) is taking 1662ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1662 ms.
+// WARNING: HTimer (WrapperUtils Delayed Delete Timer) is taking 391ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (WrapperUtils Delayed Delete Timer) is taking 1096ms to process. Increasing delay to 3000 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1096 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1355 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1193 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 982 MB. GUI used memory: 44 MB. Current time: 6/17/23, 6:39:20 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1661 ms.
+// WARNING: HEventQueue.dispatchEvent() is taking  1438 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 7:09:22 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 7:39:22 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 8:09:23 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 8:39:23 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 9:09:23 PM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 983 MB. GUI used memory: 44 MB. Current time: 6/17/23, 9:39:23 PM CST

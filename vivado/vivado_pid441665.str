@@ -790,3 +790,9 @@ dismissDialog("Export Block Design"); // bx (cp)
 // Tcl Message: write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230617/riscv.tcl 
 // Tcl Message: INFO: [BD 5-148] Tcl file written out </home/yutong/RISC-V_SoC/vivado/bitfile/20230617/riscv.tcl>.  
 dismissDialog("Export Block Design"); // bx (cp)
+// HMemoryUtils.trashcanNow. Engine heap size: 3,149 MB. GUI used memory: 166 MB. Current time: 6/17/23, 1:57:35 AM CST
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 545ms to process. Increasing delay to 2000 ms.
+// WARNING: HTimer (ActiveMsgMonitor Process Messages Timer) is taking 965ms to process. Increasing delay to 3000 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 3,131 MB. GUI used memory: 161 MB. Current time: 6/17/23, 2:27:36 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,129 MB. GUI used memory: 160 MB. Current time: 6/17/23, 2:57:36 AM CST
+// HMemoryUtils.trashcanNow. Engine heap size: 3,129 MB. GUI used memory: 160 MB. Current time: 6/17/23, 3:27:36 AM CST
