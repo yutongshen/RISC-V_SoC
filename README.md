@@ -22,7 +22,7 @@ This repository contains the full RISC-V SoC RTL include RISC-V CPU, coherence b
 - Boot flow
   ![](figures/boot_flow.png)
 - Boot up linux 4.20
-  ![](figures/bootup_video.png)
+  [![](figures/bootup_video.png)](https://www.youtube.com/watch?v=LUEj9g0ChXA)
 
 - Connect RISC-V SoC via SSH
   ![](figures/demo_ssh.png)
