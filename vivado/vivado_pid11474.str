@@ -303,3 +303,5 @@ dismissDialog("Export Hardware"); // bx (cp)
 // WARNING: HEventQueue.dispatchEvent() is taking  2062 ms.
 // WARNING: HTimer (StateMonitor Timer) is taking 1294ms to process. Increasing delay to 4000 ms.
 // WARNING: HEventQueue.dispatchEvent() is taking  1294 ms.
+// HMemoryUtils.trashcanNow. Engine heap size: 2,617 MB. GUI used memory: 135 MB. Current time: 6/17/23, 10:56:02 PM CST
+// WARNING: HEventQueue.dispatchEvent() is taking  1118 ms.
