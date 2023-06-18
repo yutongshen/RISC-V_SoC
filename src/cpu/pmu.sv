@@ -99,6 +99,10 @@ always_comb begin
         `CSR_MCYCLEH_ADDR:    csr_rdata = mcycle    [32+:   32];
         `CSR_MINSTRET_ADDR:   csr_rdata = minstret  [ 0+:`XLEN];
         `CSR_MINSTRETH_ADDR:  csr_rdata = minstret  [32+:   32];
+        `CSR_MVENDORID_ADDR:  csr_rdata = `XLEN'b0;
+        `CSR_MARCHID_ADDR:    csr_rdata = `XLEN'b0;
+        `CSR_MIMPID_ADDR:     csr_rdata = `XLEN'b0;
+        `CSR_MCONFIGPTR_ADDR: csr_rdata = `XLEN'b0;
         `CSR_MHARTID_ADDR:    csr_rdata = mhartid;
         default:              csr_hit   = 1'b0;
     endcase

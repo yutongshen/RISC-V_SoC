@@ -141,6 +141,7 @@ casex (csr_addr)
     `CSR_MARCHID_ADDR       : return "marchid";       
     `CSR_MIMPID_ADDR        : return "mimpid";        
     `CSR_MHARTID_ADDR       : return "mhartid";       
+    `CSR_MCONFIGPTR_ADDR    : return "mconfigptr";
     `CSR_MSTATUS_ADDR       : return "mstatus";       
     `CSR_MISA_ADDR          : return "misa";          
     `CSR_MEDELEG_ADDR       : return "medeleg";       

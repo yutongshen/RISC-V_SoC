@@ -160,6 +160,7 @@
 `define CSR_MARCHID_ADDR        12'hf12
 `define CSR_MIMPID_ADDR         12'hf13
 `define CSR_MHARTID_ADDR        12'hf14
+`define CSR_MCONFIGPTR_ADDR     12'hf15
 `define CSR_MSTATUS_ADDR        12'h300
 `define CSR_MISA_ADDR           12'h301
 `define CSR_MEDELEG_ADDR        12'h302

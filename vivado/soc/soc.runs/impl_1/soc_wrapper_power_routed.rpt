@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date             : Sat Jun 17 00:50:06 2023
+| Date             : Sun Jun 18 10:27:53 2023
 | Host             : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command          : report_power -file soc_wrapper_power_routed.rpt -pb soc_wrapper_power_summary_routed.pb -rpx soc_wrapper_power_routed.rpx
 | Design           : soc_wrapper
@@ -30,10 +30,10 @@ Table of Contents
 ----------
 
 +--------------------------+--------------+
-| Total On-Chip Power (W)  | 1.894        |
+| Total On-Chip Power (W)  | 1.893        |
 | Design Power Budget (W)  | Unspecified* |
 | Power Budget Margin (W)  | NA           |
-| Dynamic (W)              | 1.743        |
+| Dynamic (W)              | 1.741        |
 | Device Static (W)        | 0.152        |
 | Effective TJA (C/W)      | 11.5         |
 | Max Ambient (C)          | 63.2         |
@@ -52,22 +52,22 @@ Table of Contents
 +--------------------------+-----------+----------+-----------+-----------------+
 | On-Chip                  | Power (W) | Used     | Available | Utilization (%) |
 +--------------------------+-----------+----------+-----------+-----------------+
-| Clocks                   |     0.056 |        7 |       --- |             --- |
-| Slice Logic              |     0.037 |    82515 |       --- |             --- |
-|   LUT as Logic           |     0.034 |    40395 |     53200 |           75.93 |
+| Clocks                   |     0.060 |        7 |       --- |             --- |
+| Slice Logic              |     0.037 |    82572 |       --- |             --- |
+|   LUT as Logic           |     0.034 |    39897 |     53200 |           74.99 |
 |   CARRY4                 |     0.001 |     2920 |     13300 |           21.95 |
-|   Register               |     0.001 |    26437 |    106400 |           24.85 |
+|   Register               |     0.001 |    26458 |    106400 |           24.87 |
 |   LUT as Distributed RAM |    <0.001 |      518 |     17400 |            2.98 |
-|   F7/F8 Muxes            |    <0.001 |     1991 |     53200 |            3.74 |
+|   F7/F8 Muxes            |    <0.001 |     1912 |     53200 |            3.59 |
 |   LUT as Shift Register  |    <0.001 |      378 |     17400 |            2.17 |
 |   Others                 |     0.000 |      759 |       --- |             --- |
-| Signals                  |     0.064 |    61685 |       --- |             --- |
-| Block RAM                |     0.045 |     45.5 |       140 |           32.50 |
+| Signals                  |     0.063 |    61778 |       --- |             --- |
+| Block RAM                |     0.041 |     45.5 |       140 |           32.50 |
 | DSPs                     |     0.005 |       36 |       220 |           16.36 |
 | I/O                      |     0.017 |       17 |       125 |           13.60 |
 | PS7                      |     1.518 |        1 |       --- |             --- |
 | Static Power             |     0.152 |          |           |                 |
-| Total                    |     1.894 |          |           |                 |
+| Total                    |     1.893 |          |           |                 |
 +--------------------------+-----------+----------+-----------+-----------------+
 
 
@@ -77,7 +77,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Source    | Voltage (V) | Total (A) | Dynamic (A) | Static (A) |
 +-----------+-------------+-----------+-------------+------------+
-| Vccint    |       1.000 |     0.223 |       0.204 |      0.018 |
+| Vccint    |       1.000 |     0.221 |       0.203 |      0.018 |
 | Vccaux    |       1.800 |     0.016 |       0.000 |      0.016 |
 | Vcco33    |       3.300 |     0.001 |       0.000 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
@@ -156,12 +156,12 @@ Table of Contents
 +--------------------------+-----------+
 | Name                     | Power (W) |
 +--------------------------+-----------+
-| soc_wrapper              |     1.743 |
-|   soc_i                  |     1.726 |
+| soc_wrapper              |     1.741 |
+|   soc_i                  |     1.724 |
 |     axi_interconnect_0   |     0.003 |
 |       s00_couplers       |     0.003 |
-|     cpu_wrap_0           |     0.181 |
-|       inst               |     0.181 |
+|     cpu_wrap_0           |     0.180 |
+|       inst               |     0.180 |
 |     processing_system7_0 |     1.519 |
 |       inst               |     1.519 |
 |     smartconnect_0       |     0.022 |

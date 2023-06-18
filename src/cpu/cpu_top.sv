@@ -301,8 +301,9 @@ logic                             exe_mdu_sel;
 logic                             exe_mdu_okay;
 logic [              `XLEN - 1:0] exe_rd_data;
 logic [              `XLEN - 1:0] exe_pc2rd;
-logic                             exe_mem_hazard;
 logic                             exe_gpr_hazard;
+logic                             exe_mdu_hazard;
+logic                             exe_mem_hazard;
 logic                             exe_csr_hazard;
 logic                             exe_hazard;
 logic                             exe_int_mask;
@@ -737,7 +738,7 @@ assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
 
 assign id_fpu_csr_hit   = 1'b0;
-assign id_dbg_csr_hit   = 1'b0;
+assign id_dbg_csr_hit   = 1'b1;
 
 csr u_csr (
     .clk           ( clk_wfi          ),
@@ -950,18 +951,21 @@ assign exe_rs2_data  = ({`XLEN{ exe2ma_fwd_table   [id2exe_rs2_addr]}} & ma_rd_d
                                ~ma2mr_fwd_table    [id2exe_rs2_addr]&
                                ~mr2wb_fwd_table    [id2exe_rs2_addr]}} & id2exe_rs2_data);
 
-assign exe_mem_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr])) ||
-                        (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr])) ||
-                        ma_pipe_restart || exe2ma_amo;
-assign exe_gpr_hazard = exe_mem_hazard || (id2exe_mdu_sel && ~exe_mdu_okay);
-assign exe_csr_hazard = (exe2ma_mem_req || ma2mr_mem_req_wo_flush || mr_dpu_hazard) &&
+assign exe_gpr_hazard = (id2exe_rs1_rd && (exe2ma_hz_table[id2exe_rs1_addr] || ma2mr_hz_table[id2exe_rs1_addr])) ||
+                        (id2exe_rs2_rd && (exe2ma_hz_table[id2exe_rs2_addr] || ma2mr_hz_table[id2exe_rs2_addr]));
+assign exe_mdu_hazard = id2exe_mdu_sel && ~exe_mdu_okay;
+assign exe_mem_hazard = exe2ma_mem_req  || ma2mr_mem_req_wo_flush ||
+                        ma_pipe_restart || mr_pipe_restart;
+assign exe_csr_hazard = exe_mem_hazard &&
                         (id2exe_pmu_csr_wr || id2exe_fpu_csr_wr || id2exe_dbg_csr_wr ||
                          id2exe_mmu_csr_wr || id2exe_mpu_csr_wr || id2exe_sru_csr_wr ||
                          id2exe_sret       || id2exe_mret       || id2exe_ill_insn   ||
                          id2exe_insn_misaligned || id2exe_insn_page_fault || id2exe_insn_xes_fault ||
                          id2exe_ecall);
 
-assign exe_hazard = exe_gpr_hazard || exe_csr_hazard;
+assign exe_hazard     = exe_gpr_hazard || exe_mdu_hazard || exe_csr_hazard;
+
+assign exe_int_mask   = ~id2exe_insn_valid || exe_gpr_hazard || exe_mdu_hazard || exe_mem_hazard;
 
 
 assign exe_pc_imm   = {{(`XLEN - `IM_ADDR_LEN){id2exe_pc[`IM_ADDR_LEN - 1]}}, id2exe_pc} + id2exe_imm;
@@ -971,7 +975,7 @@ assign exe_pc2rd    = id2exe_pc_imm_sel   ? exe_pc_imm : exe_pc_add_4;
 assign exe_alu_src1 = id2exe_rs1_zero_sel ? exe_rs1_data : `XLEN'b0;
 assign exe_alu_src2 = id2exe_rs2_imm_sel  ? exe_rs2_data : id2exe_imm;
 
-assign exe_mdu_sel  = id2exe_mdu_sel && ~exe_mem_hazard;
+assign exe_mdu_sel  = id2exe_mdu_sel && ~exe_gpr_hazard;
 
 assign exe_branch   = id2exe_branch & ~exe_hazard;
 
@@ -1024,10 +1028,6 @@ assign exe_mret       = id2exe_mret       & ~exe_flush_force & ~exe_hazard & ~ex
 
 assign exe_csr_src1 = id2exe_csr_rdata;
 assign exe_csr_src2 = id2exe_uimm_rs1_sel ? {{(`XLEN-5){1'b0}}, id2exe_rs1_addr} : exe_rs1_data;
-
-assign exe_int_mask   = exe_hazard || ~id2exe_insn_valid || ma_stall ||
-                        ma_pipe_restart || mr_pipe_restart ||
-                        exe2ma_mem_req || ma2mr_mem_req_wo_flush || mr_dpu_hazard;
 
 sru u_sru (
     .clk              ( clk_wfi           ),

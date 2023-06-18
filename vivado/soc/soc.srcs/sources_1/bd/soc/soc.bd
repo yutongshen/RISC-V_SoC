@@ -380,10 +380,10 @@
               }
             },
             "interface_nets": {
-              "auto_us_to_s00_couplers": {
+              "s00_couplers_to_auto_pc": {
                 "interface_ports": [
-                  "M_AXI",
-                  "auto_us/M_AXI"
+                  "S_AXI",
+                  "auto_pc/S_AXI"
                 ]
               },
               "auto_pc_to_auto_us": {
@@ -392,10 +392,10 @@
                   "auto_us/S_AXI"
                 ]
               },
-              "s00_couplers_to_auto_pc": {
+              "auto_us_to_s00_couplers": {
                 "interface_ports": [
-                  "S_AXI",
-                  "auto_pc/S_AXI"
+                  "M_AXI",
+                  "auto_us/M_AXI"
                 ]
               }
             },
@@ -510,10 +510,16 @@
       }
     },
     "interface_nets": {
-      "S00_AXI_1": {
+      "axi_interconnect_0_M00_AXI": {
         "interface_ports": [
-          "axi_interconnect_0/S00_AXI",
-          "cpu_wrap_0/ddr_m"
+          "axi_interconnect_0/M00_AXI",
+          "processing_system7_0/S_AXI_HP0"
+        ]
+      },
+      "riscv_jtag_1": {
+        "interface_ports": [
+          "riscv_jtag",
+          "cpu_wrap_0/jtag"
         ]
       },
       "cpu_wrap_0_rmii": {
@@ -522,10 +528,22 @@
           "cpu_wrap_0/rmii"
         ]
       },
-      "axi_apb_bridge_0_APB_M": {
+      "S00_AXI_1": {
         "interface_ports": [
-          "axi_apb_bridge_0/APB_M",
-          "cpu_wrap_0/dbg_apb_s"
+          "axi_interconnect_0/S00_AXI",
+          "cpu_wrap_0/ddr_m"
+        ]
+      },
+      "cpu_wrap_0_uart": {
+        "interface_ports": [
+          "riscv_uart",
+          "cpu_wrap_0/uart"
+        ]
+      },
+      "processing_system7_0_DDR": {
+        "interface_ports": [
+          "DDR",
+          "processing_system7_0/DDR"
         ]
       },
       "smartconnect_0_M00_AXI": {
@@ -534,10 +552,10 @@
           "cpu_wrap_0/ext_s"
         ]
       },
-      "cpu_wrap_0_uart": {
+      "axi_apb_bridge_0_APB_M": {
         "interface_ports": [
-          "riscv_uart",
-          "cpu_wrap_0/uart"
+          "axi_apb_bridge_0/APB_M",
+          "cpu_wrap_0/dbg_apb_s"
         ]
       },
       "processing_system7_0_M_AXI_GP0": {
@@ -552,28 +570,10 @@
           "axi_apb_bridge_0/AXI4_LITE"
         ]
       },
-      "riscv_jtag_1": {
-        "interface_ports": [
-          "riscv_jtag",
-          "cpu_wrap_0/jtag"
-        ]
-      },
-      "axi_interconnect_0_M00_AXI": {
-        "interface_ports": [
-          "axi_interconnect_0/M00_AXI",
-          "processing_system7_0/S_AXI_HP0"
-        ]
-      },
       "processing_system7_0_FIXED_IO": {
         "interface_ports": [
           "FIXED_IO",
           "processing_system7_0/FIXED_IO"
-        ]
-      },
-      "processing_system7_0_DDR": {
-        "interface_ports": [
-          "DDR",
-          "processing_system7_0/DDR"
         ]
       }
     },

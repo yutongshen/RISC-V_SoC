@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date         : Sat Jun 17 00:50:14 2023
+| Date         : Sun Jun 18 10:28:00 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : report_bus_skew -warn_on_violation -file soc_wrapper_bus_skew_routed.rpt -pb soc_wrapper_bus_skew_routed.pb -rpx soc_wrapper_bus_skew_routed.rpx
 | Design       : soc_wrapper
