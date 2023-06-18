@@ -1,7 +1,7 @@
 //Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 //--------------------------------------------------------------------------------
 //Tool Version: Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-//Date        : Sun Jun 18 01:32:13 2023
+//Date        : Sun Jun 18 13:54:08 2023
 //Host        : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 //Command     : generate_target soc.bd
 //Design      : soc

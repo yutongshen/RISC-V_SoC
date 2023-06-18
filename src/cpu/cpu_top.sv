@@ -738,7 +738,7 @@ assign id_fpu_csr_rdata = `XLEN'b0;
 assign id_dbg_csr_rdata = `XLEN'b0;
 
 assign id_fpu_csr_hit   = 1'b0;
-assign id_dbg_csr_hit   = 1'b1;
+assign id_dbg_csr_hit   = id_csr_addr[11:10] == 2'b01;
 
 csr u_csr (
     .clk           ( clk_wfi          ),
