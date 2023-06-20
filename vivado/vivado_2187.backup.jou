@@ -1,0 +1,28 @@
+#-----------------------------------------------------------
+# Vivado v2018.3 (64-bit)
+# SW Build 2405991 on Thu Dec  6 23:36:41 MST 2018
+# IP Build 2404404 on Fri Dec  7 01:43:56 MST 2018
+# Start of session at: Sun Jun 18 14:14:32 2023
+# Process ID: 2187
+# Current directory: /home/yutong/RISC-V_SoC/vivado
+# Command line: vivado
+# Log file: /home/yutong/RISC-V_SoC/vivado/vivado.log
+# Journal file: /home/yutong/RISC-V_SoC/vivado/vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project /home/yutong/RISC-V_SoC/vivado/soc/soc.xpr
+update_compile_order -fileset sources_1
+reset_run synth_1
+reset_run soc_cpu_wrap_0_0_synth_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+reset_run impl_1
+set_property strategy Area_Explore [get_runs impl_1]
+launch_runs impl_1 -jobs 2
+wait_on_run impl_1
+open_run impl_1
+launch_runs impl_1 -to_step write_bitstream -jobs 2
+wait_on_run impl_1
+open_bd_design {/home/yutong/RISC-V_SoC/vivado/soc/soc.srcs/sources_1/bd/soc/soc.bd}
+file copy -force /home/yutong/RISC-V_SoC/vivado/soc/soc.runs/impl_1/soc_wrapper.bit /home/yutong/RISC-V_SoC/vivado/bitfile/20230618_2/riscv.bit
+write_bd_tcl -force /home/yutong/RISC-V_SoC/vivado/bitfile/20230618_2/riscv.tcl

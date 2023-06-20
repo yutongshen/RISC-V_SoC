@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date         : Sun Jun 18 14:40:21 2023
+| Date         : Mon Jun 19 19:57:39 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : report_utilization -file soc_cpu_wrap_0_0_utilization_synth.rpt -pb soc_cpu_wrap_0_0_utilization_synth.pb
 | Design       : soc_cpu_wrap_0_0
@@ -30,8 +30,8 @@ Table of Contents
 +----------------------------+-------+-------+-----------+-------+
 |          Site Type         |  Used | Fixed | Available | Util% |
 +----------------------------+-------+-------+-----------+-------+
-| Slice LUTs*                | 35774 |     0 |     53200 | 67.24 |
-|   LUT as Logic             | 35730 |     0 |     53200 | 67.16 |
+| Slice LUTs*                | 35778 |     0 |     53200 | 67.25 |
+|   LUT as Logic             | 35734 |     0 |     53200 | 67.17 |
 |   LUT as Memory            |    44 |     0 |     17400 |  0.25 |
 |     LUT as Distributed RAM |    44 |     0 |           |       |
 |     LUT as Shift Register  |     0 |     0 |           |       |
@@ -152,11 +152,11 @@ Table of Contents
 | Ref Name |  Used | Functional Category |
 +----------+-------+---------------------+
 | FDCE     | 19762 |        Flop & Latch |
-| LUT6     | 16170 |                 LUT |
-| LUT4     | 10978 |                 LUT |
-| LUT5     |  6355 |                 LUT |
-| LUT3     |  5780 |                 LUT |
-| LUT2     |  4042 |                 LUT |
+| LUT6     | 16171 |                 LUT |
+| LUT4     | 10982 |                 LUT |
+| LUT5     |  6356 |                 LUT |
+| LUT3     |  5779 |                 LUT |
+| LUT2     |  4040 |                 LUT |
 | CARRY4   |  2868 |          CarryLogic |
 | MUXF7    |  1688 |               MuxFx |
 | LUT1     |   469 |                 LUT |

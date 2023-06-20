@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date         : Sun Jun 18 15:51:15 2023
+| Date         : Mon Jun 19 23:58:29 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : report_drc -file soc_wrapper_drc_opted.rpt -pb soc_wrapper_drc_opted.pb -rpx soc_wrapper_drc_opted.rpx
 | Design       : soc_wrapper

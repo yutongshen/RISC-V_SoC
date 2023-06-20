@@ -49,6 +49,7 @@ logic        rx_busy_d1;
 logic        rx_busy_d2;
 logic        rx_busy;
 logic        rx_err;
+logic        rx_crc_fail;
 logic        rx_discar;
 logic        rx_len_cnt_upd;
 logic        rx_len_cnt_upd_dly;
@@ -226,8 +227,9 @@ mac_afifo u_mac_afifo_tx (
 );
 
 // RX
-assign rx_discar  = rx_en && apb_wr && s_apb_intf.paddr[11:0] == `MAC_RXDIS;
-assign rx_data_rd = rx_en && apb_rd && s_apb_intf.paddr[11:0] == `MAC_RXFIFO;
+assign rx_discar   = rx_en && apb_wr && s_apb_intf.paddr[11:0] == `MAC_RXDIS;
+assign rx_data_rd  = rx_en && apb_rd && s_apb_intf.paddr[11:0] == `MAC_RXFIFO;
+assign rx_crc_fail = afifo_rx_rdata[34] && |afifo_rx_rdata[33:32];
 
 always_ff @(posedge clk or negedge sw_rstn) begin
     if (~sw_rstn) begin
@@ -275,7 +277,7 @@ always_ff @(posedge clk or negedge sw_rstn) begin
         rx_len_cnt_upd_dly <= 1'b0;
     end
     else begin
-        rx_len_cnt_upd     <= !afifo_rx_empty && (!afifo_rx_rdata[34] || &afifo_rx_rdata[34:32]);
+        rx_len_cnt_upd     <= !afifo_rx_empty && (!afifo_rx_rdata[34] || rx_crc_fail);
         rx_len_cnt_upd_dly <= rx_len_cnt_upd;
     end
 end
@@ -297,7 +299,7 @@ always_ff @(posedge clk or negedge sw_rstn) begin
     if (~sw_rstn)             rx_err <= 1'b0;
     else if (rx_len_cnt_upd)  rx_err <= 1'b0;
     else if (!afifo_rx_empty) rx_err <= rx_err || rx_ram_full || rx_len_fifo_full ||
-                                        rx_len_illegal || &afifo_rx_rdata[34:32];
+                                        rx_len_illegal || rx_crc_fail;
 end
 
 always_ff @(posedge clk or negedge sw_rstn) begin
@@ -321,7 +323,7 @@ always_ff @(posedge clk or negedge sw_rstn) begin
     if (~sw_rstn) rx_ram_wptr <= 10'b0;
     else if (rx_en) begin
         if (rx_len_cnt_upd && rx_err) rx_ram_wptr <= rx_ram_wptr_head;
-        else                          rx_ram_wptr <= rx_ram_wptr + {9'b0, rx_ram_wr};
+        else if (!rx_len_cnt_upd_dly) rx_ram_wptr <= rx_ram_wptr + {9'b0, rx_ram_wr};
     end
 end
 
