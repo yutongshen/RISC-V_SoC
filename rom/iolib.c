@@ -122,24 +122,27 @@ __U8 __fopen(__FILE *__file, const char *__fname) {
     while (i < 3 && *__fname) subfname[i++] = *__fname++ & ~0x20;
     while (i < 3)             subfname[i++] = 0x20;
 
-    // Read dir list check
-    if (!__sd_readblk(__file->bpb->data_base, buff)) return 0;
-    
-    i = 0;
-    while (i < 512) {
-        // Check existence / fname / subfname
-        if (buff[i] == 0xe5 || __strcmp(&buff[i], fname, 8) || __strcmp(&buff[i+8], subfname, 3)) {
-            i += 0x20;
-            continue;
+    for (j = 0; j < 4; ++j) {
+        i = 0;
+
+        // Read dir list check
+        if (!__sd_readblk(__file->bpb->data_base + j, buff)) return 0;
+        
+        while (i < 512) {
+            // Check existence / fname / subfname
+            if (buff[i] == 0xe5 || __strcmp(&buff[i], fname, 8) || __strcmp(&buff[i+8], subfname, 3)) {
+                i += 0x20;
+                continue;
+            }
+            // Match
+            __memcpy(__file, &buff[i], 0x20);
+            __file->seek         =  0;
+            __file->sect         = -1;
+            __file->cur_clst_idx = -1;
+            __file->max_clst_idx =  0;
+            __file->superclst[0] = ((__U32) (__file->entry_l) | (__U32) ((__file->entry_h) << 16)) - __file->bpb->dir_base;
+            return 1;
         }
-        // Match
-        __memcpy(__file, &buff[i], 0x20);
-        __file->seek         =  0;
-        __file->sect         = -1;
-        __file->cur_clst_idx = -1;
-        __file->max_clst_idx =  0;
-        __file->superclst[0] = ((__U32) (__file->entry_l) | (__U32) ((__file->entry_h) << 16)) - __file->bpb->dir_base;
-        return 1;
     }
     return 0;
 }

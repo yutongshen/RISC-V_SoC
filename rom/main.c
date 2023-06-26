@@ -33,21 +33,28 @@ __U32 main(void) {
     __puts("[BROM] FAT BPB init");
     __fat_bpb_init(&__bpb);
 
-    // // load bbl
-    // __puts("[BROM] load bbl");
-    // __fopen(&__file, "bbl");
-    // __elf_loader(&__file);
-
-    // load openSBI
-    __puts("[BROM] load openSBI");
-    __fopen(&__file, "fw_payld.elf");
+    // load bbl
+    __puts("[BROM] load bbl");
+    __fopen(&__file, "bbl");
     __elf_loader(&__file);
+
+    // // load openSBI
+    // __puts("[BROM] load openSBI");
+    // __fopen(&__file, "fw_payld.elf");
+    // __elf_loader(&__file);
 
 
     // load linux
-    __puts("[BROM] load vmlinux");
-    __fopen(&__file, "vmlinux");
-    __elf_loader_reloc(&__file, 0x80200000);
+    if (!*CFGREG_RSVREG0_32P) {
+        __puts("[BROM] load vmlinux");
+        __fopen(&__file, "vmlinux");
+        __elf_loader_reloc(&__file, 0x80200000);
+    }
+    else {
+        __puts("[BROM] load vmlinux.tst");
+        __fopen(&__file, "vmlinux.tst");
+        __elf_loader_reloc(&__file, 0x80200000);
+    }
 
     __puts("[BROM] boot rom init done");
     return 0;
