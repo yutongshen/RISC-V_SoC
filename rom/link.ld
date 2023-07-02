@@ -43,10 +43,11 @@ SECTIONS {
   } > brom
 */
 
+  . = 0x20000;
   .stack : {
-    . += 0x1f000;
+    . += 0x1e000;
     _stack_end = .;
-    . += 0x1000;
+    . += 0x2000;
     _stack = .;
     __stack = _stack;
   } > sysram

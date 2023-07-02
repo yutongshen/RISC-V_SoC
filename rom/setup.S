@@ -85,7 +85,6 @@ init_system:
     srli t0, t0, 2;
     csrw pmaaddr15, t0;
 #endif
-    lw s0, sysram_base;
     j goto_main;
 rv64:
 #ifdef ENABLE_CACHE
@@ -110,12 +109,12 @@ rv64:
     srli t0, t0, 2;
     csrw pmaaddr15, t0;
 #endif
-    ld s0, sysram_base;
-    # ld s0, ddr_base;
-
 goto_main:
 #ifdef REAL_ROM
     jal main;
+    mv s0, a0;
+#else
+    ld s0, sysram_base;
 #endif
     csrr a0, mhartid;
     la a1, _DTB;
@@ -144,4 +143,4 @@ sysram_size:
 ddr_base:
   .dword 0x80000000
 ddr_size:
-  .dword 0x80000000
+  .dword 0x20000000

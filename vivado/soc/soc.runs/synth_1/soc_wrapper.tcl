@@ -90,7 +90,7 @@ set_property used_in_implementation false [get_files dont_touch.xdc]
 set_param ips.enableIPCacheLiteLoad 1
 close [open __synthesis_is_running__ w]
 
-synth_design -top soc_wrapper -part xc7z020clg400-1
+synth_design -top soc_wrapper -part xc7z020clg400-1 -directive AreaOptimized_high -control_set_opt_threshold 1
 
 
 # disable binary constraint mode for synth run checkpoints

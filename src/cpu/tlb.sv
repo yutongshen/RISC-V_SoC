@@ -11,9 +11,9 @@ module tlb (
     input        [  `TLB_VPN_WIDTH-1:0] vpn,
     input                               we,
     output logic                        pte_hit,
-    input        [                 2:0] spage_in,
+    input        [                 3:0] spage_in,
     input        [  `TLB_PTE_WIDTH-1:0] pte_in,
-    output logic [                 2:0] spage_out,
+    output logic [                 3:0] spage_out,
     output logic [  `TLB_PTE_WIDTH-1:0] pte_out,
     
     input                               tlb_flush_req,
@@ -27,7 +27,7 @@ module tlb (
 
 // logic [      `TLB_IDX_WIDTH-1:0] idx;
 logic [          `TLB_DEPTH-1:0] valid   [`TLB_WAY_NUM];
-logic [                     2:0] spg_bit [`TLB_WAY_NUM][`TLB_DEPTH];
+logic [                     3:0] spg_bit [`TLB_WAY_NUM][`TLB_DEPTH];
 logic [$clog2(`TLB_WAY_NUM)-1:0] order   [`TLB_WAY_NUM][`TLB_DEPTH];
 logic [$clog2(`TLB_WAY_NUM)-1:0] victim_order;
 logic [$clog2(`TLB_WAY_NUM)-1:0] hit_order;
@@ -35,17 +35,17 @@ logic [        `TLB_WAY_NUM-1:0] hit;
 logic [      `TLB_TAG_WIDTH-1:0] tag_in;
 logic [      `TLB_TAG_WIDTH-1:0] tag_latch;
 logic                            cs_latch;
-logic [                    26:0] vpn0_latch;
-logic [                     2:0] spg_latch   [`TLB_WAY_NUM];
+logic [                    35:0] vpn0_latch;
+logic [                     3:0] spg_latch   [`TLB_WAY_NUM];
 logic [        `TLB_WAY_NUM-1:0] victim;
 logic [      `TLB_PTE_WIDTH-1:0] pte_out_arr [`TLB_WAY_NUM];
 
 assign pte_hit   = |hit;
 always_comb begin
     integer i;
-    spage_out = 3'b0;
+    spage_out = 4'b0;
     for (i = 0; i < `TLB_WAY_NUM; i = i + 1) begin
-        spage_out = spage_out | ({3{hit[i]}} & spg_latch[i]);
+        spage_out = spage_out | ({4{hit[i]}} & spg_latch[i]);
     end
 end
 
@@ -55,12 +55,18 @@ assign tag_in  = {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+10], vpn[0+:10] & {10{~spa
 `else
 assign idx     = ({`TLB_IDX_WIDTH{satp_mode == `SATP_MODE_SV32}} & vpn[10+:`TLB_IDX_WIDTH])|
                  ({`TLB_IDX_WIDTH{satp_mode == `SATP_MODE_SV39}} & vpn[18+:`TLB_IDX_WIDTH])|
-                 ({`TLB_IDX_WIDTH{satp_mode == `SATP_MODE_SV48}} & vpn[27+:`TLB_IDX_WIDTH]);
+                 ({`TLB_IDX_WIDTH{satp_mode == `SATP_MODE_SV48}} & vpn[27+:`TLB_IDX_WIDTH])|
+                 ({`TLB_IDX_WIDTH{satp_mode == `SATP_MODE_SV57}} & vpn[36+:`TLB_IDX_WIDTH]);
 assign tag_in  = ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV32}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+10], vpn[0+10] & {10{~spage_in[0]}}})|
                  ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV39}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+18],
                                                                     vpn[ 9+:9] & {9{~spage_in[1]}},
                                                                     vpn[ 0+:9] & {9{~spage_in[0]}}})|
                  ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV48}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+27],
+                                                                    vpn[18+:9] & {9{~spage_in[2]}},
+                                                                    vpn[ 9+:9] & {9{~spage_in[1]}},
+                                                                    vpn[ 0+:9] & {9{~spage_in[0]}}})|
+                 ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV57}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+36],
+                                                                    vpn[27+:9] & {9{~spage_in[3]}},
                                                                     vpn[18+:9] & {9{~spage_in[2]}},
                                                                     vpn[ 9+:9] & {9{~spage_in[1]}},
                                                                     vpn[ 0+:9] & {9{~spage_in[0]}}});
@@ -74,7 +80,8 @@ always_ff @(posedge clk or negedge rstn) begin
 `else
                             ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV32}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+10], vpn[ 9:0]})|
                             ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV39}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+18], vpn[17:0]})|
-                            ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV48}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+27], vpn[26:0]});
+                            ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV48}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+27], vpn[26:0]})|
+                            ({`TLB_TAG_WIDTH{satp_mode == `SATP_MODE_SV57}} & {vpn[`TLB_VPN_WIDTH-1:`TLB_IDX_WIDTH+36], vpn[35:0]});
 `endif
 end
 
@@ -84,8 +91,8 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) vpn0_latch <= 27'b0;
-    else       vpn0_latch <= vpn[26:0];
+    if (~rstn) vpn0_latch <= 36'b0;
+    else       vpn0_latch <= vpn[35:0];
 end
 
 always_comb begin
@@ -114,7 +121,8 @@ always_comb begin
                           | ({`TLB_PTE_WIDTH{~satp_mode[3]}} &
                              {{`TLB_PTE_WIDTH-10-10{1'b0}}, vpn0_latch[0+:10] & {10{|(hit[i] & spg_latch[i][0])}}, 10'b0})
                           | ({`TLB_PTE_WIDTH{ satp_mode[3]}} &
-                             {{`TLB_PTE_WIDTH-10-27{1'b0}},
+                             {{`TLB_PTE_WIDTH-10-36{1'b0}},
+                               vpn0_latch[27+:9] & {9{|(hit[i] & spg_latch[i][3])}},
                                vpn0_latch[18+:9] & {9{|(hit[i] & spg_latch[i][2])}},
                                vpn0_latch[ 9+:9] & {9{|(hit[i] & spg_latch[i][1])}},
                                vpn0_latch[ 0+:9] & {9{|(hit[i] & spg_latch[i][0])}}, 10'b0});
@@ -135,7 +143,7 @@ generate
             if (~rstn) begin
                 for (i = 0; i < `TLB_DEPTH; i = i + 1) begin
                     valid[g][i]   <= 1'b0;
-                    spg_bit[g][i] <= 3'b0;
+                    spg_bit[g][i] <= 4'b0;
                     order[g][i]   <= g[$clog2(`TLB_WAY_NUM)-1:0];
                 end
             end
@@ -171,7 +179,7 @@ generate
         end
 
         always_ff @(posedge clk or negedge rstn) begin
-            if (~rstn) spg_latch[g] <= 3'b0;
+            if (~rstn) spg_latch[g] <= 4'b0;
             else       spg_latch[g] <= spg_bit[g][idx];
         end
 
@@ -184,7 +192,8 @@ generate
                            (({`TLB_PTE_WIDTH{~satp_mode[3]}} &
                              {tag_latch[`TLB_TAG_WIDTH-1:10], tag_latch[0+:10] & {10{~spg_latch[g][0]}}})|
                             ({`TLB_PTE_WIDTH{ satp_mode[3]}} &
-                             {tag_latch[`TLB_TAG_WIDTH-1:27],
+                             {tag_latch[`TLB_TAG_WIDTH-1:36],
+                              tag_latch[27+:9] & {9{~spg_latch[g][3]}},
                               tag_latch[18+:9] & {9{~spg_latch[g][2]}},
                               tag_latch[ 9+:9] & {9{~spg_latch[g][1]}},
                               tag_latch[ 0+:9] & {9{~spg_latch[g][0]}}}));

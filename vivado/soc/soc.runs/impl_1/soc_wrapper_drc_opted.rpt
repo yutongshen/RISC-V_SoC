@@ -1,7 +1,7 @@
 Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
 ------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2018.3 (lin64) Build 2405991 Thu Dec  6 23:36:41 MST 2018
-| Date         : Mon Jun 19 23:58:29 2023
+| Date         : Sat Jul  1 10:37:28 2023
 | Host         : yutong-virtual-machine running 64-bit Ubuntu 22.04.2 LTS
 | Command      : report_drc -file soc_wrapper_drc_opted.rpt -pb soc_wrapper_drc_opted.pb -rpx soc_wrapper_drc_opted.rpx
 | Design       : soc_wrapper
@@ -1039,8 +1039,8 @@ Related violations: <none>
 
 PLHOLDVIO-2#1 Warning
 Non-Optimal connections which could lead to hold violations  
-A LUT soc_i/cpu_wrap_0/inst/u_cpu_top/u_clkmnt/u_cg/medeleg_imisalign_i_3 is driving clock pin of 7841 cells. This could lead to large hold time violations. Involved cells are:
-soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_64_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_attach_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[31], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_alu_sel_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[10] (the first 15 of 7841 listed)
+A LUT soc_i/cpu_wrap_0/inst/u_cpu_top/u_clkmnt/u_cg/medeleg_imisalign_i_3 is driving clock pin of 7842 cells. This could lead to large hold time violations. Involved cells are:
+soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_64_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_op_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_amo_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_attach_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[1], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[2], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[31], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_cause_reg[3], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_alu_sel_reg, soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[0], soc_i/cpu_wrap_0/inst/u_cpu_top/exe2ma_csr_rdata_reg[10] (the first 15 of 7842 listed)
 Related violations: <none>
 
 REQP-1839#1 Warning

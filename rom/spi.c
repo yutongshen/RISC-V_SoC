@@ -76,9 +76,13 @@ __U8 __sd_rcvdata(__U8P buff, __U32 size, __U8 release) {
         r1 = __spi_rwbyte(__DUMMY_DATA);
         if (retry++ > 5000) return r1;
     } while (r1 != 0xfe);
-    
+
     __dma_spi2buf(buff, 512);
 
+    // while (size--) {
+    //     *buff++ = __spi_rwbyte(__DUMMY_DATA);
+    // }
+    
     __spi_rwbyte(__DUMMY_DATA);
     __spi_rwbyte(__DUMMY_DATA);
     

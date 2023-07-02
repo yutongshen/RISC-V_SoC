@@ -550,7 +550,7 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin: reg_wdt_config
     if (~rstn) begin
-        wdt_cnt_config <= 31'h400;
+        wdt_cnt_config <= 31'h800;
     end
     else if (apb_wr && s_apb_intf.paddr[7:0] == `DMA_WDT_CNT) begin
         wdt_cnt_config <= s_apb_intf.pwdata[30:0];

@@ -29,6 +29,7 @@ __U32 __puts(const __U8P __s) {
         __putch(*__s++);
         ++__res;
     }
+    __putch('\r');
     __putch('\n');
     return __res;
 }

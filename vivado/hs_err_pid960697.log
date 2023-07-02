@@ -1,0 +1,11 @@
+#
+# An unexpected error has occurred (11)
+#
+Stack:
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb6aadb) [0x7ffba6b6aadb]
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(JVM_handle_linux_signal+0xbb) [0x7ffba6b6fe1b]
+/tools/Xilinx/Vivado/2018.3/tps/lnx64/jre9.0.4/lib//server/libjvm.so(+0xb647b8) [0x7ffba6b647b8]
+/lib/x86_64-linux-gnu/libc.so.6(+0x42520) [0x7ffbf2242520]
+/tools/Xilinx/Vivado/2018.3/lib/lnx64.o/librdi_common.so(HI18N::Convert::In(wchar_t const*, wchar_t const*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >&, std::codecvt<wchar_t, char, __mbstate_t> const&)+0x36) [0x7ffbf36ce376]
+/tools/Xilinx/Vivado/2018.3/lib/lnx64.o/librdi_common.so(Java_ui_data_msgmgr_messagemanageri_getMessages+0x1da) [0x7ffbf3761f8a]
+[0x7ffb9668f34a]

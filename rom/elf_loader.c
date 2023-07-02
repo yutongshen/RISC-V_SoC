@@ -21,7 +21,7 @@ void *__elf_loader_reloc(__FILE *file, __U64 relocate) {
     __fread(file, &elf, sizeof(__EHDR64));
 
     while (i < elf.e_phnum) {
-        phnum_max = __PHNUM_MAX < (elf.e_phnum - i) ? __PHNUM_MAX : elf.e_phnum;
+        phnum_max = __PHNUM_MAX < (elf.e_phnum - i) ? __PHNUM_MAX : (elf.e_phnum - i);
         __fseek(file, sizeof(__PHDR64) * i + elf.e_phoff, __SEEK_BEG);
         __fread(file, &prog_header, sizeof(__PHDR64) * phnum_max);
         for (j = 0; j < phnum_max; ++j) {

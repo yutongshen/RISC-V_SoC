@@ -70,13 +70,13 @@ logic [                 1:0] cur_state;
 logic [                 1:0] nxt_state;
 
 logic                        va_en;
-logic [                55:0] va_latch;
+logic [                56:0] va_latch;
 logic                        last_hit;
 logic                        last_va_en;
-logic [                35:0] last_vpn;
-logic [                 2:0] last_spage;
-logic [                35:0] vpn;
-logic [                36:0] vpn_latch;
+logic [                44:0] last_vpn;
+logic [                 3:0] last_spage;
+logic [                44:0] vpn;
+logic [                45:0] vpn_latch;
 logic [                21:0] ppn_latch;
 logic [`SATP_MODE_WIDTH-1:0] satp_mode_latch;
 logic                        busy;
@@ -115,8 +115,8 @@ logic                        tlb_hit;
 logic [  `TLB_VPN_WIDTH-1:0] tlb_vpn;
 logic [  `TLB_PTE_WIDTH-1:0] tlb_pte_in;
 logic [  `TLB_PTE_WIDTH-1:0] tlb_pte_out;
-logic [                 2:0] tlb_spage_in;
-logic [                 2:0] tlb_spage_out;
+logic [                 3:0] tlb_spage_in;
+logic [                 3:0] tlb_spage_out;
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) cur_state <= STATE_IDLE;
@@ -194,6 +194,7 @@ assign pg_fault_pte = !pte_v || (!pte_r && pte_w) ||
                       ( leaf && spage[0] &&  satp_mode_latch[3] && |pte_ppn[ 0+: 9]) ||
                       ( leaf && spage[1] &&  satp_mode_latch[3] && |pte_ppn[ 9+: 9]) ||
                       ( leaf && spage[2] &&  satp_mode_latch[3] && |pte_ppn[18+: 9]) ||
+                      ( leaf && spage[3] &&  satp_mode_latch[3] && |pte_ppn[27+: 9]) ||
 `endif
                       ( leaf && access_x_latch      && ~pte_x) ||
                       ( leaf && access_r_latch      && ~pte_r) ||
@@ -227,12 +228,12 @@ assign pmp_err      = (!pmp_v && prv_latch != `PRV_M) ||
                        (!pmp_w && access_w_latch) ||
                        (!pmp_r && access_r_latch)));
                     
-assign tlb_spage_in = spage[2:0];
+assign tlb_spage_in = spage[3:0];
 `ifdef RV32
-assign tlb_vpn      = {16'b0, busy ? va_latch[12+:20] : va[12+:20]};
+assign tlb_vpn      = {25'b0, busy ? va_latch[12+:20] : va[12+:20]};
 `else
-assign tlb_vpn      = ({36{~satp_mode_latch[3]}} & {16'b0, busy ? va_latch[12+:20] : va[12+:20]}) |
-                      ({36{ satp_mode_latch[3]}} & {       busy ? va_latch[12+:36] : va[12+:36]});
+assign tlb_vpn      = ({45{~satp_mode_latch[3]}} & {25'b0, busy ? va_latch[12+:20] : va[12+:20]}) |
+                      ({45{ satp_mode_latch[3]}} & {       busy ? va_latch[12+:45] : va[12+:45]});
 `endif
 assign tlb_pte_in   = pte_latch;
 assign {pte_ppn, pte_rsw, pte_d, pte_a, pte_g, pte_u, pte_x, pte_w, pte_r, pte_v} =
@@ -293,11 +294,11 @@ always_ff @(posedge clk or negedge rstn) begin
 `ifdef RV32
         spage <= 6'b11;
 `else
-        spage <= ({3{satp_mode == `SATP_MODE_SV32}} & 6'b000011)|
-                 ({3{satp_mode == `SATP_MODE_SV39}} & 6'b000111)|
-                 ({3{satp_mode == `SATP_MODE_SV48}} & 6'b001111)|
-                 ({3{satp_mode == `SATP_MODE_SV57}} & 6'b011111)|
-                 ({3{satp_mode == `SATP_MODE_SV64}} & 6'b111111);
+        spage <= ({6{satp_mode == `SATP_MODE_SV32}} & 6'b000011)|
+                 ({6{satp_mode == `SATP_MODE_SV39}} & 6'b000111)|
+                 ({6{satp_mode == `SATP_MODE_SV48}} & 6'b001111)|
+                 ({6{satp_mode == `SATP_MODE_SV57}} & 6'b011111)|
+                 ({6{satp_mode == `SATP_MODE_SV64}} & 6'b111111);
 `endif
     end
     else if (m_axi_intf.rvalid && m_axi_intf.rlast) begin
@@ -319,23 +320,24 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        vpn_latch <= 37'b0;
+        vpn_latch <= 46'b0;
     end
     else if (cur_state == STATE_CHECK) begin
 `ifdef RV32
         vpn_latch[19:0] <= {va_latch[12+:10], va_latch[22+:10]};
 `else
-        vpn_latch <= ({37{satp_mode_latch == `SATP_MODE_SV32}} & {17'b0, va_latch[12+:10], va_latch[22+:10]}) |
-                     ({37{satp_mode_latch == `SATP_MODE_SV39}} & {9'b0, va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], 1'b0}) |
-                     ({37{satp_mode_latch == `SATP_MODE_SV48}} & {va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], va_latch[39+:9], 1'b0});
+        vpn_latch <= ({46{satp_mode_latch == `SATP_MODE_SV32}} & {26'b0, va_latch[12+:10], va_latch[22+:10]}) |
+                     ({46{satp_mode_latch == `SATP_MODE_SV39}} & {18'b0, va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], 1'b0}) |
+                     ({46{satp_mode_latch == `SATP_MODE_SV48}} & {9'b0,  va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], va_latch[39+:9], 1'b0}) |
+                     ({46{satp_mode_latch == `SATP_MODE_SV57}} & {va_latch[12+:9], va_latch[21+:9], va_latch[30+:9], va_latch[39+:9], va_latch[48+:9], 1'b0});
 `endif
     end
     else if (m_axi_intf.rvalid && m_axi_intf.rlast) begin
 `ifdef RV32
         vpn_latch[19:0] <= {10'b0, vpn_latch[10+:10]};
 `else
-        vpn_latch <= ({37{~satp_mode_latch[3]}} & {10'b0, vpn_latch[36:10]}) |
-                     ({37{ satp_mode_latch[3]}} & { 9'b0, vpn_latch[36:10], 1'b0});
+        vpn_latch <= ({46{~satp_mode_latch[3]}} & {10'b0, vpn_latch[45:10]}) |
+                     ({46{ satp_mode_latch[3]}} & { 9'b0, vpn_latch[45:10], 1'b0});
 `endif
     end
 end
@@ -374,8 +376,8 @@ always_ff @(posedge clk or negedge rstn) begin
 end
 
 always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn)         va_latch <= 56'b0;
-    else if (va_valid) va_latch <= {8'b0, va};
+    if (~rstn)         va_latch <= 57'b0;
+    else if (va_valid) va_latch <= va[56:0];
 end
 
 always_ff @(posedge clk or negedge rstn) begin
@@ -447,12 +449,14 @@ assign pa_pre       = ~va_en                  ? {{32{rv64_mode}} & va[32+:32], v
                                                 {{32{pte_ppn[21]}}, pte_ppn[21:10], spage[0] ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]};
 `else
                       cur_state == STATE_IDLE ? (({64{~satp_mode[3]}} & {{32{last_pte_ppn[21]}}, last_pte_ppn[21:10], last_spage[0] ? va[12+:10] : last_pte_ppn[0+:10], va[11:0]})|
-                                                 ({64{ satp_mode[3]}} & {{ 8{last_pte_ppn[43]}}, last_pte_ppn[43:27],
+                                                 ({64{ satp_mode[3]}} & {{ 8{last_pte_ppn[43]}}, last_pte_ppn[43:36],
+                                                                         last_spage[3] ? va[39+: 9] : last_pte_ppn[27+: 9],
                                                                          last_spage[2] ? va[30+: 9] : last_pte_ppn[18+: 9],
                                                                          last_spage[1] ? va[21+: 9] : last_pte_ppn[ 9+: 9],
                                                                          last_spage[0] ? va[12+: 9] : last_pte_ppn[ 0+: 9], va[11:0]})):
                                                 (({64{~satp_mode[3]}} & {{32{pte_ppn[21]}}, pte_ppn[21:10], spage[0] ? va_latch[21:12] : pte_ppn[9:0], va_latch[11:0]})|
-                                                 ({64{ satp_mode[3]}} & {{ 8{pte_ppn[43]}}, pte_ppn[43:27],
+                                                 ({64{ satp_mode[3]}} & {{ 8{pte_ppn[43]}}, pte_ppn[43:36],
+                                                                         spage[3] ? va_latch[39+: 9] : pte_ppn[27+: 9],
                                                                          spage[2] ? va_latch[30+: 9] : pte_ppn[18+: 9],
                                                                          spage[1] ? va_latch[21+: 9] : pte_ppn[ 9+: 9],
                                                                          spage[0] ? va_latch[12+: 9] : pte_ppn[ 0+: 9], va_latch[11:0]}));
@@ -465,10 +469,11 @@ assign va_en        = (prv_post  < `PRV_M && satp_mode       != `SATP_MODE_NONE 
 assign vpn[19:0]    = va[12+:20];
 assign last_hit     = last_va_en && va_en && last_vpn[19:0] == {vpn[19:10], vpn[9:0] & {10{~last_spage[0]}}};
 `else
-assign vpn          = va[12+:36];
+assign vpn          = va[12+:45];
 assign last_hit     = last_va_en && va_en &&
                       ((~satp_mode[3] && last_vpn[19:0] == {vpn[19:10], vpn[9:0] & {10{~last_spage[0]}}}) ||
-                       ( satp_mode[3] && last_vpn == {vpn[27+:9],
+                       ( satp_mode[3] && last_vpn == {vpn[36+:9],
+                                                      vpn[27+:9] & {9{~last_spage[3]}},
                                                       vpn[18+:9] & {9{~last_spage[2]}},
                                                       vpn[ 9+:9] & {9{~last_spage[1]}},
                                                       vpn[ 0+:9] & {9{~last_spage[0]}}}));
@@ -496,8 +501,8 @@ end
 
 always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-        last_vpn       <= 36'b0;
-        last_spage     <= 3'b0;
+        last_vpn       <= 45'b0;
+        last_spage     <= 4'b0;
         last_pte_ppn   <= 44'b0;
         last_pte_rsw   <= 2'b0;
         last_pte_d     <= 1'b0;
@@ -514,8 +519,9 @@ always_ff @(posedge clk or negedge rstn) begin
 `ifdef RV32
             last_vpn[19:0] <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out[0]}}};
 `else
-            last_vpn       <= ({36{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out[0]}}}) |
-                              ({36{ satp_mode_latch[3]}} & {va_latch[39+:9],
+            last_vpn       <= ({45{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_out[0]}}}) |
+                              ({45{ satp_mode_latch[3]}} & {va_latch[48+:9],
+                                                            va_latch[39+:9] & {9{~tlb_spage_out[3]}},
                                                             va_latch[30+:9] & {9{~tlb_spage_out[2]}},
                                                             va_latch[21+:9] & {9{~tlb_spage_out[1]}},
                                                             va_latch[12+:9] & {9{~tlb_spage_out[0]}}});
@@ -536,8 +542,9 @@ always_ff @(posedge clk or negedge rstn) begin
 `ifdef RV32
             last_vpn[19:0] <= {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}};
 `else
-            last_vpn       <= ({36{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}}) |
-                              ({36{ satp_mode_latch[3]}} & {va_latch[39+:9],
+            last_vpn       <= ({45{~satp_mode_latch[3]}} & {va_latch[22+:10], va_latch[12+:10] & {10{~tlb_spage_in[0]}}}) |
+                              ({45{ satp_mode_latch[3]}} & {va_latch[48+:9],
+                                                            va_latch[39+:9] & {9{~tlb_spage_in[3]}},
                                                             va_latch[30+:9] & {9{~tlb_spage_in[2]}},
                                                             va_latch[21+:9] & {9{~tlb_spage_in[1]}},
                                                             va_latch[12+:9] & {9{~tlb_spage_in[0]}}});

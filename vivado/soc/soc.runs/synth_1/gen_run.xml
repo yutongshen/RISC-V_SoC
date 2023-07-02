@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xc7z020clg400-1" LaunchTime="1687174640">
+<GenRun Id="synth_1" LaunchPart="xc7z020clg400-1" LaunchTime="1688176714">
   <File Type="VDS-TIMING-PB" Name="soc_wrapper_timing_summary_synth.pb"/>
   <File Type="VDS-TIMINGSUMMARY" Name="soc_wrapper_timing_summary_synth.rpt"/>
   <File Type="RDS-DCP" Name="soc_wrapper.dcp"/>
@@ -55,7 +55,7 @@
     <File Path="$PSRCDIR/utils_1/imports/impl_1/soc_wrapper_routed.dcp">
       <FileInfo>
         <Attr Name="ImportPath" Val="$PRUNDIR/impl_1/soc_wrapper_routed.dcp"/>
-        <Attr Name="ImportTime" Val="1687174600"/>
+        <Attr Name="ImportTime" Val="1688148897"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedInSteps" Val="impl_1"/>
@@ -67,8 +67,13 @@
     </Config>
   </FileSet>
   <Strategy Version="1" Minor="2">
-    <StratHandle Name="Vivado Synthesis Defaults" Flow="Vivado Synthesis 2018"/>
-    <Step Id="synth_design"/>
+    <StratHandle Name="Flow_AreaOptimized_high" Flow="Vivado Synthesis 2018">
+      <Desc>Performs general area optimizations including changing the threshold for control set optimizations, forcing ternary adder implementation, applying lower thresholds for use of carry chain in comparators and also area optimized mux optimizations.</Desc>
+    </StratHandle>
+    <Step Id="synth_design">
+      <Option Id="Directive">1</Option>
+      <Option Id="ControlSetOptThreshold">1</Option>
+    </Step>
   </Strategy>
   <BlockFileSet Type="BlockSrcs" Name="soc_processing_system7_0_0"/>
   <BlockFileSet Type="BlockSrcs" Name="soc_smartconnect_0_0"/>

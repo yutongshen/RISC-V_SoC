@@ -112,6 +112,7 @@ __U8 __fopen(__FILE *__file, const char *__fname) {
     __U16 i = 0, j;
     __U32 tmp;
     __U8  eof;
+    __U8  msg[6+12] = "  ... ";
 
     while (i < 8 && *__fname && *__fname != '.')
         fname[i++] = *__fname++ & ~0x20;
@@ -129,8 +130,20 @@ __U8 __fopen(__FILE *__file, const char *__fname) {
         if (!__sd_readblk(__file->bpb->data_base + j, buff)) return 0;
         
         while (i < 512) {
+            // Check dir list end
+            if (!buff[i])
+                return 0;
+            // Check long file name
+            if (!buff[i+2] || buff[i] == 0xe5) {
+                i += 0x20;
+                continue;
+            }
+            __memcpy(msg+6, buff+i, 11);
+            msg[17] = 0;
+            __puts(msg);
             // Check existence / fname / subfname
-            if (buff[i] == 0xe5 || __strcmp(&buff[i], fname, 8) || __strcmp(&buff[i+8], subfname, 3)) {
+            if (__strcmp(&buff[i], fname, 8) ||
+                __strcmp(&buff[i+8], subfname, 3)) {
                 i += 0x20;
                 continue;
             }

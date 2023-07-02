@@ -34,7 +34,7 @@
             d-tlb-sets = <32>;
             d-tlb-size = <128>;
             riscv,isa = "rv64imacfd";
-            mmu-type = "riscv,sv48";
+            mmu-type = "riscv,sv39";
             riscv,pmpregions = <16>;
             riscv,pmpgranularity = <4>;
             clock-frequency = <33000000>;
@@ -152,9 +152,9 @@
 
     chosen {
         riscv,kernel-start = <0x0 0x80200000>;
-        riscv,kernel-end   = <0x0 0x87000000>;
+        riscv,kernel-end   = <0x0 0x90000000>;
         /* bootargs = "root=/dev/srda rw console=ttySIF0"; */
-        bootargs = "root=/dev/mmcblk0p2 rw console=ttySIF0 rootwait";
+        bootargs = "root=/dev/mmcblk0p2 rw console=ttySIF0 rootwait earlyprintk no5lvl";
         stdout-path = "uart0@10001000";
         linux,platform = <0x00000600>;
     };
